@@ -1,0 +1,366 @@
+:root {
+    --main-color--green: #4bbf24;
+    --main-color--yellow: #efdd13;
+}
+.counter {
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+    text-align: center;
+    padding: 22px 0 0;
+    margin: 0 10px;
+    position: relative;
+}
+.counter:before {
+    content: "";
+    border: 2px solid #575757;
+    border-radius: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    z-index: 1;
+}
+.counter .counter-icon {
+    color: #00a69c;
+    font-size: 40px;
+    margin: 0 0 22px;
+}
+.counter .counter-content {
+    background-color: rgba(0, 166, 156, 0.9);
+    padding: 26px 18px 20px;
+    border-radius: 0 0 10px 10px;
+    position: relative;
+}
+.counter .counter-content:before {
+    content: "";
+    background-color: #00a69c;
+    width: 25px;
+    height: 25px;
+    transform: translateX(-50%) rotate(45deg);
+    position: absolute;
+    left: 50%;
+    top: -13px;
+}
+.counter h3 {
+    font-size: 16px;
+    font-weight: 400;
+    text-transform: capitalize;
+    margin: 0 0 8px;
+}
+.counter .counter-value {
+    font-size: 30px;
+    font-weight: 500;
+}
+.counter.red .counter-icon {
+    color: #e44c4b;
+}
+.counter.red .counter-content,
+.counter.red .counter-content:before {
+    background-color: rgba(228, 76, 75, 0.9);
+}
+.counter.green .counter-icon {
+    color: var(--main-color--green);
+}
+.counter.green .counter-content,
+.counter.green .counter-content:before {
+    background-color: var(--main-color--green);
+}
+.counter-content h3 {
+    color: rgb(255, 255, 255);
+    font-weight: 900;
+}
+
+.counter.yellow .counter-icon {
+    color: #010101;
+}
+.counter.yellow .counter-content,
+.counter.yellow .counter-content:before {
+    background-color: #efdd13;
+}
+
+.counter.blue .counter-icon {
+    color: #027981;
+}
+.counter.blue .counter-content,
+.counter.blue .counter-content:before {
+    background-color: rgba(2, 121, 129, 0.9);
+}
+.counter.purple .counter-icon {
+    color: #3e6491;
+}
+.counter.purple .counter-content,
+.counter.purple .counter-content:before {
+    background-color: rgba(62, 100, 145, 0.9);
+}
+@media screen and (max-width: 990px) {
+    .counter {
+        margin-bottom: 40px;
+    }
+}
+
+.date-vertical {
+    /* writing-mode: vertical-lr; 
+    transform: rotate(180deg); 
+    white-space: nowrap;  */
+    text-align: center;
+}
+.more-info {
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.sponsorship-nature p {
+    font-size: 18px;
+    font-weight: bolder;
+    cursor: pointer;
+    padding-left: 10px;
+    text-align: left;
+}
+.sponsorship-nature .icon {
+    color: var(--main-color--green);
+}
+
+/* Styling for the popover content */
+.fancybox-content {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 300px; /* Adjust the maximum width as needed */
+    color: #333;
+    font-family: Arial, sans-serif;
+}
+
+/* Styling for the popover close button (optional) */
+.fancybox-close {
+    color: #777;
+    font-size: 20px;
+    top: -15px;
+    right: -15px;
+    background-color: transparent;
+    border: none;
+}
+
+/* Styling for the popover close button icon (optional) */
+.fancybox-close::before {
+    content: "\00d7"; /* Unicode character for the 'x' icon */
+}
+
+/* Styling for the overlay (optional) */
+.fancybox-bg {
+    background-color: rgba(0, 0, 0, 0.8); /* Dark semi-transparent background */
+}
+.popover-content-inner .title {
+    font-weight: 600;
+    color: var(--main-color--green);
+}
+.popover-content-inner p {
+    text-align: justify;
+    letter-spacing: auto;
+}
+.popover-content-inner p {
+    content: "";
+    display: inline-block;
+    width: 100%;
+}
+
+.popover-content-inner button {
+    float: right;
+}
+
+/* Loader styles */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.651);
+    display: none;
+    z-index: 9999; /* Ensure the loader appears on top of other content */
+}
+
+.form_loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 5px solid #f3f3f393; /* Light grey */
+    border-top: 5px solid var(--main-color--green); /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+.sponsor_btn {
+    padding: 5px;
+    background-color: var(--main-color--green);
+    cursor: pointer;
+    border-radius: 10px;
+    color: white;
+    text-transform: uppercase;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+.sust-reports-container{
+    border-top:1px var(--main-color--green) solid;
+    padding-left: 10px;
+    width: 100%;
+}
+
+.sust-reports-container .reports-container{
+    padding: 10px  10px 10px 10px;
+}
+
+.sust-reports-container .sust-reports h4{
+    font-weight: 700;
+    margin-top: 10px ;
+    font-size: 1.5rem;
+}
+
+.sust-reports-container .sust-reports h5{
+    font-weight: 700;
+    margin-top: 10px ;
+    font-size: 19px;
+    border-radius: 6    px;
+    color: white;
+    padding: 5px;
+    background-color: var(--main-color--green);
+}
+.report-row-container{
+    padding: 5px;
+    border-bottom: 1px grey solid;
+}
+
+.report-row-container .report-row-btn {
+    /* Your button styles here */
+    border: 1px solid var(--main-color--green); /* Start with a transparent border */
+    background: linear-gradient(to right, var(--main-color--yellow), var(--main-color--yellow)) no-repeat;
+    background-size: 0% 100%;
+    padding: 5px;
+    border-radius: 5px; 
+    cursor: pointer;
+    background-position: left center;
+    color: black;
+    text-decoration: none;
+    transition: background-size 0.5s; /* Apply a transition effect to the background */
+}
+
+
+.report-row-container .report-row-btn:hover {
+    background-size: 100% 100%; /* Expand the background fully on hover */
+    border: 1px solid var(--main-color--yellow); /* Apply the desired border color on hover */
+}
+
+.volunteer-container{
+    background-color: #e4e4e452;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.volunteer-container h5{
+    float: left;
+}
+
+.couresel-caption{
+    color: #575757;
+    opacity: 0.5;
+    font-style: italic;
+}
+
+.btn-custom{
+    background-color: var(--main-color--green) !important;
+    border: 1px var(--main-color--green) solid !important;
+    float: right;
+}
+
+.top{
+    max-height: 234px;
+    height: 234px;
+    overflow: hidden;
+}
+
+@media (max-width: 575px) {
+    .top {
+    max-height: 296px;
+    height: 290px;
+    }
+}
+
+.btn-float {
+    position: fixed;
+    top: 30%;
+    left: 0px;
+    z-index: 999;
+}
+.floated_div{
+    background-color: white;
+    padding-top: 5px;
+    padding-bottom: 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 0px 10px 10px 0px;
+}
+.custom-links ul{
+padding-left: 0px;
+}
+.custom-links ul li{
+    list-style: none;
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 2px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    background-color: var(--main-color--green);
+}
+.custom-links ul li a{
+    text-decoration: none;
+    list-style: none;
+    margin: 10px;
+    padding-right: 5px;
+    color: #fff;
+}
+
+/* Custom pagination styles */
+.pagination-wrapper {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination-wrapper .pagination {
+    display: inline-flex;
+}
+
+.pagination-wrapper .page-item {
+    margin: 0 5px;
+}
+
+.pagination-wrapper .page-link {
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: #007bff;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination-wrapper .page-link:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+
+
+
+

@@ -1,0 +1,111 @@
+/* resources/css/birthday_animation.css */
+
+#birthday-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(235, 235, 235, 0.467);
+    z-index: 9999;
+    display: block;
+    align-items: center;
+    justify-content: center;
+}
+
+#birthday {
+    display: block;
+}
+#birthday {
+    z-index: 0; /* Ensures balloons are behind the card */
+}
+
+#birthday-card {
+    z-index: 1; /* Ensures card is on top of balloons */
+}
+
+/* Adjust positioning of close button */
+#close-animation {
+    z-index: 2; /* Ensures close button is on top of everything */
+}
+
+/* Adjust positioning of "Don't show again today" button */
+#dont-show-again {
+    z-index: 2; /* Ensures button is on top of everything */
+}
+
+
+
+/* h1 {
+    color: #fff;
+    font-family: "Source Sans Pro";
+    font-size: 5em;
+    font-weight: 900;
+    -webkit-user-select: none;
+    user-select: none;
+    text-align: center;
+} */
+
+#close-animation {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--main-color--green);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#dont-show-again {
+    background-color: var(--main-color--green);
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#dont-show-again:hover {
+    background-color: #45a049;
+}
+
+#birthday-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.child-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    max-width: 200px;
+}
+
+.child-card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.child-card h2 {
+    font-size: 1.5em;
+}
+
+.donate-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.donate-button:hover {
+    background-color: #45a049;
+}
