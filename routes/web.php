@@ -53,8 +53,6 @@ Route::middleware(['web'])->group(function () {
 Auth::routes();
 
 // Authenticated routes
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/newchild', [AdminController::class, 'newchild_index'])->name('newchild.index');
