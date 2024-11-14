@@ -17,6 +17,6 @@ yarn-error.log
 /.vscode
 
 # Ignore uploads folder
-public/uploads/
+# public/uploads/
 
 comments.md
