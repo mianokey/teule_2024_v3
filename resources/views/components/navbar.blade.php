@@ -1,3 +1,10 @@
+<div class="scrolling-container">
+    <div class="scrolling-text-wrapper">
+      <p>GIVING TUESDAY 2024! ON DECEMBER 3RD, 2024, TEULE AIMS TO RAISE $25,000.</p>
+      <p>WE NEED YOUR HELP TO SUPPORT THE PURCHASE OF A SCHOOL BUS AND FUND OUR COMMUNITY PROGRAMS.</p>
+      <p>WE ARE SEEKING MATCHING PARTNERS TO DOUBLE OUR IMPACT. CONTACT US AT teuleusa@teulekenya.org!</p>
+    </div>
+</div>   
 <div class="navbar-area sticky-top mb-4 mb-md-0">
     <div class="mobile-nav">
         <a href="index.html" class="logo">

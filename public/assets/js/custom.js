@@ -358,3 +358,21 @@ document.addEventListener("DOMContentLoaded", function () {
         img.setAttribute("loading", "lazy");
     });
 });
+
+window.onload = function () {
+    const wrapper = document.querySelector('.scrolling-text-wrapper');
+    const separator = ' ♥ '; // Customize separator
+  
+    // Automatically append the separator between <p> elements
+    const paragraphs = wrapper.querySelectorAll('p');
+    paragraphs.forEach((p, index) => {
+      if (index < paragraphs.length - 1) {
+        const separatorSpan = document.createElement('span');
+        separatorSpan.textContent = separator;
+        separatorSpan.style.color = 'red'; // Style the separator
+        p.appendChild(separatorSpan);
+      }
+    });
+  };
+  
+  
