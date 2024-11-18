@@ -360,6 +360,41 @@ padding-left: 0px;
     border-color: #007bff;
 }
 
+.impact-carousel .carousel-item {
+    text-align: center;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.impact-carousel .counter {
+    padding: 15px;
+}
+
+.impact-carousel .owl-dots {
+    margin-top: 15px;
+}
+
+.impact-carousel .owl-dot {
+    width: 12px;
+    height: 12px;
+    background: #ccc;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.impact-carousel .owl-dot.active {
+    background: #efdd13; /* Highlight the active dot */
+}
+
+.impact-carousel .carousel-item img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
 
 
 

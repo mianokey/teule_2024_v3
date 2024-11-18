@@ -27,7 +27,7 @@
                     <li>
 
                         <a>
-                            CHASE BANK
+                            VIA ZELLE
                             <i class="icofont-plus"></i>
                             <i class="icofont-minus two"></i>
                         </a>

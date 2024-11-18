@@ -374,5 +374,19 @@ window.onload = function () {
       }
     });
   };
+
+
+  $(document).ready(function(){
+    $(".impact-carousel").owlCarousel({
+      loop: true,             // Infinite looping
+      margin: 10,             // Space between items
+      nav: false,             // Disable arrows
+      dots: true,             // Enable dots
+      autoplay: true,         // Enable autoplay
+      autoplayTimeout: 3000,  // Time between slides (ms)
+      items: 1                // Display one item at a time
+    });
+  });
+
   
   
