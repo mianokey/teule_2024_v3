@@ -94,6 +94,17 @@ jQuery(
             autoplayTimeout: 3000,
             autoplayHoverPause: true,
         });
+        $(".home-slider").owlCarousel({
+            items: 1,
+            loop: true,
+            margin: 20,
+            nav: false,
+            dots: true,
+            smartSpeed: 1000,
+            autoplay: true,
+            autoplayTimeout: 3000,
+            autoplayHoverPause: true,
+        });
 
         $(".accordion > li:eq(0) a").addClass("active").next().slideDown();
         $(".accordion a").on("click", function (j) {
