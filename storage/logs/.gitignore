@@ -3,4 +3,4 @@
 laravel.log
 public/uploads/
 .env
-
+storage/logs/
