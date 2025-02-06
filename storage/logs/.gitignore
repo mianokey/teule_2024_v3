@@ -1,3 +1,6 @@
 *
 !.gitignore
 laravel.log
+public/uploads/
+.env
+
