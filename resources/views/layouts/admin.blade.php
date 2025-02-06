@@ -4,14 +4,16 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">.
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>TEULE KENYA || ADMIN</title>
 
     <link rel="shortcut icon" href="{{ asset('.../assets/img/logo.png') }}" />
     <link rel="stylesheet" href="{{ asset('admin-assets/css/backend-plugin.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/css/backend.css?v=1.0.0') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin-assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('admin-assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/remixicon/fonts/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/@icon/dripicons/dripicons.css') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/fullcalendar/core/main.css') }}" />
@@ -20,6 +22,10 @@
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/fullcalendar/list/main.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/mapbox/mapbox-gl.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include Selectize CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
 
 </head>
 
@@ -35,8 +41,10 @@
         <div class="mm-sidebar  sidebar-default ">
             <div class="mm-sidebar-logo d-flex align-items-center justify-content-between">
                 <a href="index.html" class="header-logo">
-                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal light-logo" alt="logo">
-                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal darkmode-logo" alt="logo">
+                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal light-logo"
+                        alt="logo">
+                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal darkmode-logo"
+                        alt="logo">
                 </a>
                 <div class="side-menu-bt-sidebar">
                     <i class="fa fa-bars  wrapper-menu"></i>
@@ -46,16 +54,16 @@
                 <nav class="mm-sidebar-menu">
                     <ul id="mm-sidebar-toggle" class="side-menu">
                         <li class>
-                            <a  class="collapsed svg-icon" data-toggle="collapse"
-                                aria-expanded="false">
+                            <a class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
                                 <i class>
                                     <svg class="svg-icon" id="mm-dash" width="20" xmlns="http://www.w3.org/2000/svg"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
                                 </i>
                                 <span class="ml-2">Dashboards</span>
-                               
+
                             </a>
                             <ul id="Dashboards" class=" collapse" data-parent="#mm-sidebar-toggle">
                                 <li class>
@@ -75,8 +83,7 @@
                         </li>
 
                         <li class>
-                            <a href="#Children" class="collapsed svg-icon" data-toggle="collapse"
-                                aria-expanded="false">
+                            <a href="#Children" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
                                 <i class>
                                     <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,8 +112,7 @@
                             </ul>
                         </li>
                         <li class>
-                            <a href="#System" class="collapsed svg-icon" data-toggle="collapse"
-                                aria-expanded="false">
+                            <a href="#System" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
                                 <i class>
                                     <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,12 +138,71 @@
                                     </a>
                                 </li>
 
-                               
-                               
+
+
                             </ul>
                         </li>
-                        <li class>
-                            <a href="#users" class="collapsed svg-icon" data-toggle="collapse"
+                        @if(auth()->user()->can('MAKE REQUISITION'))
+                        <li class="nav-item">
+                            <a href="#requisition" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
+                                <i class="fa fa-user">
+
+                                </i>
+                                <span class="ml-2">Roles & Permissions</span>
+                                <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+                            </a>
+                            <ul id="requisition" class="submenu collapse" data-parent="#mm-sidebar-toggle">
+                                <!-- All Users List -->
+                                <li>
+                                    <a href="{{ route('admin.user.index') }}" class="svg-icon">
+                                        <i class="fa fa-asterisk"></i>
+                                        <span>All Users List</span>
+                                    </a>
+                                </li>
+                                <!-- New User -->
+                                <li>
+                                    <a href="{{ route('admin.user.create') }}" class="svg-icon">
+                                        <i class="fa fa-asterisk"></i>
+                                        <span>New User</span>
+                                    </a>
+                                </li>
+                                <!-- Manage Roles -->
+                                <li>
+                                    <a href="{{ route('admin.roles.index') }}" class="svg-icon">
+                                        <i class="fa fa-shield"></i>
+                                        <span>Manage Roles</span>
+                                    </a>
+                                </li>
+                                <!-- Create Role -->
+                                <li>
+                                    <a href="{{ route('admin.roles.create') }}" class="svg-icon">
+                                        <i class="fa fa-plus-circle"></i>
+                                        <span>Create Role</span>
+                                    </a>
+                                </li>
+                                <!-- Manage Permissions -->
+                                <li>
+                                    <a href="{{ route('admin.permissions.index') }}" class="svg-icon">
+                                        <i class="fa fa-key"></i>
+                                        <span>Manage Permissions</span>
+                                    </a>
+                                </li>
+                                <!-- Create Permission -->
+                                <li>
+                                    <a href="{{ route('admin.permissions.create') }}" class="svg-icon">
+                                        <i class="fa fa-plus-circle"></i>
+                                        <span>Create Permission</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        @endif
+
+                        @if(auth()->user()->can('MAKE REQUISITION'))
+                        <li class="nav-item">
+                            <a href="#roles_perm" class="collapsed svg-icon" data-toggle="collapse"
                                 aria-expanded="false">
                                 <i class>
                                     <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
@@ -146,29 +211,33 @@
                                             d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
                                     </svg>
                                 </i>
-                                <span class="ml-2">Users</span>
+                                <span class="ml-2">Petty Cash</span>
                                 <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
-                                <i class="fa fa-arrow-down   mm-arrow-right arrow-hover"></i>
+                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
                             </a>
-                            <ul id="users" class="submenu collapse" data-parent="#mm-sidebar-toggle">
-                                <li class>
+                            <ul id="roles_perm" class="submenu collapse" data-parent="#mm-sidebar-toggle">
+                                <!-- All Users List -->
+                                <li>
                                     <a href="{{ route('admin.user.index') }}" class="svg-icon">
                                         <i class="fa fa-asterisk"></i>
-                                        <span>All Users List</span>
-                                    </a>
-                                </li>
-                                <li class>
-                                    <a href="{{ route('admin.user.create') }}" class="svg-icon">
-                                        <i class="fa fa-asterisk"></i>
-                                        <span>New User</span>
+                                        <span>All Petty Cash</span>
                                     </a>
                                 </li>
 
+                                <li>
+                                    <a href="{{ route('admin.pettycash.create') }}" class="svg-icon">
+                                        <i class="fa fa-plus-circle"></i>
+                                        <span>Request</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
+                        @endif
+
+
                     </ul>
                 </nav>
-                
+
                 <div class="pt-5 pb-2"></div>
             </div>
         </div>
@@ -178,7 +247,8 @@
                     <div class="mm-navbar-logo d-flex align-items-center justify-content-between">
                         <i class="ri-menu-line wrapper-menu"></i>
                         <a href="index.html" class="header-logo">
-                            <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal darkmode-logo" alt="logo">
+                            <img src="{{ asset('../assets/img/logo.png') }}"
+                                class="img-fluid rounded-normal darkmode-logo" alt="logo">
                             <h4 class="ml-1"><b>TEULE KENYA</b></h4>
                         </a>
                     </div>
@@ -269,7 +339,8 @@
                                                         <div class="media align-items-center">
                                                             <div class>
                                                                 <img class="avatar-40 rounded-small"
-                                                                    src="{{asset('admin-assets/images/user/1.jpg')}}" alt="01">
+                                                                    src="{{asset('admin-assets/images/user/1.jpg')}}"
+                                                                    alt="01">
                                                             </div>
                                                             <div class="media-body ml-3">
                                                                 <h6 class="mb-0">Barry Emma Watson <small
@@ -363,7 +434,8 @@
                                                         <div class="media align-items-center">
                                                             <div class>
                                                                 <img class="avatar-40 rounded-small"
-                                                                    src="{{asset('admin-assets/images/user/1.jpg')}}" alt="01">
+                                                                    src="{{asset('admin-assets/images/user/1.jpg')}}"
+                                                                    alt="01">
                                                             </div>
                                                             <div class="media-body ml-3">
                                                                 <h6 class="mb-0">Emma Watson Barry <small
@@ -446,8 +518,8 @@
                                     <a href="#" class="nav-item nav-icon dropdown-toggle pr-0 search-toggle"
                                         id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
-                                        <img  src="{{asset('admin-assets/images/user/1.jpg')}}" class="img-fluid avatar-rounded"
-                                            alt="user">
+                                        <img src="{{asset('admin-assets/images/user/1.jpg')}}"
+                                            class="img-fluid avatar-rounded" alt="user">
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
                                         <li class="dropdown-item d-flex svg-icon">
@@ -503,15 +575,17 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                             </svg>
-                                           
-                                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+
+                                            <a href="{{ route('logout') }}"
+                                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                                 Logout
                                             </a>
-                                            
-                                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+
+                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                                style="display: none;">
                                                 @csrf
                                             </form>
-                                            
+
                                         </li>
                                     </ul>
                                 </li>
@@ -532,7 +606,7 @@
         </div>
     </div>
 
- 
+
     <script src="{{ asset('admin-assets/js/backend-bundle.min.js') }}"></script>
 
     <script src="{{ asset('admin-assets/js/flex-tree.min.js') }}"></script>
@@ -567,6 +641,8 @@
 
     <script src="{{ asset('admin-assets/js/app.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Include Selectize JS -->
+    <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
 
 </body>
 

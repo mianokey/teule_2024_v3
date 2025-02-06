@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class AdminController extends Controller
 {
@@ -274,9 +275,13 @@ class AdminController extends Controller
     {
         // Get users with their details
         $users = User::with('details')->get();
-
-        return view('admin.user.index', compact('users'));
+        
+        // Get all roles (or filter as necessary)
+        $roles = Role::all();
+    
+        return view('admin.user.index', compact('users', 'roles'));
     }
+    
     public function user_edit($id)
     {
         $user = User::findOrFail($id);
@@ -413,4 +418,43 @@ class AdminController extends Controller
     }
 }
 
+
+public function updateRoles(Request $request, $userId)
+{
+    // Validate the incoming request to ensure role_id is valid
+    $request->validate([
+        'role_id' => 'required|exists:roles,id',  // Validate the role ID
+    ]);
+
+    try {
+        // Find the user and the role by their IDs
+        $user = User::findOrFail($userId);
+        $role = Role::findOrFail($request->role_id);
+
+        // Sync the role to the user (this removes old roles and assigns the new one)
+        $user->syncRoles([$role->name]);
+
+        // Sync the permissions related to the role to the user
+        $permissions = $role->permissions;  // Get the permissions related to the role
+        $user->permissions()->sync($permissions->pluck('id')->toArray());  // Sync the permissions
+
+        // Return a success response
+        return response()->json([
+            'success' => true,
+            'message' => 'Role and permissions updated successfully'
+        ]);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        // Handle cases where user or role is not found
+        return response()->json([
+            'success' => false,
+            'message' => 'User or Role not found'
+        ]);
+    } catch (\Exception $e) {
+        // Catch any other errors and return the error message
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ]);
+    }
+}
 }

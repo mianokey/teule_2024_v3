@@ -15,6 +15,7 @@
                     <th>Email</th>
                     <th>Position</th>
                     <th>Image</th>
+                    <th>Role</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -25,18 +26,33 @@
                     <td>{{ $user->email }}</td>
                     <td>
                         @if ($user->details && $user->details->where('key', 'position')->first())
-                            {{ $user->details->where('key', 'position')->first()->value }}
+                        {{ $user->details->where('key', 'position')->first()->value }}
                         @else
-                            No position found
+                        No position found
                         @endif
                     </td>
                     <td>
-                        @php
+                        <!-- Image visibility toggle -->
+                        <button class="btn btn-sm btn-info toggle-img-btn" data-user-id="{{ $user->id }}">
+                            <i class="fa fa-eye"></i> View Image
+                        </button>
+                        <div id="user-img-{{ $user->id }}" style="display: none;">
+                            @php
                             $imgUrl = $user->details->where('key', 'img_url')->first();
-                        @endphp
-
-                        <img src="{{ asset($imgUrl->value) }}" height="90" alt="{{ $user->name }} image">
-
+                            @endphp
+                            <img src="{{ asset($imgUrl->value) }}" height="90" alt="{{ $user->name }} image">
+                        </div>
+                    </td>
+                    <td>
+                        <select class="form-control change-role" data-user-id="{{ $user->id }}" 
+                            @if(!auth()->user()->can('MANAGE PERMISSIONS')) disabled @endif>
+                        @foreach ($roles as $role)
+                            <option value="{{ $role->id }}" @if($user->hasRole($role->name)) selected @endif>
+                                {{ $role->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    
                     </td>
                     <td>
                         <button class="btn btn-info btn-sm mr-2 view-details-btn" data-name="{{ $user->name }}"
@@ -66,7 +82,6 @@
     <div class="popup-content">
         <span class="close-popup">&times;</span>
         <div class="row">
-            <!-- Left column for basic user information -->
             <div class="col-md-12">
                 <p><strong>Name:</strong> <span id="popup-name"></span></p>
                 <p><strong>Email:</strong> <span id="popup-email"></span></p>
@@ -79,7 +94,6 @@
 </div>
 
 <style>
-    /* Styles for the popup */
     .popup-details {
         display: none;
         position: fixed;
@@ -91,7 +105,6 @@
         overflow: auto;
         background-color: rgba(0, 0, 0, 0.4);
         padding-top: 80px;
-        /* Increased padding */
     }
 
     .popup-content {
@@ -100,7 +113,6 @@
         padding: 20px;
         border: 1px solid #888;
         width: 60%;
-        /* Reduced width */
         position: relative;
     }
 
@@ -112,49 +124,73 @@
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
-        z-index: 9999;
     }
 
-    .close-popup:hover,
-    .close-popup:focus {
+    .close-popup:hover {
         color: black;
-        text-decoration: none;
+    }
+
+    .toggle-img-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
         cursor: pointer;
+    }
+
+    .toggle-img-btn i {
+        margin-right: 5px;
     }
 </style>
 
 <script>
-    // JavaScript to handle showing/hiding the popup
-    const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
-
-    viewDetailsBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const { name, email } = btn.dataset;
-            const details = JSON.parse(btn.getAttribute('data-details'));
-
-            document.getElementById('popup-name').textContent = name;
-            document.getElementById('popup-email').textContent = email;
-            document.getElementById('popup-position').textContent = details.position;
-
-            const popupOtherDetails = document.getElementById('popup-other-details');
-            popupOtherDetails.innerHTML = ''; // Clear previous details
-
-            // Loop through details and add them to the popup
-            for (const key in details) {
-                if (key !== 'email' && key !== 'position') {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `<strong>${key}:</strong> ${details[key]}`;
-                    popupOtherDetails.appendChild(listItem);
-                }
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.toggle-img-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const imgDiv = document.getElementById('user-img-' + userId);
+            if (imgDiv.style.display === 'none') {
+                imgDiv.style.display = 'block';
+                this.innerHTML = '<i class="fa fa-eye-slash"></i> Hide Image';
+            } else {
+                imgDiv.style.display = 'none';
+                this.innerHTML = '<i class="fa fa-eye"></i> View Image';
             }
-
-            document.getElementById('popup-details').style.display = 'block';
         });
     });
 
-    // Close the popup when the close button is clicked
-    document.querySelector('.close-popup').addEventListener('click', () => {
-        document.getElementById('popup-details').style.display = 'none';
+    document.querySelectorAll('.change-role').forEach(select => {
+        select.addEventListener('change', function() {
+            const userId = this.getAttribute('data-user-id');
+            const roleId = this.value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                console.error('CSRF token meta tag not found.');
+                alert('An error occurred. Please reload the page and try again.');
+                return;
+            }
+            fetch(`/admin/user/${userId}/assign-role`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            },
+            body: JSON.stringify({ role_id: roleId })
+        })
+
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Role updated successfully');
+                } else {
+                    alert(data.message || 'Failed to update role');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the role.');
+            });
+        });
     });
+});
 </script>
 @endsection

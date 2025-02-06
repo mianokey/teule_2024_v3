@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnimationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PettycashController;
 use App\Http\Controllers\SustainabilityController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +72,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/user/{id}/edit', [AdminController::class, 'user_edit'])->name('admin.user.edit');
     Route::patch('/user/update/{id}', [AdminController::class, 'user_update'])->name('admin.user.update');
     Route::delete('/user/{id}/delete', [AdminController::class, 'user_delete'])->name('admin.user.delete');
+    Route::put('user/{userId}/assign-role', [AdminController::class, 'updateRoles'])->name('admin.user.updateRoles');
+
 });
 Route::middleware(['auth'])->prefix('admin/system')->group(function () {
     Route::get('/show', [AdminController::class, 'showSystemDetails'])->name('admin.system_details.index');
@@ -79,3 +84,27 @@ Route::middleware(['auth'])->prefix('admin/system')->group(function () {
     Route::put('/update/{id}', [AdminController::class, 'updateSystemDetails'])->name('admin.system_details.update');
 
 });
+
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Roles
+    Route::resource('/roles', RoleController::class);
+    Route::put('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+
+    // Permissions
+    Route::resource('/permissions', PermissionController::class);
+    
+
+    // Assign Role to User
+    Route::put('/users/{user}/roles', [AdminController::class, 'updateRoles'])->name('users.roles.update');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Roles
+    Route::resource('/pettycash', PettycashController::class);
+    Route::post('pettycash/addPayee', [PettyCashController::class, 'addPayee'])->name('pettycash.addPayee');
+
+});
+
+
