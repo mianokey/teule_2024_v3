@@ -1,8 +1,7 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
-      <p>GIVING TUESDAY 2024 WAS A SUCCESS! THANK YOU FOR HELPING US RAISE OVER $12,000!***</p>
-      <p>FROM ALL OF US AT TEULE WE WISH YOU A MERRY CHRISTMAS & A HAPPY NEW YEAR.</p>
-      <p>CONTACT US AT info@teulekenya.org||teuleusa@teulekenya.org!</p>
+        <p>THE JULY VOLUNTEER TRIP IS HAPPENING! IF YOU'RE INTERESTED,</p>
+        <p>PLEASE EMAIL DR. ANEITA AT DR.ANEITA@TEULEKENYA.ORG.</p>        
     </div>
 </div>   
 <div class="navbar-area sticky-top mb-4 mb-md-0">
