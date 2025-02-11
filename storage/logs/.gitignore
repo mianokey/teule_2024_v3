@@ -1,6 +1,11 @@
+# Ignore everything by default
 *
+
+# Don't ignore .gitignore itself
 !.gitignore
+
+# Ignore specific files and directories
 laravel.log
-public/uploads/
 .env
+public/uploads/
 storage/logs/
