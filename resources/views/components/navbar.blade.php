@@ -1,7 +1,7 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
         <p>THE JULY VOLUNTEER TRIP IS HAPPENING! IF YOU'RE INTERESTED,</p>
-        <p>PLEASE EMAIL DR. ANEITA AT DR.ANEITA@TEULEKENYA.ORG.</p>        
+        <p>PLEASE EMAIL US AT teuleusa@teulekenya.org</p>        
     </div>
 </div>   
 <div class="navbar-area sticky-top mb-4 mb-md-0">
