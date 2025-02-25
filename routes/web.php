@@ -49,7 +49,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/scholarship', [HomeController::class, 'scholarship'])->name('scholarship');
     Route::get('/error', [HomeController::class, 'showErrorPage'])->name('error');
     Route::post('/mark-animation-shown', [AnimationController::class, 'markAnimationShown'])->name('mark-animation-shown');
-
+    Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
 });
 
 // Auth routes

@@ -166,6 +166,12 @@ class HomeController extends Controller
     {
         return view('contact');
     }
+
+    public function careers()
+    {
+        return view('careers');
+    }
+
     public function contact_message(Request $request)
     {
         // Validate the form inputs

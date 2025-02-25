@@ -98,7 +98,9 @@
                         <li class="nav-item">
                             <a href="{{route('sponsorship')}}" class="nav-link">Sponsor a child</a>
                         </li>
-                        
+                        <li class="nav-item">
+                            <a href="{{route('careers')}}" class="nav-link">Careers</a>
+                        </li>
                         <li class="nav-item">
                             <a href="{{route('contact')}}" class="nav-link">Contact</a>
                         </li>
