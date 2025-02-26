@@ -43,7 +43,7 @@
         </p>
       </div>
       <div class="card-footer text-center">
-        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'CM _JOB_ADVERT.pdf']) }}">Center Manager Job Advert</a>
+        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'CM _JOB_ADVERT.pdf']) }}"><i class="fa fa-download"></i> Center Manager Job Advert</a>
       </div>
     </div>
     <div style="" class="card shadow pb-5 mt-3">
@@ -62,7 +62,7 @@
         </p>
       </div>
       <div class="card-footer text-center">
-        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'TLA_JSS.pdf']) }}">Juniour Secondary Teacher Job Advert</a>
+        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'TLA_JSS.pdf']) }}"><i class="fa fa-download"></i> Juniour Secondary Teacher Job Advert</a>
       </div>
     </div>
   </div>
