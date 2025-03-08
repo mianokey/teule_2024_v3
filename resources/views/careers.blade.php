@@ -46,25 +46,6 @@
         <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'CM _JOB_ADVERT.pdf']) }}"><i class="fa fa-download"></i> Center Manager Job Advert</a>
       </div>
     </div>
-    <div style="" class="card shadow pb-5 mt-3">
-      <div class="card-header text-white" style="background-color: var(--main-color--green);">
-        <h5 class="mb-0">Job Title: Junior Secondary Teacher</h5>
-        <p class="mb-0">
-          <strong>Application Deadline:</strong> February 27, 2025
-        </p>
-        <p class="mb-0">
-          <strong>Send Applications to:</strong> <a href="mailto:info@teulekenya.org" class="text-white">headteacher@teulekenya.org</a>
-        </p>
-      </div>
-      <div class="card-body">
-        <p>
-          Teule Leadership Academy is seeking a passionate and dedicated <b> Junior Secondary School</b>(JSS) Teacher to join our team.
-        </p>
-      </div>
-      <div class="card-footer text-center">
-        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'TLA_JSS.pdf']) }}"><i class="fa fa-download"></i> Juniour Secondary Teacher Job Advert</a>
-      </div>
-    </div>
   </div>
 </div>
 
