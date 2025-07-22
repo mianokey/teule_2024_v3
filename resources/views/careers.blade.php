@@ -28,9 +28,9 @@
   <div class="container mt-5">
     <div class="card shadow pb-5">
       <div class="card-header text-white" style="background-color: var(--main-color--green);">
-        <h5 class="mb-0">Job Title: Center Manager</h5>
+        <h5 class="mb-0">Job Title: Finance Administrator</h5>
         <p class="mb-0">
-          <strong>Application Deadline:</strong> March 25, 2025
+          <strong>Application Deadline:</strong> July 25, 2025
         </p>
         <p class="mb-0">
           <strong>Send Applications to:</strong> <a href="mailto:info@teulekenya.org" class="text-white">info@teulekenya.org</a>
@@ -39,11 +39,11 @@
       </div>
       <div class="card-body">
         <p>
-          We invite applications from suitable candidates for the position of <b>Center Manager</b>
+          We invite applications from suitable candidates for the position of <b>Finance Administrator</b>
         </p>
       </div>
       <div class="card-footer text-center">
-        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'CM _JOB_ADVERT.pdf']) }}"><i class="fa fa-download"></i> Center Manager Job Advert</a>
+        <a class="common-btn"  style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => 'FINANCE-ADMINISTRATOR-ADVERT.pdf']) }}"><i class="fa fa-download"></i> Finance Administrator Job Advert</a>
       </div>
     </div>
   </div>

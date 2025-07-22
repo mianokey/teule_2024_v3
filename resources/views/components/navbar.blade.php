@@ -1,6 +1,8 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
-        <p>THE JULY VOLUNTEER TRIP IS HAPPENING! IF YOU'RE INTERESTED,</p>
+        <p>THANK YOU SO MUCH FOR BEING PART OF THE DAC FUNDRAISING!</p>
+        <p>YOUR SUPPORT MEANS THE WORLD TO US, AND IT'S THROUGH GENEROUS HEARTS LIKE YOURS THAT WE ARE ABLE TO KEEP MOVING FORWARD.</p>
+        <p>MAY YOU BE RICHLY BLESSED!</p>
         <p>PLEASE EMAIL US AT teuleusa@teulekenya.org</p>        
     </div>
 </div>   
