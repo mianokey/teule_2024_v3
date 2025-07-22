@@ -25,8 +25,6 @@
 </div>
 
 
-
-
 <div class="about-area pb-5">
     <div class="container mt-5">
         @php
@@ -52,7 +50,7 @@
             </div>
 
             <div class="card-body">
-                <p>{{ Str::limit($job['description'], 200) }}</p>
+                <p>{{ Str::limit($job['description'], 300) }}</p>
             </div>
 
             <div class="card-footer text-center d-flex flex-column gap-2">
