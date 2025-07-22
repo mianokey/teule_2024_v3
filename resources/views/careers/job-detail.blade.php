@@ -6,8 +6,8 @@
     <meta property="og:description" content="{{ $job['description'] ?? 'Join our team at Teule Kenya' }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="article">
-    <meta property="og:image" content="{{ asset('images/teule-logo.png') }}">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="{{asset('assets/img/logo192.png')}}">
+    <meta name="twitter:card" content="{{asset('assets/img/logo192.png')}}">
 @endsection
 
 @section('content')
