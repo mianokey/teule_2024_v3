@@ -44,11 +44,22 @@
             </div>
             
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="position" name="position"
                             value="{{ old('position') }}" placeholder="Position">
                         <label for="position">Position</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="role" name="role">
+                            <option value="">Select Role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                        <label for="role">Assign Role</label>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -57,6 +68,11 @@
                         <label for="image">Upload Image</label>
                     </div>
                 </div>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="row">
+                
             </div>
 
             <div class="row">

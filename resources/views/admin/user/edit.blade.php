@@ -30,7 +30,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-floating mb-3">
-                        <input type="position" class="form-control" id="position" name="position"
+                        <input type="text" class="form-control" id="position" name="position"
                             value="{{ old('position', $details['position'] ?? null) }}" placeholder="Position">
                         <label for="position">Position</label>
                     </div>
@@ -46,8 +46,6 @@
                             <img src="{{ url('storage/' . $details['img_url'] ?? null) }}" height="90"
                                 alt="{{ $user->name }} image" />
                             @endif
-
-
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -56,10 +54,24 @@
                             <label for="image">Upload New Image</label>
                         </div>
                     </div>
-
                 </div>
+            </div>
 
-                
+            <!-- Role Selection -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="role" name="role">
+                            <option value="">Select Role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->name }}" {{ $user->hasRole($role->name) ? 'selected' : '' }}>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <label for="role">Assign Role</label>
+                    </div>
+                </div>
             </div>
 
             <hr>
@@ -69,7 +81,7 @@
                     <div class="form-floating mb-3">
                         <input type="password" class="form-control" id="current_password"
                             name="current_password" placeholder="Confirm Current Password">
-                        <label for="current_password">Confirm Current Password(Change)</label>
+                        <label for="current_password">Confirm Current Password (Change)</label>
                     </div>
                 </div>
                 
@@ -77,12 +89,9 @@
                     <div class="form-floating mb-3">
                         <input type="password" class="form-control" id="password_confirmation"
                             name="password_confirmation" placeholder="Confirm Password">
-                        <label for="password_confirmation">New Password(Change)</label>
+                        <label for="password_confirmation">New Password (Change)</label>
                     </div>
                 </div>
-
-
-
             </div>
 
             <div class="row">
