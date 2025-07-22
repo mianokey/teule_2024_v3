@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    @yield('meta')
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/icofont.min.css') }}">
@@ -67,6 +68,8 @@
     <script src="{{asset('assets/js/custom.js')}}"></script>
     <script src="{{asset('assets/js/birthday_animation.js')}}"></script>
     <script src="{{asset('assets/js/font-awesome.js')}}"></script>
+    @stack('scripts')
+
 </body>
 
 </html>

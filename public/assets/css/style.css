@@ -589,7 +589,7 @@ ul {
 .faq-img {
     position: relative;
     width: 100%;
-    height: 300px; /* Ensures the div has a fixed height */
+    height: 750px; /* Ensures the div has a fixed height */
     overflow: hidden; /* Ensures excess image content is cropped */
 }
 

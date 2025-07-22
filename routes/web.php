@@ -52,6 +52,19 @@ Route::middleware(['web'])->group(function () {
     Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
 });
 
+Route::get('/careers/{slug}', function ($slug) {
+    $jobs = include resource_path('data/jobs.php');
+    
+    if (!isset($jobs[$slug])) {
+        abort(404);
+    }
+
+    $job = $jobs[$slug];
+    return view('job', compact('job', 'slug'));
+})->name('careers.show');
+
+
+
 // Auth routes
 Auth::routes();
 
