@@ -54,8 +54,8 @@
                 </div>
 
                 <div class="card-footer text-center d-flex flex-column gap-2">
-                    @if (!empty($job['document']))
-                        <a class="common-btn mb-2" style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => $job['document']]) }}">
+                    @if (!empty($job['pdf']))
+                        <a class="common-btn mb-2" style="border-color:var(--main-color--green);" href="{{ route('readmore', ['documentName' => $job['pdf']]) }}">
                             <i class="fa fa-download"></i> {{ $job['title'] }} Job Advert
                         </a>
                     @endif
