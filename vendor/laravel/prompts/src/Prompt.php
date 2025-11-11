@@ -3,6 +3,7 @@
 namespace Laravel\Prompts;
 
 use Closure;
+use Laravel\Prompts\Exceptions\FormRevertedException;
 use Laravel\Prompts\Output\ConsoleOutput;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,6 +31,11 @@ abstract class Prompt
     public string $error = '';
 
     /**
+     * The cancel message displayed when this prompt is cancelled.
+     */
+    public string $cancelMessage = 'Cancelled.';
+
+    /**
      * The previously rendered frame.
      */
     protected string $prevFrame = '';
@@ -43,6 +49,11 @@ abstract class Prompt
      * Whether user input is required.
      */
     public bool|string $required;
+
+    /**
+     * The transformation callback.
+     */
+    public ?Closure $transform = null;
 
     /**
      * The validator callback or rules.
@@ -63,6 +74,11 @@ abstract class Prompt
      * The custom validation callback.
      */
     protected static ?Closure $validateUsing;
+
+    /**
+     * The revert handler from the StepBuilder.
+     */
+    protected static ?Closure $revertUsing = null;
 
     /**
      * The output instance.
@@ -125,7 +141,11 @@ abstract class Prompt
                         }
                     }
 
-                    return $this->value();
+                    if ($key === Key::CTRL_U && self::$revertUsing) {
+                        throw new FormRevertedException;
+                    }
+
+                    return $this->transformedValue();
                 }
             }
         } finally {
@@ -172,7 +192,7 @@ abstract class Prompt
      */
     protected static function output(): OutputInterface
     {
-        return self::$output ??= new ConsoleOutput();
+        return self::$output ??= new ConsoleOutput;
     }
 
     /**
@@ -192,7 +212,7 @@ abstract class Prompt
      */
     public static function terminal(): Terminal
     {
-        return static::$terminal ??= new Terminal();
+        return static::$terminal ??= new Terminal;
     }
 
     /**
@@ -201,6 +221,26 @@ abstract class Prompt
     public static function validateUsing(Closure $callback): void
     {
         static::$validateUsing = $callback;
+    }
+
+    /**
+     * Revert the prompt using the given callback.
+     *
+     * @internal
+     */
+    public static function revertUsing(Closure $callback): void
+    {
+        static::$revertUsing = $callback;
+    }
+
+    /**
+     * Clear any previous revert callback.
+     *
+     * @internal
+     */
+    public static function preventReverting(): void
+    {
+        static::$revertUsing = null;
     }
 
     /**
@@ -242,7 +282,7 @@ abstract class Prompt
      */
     protected function submit(): void
     {
-        $this->validate($this->value());
+        $this->validate($this->transformedValue());
 
         if ($this->state !== 'error') {
             $this->state = 'submit';
@@ -264,6 +304,22 @@ abstract class Prompt
             return false;
         }
 
+        if ($key === Key::CTRL_U) {
+            if (! self::$revertUsing) {
+                $this->state = 'error';
+                $this->error = 'This cannot be reverted.';
+
+                return true;
+            }
+
+            $this->state = 'cancel';
+            $this->cancelMessage = 'Reverted.';
+
+            call_user_func(self::$revertUsing);
+
+            return false;
+        }
+
         if ($key === Key::CTRL_C) {
             $this->state = 'cancel';
 
@@ -271,10 +327,30 @@ abstract class Prompt
         }
 
         if ($this->validated) {
-            $this->validate($this->value());
+            $this->validate($this->transformedValue());
         }
 
         return true;
+    }
+
+    /**
+     * Transform the input.
+     */
+    private function transform(mixed $value): mixed
+    {
+        if (is_null($this->transform)) {
+            return $value;
+        }
+
+        return call_user_func($this->transform, $value);
+    }
+
+    /**
+     * Get the transformed value of the prompt.
+     */
+    protected function transformedValue(): mixed
+    {
+        return $this->transform($this->value());
     }
 
     /**

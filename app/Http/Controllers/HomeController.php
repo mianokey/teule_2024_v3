@@ -84,7 +84,6 @@ class HomeController extends Controller
                         ->orWhere('value', 'like', '%founder%');
                 });
         })
-            ->whereNull('email_verified_at') // Filter users with unverified email
             ->get();
 
         // Check if there are members
@@ -125,7 +124,6 @@ class HomeController extends Controller
                         ->orWhere('value', 'like', '%founder%');
                 });
         })
-            ->whereNull('email_verified_at') // Filter users with unverified email
             ->get();
 
         // Check if there are members

@@ -43,7 +43,7 @@
                     @foreach($sustainabilityItem->image_links as $image)
                     <div class="row align-items-center">
                         <div class="col-lg-12">
-                            <div class="faq-img">
+                            <div class="faq-img-s">
                                 <img src="{{ asset('uploads/sust_projects/' . $image) }}" alt="Testimonial" style="height: 300px; width: 100%; object-fit: cover;">
                             </div>
                         </div>
