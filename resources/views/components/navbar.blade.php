@@ -1,9 +1,9 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
-        <p>THANK YOU SO MUCH FOR BEING PART OF THE DAC FUNDRAISING!</p>
+        <p>THANK YOU SO MUCH FOR BEING PART OF US!</p>
         <p>YOUR SUPPORT MEANS THE WORLD TO US, AND IT'S THROUGH GENEROUS HEARTS LIKE YOURS THAT WE ARE ABLE TO KEEP MOVING FORWARD.</p>
         <p>MAY YOU BE RICHLY BLESSED!</p>
-        <p>PLEASE EMAIL US AT teuleusa@teulekenya.org</p>        
+        <p>FOR ANY INQUIRIES PLEASE EMAIL US AT teuleusa@teulekenya.org OR info@teulekenya.org </p>        
     </div>
 </div>   
 <div class="navbar-area sticky-top mb-4 mb-md-0">
