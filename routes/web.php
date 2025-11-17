@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnimationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MerchandiseController;
 use App\Http\Controllers\PettycashController;
 use App\Http\Controllers\SustainabilityController;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +51,18 @@ Route::middleware(['web'])->group(function () {
     Route::get('/error', [HomeController::class, 'showErrorPage'])->name('error');
     Route::post('/mark-animation-shown', [AnimationController::class, 'markAnimationShown'])->name('mark-animation-shown');
     Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
+
+
+    // Merchandise routes
+     Route::get('/merch', [MerchandiseController::class,'index'])->name('merch.index');
+    Route::get('/merch/{product}', [MerchandiseController::class,'show'])->name('merch.show');
+    Route::post('/merch/checkout', [MerchandiseController::class,'checkout'])->name('merch.checkout');
+    Route::post('/merch/place-order', [MerchandiseController::class,'placeOrder'])->name('merch.placeOrder');
+    Route::get('/merch/thankyou/{order}', [MerchandiseController::class,'thankYou'])->name('merch.thankyou');
+
+    // M-PESA routes
+    Route::post('/merch/mpesa/pay/{order}', [MerchandiseController::class,'mpesaPay'])->name('merch.mpesaPay');
+    Route::post('/merch/mpesa/callback', [MerchandiseController::class,'mpesaCallback'])->name('merch.mpesaCallback');
 });
 
 Route::get('/careers/{slug}', function ($slug) {
@@ -119,5 +132,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('pettycash/addPayee', [PettyCashController::class, 'addPayee'])->name('pettycash.addPayee');
 
 });
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/merch/create', [MerchandiseController::class,'index'])->name('merch.create');
+});
+
 
 

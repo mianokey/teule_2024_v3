@@ -1,11 +1,12 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
         <p>THANK YOU SO MUCH FOR BEING PART OF US!</p>
-        <p>YOUR SUPPORT MEANS THE WORLD TO US, AND IT'S THROUGH GENEROUS HEARTS LIKE YOURS THAT WE ARE ABLE TO KEEP MOVING FORWARD.</p>
-        <p>MAY YOU BE RICHLY BLESSED!</p>
-        <p>FOR ANY INQUIRIES PLEASE EMAIL US AT teuleusa@teulekenya.org OR info@teulekenya.org </p>        
+        <p>GIVING TUESDAY IS IN A FEW WEEKS! HELP US FUND 2026 EDUCATION PROGRAMS AND BUILD A NEW CLASSROOM AT TEULE LEADERSHIP ACADEMY.</p>
+        <p>EVERY CONTRIBUTION SHAPES TOMORROW’S LEADERS!</p>
+
+        <p>FOR ANY INQUIRIES PLEASE EMAIL US AT teuleusa@teulekenya.org OR info@teulekenya.org </p>
     </div>
-</div>   
+</div>
 <div class="navbar-area sticky-top mb-4 mb-md-0">
     <div class="mobile-nav">
         <a href="index.html" class="logo">
@@ -23,7 +24,7 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a href="{{route('home')}}" class="nav-link active">Home</a>
-                            
+
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link dropdown-toggle">About Us <i
@@ -53,7 +54,7 @@
                             <a href="#" class="nav-link dropdown-toggle">Get Involved <i
                                     class="icofont-simple-down"></i></a>
                             <ul class="dropdown-menu">
-                               
+
                                 <li class="nav-item">
                                     <a href="{{route('donate')}}" class="nav-link">Donate</a>
                                 </li>
@@ -66,27 +67,31 @@
                                 <li class="nav-item">
                                     <a href="{{route('apply_intern')}}" class="nav-link">Internship/Attachment</a>
                                 </li>
-                             </ul>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link dropdown-toggle">Sustainability Projects <i
                                     class="icofont-simple-down"></i></a>
                             <ul class="dropdown-menu">
-                               
+
                                 <li class="nav-item">
-                                    <a href="{{route('sustainability', ['id' => 1, 'title' => 'Guest House']) }}" class="nav-link">Guest House</a>
+                                    <a href="{{route('sustainability', ['id' => 1, 'title' => 'Guest House']) }}"
+                                        class="nav-link">Guest House</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{route('sustainability', ['id' => 2, 'title' => 'Teule Farm']) }}" class="nav-link">Farm</a>
+                                    <a href="{{route('sustainability', ['id' => 2, 'title' => 'Teule Farm']) }}"
+                                        class="nav-link">Farm</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{route('sustainability', ['id' => 3, 'title' => 'Teule Dairy']) }}" class="nav-link">Teule Dairy</a>
+                                    <a href="{{route('sustainability', ['id' => 3, 'title' => 'Teule Dairy']) }}"
+                                        class="nav-link">Teule Dairy</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{route('sustainability', ['id' => 4, 'title' => 'Water']) }}" class="nav-link">Water Project</a>
+                                    <a href="{{route('sustainability', ['id' => 4, 'title' => 'Water']) }}"
+                                        class="nav-link">Water Project</a>
                                 </li>
-                                
-                             </ul>
+
+                            </ul>
                         </li>
                         <!-- <li class="nav-item">
                             <a href="{{route('tla')}}" class="nav-link">School (TLA)</a>
@@ -115,7 +120,7 @@
                     </div>
                 </div>
             </nav>
-            
+
         </div>
     </div>
 </div>
