@@ -7,7 +7,31 @@
 
 <div class="banner-area">
     <div class="home-slider homeslider-container owl-theme owl-carousel">
-        
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <div class="faq-img">
+                    <img src="{{ asset('assets/img/banner/web-banner.jpg') }}" alt="Testimonial">
+                </div>
+                <div style="z-index: 50" class="container-fluid">
+                    <div class="row align-items-center">
+                        <!-- "Partner with us" section - full width on smaller screens -->
+                        <div class="col-12 col-lg-12 ">
+                            <div class="banner-content" style="margin-bottom: -5px;">
+                                {{-- <div class="top-text-div">
+                                    <p style="padding:20px;" class="text-dark">Our objective is to have our children
+                                        develop and become empowered through holistic nurturing.</p>
+                                </div>
+                                <div class="banner-btn-area">
+                                    <a class="common-btn" href="{{route('aboutus_home')}}">Read more</a>
+                                </div> --}}
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row align-items-center">
             <div class="col-lg-12">
                 <div class="faq-img">
@@ -19,15 +43,16 @@
                         <div class="col-12 col-lg-12 ">
                             <div class="banner-content" style="margin-bottom: -5px;">
                                 <div class="top-text-div">
-                                    <p style="padding:20px;" class="text-dark">Our objective is to have our children develop and become empowered through holistic nurturing.</p>                           
-                                </div> 
+                                    <p style="padding:20px;" class="text-dark">Our objective is to have our children
+                                        develop and become empowered through holistic nurturing.</p>
+                                </div>
                                 <div class="banner-btn-area">
                                     <a class="common-btn" href="{{route('aboutus_home')}}">Read more</a>
                                 </div>
-                            
+
                             </div>
                         </div>
-                       
+
                     </div>
                 </div>
             </div>
@@ -63,7 +88,8 @@
                                         <div class="counter yellow">
                                             <div class="counter-icon">
                                                 <span class="counter-value">
-                                                    {{ $systemDetails->firstWhere('key', 'HomePage_children_under_direct_care')->value ?? '' }}
+                                                    {{ $systemDetails->firstWhere('key',
+                                                    'HomePage_children_under_direct_care')->value ?? '' }}
                                                 </span>
                                             </div>
                                             <div class="counter-content">
@@ -75,7 +101,8 @@
                                         <div class="counter green">
                                             <div class="counter-icon">
                                                 <span class="counter-value">
-                                                    {{ $systemDetails->firstWhere('key', 'HomePage_TLA_population')->value ?? '' }}
+                                                    {{ $systemDetails->firstWhere('key',
+                                                    'HomePage_TLA_population')->value ?? '' }}
                                                 </span>
                                             </div>
                                             <div class="counter-content">
@@ -87,7 +114,8 @@
                                         <div class="counter green">
                                             <div class="counter-icon">
                                                 <span class="counter-value">
-                                                    {{ $systemDetails->firstWhere('key', 'HomePage_CBC_Children')->value ?? '' }}
+                                                    {{ $systemDetails->firstWhere('key', 'HomePage_CBC_Children')->value
+                                                    ?? '' }}
                                                 </span>
                                             </div>
                                             <div class="counter-content">
@@ -99,7 +127,8 @@
                                         <div class="counter yellow">
                                             <div class="counter-icon">
                                                 <span class="counter-value">
-                                                    {{ $systemDetails->firstWhere('key', 'HomePage_Alumni')->value ?? '' }}+
+                                                    {{ $systemDetails->firstWhere('key', 'HomePage_Alumni')->value ?? ''
+                                                    }}+
                                                 </span>
                                             </div>
                                             <div class="counter-content">
@@ -127,17 +156,18 @@
                             <div class="banner-content" style="margin-bottom: -5px;">
                                 <div class="top-text-div">
                                     <p style="padding:20px;" class="text-dark">
-                                        Together we can raise awareness to drive meaningful change and create a better world for children in need. Follow us on social media and share our content.
+                                        Together we can raise awareness to drive meaningful change and create a better
+                                        world for children in need. Follow us on social media and share our content.
                                         #Teulekenya #MiminiMteule #TwendeTeule
-                                    </p>                           
-                                </div> 
+                                    </p>
+                                </div>
                                 <div class="banner-btn-area">
                                     <a class="common-btn" href="{{route('aboutus_home')}}">Read more</a>
                                 </div>
-                            
+
                             </div>
                         </div>
-                       
+
                     </div>
                 </div>
             </div>
