@@ -29,7 +29,7 @@
                         <div class="col-md-9 text-center">
                             <div class="details text-center">
                                 <h5>{{ $child->name }}</h5>
-                                <p class="mb-1"><strong>Age:</strong> {{ $child->dob ?? 'N/A' }}</p>
+                                <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
 <p class="mb-1">
     <strong>Hobbies:</strong><br> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}
 </p>
