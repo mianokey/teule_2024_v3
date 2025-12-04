@@ -87,6 +87,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/newchild', [AdminController::class, 'newchild_index'])->name('newchild.index');
     Route::post('/newchild', [AdminController::class, 'newchild_store'])->name('newchild.store');
     Route::get('/children', [AdminController::class, 'children_list'])->name('children.index');
+    Route::get('/children/sponscard', [AdminController::class, 'spons_card'])->name('children.sponscard');
     Route::get('/children/{id}/edit', [AdminController::class, 'child_edit'])->name('child.edit.index');
     Route::put('children/{id}/update',[AdminController::class, 'child_update'])->name('child_update');
     Route::delete('/children/{id}', [AdminController::class, 'child_delete'])->name('child_delete');

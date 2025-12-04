@@ -109,7 +109,23 @@ class AdminController extends Controller
             return view('admin.children.index', compact('children'));
  
     }
-
+    public function spons_card()
+    {
+     // Retrieve a list of children with their details
+            $children = Child::with('details')->get();
+        
+            
+            // Generate a unique token for each child
+            foreach ($children as $child) {
+                $delimiter = '|';
+                $randomString = Str::random(10); // This part is optional if you want additional security
+                $encodedId = base64_encode($child->id . $delimiter . $randomString);
+                $child->encoded_id = $encodedId; // Assign dynamically
+            }
+        
+            // Pass the data to a view
+             return view('admin.children.sponscard', compact('children'));
+    }
 
     public function child_edit($id)
     {

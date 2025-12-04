@@ -108,6 +108,12 @@
                                         <span>Children List</span>
                                     </a>
                                 </li>
+                                <li class>
+                                    <a href="{{ route('children.sponscard') }}" class="svg-icon">
+                                        <i class="fa fa-asterisk"></i>
+                                        <span>Children Sponsorship Card</span>
+                                    </a>
+                                </li>
 
                             </ul>
                         </li>
