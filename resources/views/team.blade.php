@@ -24,7 +24,7 @@
 </div>
 <section class="team-area ptb-100">
   <div class="container">
-    <div class="row">
+    {{-- <div class="row">
       @foreach($processedMembers as $member)
       <div class="col-sm-6 col-lg-3">
         <div class="team-item">
@@ -43,7 +43,7 @@
         </div>
       </div>
       @endforeach
-    </div>
+    </div> --}}
   </div>
 </section>
 <x-footer></x-footer>
