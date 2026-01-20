@@ -29,7 +29,7 @@
           <div class="col-sm-6 col-lg-3">
             <div class="team-item">
               <div class="top" >
-                <img src="{{ asset($member['img_url']) }}"  alt="{{$member['name']}} image" />
+                <img src="{{ asset($member['img_url'] ?? 'uploads/avatar.png') }}" alt="{{$member['name']}} image" />
               </div>
               <div class="bottom">
                 <h3>{{$member['name']}}</h3>
