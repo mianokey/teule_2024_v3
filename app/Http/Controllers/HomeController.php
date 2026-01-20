@@ -129,7 +129,7 @@ $members = User::whereDoesntHave('details', function ($query) {
         // Check if there are members
         if ($members->isEmpty()) {
             // No members found, return with a message or redirect
-            $errorMessage = 'Unable to fetch board member details';
+            $errorMessage = 'Unable to fetch team member details';
             return view('error', compact('errorMessage'));
         }
 
