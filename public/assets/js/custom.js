@@ -106,6 +106,18 @@ jQuery(
             autoplayHoverPause: true,
         });
 
+         $(".partners_slider").owlCarousel({
+            items: 4,
+            loop: true,
+            margin: 20,
+            nav: false,
+            dots: true,
+            smartSpeed: 1000,
+            autoplay: true,
+            autoplayTimeout: 3000,
+            autoplayHoverPause: true,
+        });
+
         $(".accordion > li:eq(0) a").addClass("active").next().slideDown();
         $(".accordion a").on("click", function (j) {
             var dropDown = $(this).closest("li").find("p");

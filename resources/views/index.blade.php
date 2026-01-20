@@ -224,6 +224,48 @@
     </div>
 </section>
 <x-needs :needItems="$needItems"></x-needs>
+<section class="work-area">
+<div class="banner-area">
+    <div class="partners_slider homeslider-container owl-theme owl-carousel">
+
+        <!-- Partner 1 -->
+        <div class="row align-items-center">
+            <div class="col-lg-12 text-center">
+                <div style="height:150px !important; display:flex; align-items:center; justify-content:center;" class="faq-img">
+                    <img src="{{ asset('assets/img/partners/knl.jpg') }}" 
+                         alt="Partner 1 Logo" 
+                         style="max-height: 80%; max-width: 80%; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner 2 -->
+        <div class="row align-items-center">
+            <div class="col-lg-12 text-center">
+                <div style="height:150px !important; display:flex; align-items:center; justify-content:center;" class="faq-img">
+                    <img src="{{ asset('assets/img/partners/equity.png') }}" 
+                         alt="Partner 2 Logo" 
+                         style="max-height: 80%; max-width: 80%; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+        <!-- Partner 3 -->
+        <div class="row align-items-center">
+            <div class="col-lg-12 text-center">
+                <div style="height:150px !important; display:flex; align-items:center; justify-content:center;" class="faq-img">
+                    <img src="{{ asset('assets/img/partners/kcb.png') }}" 
+                         alt="Partner 2 Logo" 
+                         style="max-height: 80%; max-width: 80%; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Add more logos similarly -->
+    </div>
+</div>
+
+</section>
+
 <section class="event-area pt-100 pb-70">
     <div class="container">
         <div class="section-title">
