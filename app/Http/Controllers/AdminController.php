@@ -328,60 +328,90 @@ class AdminController extends Controller
     }
 
 
-    public function user_store(Request $request)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'position' => 'required|string|max:255',
-            'role' => 'required|exists:roles,name', // Ensure the role exists
-            'image' => 'required',
+public function user_store(Request $request)
+{
+    // Validate basic inputs
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'position' => 'required|string|max:255',
+        'role' => 'required|exists:roles,name',
+        'image' => 'required', // manual validation below
+    ]);
+
+    DB::beginTransaction(); // Start DB transaction
+
+    try {
+        // 1️⃣ Create the user
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
         ]);
 
-        DB::beginTransaction(); // Start the transaction
+        // 2️⃣ Assign role
+        $user->assignRole($request->input('role'));
 
-        try {
-            // Create a new user record
-            $user = User::create([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => Hash::make($request->input('password')),
-            ]);
+        // 3️⃣ Handle image upload (shared-hosting-safe)
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
 
-            // Assign the selected role using Spatie
-            $user->assignRole($request->input('role'));
-
-            // Check if a new image was uploaded
-            if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                $imagePath = $request->file('image')->store('uploads', 'public');
-                $user->details()->updateOrCreate(
-                    ['key' => 'img_url'],
-                    ['value' => $imagePath]
-                );
+            // Validate extension
+            $allowedExtensions = ['jpg', 'jpeg', 'png'];
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (!in_array($ext, $allowedExtensions)) {
+                throw new \Exception('Invalid image type. Allowed: jpg, jpeg, png.');
             }
 
-            // Create or update other user details (e.g., position)
+            // Validate size (max 2MB)
+            $maxSize = 2 * 1024 * 1024; // 2MB
+            if ($file->getSize() > $maxSize) {
+                throw new \Exception('Image size exceeds 2 MB.');
+            }
+
+            // Generate a unique filename
+            $filename = uniqid() . '.' . $ext;
+
+            // Move file to public/uploads
+            $file->move(public_path('uploads'), $filename);
+
+            // Save path in user details
             $user->details()->updateOrCreate(
-                ['key' => 'position'],
-                ['value' => $request->input('position')]
+                ['key' => 'img_url'],
+                ['value' => 'uploads/' . $filename]
             );
-
-            DB::commit(); // Commit the transaction only if all steps succeed
-
-            return redirect()->back()->with('success', 'User registered successfully with role: ' . $request->input('role'));
-        } catch (\Exception $e) {
-            DB::rollBack(); // Rollback everything if any step fails
-
-            // Optionally delete the uploaded image if it was stored before failure
-            if (isset($imagePath) && Storage::disk('public')->exists($imagePath)) {
-                Storage::disk('public')->delete($imagePath);
-            }
-
-            return redirect()->back()->withInput()->with('error', 'Failed to register user: ' . $e->getMessage());
         }
+
+        // 4️⃣ Save position in user details
+        $user->details()->updateOrCreate(
+            ['key' => 'position'],
+            ['value' => $request->input('position')]
+        );
+
+        // ✅ Commit transaction if all steps succeed
+        DB::commit();
+
+        return redirect()->back()->with('success', 'User registered successfully with role: ' . $request->input('role'));
+
+    } catch (\Exception $e) {
+        // Rollback everything if any step fails
+        DB::rollBack();
+
+        // Delete uploaded image if it exists
+        if (isset($filename) && file_exists(public_path('uploads/' . $filename))) {
+            unlink(public_path('uploads/' . $filename));
+        }
+
+        // Log the error for debugging
+        \Log::error('User registration failed: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return redirect()->back()->withInput()->with('error', 'Failed to register user: ' . $e->getMessage());
     }
+}
+
 
 
 
