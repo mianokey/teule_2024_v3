@@ -12,6 +12,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 
 class AdminController extends Controller
@@ -48,7 +50,7 @@ class AdminController extends Controller
             if (Storage::disk('public')->exists($imagePath)) {
                 try {
 
-                    
+
                     // Create a new child record
                     $child = Child::create([
                         'name' => $request->input('name'),
@@ -71,60 +73,57 @@ class AdminController extends Controller
                     // If an error occurs, delete the uploaded image
                     Storage::disk('public')->delete($imagePath);
                     // Log the processed members data
-                    \Log::info('Failed storing image'. $e->getMessage() );
+                    \Log::info('Failed storing image' . $e->getMessage());
                     // Redirect back with error message
                     return redirect()->back()->withInput($request->except('image'))->with('error', 'Failed to create child record: ' . $e->getMessage());
-
                 }
             } else {
                 // If the file doesn't exist in storage, redirect back with error message
                 // Redirect back with error message
-                  return redirect()->back()->withInput($request->except('image'))
-                ->with('error', 'Failed to upload image. Please try again.');
-
+                return redirect()->back()->withInput($request->except('image'))
+                    ->with('error', 'Failed to upload image. Please try again.');
             }
         } else {
             // If file upload failed, redirect back with error message
             // Redirect back with error message
             return redirect()->back()->withInput($request->except('image'))
-            ->with('error', 'Failed to upload image. Please try again.');
+                ->with('error', 'Failed to upload image. Please try again.');
         }
     }
 
     public function children_list()
     {
-     // Retrieve a list of children with their details
-            $children = Child::with('details')->get();
-        
-            
-            // Generate a unique token for each child
-            foreach ($children as $child) {
-                $delimiter = '|';
-                $randomString = Str::random(10); // This part is optional if you want additional security
-                $encodedId = base64_encode($child->id . $delimiter . $randomString);
-                $child->encoded_id = $encodedId; // Assign dynamically
-            }
-        
-            // Pass the data to a view
-            return view('admin.children.index', compact('children'));
- 
+        // Retrieve a list of children with their details
+        $children = Child::with('details')->get();
+
+
+        // Generate a unique token for each child
+        foreach ($children as $child) {
+            $delimiter = '|';
+            $randomString = Str::random(10); // This part is optional if you want additional security
+            $encodedId = base64_encode($child->id . $delimiter . $randomString);
+            $child->encoded_id = $encodedId; // Assign dynamically
+        }
+
+        // Pass the data to a view
+        return view('admin.children.index', compact('children'));
     }
     public function spons_card()
     {
-     // Retrieve a list of children with their details
-            $children = Child::with('details')->get();
-        
-            
-            // Generate a unique token for each child
-            foreach ($children as $child) {
-                $delimiter = '|';
-                $randomString = Str::random(10); // This part is optional if you want additional security
-                $encodedId = base64_encode($child->id . $delimiter . $randomString);
-                $child->encoded_id = $encodedId; // Assign dynamically
-            }
-        
-            // Pass the data to a view
-             return view('admin.children.sponscard', compact('children'));
+        // Retrieve a list of children with their details
+        $children = Child::with('details')->get();
+
+
+        // Generate a unique token for each child
+        foreach ($children as $child) {
+            $delimiter = '|';
+            $randomString = Str::random(10); // This part is optional if you want additional security
+            $encodedId = base64_encode($child->id . $delimiter . $randomString);
+            $child->encoded_id = $encodedId; // Assign dynamically
+        }
+
+        // Pass the data to a view
+        return view('admin.children.sponscard', compact('children'));
     }
 
     public function child_edit($id)
@@ -290,7 +289,7 @@ class AdminController extends Controller
     }
 
 
-    
+
 
 
 
@@ -300,33 +299,34 @@ class AdminController extends Controller
         $details = $user->details ? $user->details->pluck('value', 'key')->toArray() : [];
         $roles = Role::all();
         $userRole = $user->roles->first(); // Get the user's current role
-    
+
         if ($request->isMethod('post')) {
             // Validate form input
             $request->validate([
                 'role' => 'required|exists:roles,name',
             ]);
-    
+
             $newRole = $request->input('role');
-    
+
             // Check if the role has changed
             if (!$userRole || $userRole->name !== $newRole) {
                 $user->syncRoles([$newRole]); // Remove previous roles and assign the new one
                 return redirect()->back()->with('success', 'User role updated successfully.');
             }
-    
+
             return redirect()->back()->with('info', 'No changes made to the user role.');
         }
-    
+
         return view('admin.user.edit', compact('user', 'details', 'roles', 'userRole'));
     }
-    
+
 
 
     public function user_create()
     {
         return view('admin.user.create');
     }
+
 
     public function user_store(Request $request)
     {
@@ -339,7 +339,9 @@ class AdminController extends Controller
             'role' => 'required|exists:roles,name', // Ensure the role exists
             'image' => 'required|image|mimes:jpeg,jpg,png|max:2048',
         ]);
-    
+
+        DB::beginTransaction(); // Start the transaction
+
         try {
             // Create a new user record
             $user = User::create([
@@ -347,41 +349,56 @@ class AdminController extends Controller
                 'email' => $request->input('email'),
                 'password' => Hash::make($request->input('password')),
             ]);
-    
+
             // Assign the selected role using Spatie
             $user->assignRole($request->input('role'));
-    
+
             // Check if a new image was uploaded
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $imagePath = $request->file('image')->store('uploads', 'public');
-                $user->details()->updateOrCreate(['key' => 'img_url'], ['value' => $imagePath]);
+                $user->details()->updateOrCreate(
+                    ['key' => 'img_url'],
+                    ['value' => $imagePath]
+                );
             }
-    
+
             // Create or update other user details (e.g., position)
-            $user->details()->updateOrCreate(['key' => 'position'], ['value' => $request->input('position')]);
-    
+            $user->details()->updateOrCreate(
+                ['key' => 'position'],
+                ['value' => $request->input('position')]
+            );
+
+            DB::commit(); // Commit the transaction only if all steps succeed
+
             return redirect()->back()->with('success', 'User registered successfully with role: ' . $request->input('role'));
         } catch (\Exception $e) {
+            DB::rollBack(); // Rollback everything if any step fails
+
+            // Optionally delete the uploaded image if it was stored before failure
+            if (isset($imagePath) && Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
             return redirect()->back()->withInput()->with('error', 'Failed to register user: ' . $e->getMessage());
         }
     }
-    
+
 
 
     public function user_update(Request $request, $id)
     {
         // Find the user by ID
         $user = User::findOrFail($id);
-    
+
         // Determine the unique rule for the email field
         $emailRule = ['required', 'string', 'email', 'max:255'];
-    
+
         // Check if the email has changed and if it's unique
         if ($request->input('email') !== $user->email) {
             // Add a rule to ensure uniqueness, except for the current user's email
             $emailRule[] = Rule::unique('users')->ignore($user->id);
         }
-    
+
         // Validate the incoming request data
         $request->validate([
             'name' => 'required|string|max:255',
@@ -398,7 +415,7 @@ class AdminController extends Controller
             'position' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ]);
-    
+
         try {
             // Update the user record with the provided data
             $user->update([
@@ -406,19 +423,19 @@ class AdminController extends Controller
                 'email' => $request->input('email'),
                 'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
             ]);
-    
+
             // Check if a new image was uploaded
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 // Upload the new image
                 $imagePath = $request->file('image')->store('uploads', 'public');
-    
+
                 // Create or update the user details with the image URL
                 $user->details()->updateOrCreate(['key' => 'img_url'], ['value' => $imagePath]);
             }
-    
+
             // Create or update other user details (e.g., position)
             $user->details()->updateOrCreate(['key' => 'position'], ['value' => $request->input('position')]);
-    
+
             // Redirect to an appropriate page after successful update
             return redirect()->back()->with('success', 'User updated successfully!');
         } catch (\Exception $e) {
@@ -426,66 +443,66 @@ class AdminController extends Controller
             return redirect()->back()->withInput()->with('error', 'Failed to update user: ' . $e->getMessage());
         }
     }
-    
+
 
 
     public function user_delete($id)
-{
-    try {
-        // Find the user by ID
-        $user = User::findOrFail($id);
+    {
+        try {
+            // Find the user by ID
+            $user = User::findOrFail($id);
 
-        // Delete the associated details
-        $user->details()->delete();
+            // Delete the associated details
+            $user->details()->delete();
 
-        // Delete the user
-        $user->delete();
+            // Delete the user
+            $user->delete();
 
-        // Redirect to an appropriate page after successful deletion
-        return redirect()->back()->with('success', 'User and associated details deleted successfully!');
-    } catch (\Exception $e) {
-        // If an error occurs during deletion, redirect back with error message
-        return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+            // Redirect to an appropriate page after successful deletion
+            return redirect()->back()->with('success', 'User and associated details deleted successfully!');
+        } catch (\Exception $e) {
+            // If an error occurs during deletion, redirect back with error message
+            return redirect()->back()->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
-}
 
 
-public function updateRoles(Request $request, $userId)
-{
-    // Validate the incoming request to ensure role_id is valid
-    $request->validate([
-        'role_id' => 'required|exists:roles,id',  // Validate the role ID
-    ]);
-
-    try {
-        // Find the user and the role by their IDs
-        $user = User::findOrFail($userId);
-        $role = Role::findOrFail($request->role_id);
-
-        // Sync the role to the user (this removes old roles and assigns the new one)
-        $user->syncRoles([$role->name]);
-
-        // Sync the permissions related to the role to the user
-        $permissions = $role->permissions;  // Get the permissions related to the role
-        $user->permissions()->sync($permissions->pluck('id')->toArray());  // Sync the permissions
-
-        // Return a success response
-        return response()->json([
-            'success' => true,
-            'message' => 'Role and permissions updated successfully'
+    public function updateRoles(Request $request, $userId)
+    {
+        // Validate the incoming request to ensure role_id is valid
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',  // Validate the role ID
         ]);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        // Handle cases where user or role is not found
-        return response()->json([
-            'success' => false,
-            'message' => 'User or Role not found'
-        ]);
-    } catch (\Exception $e) {
-        // Catch any other errors and return the error message
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ]);
+
+        try {
+            // Find the user and the role by their IDs
+            $user = User::findOrFail($userId);
+            $role = Role::findOrFail($request->role_id);
+
+            // Sync the role to the user (this removes old roles and assigns the new one)
+            $user->syncRoles([$role->name]);
+
+            // Sync the permissions related to the role to the user
+            $permissions = $role->permissions;  // Get the permissions related to the role
+            $user->permissions()->sync($permissions->pluck('id')->toArray());  // Sync the permissions
+
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Role and permissions updated successfully'
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Handle cases where user or role is not found
+            return response()->json([
+                'success' => false,
+                'message' => 'User or Role not found'
+            ]);
+        } catch (\Exception $e) {
+            // Catch any other errors and return the error message
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
     }
-}
 }
