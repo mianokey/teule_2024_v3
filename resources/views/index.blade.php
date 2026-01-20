@@ -7,31 +7,7 @@
 
 <div class="banner-area">
     <div class="home-slider homeslider-container owl-theme owl-carousel">
-        <div class="row align-items-center">
-            <div class="col-lg-12">
-                <div class="faq-img">
-                    <img src="{{ asset('assets/img/banner/web-banner.jpg') }}" alt="Testimonial">
-                </div>
-                <div style="z-index: 50" class="container-fluid">
-                    <div class="row align-items-center">
-                        <!-- "Partner with us" section - full width on smaller screens -->
-                        <div class="col-12 col-lg-12 ">
-                            <div class="banner-content" style="margin-bottom: -5px;">
-                                {{-- <div class="top-text-div">
-                                    <p style="padding:20px;" class="text-dark">Our objective is to have our children
-                                        develop and become empowered through holistic nurturing.</p>
-                                </div>
-                                <div class="banner-btn-area">
-                                    <a class="common-btn" href="{{route('aboutus_home')}}">Read more</a>
-                                </div> --}}
-
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+       
         <div class="row align-items-center">
             <div class="col-lg-12">
                 <div class="faq-img">
@@ -61,7 +37,7 @@
         <div class="row align-items-center">
             <div class="col-lg-12">
                 <div class="faq-img">
-                    <img src="{{ asset('assets/img/banner/coverphoto1.jpg') }}" alt="Testimonial">
+                    <img src="{{ asset('assets/img/banner/children.jpg') }}" style="filter: blur(2px); alt="Testimonial">
                 </div>
                 <div style="z-index: 50" class="container-fluid">
                     <div class="row align-items-center">
@@ -172,13 +148,7 @@
                 </div>
             </div>
         </div>
-        <div class="row align-items-center">
-            <div class="col-lg-12">
-                <div class="faq-img">
-                    <img src="{{ asset('assets/img/faq-main-4.jpg') }}" alt="Testimonial">
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
 

@@ -1,6 +1,5 @@
 <div class="scrolling-container">
     <div class="scrolling-text-wrapper">
-        <p>GIVING TUESDAY IS ALMOST HERE. DECEMBER<sup>2nd</sup> ,2025! HELP US FUND 2026 EDUCATION PROGRAMS AND BUILD A NEW CLASSROOM AT TEULE LEADERSHIP ACADEMY.</p>
         <p>THANK YOU SO MUCH FOR BEING PART OF US!</p>
         <p>EVERY CONTRIBUTION SHAPES TOMORROW’S LEADERS!</p>
 
