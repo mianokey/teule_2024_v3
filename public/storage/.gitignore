@@ -1,2 +1,5 @@
 *
 !.gitignore
+
+# But not the gallery folder
+!/public/assets/img/gallery/
