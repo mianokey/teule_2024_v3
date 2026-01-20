@@ -32,8 +32,8 @@
                 <img src="{{ asset($member['img_url'] ?? 'uploads/avatar.png') }}" alt="{{ $member['name'] ?? 'Team member' }} image">
               </div>
               <div class="bottom">
-                <h3>{{$member['name']}}</h3>
-                <span>{{$member['position']}}</span>
+                <h3>{{ $member['name'] ?? 'Unnamed' }}</h3>
+                <span>{{ $member['position'] ?? '—' }}</span>
               </div>
             </div>
           </div>
