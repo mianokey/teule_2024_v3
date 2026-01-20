@@ -115,8 +115,9 @@ class HomeController extends Controller
 
     public function team()
     {
-        // Fetch users who do not have positions containing the specified strings
-        $members = User::whereDoesntHave('details', function ($query) {
+      
+        // Fetch users based on position from user_details table
+        $members = User::whereHas('details', function ($query) {
             $query->where('key', 'position')
                 ->where(function ($subQuery) {
                     $subQuery->where('value', 'like', '%board%')
@@ -129,7 +130,7 @@ class HomeController extends Controller
         // Check if there are members
         if ($members->isEmpty()) {
             // No members found, return with a message or redirect
-            $errorMessage = 'Unable to fetch team member details';
+            $errorMessage = 'Unable to fetch board member details';
             return view('error', compact('errorMessage'));
         }
 

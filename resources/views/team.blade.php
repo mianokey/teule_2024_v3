@@ -23,26 +23,24 @@
   </div>
 </div>
 <section class="team-area ptb-100">
-  <div class="container">
-    <div class="row">
-      @foreach($processedMembers as $member)
-      <div class="col-sm-6 col-lg-3">
-        <div class="team-item">
-          <div class="top">
-            <img src="{{ asset($member['img_url'] ?? 'uploads/avatar.png') }}"
-              alt="{{ $member['name'] ?? 'Team member' }} image" />
+      <div class="container">
+        <div class="row">
+        @foreach($processedMembers as $member)
+          <div class="col-sm-6 col-lg-3">
+            <div class="team-item">
+              <div class="top">
+                
+                <img  src="{{ asset($member['img_url']) }}"  alt="{{$member['name']}} image">
+              </div>
+              <div class="bottom">
+                <h3>{{$member['name']}}</h3>
+                <span>{{$member['position']}}</span>
+              </div>
+            </div>
           </div>
-
-          <div class="bottom">
-            <h3>{{ $member['name'] ?? 'Unnamed' }}</h3>
-            <span>{{ $member['position'] ?? '—' }}</span>
-          </div>
+        @endforeach
         </div>
       </div>
-      @endforeach
-
-    </div>
-  </div>
 </section>
 <x-footer></x-footer>
 @endsection
