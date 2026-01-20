@@ -454,14 +454,33 @@ public function user_store(Request $request)
                 'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
             ]);
 
-            // Check if a new image was uploaded
-            if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                // Upload the new image
-                $imagePath = $request->file('image')->store('uploads', 'public');
+if ($request->hasFile('image')) {
+    $file = $request->file('image');
 
-                // Create or update the user details with the image URL
-                $user->details()->updateOrCreate(['key' => 'img_url'], ['value' => $imagePath]);
-            }
+    // Manual validation
+    $allowedExtensions = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower($file->getClientOriginalExtension());
+    if (!in_array($ext, $allowedExtensions)) {
+        return redirect()->back()->withInput()->with('error', 'Invalid image type. Allowed: jpg, jpeg, png.');
+    }
+
+    $maxSize = 2 * 1024 * 1024; // 2 MB
+    if ($file->getSize() > $maxSize) {
+        return redirect()->back()->withInput()->with('error', 'Image size exceeds 2 MB.');
+    }
+
+    // Generate a unique filename
+    $filename = uniqid() . '.' . $ext;
+
+    // Move file manually to public/uploads
+    $file->move(public_path('uploads'), $filename);
+
+    // Save path in user details
+    $user->details()->updateOrCreate(
+        ['key' => 'img_url'],
+        ['value' => 'uploads/' . $filename]
+    );
+}
 
             // Create or update other user details (e.g., position)
             $user->details()->updateOrCreate(['key' => 'position'], ['value' => $request->input('position')]);
