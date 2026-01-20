@@ -1,5 +1,22 @@
 <?php
 return [
+        'BUSADMIN' => [
+        'slug' => 'HEAD OF BUSINESS UNITS',
+        'title' => 'HEAD OF BUSINESS UNITS',
+        'deadline' => 'January 30, 2026',
+        'emails' => [
+            'to' => 'info@teulekenya.org',
+            'cc' => 'programs@teulekenya.org'
+        ],
+        'description' => 'We are currently inviting applications from qualified and passionate individuals for the role of Head of business units
+                         — a full-time position based in Loitokitok. ',
+        'meta' => [
+            'image' => 'images/jobs/bus-admin.jpg',
+            'keywords' => 'Head of Business Units, Admin,Business, Teule Kenya Careers, NGO Admin Position, Jobs in Kenya'
+        ],
+        'pdf' => 'bus-admin-advert.pdf'
+    ],
+
     'HRM' => [
         'slug' => 'HRM',
         'title' => 'HUMAN RESOURCE MANAGER',
@@ -19,27 +36,4 @@ return [
         'pdf' => 'HRM-ADVERT.pdf'
     ],
 
-       'JSS' => [
-        'slug' => 'JSS TEACHER',
-        'title' => 'JSS TEACHER',
-        'deadline' => 'November 28, 2025',
-        'emails' => [
-            'to' => 'headteacher@teulekenya.org',
-            'cc' => ''
-        ],
-        'description' => 'We are currently inviting applications from qualified and passionate individuals for the role of JSS TEACHER — 
-                  a full-time position based in Loitokitok. The ideal candidate should be a TSC-registered teacher holding a degree or diploma in education,
-                  proficient in the Competency-Based Curriculum (CBC), committed to teaching JSS learners, and possess strong leadership and mentorship skills. 
-                  Specialization in Languages and Science is an added advantage.',
-
-        'meta' => [
-            'image' => 'images/jobs/jssteacher.jpg',
-            'keywords' => 'JSS TEACHER, JSS,CBC, Teule Kenya Careers, NGO TEACHER Position, Jobs in Kenya'
-        ],
-
-        'pdf' => 'JSS-ADVERT.pdf'
-    ],
-
-    // You can add more jobs below like this:
-    // 'marketing-officer' => [ ... ],
 ];
