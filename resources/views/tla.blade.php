@@ -81,19 +81,19 @@
                 <tbody>
                     <tr>
                         <td>Playgroup-PP2</td>
-                        <td>Ksh. 4,200</td>
+                        <td>Ksh. 4,500</td>
                     </tr>
                     <tr>
                         <td>Grade 1-3</td>
-                        <td>Ksh. 4,800</td>
+                        <td>Ksh. 5,100</td>
                     </tr>
                     <tr>
                         <td>Grade 4-5</td>
-                        <td>Ksh. 5,400</td>
+                        <td>Ksh. 5,700</td>
                     </tr>
                     <tr>
                         <td>Grade 6</td>
-                        <td>Ksh. 6,000</td>
+                        <td>Ksh. 6,300</td>
                     </tr>
                     <tr>
                         <td>Junior Secondary</td>
@@ -107,7 +107,7 @@
                 </tbody>
               </table>
               <p style="text-align: justify;">
-              Fees is paybale to:<b>Equity Bank </b> account name:<b>Teule Leadership Academy</b> Account number:<b>0740295914240</b>
+              Fees is payable to:<b>Equity Bank </b> account name:<b>Teule Leadership Academy</b> Account number:<b>0740295914240</b>
               </p>  
               </div>
         </div>
