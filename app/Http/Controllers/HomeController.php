@@ -116,16 +116,15 @@ class HomeController extends Controller
     public function team()
     {
       
-        // Fetch users based on position from user_details table
-        $members = User::whereHas('details', function ($query) {
-            $query->where('key', 'position')
-                ->where(function ($subQuery) {
-                    $subQuery->where('value', 'like', '%board%')
-                        ->orWhere('value', 'like', '%director%')
-                        ->orWhere('value', 'like', '%founder%');
-                });
-        })
-            ->get();
+$members = User::whereDoesntHave('details', function ($query) {
+    $query->where('key', 'position')
+          ->where(function ($subQuery) {
+              $subQuery->where('value', 'like', '%board%')
+                       ->orWhere('value', 'like', '%director%')
+                       ->orWhere('value', 'like', '%founder%');
+          });
+})->get();
+
 
         // Check if there are members
         if ($members->isEmpty()) {
