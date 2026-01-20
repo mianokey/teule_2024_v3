@@ -24,26 +24,24 @@
 </div>
 <section class="team-area ptb-100">
   <div class="container">
-    {{-- <div class="row">
+    <div class="row">
       @foreach($processedMembers as $member)
       <div class="col-sm-6 col-lg-3">
         <div class="team-item">
           <div class="top">
-            @if(!empty($member['img_url']))
-            <img src="{{ asset($member['img_url']) }}" alt="{{$member['name']}} image" />
-            @else
-            <img src="{{ asset('assets/img/default-user.png') }}" alt="{{$member['name']}} image" />
-            @endif
-
+            <img src="{{ asset($member['img_url'] ?? 'uploads/avatar.png') }}"
+              alt="{{ $member['name'] ?? 'Team member' }} image" />
           </div>
+
           <div class="bottom">
-            <h3>{{$member['name']}}</h3>
-            <span>{{$member['position']}}</span>
+            <h3>{{ $member['name'] ?? 'Unnamed' }}</h3>
+            <span>{{ $member['position'] ?? '—' }}</span>
           </div>
         </div>
       </div>
       @endforeach
-    </div> --}}
+
+    </div>
   </div>
 </section>
 <x-footer></x-footer>
