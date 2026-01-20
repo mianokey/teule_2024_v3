@@ -337,7 +337,7 @@ class AdminController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'position' => 'required|string|max:255',
             'role' => 'required|exists:roles,name', // Ensure the role exists
-            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'required',
         ]);
 
         DB::beginTransaction(); // Start the transaction
