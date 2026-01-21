@@ -270,6 +270,16 @@
                 </div>
             </div>
         </div>
+         <!-- Partner 5 -->
+        <div class="row align-items-center">
+            <div class="col-lg-12 text-center">
+                <div style="height:150px !important; display:flex; align-items:center; justify-content:center;" class="faq-img">
+                    <img src="{{ asset('assets/img/partners/linme.png') }}" 
+                         alt="Partner 2 Logo" 
+                         style="max-height: 80%; max-width: 80%; object-fit: contain;">
+                </div>
+            </div>
+        </div>
 
         <!-- Add more logos similarly -->
     </div>
