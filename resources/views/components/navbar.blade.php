@@ -15,7 +15,7 @@
     <div class="main-nav">
         <div class="container">
             <nav class="navbar navbar-expand-md navbar-light">
-                <a class="navbar-brand" href="index.html">
+                <a class="navbar-brand" href="https://teulekenya.org/">
                     <img width="50" src="{{asset('assets/img/logo192.png')}}" class="logo-onee" alt="Logo">
                     <img width="50" src="{{asset('assets/img/logo512.png')}}" class="logo-two" alt="Logo">
                 </a>

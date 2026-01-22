@@ -91,6 +91,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/children/{id}/edit', [AdminController::class, 'child_edit'])->name('child.edit.index');
     Route::put('children/{id}/update',[AdminController::class, 'child_update'])->name('child_update');
     Route::delete('/children/{id}', [AdminController::class, 'child_delete'])->name('child_delete');
+    Route::post('/children/card/bio', [AdminController::class, 'saveBio']);
+    Route::get('/children/cards/select', [AdminController::class, 'child_card_select']);
+
+
+    
 
     //system user routes
     Route::get('/users', [AdminController::class, 'user_index'])->name('admin.user.index');
@@ -102,6 +107,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('user/{userId}/assign-role', [AdminController::class, 'updateRoles'])->name('admin.user.updateRoles');
 
 });
+
 Route::middleware(['auth'])->prefix('admin/system')->group(function () {
     Route::get('/show', [AdminController::class, 'showSystemDetails'])->name('admin.system_details.index');
     Route::get('/add', [AdminController::class, 'addSystemDetails'])->name('admin.system_details.add');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Child;
+use App\Models\ChildDetail;
 use App\Models\SystemDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -203,6 +204,34 @@ class AdminController extends Controller
         // Redirect back to a success page or somewhere else
         return redirect()->back()->with('success', 'Child record updated successfully!');
     }
+
+    public function saveBio(Request $request)
+{
+    $request->validate([
+        'child_id' => 'required',
+        'value' => 'required'
+    ]);
+
+    ChildDetail::updateOrCreate(
+        [
+            'child_id' => $request->child_id,
+            'key' => 'child_bio'
+        ],
+        [
+            'value' => $request->value
+        ]
+    );
+
+    return response()->json(['success' => true]);
+}
+
+public function child_card_select()
+{
+    $children = Child::orderBy('name')->get();
+    return view('children.cards-select', compact('children'));
+}
+
+
 
     public function showSystemDetails()
     {
