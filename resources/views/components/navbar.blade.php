@@ -8,7 +8,7 @@
 </div>
 <div class="navbar-area sticky-top mb-4 mb-md-0">
     <div class="mobile-nav">
-        <a href="index.html" class="logo">
+        <a href="https://teulekenya.org/" class="logo">
             <img width="40" src="{{asset('assets/img/logo512.png')}}" alt="Logo">
         </a>
     </div>
