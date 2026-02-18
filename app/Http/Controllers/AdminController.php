@@ -173,12 +173,17 @@ public function child_update(Request $request, $id)
     */
     if ($request->hasFile('image') && $request->file('image')->isValid()) {
 
-        if ($child->img_url && Storage::disk('public')->exists($child->img_url)) {
-            Storage::disk('public')->delete($child->img_url);
+        // Delete old image if exists
+        if ($child->img_url && file_exists(public_path($child->img_url))) {
+            unlink(public_path($child->img_url));
         }
 
-        $imagePath = $request->file('image')->store('uploads', 'public');
-        $child->img_url = $imagePath;
+        // Move new image to public/uploads
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('uploads'), $filename);
+
+        $child->img_url = 'uploads/' . $filename;
     }
 
     /*
@@ -216,7 +221,6 @@ public function child_update(Request $request, $id)
     | DYNAMIC ADDITIONAL DETAILS
     |--------------------------------------------------------------------------
     */
-
     $protectedKeys = array_keys($protectedDetails);
 
     // Remove old dynamic details
@@ -227,26 +231,19 @@ public function child_update(Request $request, $id)
     // Save new dynamic details
     if ($request->detail_keys) {
         foreach ($request->detail_keys as $index => $key) {
-
             $value = $request->detail_values[$index] ?? null;
-
-            if (!empty($key) && !empty($value)) {
-
-                // Prevent duplicates with protected keys
-                if (!in_array($key, $protectedKeys)) {
-                    $child->details()->create([
-                        'key' => $key,
-                        'value' => $value,
-                    ]);
-                }
+            if (!empty($key) && !empty($value) && !in_array($key, $protectedKeys)) {
+                $child->details()->create([
+                    'key' => $key,
+                    'value' => $value,
+                ]);
             }
         }
     }
 
     return redirect()->back()->with('success', 'Child record updated successfully!');
 }
-
-    public function saveBio(Request $request)
+public function saveBio(Request $request)
 {
     $request->validate([
         'child_id' => 'required',
