@@ -28,73 +28,64 @@ class AdminController extends Controller
         return view('admin.newchild.index');
     }
 
-    public function newchild_store(Request $request)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'dob' => 'required|date',
-            'status' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048',
-            'hobbies' => 'required|string|max:255',
-            'current_grade' => 'required|string|max:255',
-            'aspirations' => 'required|string|max:255',
-            'sponsors' => 'required|int|max:11',
-        ]);
+ public function newchild_store(Request $request)
+{
+    // Validate the incoming request data
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'dob' => 'required|date',
+        'status' => 'required|string|max:255',
+        'image' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        'hobbies' => 'required|string|max:255',
+        'current_grade' => 'required|string|max:255',
+        'aspirations' => 'required|string|max:255',
+        'sponsors' => 'required|int|max:11',
+    ]);
 
-        // Check if file upload was successful
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            // Upload the image file
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads'), $filename);
-            $imagePath = 'uploads/' . $filename;
+    // Handle file upload directly to public/uploads
+    if ($request->hasFile('image') && $request->file('image')->isValid()) {
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('uploads'), $filename);
+        $imagePath = 'uploads/' . $filename; // Store relative path for DB
 
+        try {
+            // Create a new child record
+            $child = Child::create([
+                'name' => $request->input('name'),
+                'dob' => $request->input('dob'),
+                'status' => $request->input('status'),
+                'img_url' => $imagePath,
+            ]);
 
-            // Check if the file exists in the storage
-            if (Storage::disk('public')->exists($imagePath)) {
-                try {
+            // Create child details
+            $child->details()->createMany([
+                ['key' => 'hobbies', 'value' => $request->input('hobbies')],
+                ['key' => 'current_grade', 'value' => $request->input('current_grade')],
+                ['key' => 'aspirations', 'value' => $request->input('aspirations')],
+                ['key' => 'sponsors', 'value' => $request->input('sponsors')],
+            ]);
 
-
-                    // Create a new child record
-                    $child = Child::create([
-                        'name' => $request->input('name'),
-                        'dob' => $request->input('dob'),
-                        'status' => $request->input('status'),
-                        'img_url' => $imagePath,
-                    ]);
-
-                    // Create a new child_details record with key-value pairs
-                    $child->details()->createMany([
-                        ['key' => 'hobbies', 'value' => $request->input('hobbies')],
-                        ['key' => 'current_grade', 'value' => $request->input('current_grade')],
-                        ['key' => 'aspirations', 'value' => $request->input('aspirations')],
-                        ['key' => 'sponsors', 'value' => $request->input('sponsors')],
-                    ]);
-
-                    // Redirect back to a success page or somewhere else
-                    return redirect()->back()->with('success', 'Child record created successfully!');
-                } catch (\Exception $e) {
-                    // If an error occurs, delete the uploaded image
-                    Storage::disk('public')->delete($imagePath);
-                    // Log the processed members data
-                    \Log::info('Failed storing image' . $e->getMessage());
-                    // Redirect back with error message
-                    return redirect()->back()->withInput($request->except('image'))->with('error', 'Failed to create child record: ' . $e->getMessage());
-                }
-            } else {
-                // If the file doesn't exist in storage, redirect back with error message
-                // Redirect back with error message
-                return redirect()->back()->withInput($request->except('image'))
-                    ->with('error', 'Failed to upload image. Please try again.');
+            return redirect()->back()->with('success', 'Child record created successfully!');
+        } catch (\Exception $e) {
+            // Delete uploaded file if DB fails
+            if (file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
             }
-        } else {
-            // If file upload failed, redirect back with error message
-            // Redirect back with error message
-            return redirect()->back()->withInput($request->except('image'))
-                ->with('error', 'Failed to upload image. Please try again.');
+
+            \Log::error('Failed storing child record: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->withInput($request->except('image'))
+                ->with('error', 'Failed to create child record: ' . $e->getMessage());
         }
+    } else {
+        return redirect()->back()
+            ->withInput($request->except('image'))
+            ->with('error', 'Failed to upload image. Please try again.');
     }
+}
+
 
     public function children_list()
     {
