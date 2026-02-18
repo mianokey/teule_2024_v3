@@ -647,7 +647,7 @@
             </div>
         </div>
     </div>
-
+    @stack('scripts')
 
     <script src="{{ asset('admin-assets/js/backend-bundle.min.js') }}"></script>
 

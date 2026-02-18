@@ -153,57 +153,103 @@ class AdminController extends Controller
         }
     }
 
-    public function child_update(Request $request, $id)
-    {
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'dob' => 'required|date',
-            'status' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'hobbies' => 'required|string|max:255',
-            'current_grade' => 'required|string|max:255',
-            'aspirations' => 'required|string|max:255',
-            'sponsors' => 'required|int|max:255',
-        ]);
+public function child_update(Request $request, $id)
+{
+    // Validate request
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'dob' => 'required|date',
+        'status' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        'hobbies' => 'required|string|max:255',
+        'current_grade' => 'required|string|max:255',
+        'aspirations' => 'required|string|max:255',
+        'sponsors' => 'required|integer|min:0',
+        'detail_keys.*' => 'nullable|string|max:255',
+        'detail_values.*' => 'nullable|string|max:1000',
+    ]);
 
-        // Find the child record to update
-        $child = Child::findOrFail($id);
+    $child = Child::findOrFail($id);
 
-        // Check if a new image was uploaded
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            // Delete the previous image if it exists
-            if ($child->img_url && Storage::disk('public')->exists($child->img_url)) {
-                Storage::disk('public')->delete($child->img_url);
-            }
+    /*
+    |--------------------------------------------------------------------------
+    | IMAGE UPDATE
+    |--------------------------------------------------------------------------
+    */
+    if ($request->hasFile('image') && $request->file('image')->isValid()) {
 
-            // Upload the new image
-            $imagePath = $request->file('image')->store('uploads', 'public');
-            $child->img_url = $imagePath;
+        if ($child->img_url && Storage::disk('public')->exists($child->img_url)) {
+            Storage::disk('public')->delete($child->img_url);
         }
 
-        // Update the child record
-        $child->name = $request->input('name');
-        $child->dob = $request->input('dob');
-        $child->status = $request->input('status');
-        $child->save();
-
-        // Update the child details dynamically
-        $detailsToUpdate = [
-            'hobbies' => $request->input('hobbies'),
-            'current_grade' => $request->input('current_grade'),
-            'aspirations' => $request->input('aspirations'),
-            'sponsors' => $request->input('sponsors'),
-            // Add more details here as needed
-        ];
-
-        foreach ($detailsToUpdate as $key => $value) {
-            $child->details()->updateOrCreate(['key' => $key], ['value' => $value]);
-        }
-
-        // Redirect back to a success page or somewhere else
-        return redirect()->back()->with('success', 'Child record updated successfully!');
+        $imagePath = $request->file('image')->store('uploads', 'public');
+        $child->img_url = $imagePath;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE BASIC INFO
+    |--------------------------------------------------------------------------
+    */
+    $child->update([
+        'name' => $request->name,
+        'dob' => $request->dob,
+        'status' => $request->status,
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROTECTED DETAILS (Fixed Fields)
+    |--------------------------------------------------------------------------
+    */
+    $protectedDetails = [
+        'hobbies' => $request->hobbies,
+        'current_grade' => $request->current_grade,
+        'aspirations' => $request->aspirations,
+        'sponsors' => $request->sponsors,
+    ];
+
+    foreach ($protectedDetails as $key => $value) {
+        $child->details()->updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DYNAMIC ADDITIONAL DETAILS
+    |--------------------------------------------------------------------------
+    */
+
+    $protectedKeys = array_keys($protectedDetails);
+
+    // Remove old dynamic details
+    $child->details()
+        ->whereNotIn('key', $protectedKeys)
+        ->delete();
+
+    // Save new dynamic details
+    if ($request->detail_keys) {
+        foreach ($request->detail_keys as $index => $key) {
+
+            $value = $request->detail_values[$index] ?? null;
+
+            if (!empty($key) && !empty($value)) {
+
+                // Prevent duplicates with protected keys
+                if (!in_array($key, $protectedKeys)) {
+                    $child->details()->create([
+                        'key' => $key,
+                        'value' => $value,
+                    ]);
+                }
+            }
+        }
+    }
+
+    return redirect()->back()->with('success', 'Child record updated successfully!');
+}
 
     public function saveBio(Request $request)
 {
