@@ -13,7 +13,7 @@
                 </div>
 
                 <!-- Card Body -->
-                <div class="card-body p-3 d-flex flex-column align-items-center">
+                <div class="card-body p-1 d-flex flex-column align-items-center">
                     <div class="row w-100 mb-2">
                         <div class="col-md-3 text-center p-2">
                             <!-- QR Code -->
@@ -31,12 +31,7 @@
                             <div class="details text-center">
                                 <h5>{{ $child->name }}</h5>
                                 <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
-                                <p class="mb-1">
-                                    <strong>Hobbies:</strong><br> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}
-                                </p>
-                                <p class="mb-0">
-                                    <strong>Aspirations:</strong><br> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}
-                                </p>
+                                <p class="mb-1">  <strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }} , <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }} </p>
 
                             </div>
                         </div>
