@@ -45,7 +45,11 @@ class AdminController extends Controller
         // Check if file upload was successful
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             // Upload the image file
-            $imagePath = $request->file('image')->store('uploads', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
+            $imagePath = 'uploads/' . $filename;
+
 
             // Check if the file exists in the storage
             if (Storage::disk('public')->exists($imagePath)) {

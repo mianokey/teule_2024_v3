@@ -31,7 +31,7 @@
                             <div class="details text-center">
                                 <h5>{{ $child->name }}</h5>
                                 <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
-                                <p class="mb-1">  <strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }} , <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }} </p>
+                                <p class="mb-1">  <strong>Hobbies:</strong> {{ $hobbies ? strtolower($hobbies)) : 'N/A' }} , <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }} </p>
 
                             </div>
                         </div>
