@@ -22,6 +22,7 @@
                             $hobbies = $child->details->firstWhere('key', 'hobbies')->value ?? '';
                             $aspirations = $child->details->firstWhere('key', 'aspirations')->value ?? '';
                             $case_history = $child->details->firstWhere('key', 'case_history')->value ?? '';
+                            $current_grade = $child->details->firstWhere('key', 'current_grade')->value ?? '';
                             @endphp
                             <div class="qr-section mb-2">
                                 {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
@@ -31,6 +32,7 @@
                             <div class="details text-center">
                                 <h5>{{ $child->name }}</h5>
                                 <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
+                                <p class="mb-1"><strong>EDUCATION:</strong> {{ $current_grade ?? 'N/A' }}</p>
                                 <p class="mb-1">  <strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }} , <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }} </p>
 
                             </div>
