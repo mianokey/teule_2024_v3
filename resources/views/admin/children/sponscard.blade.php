@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="description text-center">
-                        {{ $aspirations ? ucwords(strtolower($case_history)) : 'N/A' }}
+                        {{ $aspirations ? $case_history : 'N/A' }}
                          Be part of <b>{{ $child->name }} </b> brighter future today!
                     </div>
                 </div>
