@@ -14,7 +14,7 @@
 
                 <!-- Card Body -->
                 <div class="card-body p-1 d-flex flex-column align-items-center">
-                    <div class="row w-100 mb-2">
+                    <div class="row w-100 mb-1">
                         <div class="col-md-3 text-center p-2">
                             <!-- QR Code -->
                             @php
