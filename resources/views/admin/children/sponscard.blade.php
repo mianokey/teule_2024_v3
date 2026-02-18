@@ -21,6 +21,7 @@
                             $sponsorUrl = route('sponsorship_card', $child->encoded_id);
                             $hobbies = $child->details->firstWhere('key', 'hobbies')->value ?? '';
                             $aspirations = $child->details->firstWhere('key', 'aspirations')->value ?? '';
+                            $case_history = $child->details->firstWhere('key', 'case_history')->value ?? '';
                             @endphp
                             <div class="qr-section mb-2">
                                 {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
@@ -30,22 +31,20 @@
                             <div class="details text-center">
                                 <h5>{{ $child->name }}</h5>
                                 <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
-<p class="mb-1">
-    <strong>Hobbies:</strong><br> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}
-</p>
-<p class="mb-0">
-    <strong>Aspirations:</strong><br> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}
-</p>
+                                <p class="mb-1">
+                                    <strong>Hobbies:</strong><br> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Aspirations:</strong><br> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}
+                                </p>
 
                             </div>
                         </div>
                     </div>
 
                     <div class="description text-center">
-                        Child Sponsorship is one of the many ways for partners to support Teule in caring for vulnerable children
-                         and their families. Sponsors receive updates and can communicate with their child. Funds are pooled to meet
-                          children’s basic needs, support families, provide education, and offer psychosocial care. Each child requires
-                           multiple sponsors to ensure holistic care.Be part of <b>{{ $child->name }} </b> brighter future today!
+                        {{ $aspirations ? ucwords(strtolower($case_history)) : 'N/A' }}
+                         Be part of <b>{{ $child->name }} </b> brighter future today!
                     </div>
                 </div>
 
