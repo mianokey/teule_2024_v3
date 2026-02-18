@@ -14,30 +14,33 @@
 
                 <!-- Card Body -->
                 <div class="card-body p-1 d-flex flex-column align-items-center">
-                    <div class="row w-100 mb-1">
-                        <div class="col-md-3 text-center p-2">
-                            <!-- QR Code -->
-                            @php
-                            $sponsorUrl = route('sponsorship_card', $child->encoded_id);
-                            $hobbies = $child->details->firstWhere('key', 'hobbies')->value ?? '';
-                            $aspirations = $child->details->firstWhere('key', 'aspirations')->value ?? '';
-                            $case_history = $child->details->firstWhere('key', 'case_history')->value ?? '';
-                            $current_grade = $child->details->firstWhere('key', 'current_grade')->value ?? '';
-                            @endphp
-                            <div class="qr-section mb-2">
-                                {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
-                            </div>
-                        </div>
-                        <div class="col-md-9 text-center">
-                            <div class="details text-center">
-                                <h5>{{ $child->name }}</h5>
-                                <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
-                                <p class="mb-1"><strong>EDUCATION:</strong> {{ $current_grade ?? 'N/A' }}</p>
-                                <p class="mb-1">  <strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }} , <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }} </p>
+<div class="d-flex flex-nowrap w-100 mb-1 align-items-start">
+    <!-- QR Column -->
+    <div class="flex-shrink-0 text-center p-2" style="width: 100px;">
+        @php
+        $sponsorUrl = route('sponsorship_card', $child->encoded_id);
+        $hobbies = $child->details->firstWhere('key', 'hobbies')->value ?? '';
+        $aspirations = $child->details->firstWhere('key', 'aspirations')->value ?? '';
+        $case_history = $child->details->firstWhere('key', 'case_history')->value ?? '';
+        $current_grade = $child->details->firstWhere('key', 'current_grade')->value ?? '';
+        @endphp
+        <div class="qr-section mb-2">
+            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
+        </div>
+    </div>
 
-                            </div>
-                        </div>
-                    </div>
+    <!-- Details Column -->
+    <div class="flex-grow-1 text-start px-3 p-2">
+        <div class="details">
+            <h5>{{ $child->name }}</h5>
+            <p class="mb-1"><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
+            <p class="mb-1"><strong>EDUCATION:</strong> {{ $current_grade ?? 'N/A' }}</p>
+            <p class="mb-1">
+                <strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}, <strong>Aspirations:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}
+            </p>
+        </div>
+    </div>
+</div>
 
                     <div class="description text-center">
                         {{ $aspirations ? $case_history : 'N/A' }}
