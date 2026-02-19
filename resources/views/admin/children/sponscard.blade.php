@@ -63,7 +63,7 @@
                         <!-- Website + Phone on the right -->
                         <div class="footer-contact">
                             <p class="mb-0">www.teulekenya.org</p>
-                            <p class="mb-0">+254 721 582323 <br> teuleusa@gmail.com</p>
+                            <p class="mb-0">+254 721 582323 <br> teuleusa@teulekenya.org</p>
                         </div>
                     </div>
                 </div>
