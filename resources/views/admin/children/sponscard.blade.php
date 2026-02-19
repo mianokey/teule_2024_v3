@@ -2,13 +2,13 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex flex-wrap justify-content-center gap-4" id="cardsContainer">
+    <div class="d-flex flex-wrap justify-content-center gap-3" id="cardsContainer">
         @foreach($children as $child)
         <div class="d-flex justify-content-center">
             <div class="card child-card" id="child-card-{{ $child->id }}">
 
                 <!-- Title -->
-                <h4 class="text-success text-center mt-1 fw-bold">Be My Hero!</h4>
+                <h4 class="text-success text-center mt-1 mb-1 fw-bold">Be My Hero!</h4>
 
                 <!-- Child Image -->
                 <div class="child-image-wrapper">
@@ -28,7 +28,7 @@
 
                     <!-- QR -->
                     <div class="qr-section">
-                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(100)->generate($sponsorUrl) !!}
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
                     </div>
 
                     <!-- Details -->
@@ -43,12 +43,12 @@
                 </div>
 
                 <!-- Case History Block -->
-                <div class="case-history mt-2 px-3 text-center">
+                <div class="case-history mt-1 px-2 text-center">
                     <p>{{ $case_history ?? 'N/A' }}</p>
                     <p>Be part of <b>{{ $child->name }}</b>'s brighter future today!</p>
                 </div>
 
-                <hr>
+                <hr class="my-1">
 
                 <!-- Footer: Logo + Website/Phone centered -->
                 <div class="footer-wrapper mt-1">
@@ -60,8 +60,8 @@
 
                         <!-- Website + Phone on the right -->
                         <div class="footer-contact">
-                            <p class="mb-1">www.teulekenya.org</p>
-                            <p class="mb-0">+254 721 582323 </br> teuleusa@gmail.com</p>
+                            <p class="mb-0">www.teulekenya.org</p>
+                            <p class="mb-0">+254 721 582323 <br> teuleusa@gmail.com</p>
                         </div>
                     </div>
                 </div>
@@ -85,24 +85,25 @@
     position: relative;
     width: 5in;
     height: 7in;
-    padding: 0.3in;
+    padding: 0.2in 0.25in;
     background-image: url('{{ asset('assets/img/childcard_bg.jpg') }}');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    border-radius: 18px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
+/* Overlay */
 .child-card::after {
     content: "";
     position: absolute;
     inset: 0;
     background: rgba(255,255,255,0.88);
-    border-radius: 20px;
+    border-radius: 18px;
     pointer-events: none;
 }
 
@@ -113,12 +114,12 @@
 
 /* Child Image */
 .child-image-wrapper {
-    width: 1.5in;
-    height: 1.5in;
+    width: 1.4in;
+    height: 1.4in;
     border-radius: 50%;
     overflow: hidden;
-    margin: 0.2in auto;
-    flex-shrink: 0; /* prevents shrinking */
+    margin: 0.1in auto 0.1in auto;
+    flex-shrink: 0;
 }
 
 .child-image-wrapper img {
@@ -132,69 +133,70 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    gap: 0.25in;
-    margin-top: 0.3in;
+    gap: 0.2in;
+    margin-top: 0.15in;
 }
 
 .qr-section svg {
-    width: 1in !important;
-    height: 1in !important;
+    width: 0.9in !important;
+    height: 0.9in !important;
 }
 
 /* Details */
 .details h5 {
     color: #000096;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
+    margin-bottom: 0.05in;
 }
 
 .details p {
-    font-size: 12px;
-    margin-bottom: 4px;
+    font-size: 11px;
+    margin-bottom: 2px;
 }
 
 /* Case History */
 .case-history p {
-    font-size: 13px;
-    margin-bottom: 4px;
+    font-size: 12px;
+    margin-bottom: 2px;
 }
 
-/* Footer: centered both vertically & horizontally */
+/* Footer */
 .footer-wrapper {
     margin-top: auto;
     display: flex;
-    justify-content: center; /* center the row in card */
-    align-items: center;     /* vertically align logo and text */
+    justify-content: center;
+    align-items: center;
 }
 
 .footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 80%; /* adjust to control spacing across card */
+    width: 80%;
 }
 
 .footer-logo {
-    width: 0.6in; /* smaller logo */
+    width: 0.55in;
 }
 
 .footer-contact {
-    text-align: left; /* keep website above phone */
-    font-size: 12px;
+    text-align: left;
+    font-size: 11px;
     font-weight: 500;
 }
 
 /* Floating download button */
 .download-btn-wrapper {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 8px;
+    right: 8px;
     z-index: 10;
 }
 
 .download-btn-wrapper .btn {
-    padding: 0.25rem 0.6rem;
-    font-size: 12px;
+    padding: 0.2rem 0.5rem;
+    font-size: 11px;
 }
 
 /* Print */
