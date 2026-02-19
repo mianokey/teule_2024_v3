@@ -47,9 +47,10 @@
                         <p>Be part of <b>{{ $child->name }}</b>'s brighter future today!</p>
                     </div>
 
+                    <hr class="my-1">
                 </div>
 
-                <hr class="my-1">
+                
 
                 <!-- Footer: static at bottom -->
                 <div class="footer-wrapper">
