@@ -23,35 +23,36 @@
                     $current_grade = $child->details->firstWhere('key', 'current_grade')->value ?? '';
                 @endphp
 
-                <!-- QR + Details Block (centered) -->
-                <div class="qr-details-wrapper">
+                <!-- QR + Details + Case History container -->
+                <div class="content-wrapper flex-grow-1 d-flex flex-column justify-content-center">
 
-                    <!-- QR -->
-                    <div class="qr-section">
-                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
+                    <!-- QR + Details Block -->
+                    <div class="qr-details-wrapper mb-1">
+                        <div class="qr-section">
+                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->generate($sponsorUrl) !!}
+                        </div>
+
+                        <div class="details">
+                            <h5>{{ $child->name }}</h5>
+                            <p><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
+                            <p><strong>Education:</strong> {{ $current_grade ?? 'N/A' }}</p>
+                            <p><strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}</p>
+                            <p><strong>Aspiration:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}</p>
+                        </div>
                     </div>
 
-                    <!-- Details -->
-                    <div class="details">
-                        <h5>{{ $child->name }}</h5>
-                        <p><strong>D.O.B:</strong> {{ $child->dob ?? 'N/A' }}</p>
-                        <p><strong>Education:</strong> {{ $current_grade ?? 'N/A' }}</p>
-                        <p><strong>Hobbies:</strong> {{ $hobbies ? ucwords(strtolower($hobbies)) : 'N/A' }}</p>
-                        <p><strong>Aspiration:</strong> {{ $aspirations ? ucwords(strtolower($aspirations)) : 'N/A' }}</p>
+                    <!-- Case History Block (centered when text is small) -->
+                    <div class="case-history text-center mx-2">
+                        <p>{{ $case_history ?? 'N/A' }}</p>
+                        <p>Be part of <b>{{ $child->name }}</b>'s brighter future today!</p>
                     </div>
 
-                </div>
-
-                <!-- Case History Block -->
-                <div class="case-history mt-1 px-2 text-center">
-                    <p>{{ $case_history ?? 'N/A' }}</p>
-                    <p>Be part of <b>{{ $child->name }}</b>'s brighter future today!</p>
                 </div>
 
                 <hr class="my-1">
 
-                <!-- Footer: Logo + Website/Phone centered -->
-                <div class="footer-wrapper mt-1">
+                <!-- Footer: static at bottom -->
+                <div class="footer-wrapper">
                     <div class="footer-content">
                         <!-- Logo on the left -->
                         <div class="footer-logo-wrapper">
@@ -128,13 +129,21 @@
     object-fit: cover;
 }
 
+/* Content Wrapper for QR/details + Case History */
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centers case history when small */
+    flex-grow: 1;
+}
+
 /* QR + Details */
 .qr-details-wrapper {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     gap: 0.2in;
-    margin-top: 0.15in;
+    margin-bottom: 0.15in;
 }
 
 .qr-section svg {
@@ -156,17 +165,22 @@
 }
 
 /* Case History */
-.case-history p {
+.case-history {
     font-size: 12px;
-    margin-bottom: 2px;
+    margin-bottom: 0.1in;
 }
 
-/* Footer */
+/* Footer: static at bottom */
 .footer-wrapper {
-    margin-top: auto;
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0 0.2in;
+    box-sizing: border-box;
 }
 
 .footer-content {
