@@ -26,13 +26,14 @@ class HomeController extends Controller
     {
     $systemDetails = SystemDetail::all();
     $needItems = NeedItem::all();
-    $posts = Post::latest()->get();
+    // $posts = Post::latest()->get();
 
-    $featuredPost = $posts->first();      // First post for the slider
-    $otherPosts = $posts->slice(1, 4);    // Next 4 posts for the grid
+    // $featuredPost = $posts->first();      // First post for the slider
+    // $otherPosts = $posts->slice(1, 4);    // Next 4 posts for the grid
 
     $events = Event::all()->sortBy('date_from');
-    return view('index', compact('systemDetails', 'needItems', 'events','featuredPost','otherPosts'));
+    //return view('index', compact('systemDetails', 'needItems', 'events','featuredPost','otherPosts'));
+    return view('index', compact('systemDetails', 'needItems', 'events'));
 }
 
 

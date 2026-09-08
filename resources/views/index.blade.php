@@ -276,7 +276,7 @@
 
 </section>
 
-<x-blog :featuredPost=" $featuredPost" :otherPosts="$otherPosts" ></x-blog>
+{{-- <x-blog :featuredPost=" $featuredPost" :otherPosts="$otherPosts" ></x-blog> --}}
 
 <section class="event-area pt-100 pb-70">
     <div class="container">
