@@ -80,7 +80,7 @@
                                 Temporal Placement
                             </option>
                             <option value="Scholarship" {{ $child->status == 'Education Scholarship' ? 'selected' : '' }}>
-                                Education Scholarship
+                                Education ScholarshipP
                             </option>
                         </select>
                         <label>Status</label>
