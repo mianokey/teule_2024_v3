@@ -364,7 +364,7 @@
     .footer-wrapper {
         position: absolute;
 
-        bottom: 10px;
+        bottom: 30px;
         left: 0;
 
         width: 100%;
