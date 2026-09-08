@@ -7,6 +7,7 @@ use App\Models\Child;
 use App\Models\Event;
 use App\Models\Latest;
 use App\Models\NeedItem;
+use App\Models\Post;
 use App\Models\SystemDetail;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -23,10 +24,31 @@ class HomeController extends Controller
 
     public function index()
     {
-      $systemDetails = SystemDetail::all();
-      $needItems = NeedItem::all();
-      $events = Event::all()->sortBy('date_from');
-      return view('index', compact('systemDetails', 'needItems', 'events'));
+    $systemDetails = SystemDetail::all();
+    $needItems = NeedItem::all();
+    $posts = Post::latest()->get();
+
+    $featuredPost = $posts->first();      // First post for the slider
+    $otherPosts = $posts->slice(1, 4);    // Next 4 posts for the grid
+
+    $events = Event::all()->sortBy('date_from');
+    return view('index', compact('systemDetails', 'needItems', 'events','featuredPost','otherPosts'));
+}
+
+
+
+    public function blog()
+    {
+        $posts = Post::latest()->get();
+
+        return view('blog', compact('posts'));
+    }
+
+     public function blogshow()
+    {
+        $posts = Post::latest()->get();
+
+        return view('blogshow', compact('posts'));
     }
 
 
@@ -115,15 +137,15 @@ class HomeController extends Controller
 
     public function team()
     {
-      
-$members = User::whereDoesntHave('details', function ($query) {
-    $query->where('key', 'position')
-          ->where(function ($subQuery) {
-              $subQuery->where('value', 'like', '%board%')
-                       ->orWhere('value', 'like', '%director%')
-                       ->orWhere('value', 'like', '%founder%');
-          });
-})->get();
+
+        $members = User::whereDoesntHave('details', function ($query) {
+            $query->where('key', 'position')
+                ->where(function ($subQuery) {
+                    $subQuery->where('value', 'like', '%board%')
+                        ->orWhere('value', 'like', '%director%')
+                        ->orWhere('value', 'like', '%founder%');
+                });
+        })->get();
 
 
         // Check if there are members

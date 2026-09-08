@@ -79,6 +79,9 @@
                             <option value="Temporal Placement" {{ $child->status == 'Temporal Placement' ? 'selected' : '' }}>
                                 Temporal Placement
                             </option>
+                            <option value="Scholarship" {{ $child->status == 'Education Scholarship' ? 'selected' : '' }}>
+                                Education Scholarship
+                            </option>
                         </select>
                         <label>Status</label>
                     </div>

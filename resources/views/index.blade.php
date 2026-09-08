@@ -276,6 +276,8 @@
 
 </section>
 
+<x-blog :featuredPost=" $featuredPost" :otherPosts="$otherPosts" ></x-blog>
+
 <section class="event-area pt-100 pb-70">
     <div class="container">
         <div class="section-title">
@@ -349,6 +351,7 @@
         </div>
     </div>
 </section>
+
 
 <x-footer></x-footer>
 @endsection

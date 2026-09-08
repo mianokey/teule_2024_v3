@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 
 
@@ -104,23 +105,65 @@ class AdminController extends Controller
         // Pass the data to a view
         return view('admin.children.index', compact('children'));
     }
-    public function spons_card()
-    {
-        // Retrieve a list of children with their details
-        $children = Child::with('details')->get();
+public function spons_card()
+{
+    // Retrieve children with their details
+    $children = Child::with('details')->get();
 
+    // Generate a unique token for each child
+    foreach ($children as $child) {
+        $delimiter = '|';
+        $randomString = Str::random(10);
+        $encodedId = base64_encode($child->id . $delimiter . $randomString);
 
-        // Generate a unique token for each child
-        foreach ($children as $child) {
-            $delimiter = '|';
-            $randomString = Str::random(10); // This part is optional if you want additional security
-            $encodedId = base64_encode($child->id . $delimiter . $randomString);
-            $child->encoded_id = $encodedId; // Assign dynamically
-        }
-
-        // Pass the data to a view
-        return view('admin.children.sponscard', compact('children'));
+        $child->encoded_id = $encodedId;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Automatically discover card templates
+    |--------------------------------------------------------------------------
+    */
+
+    $templatePath = resource_path(
+        'views/admin/children/sponscard/templates'
+    );
+
+    $templateFiles = File::files($templatePath);
+
+    $templates = collect($templateFiles)
+        ->filter(function ($file) {
+            return str_ends_with($file->getFilename(), '.blade.php');
+        })
+        ->mapWithKeys(function ($file) {
+
+            // general.blade.php → general
+            $key = preg_replace(
+                '/\.blade\.php$/',
+                '',
+                $file->getFilename()
+            );
+
+            // general → General
+            $name = ucwords(
+                str_replace(
+                    ['_', '-'],
+                    ' ',
+                    $key
+                )
+            );
+
+            return [
+                $key => $name
+            ];
+        })
+        ->toArray();
+
+    return view(
+        'admin.children.sponscard.index',
+        compact('children', 'templates')
+    );
+}
 
     public function child_edit($id)
     {

@@ -59,6 +59,7 @@
                             <option value="Residential">Residential</option>
                             <option value="Community Based care">Community Based Care</option>
                             <option value="Temporal Placement">Temporal Placement</option>
+                            <option value="Education Scholarship">Education Scholarship</option>
 
                         </select>
                         <label for="aspirations">Status</label>

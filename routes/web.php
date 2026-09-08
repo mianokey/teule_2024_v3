@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/donate', [HomeController::class, 'donate'])->name('donate');
+    Route::get('/blog', [HomeController::class, 'blog'])->name('blog');
+    Route::get('/blog/show', [HomeController::class, 'blogshow'])->name('blogshow');
     Route::get('/history', [HomeController::class, 'history'])->name('history');
     Route::get('/founders', [HomeController::class, 'founders'])->name('founders');
     Route::get('/team', [HomeController::class, 'team'])->name('team');
@@ -51,6 +53,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/error', [HomeController::class, 'showErrorPage'])->name('error');
     Route::post('/mark-animation-shown', [AnimationController::class, 'markAnimationShown'])->name('mark-animation-shown');
     Route::get('/careers', [HomeController::class, 'careers'])->name('careers');
+    Route::get('/needboard', [HomeController::class, 'history'])->name('history');
 
 
     // Merchandise routes
