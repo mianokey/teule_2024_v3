@@ -1,17 +1,17 @@
 @php
-    $sponsorUrl = route(
-        'sponsorship_card',
-        $child->encoded_id
-    );
+$sponsorUrl = route(
+'sponsorship_card',
+$child->encoded_id
+);
 
-    $current_grade = $child->details
-        ->firstWhere('key', 'current_grade')
-        ->value ?? '';
+$current_grade = $child->details
+->firstWhere('key', 'current_grade')
+->value ?? '';
 
-    $firstName = explode(
-        ' ',
-        trim($child->name)
-    )[0];
+$firstName = explode(
+' ',
+trim($child->name)
+)[0];
 @endphp
 
 <style>
@@ -86,7 +86,7 @@
         width: 100%;
         height: 9px;
 
-        background:
+        /* background:
             linear-gradient(
                 90deg,
                 #000096 0%,
@@ -95,7 +95,7 @@
                 #f5b942 65%,
                 #ef4700 65%,
                 #ef4700 100%
-            );
+            ); */
 
         z-index: 2;
     }
@@ -463,15 +463,8 @@
     }
 </style>
 
-
-<div
-    class="card child-card education-card"
-    id="child-card-{{ $child->id }}"
-    data-child-id="{{ $child->id }}"
-    data-name="{{ $child->name }}"
-    data-first-name="{{ $firstName }}"
-    data-current-grade="{{ $current_grade }}"
->
+<div class="card child-card education-card" id="child-card-{{ $child->id }}" data-child-id="{{ $child->id }}"
+    data-name="{{ $child->name }}" data-first-name="{{ $firstName }}" data-current-grade="{{ $current_grade }}">
 
 
     {{-- TITLE --}}
@@ -489,10 +482,7 @@
 
         <div class="education-image-wrapper-inner">
 
-            <img
-                src="{{ asset($child->img_url) }}"
-                alt="{{ $child->name }}"
-            >
+            <img src="{{ asset($child->img_url) }}" alt="{{ $child->name }}">
 
         </div>
 
@@ -561,11 +551,7 @@
 
             <div class="footer-logo-wrapper">
 
-                <img
-                    src="{{ asset('assets/img/logo.png') }}"
-                    alt="Teule Logo"
-                    class="footer-logo"
-                >
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Teule Logo" class="footer-logo">
 
             </div>
 
@@ -592,11 +578,7 @@
     {{-- INDIVIDUAL DOWNLOAD --}}
     <div class="download-btn-wrapper no-print">
 
-        <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            onclick="downloadEducationCard({{ $child->id }})"
-        >
+        <button type="button" class="btn btn-primary btn-sm" onclick="downloadEducationCard({{ $child->id }})">
 
             <i class="fas fa-download me-1"></i>
             Download

@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.admin')
 
 @section('content')
@@ -924,4 +923,3 @@ document.addEventListener(
 </script>
 
 @endsection
-```
