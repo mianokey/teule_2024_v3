@@ -31,4 +31,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'onfon' => [
+        'api_url' => env(
+            'ONFON_API_URL',
+            'https://api.onfonmedia.co.ke/v1/sms/SendBulkSMS'
+        ),
+
+        'api_key' => env('ONFON_API_KEY'),
+        'client_id' => env('ONFON_CLIENT_ID'),
+        'access_key' => env('ONFON_ACCESS_KEY'),
+        'sender_id' => env('ONFON_SENDER_ID'),
+    ],
+
 ];

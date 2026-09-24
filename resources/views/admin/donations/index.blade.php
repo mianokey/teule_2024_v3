@@ -1,0 +1,458 @@
+@extends('layouts.admin')
+
+@section('content')
+
+<div class="donation-page">
+
+    {{-- Header --}}
+
+    <div class="page-header">
+
+        <div>
+
+            <div class="text-muted small mb-1">
+                Donations
+            </div>
+
+            <h5 class="mb-0">
+                All Donations
+            </h5>
+
+        </div>
+
+        <a href="{{ route('admin.donations.create') }}" class="btn btn-primary btn-sm">
+
+            <i class="fas fa-plus me-1"></i>
+
+            Record Donation
+
+        </a>
+
+    </div>
+
+
+    <x-message></x-message>
+
+
+    {{-- Donations table --}}
+
+    <div class="simple-card">
+
+        <div class="simple-card-header">
+
+            <div>
+
+                <strong>
+                    Donation Records
+                </strong>
+
+                <div class="text-muted small">
+                    {{ $donations->count() }}
+                    {{ $donations->count() === 1 ? 'record' : 'records' }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table id="datatable" class="table donations-table mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Donation
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Donor
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Amount / Value
+                        </th>
+
+                        <th>
+                            Purpose
+                        </th>
+
+                        <th>
+                            Source
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th class="text-end">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach($donations as $donation)
+
+                    @php
+                    $classificationClasses = [
+                    'donation' => 'badge-success',
+                    'payment' => 'badge-info',
+                    'refund' => 'badge-warning',
+                    'other' => 'badge-secondary',
+                    'unclassified' => 'badge-light',
+                    ];
+
+                    $classificationClass =
+                    $classificationClasses[$donation->classification]
+                    ?? 'badge-light';
+                    @endphp
+
+                    <tr>
+
+                        {{-- Donation number --}}
+
+                        <td>
+
+                            <a href="{{ route('admin.donations.show', $donation) }}" class="donation-number">
+
+                                {{ $donation->donation_number }}
+
+                            </a>
+
+                        </td>
+
+
+                        {{-- Date --}}
+
+                        <td class="text-nowrap">
+
+                            {{ $donation->donation_date?->format('d M Y') }}
+
+                        </td>
+
+
+                        {{-- Donor --}}
+
+                        <td>
+
+                            @if($donation->donor)
+
+                            <div class="donor-name">
+
+                                {{ $donation->donor->name }}
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                {{ $donation->donor->donor_number }}
+
+                            </small>
+
+                            @else
+
+                            <span class="text-muted">
+                                Anonymous
+                            </span>
+
+                            @endif
+
+                        </td>
+
+
+                        {{-- Type --}}
+
+                        <td>
+
+                            @if($donation->type === 'cash')
+
+                            <span class="type-badge">
+                                Cash
+                            </span>
+
+                            @else
+
+                            <span class="type-badge">
+                                In-Kind
+                            </span>
+
+                            @endif
+
+                        </td>
+
+
+                        {{-- Amount --}}
+
+                        <td class="text-nowrap">
+
+                            @if($donation->amount !== null)
+
+                            <strong>
+
+                                {{ $donation->currency }}
+
+                                {{ number_format($donation->amount, 2) }}
+
+                            </strong>
+
+                            @else
+
+                            <span class="text-muted">
+                                —
+                            </span>
+
+                            @endif
+
+                        </td>
+
+
+                        {{-- Purpose --}}
+
+                        <td>
+
+                            {{ $donation->purpose ?: '—' }}
+
+                        </td>
+
+
+                        {{-- Source --}}
+
+                        <td>
+                            @if($donation->type === 'cash')
+                            {{ ucfirst($donation->source) }}
+                            @else
+                            —
+                            @endif
+                        </td>
+
+
+                        {{-- Classification --}}
+
+                        <td>
+
+                            <span class="status-badge {{ $classificationClass }}">
+
+                                {{ ucfirst($donation->classification) }}
+
+                            </span>
+
+                        </td>
+
+
+                        {{-- Actions --}}
+
+                        <td class="text-end text-nowrap">
+
+                            <a href="{{ route('admin.donations.show', $donation) }}" class="btn btn-light btn-sm"
+                                title="View">
+
+                                <i class="fas fa-eye"></i>
+
+                            </a>
+
+                            <a href="{{ route('admin.donations.edit', $donation) }}" class="btn btn-light btn-sm"
+                                title="Edit">
+
+                                <i class="fas fa-edit"></i>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+    .donation-page {
+        padding-bottom: 30px;
+    }
+
+
+    /* Header */
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+
+    /* Card */
+
+    .simple-card {
+        background: #fff;
+        border: 1px solid #e6e8eb;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+
+    .simple-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+
+    /* Table */
+
+    .donations-table {
+        font-size: 13px;
+    }
+
+
+    .donations-table thead th {
+        background: #f8f9fa;
+        color: #6c757d;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .25px;
+        padding: 11px 15px;
+        border-bottom: 1px solid #e9ecef;
+        white-space: nowrap;
+    }
+
+
+    .donations-table tbody td {
+        padding: 13px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f1f2;
+    }
+
+
+    .donations-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+
+    .donations-table tbody tr:hover {
+        background: #fafbfc;
+    }
+
+
+    /* Donation number */
+
+    .donation-number {
+        color: #343a40;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+
+    .donation-number:hover {
+        text-decoration: underline;
+    }
+
+
+    /* Donor */
+
+    .donor-name {
+        font-weight: 500;
+    }
+
+
+    /* Type */
+
+    .type-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #f1f3f5;
+        color: #495057;
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+
+    /* Status */
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+
+    .badge-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+
+    .badge-info {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+
+    .badge-warning {
+        background: #fff8e1;
+        color: #a36b00;
+    }
+
+
+    .badge-secondary {
+        background: #f1f3f5;
+        color: #495057;
+    }
+
+
+    .badge-light {
+        background: #f8f9fa;
+        color: #495057;
+    }
+
+
+    /* Mobile */
+
+    @media (max-width: 767px) {
+
+        .page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .page-header .btn {
+            width: 100%;
+        }
+
+    }
+</style>
+
+@endsection

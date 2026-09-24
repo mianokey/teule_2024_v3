@@ -117,6 +117,57 @@
 
                             </ul>
                         </li>
+
+                        <li>
+                            <a href="#comms" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
+                                <i>
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                    </svg>
+                                </i>
+
+                                <span class="ml-2">C&P</span>
+
+                                <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+                            </a>
+
+
+                            <ul id="comms" class="submenu collapse" data-parent="#mm-sidebar-toggle">
+
+                                <li>
+                                    <a href="{{ route('admin.donations.index') }}" class="svg-icon">
+                                        <i class="fa fa-gift"></i>
+                                        <span>Donations</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="{{ route('admin.donors.index') }}" class="svg-icon">
+                                        <i class="fa fa-users"></i>
+                                        <span>Donors</span>
+                                    </a>
+                                </li>
+
+
+                                <li>
+                                    <a href="{{ route('admin.donation-communications.index') }}" class="svg-icon">
+                                        <i class="fa fa-paper-plane"></i>
+                                        <span>Communications</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="{{ route('admin.donations.create') }}" class="svg-icon">
+                                        <i class="fa fa-plus-circle"></i>
+                                        <span>Receive Donations</span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
                         <li class>
                             <a href="#System" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
                                 <i class>
@@ -240,7 +291,7 @@
                         </li>
                         @endif
 
-                         @if(auth()->user()->can('MAKE REQUISITION'))
+                        @if(auth()->user()->can('MAKE REQUISITION'))
                         <li class="nav-item">
                             <a href="#merchandise" class="collapsed svg-icon" data-toggle="collapse"
                                 aria-expanded="false">
@@ -274,7 +325,7 @@
                         </li>
                         @endif
 
-                        
+
 
 
                     </ul>

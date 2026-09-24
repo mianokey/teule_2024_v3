@@ -10,6 +10,10 @@ use App\Http\Controllers\PettycashController;
 use App\Http\Controllers\SustainabilityController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DonorController;
+use App\Http\Controllers\Admin\DonationController;
+use App\Http\Controllers\Admin\DonationCommunicationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -109,6 +113,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::delete('/user/{id}/delete', [AdminController::class, 'user_delete'])->name('admin.user.delete');
     Route::put('user/{userId}/assign-role', [AdminController::class, 'updateRoles'])->name('admin.user.updateRoles');
 
+
+    //donation routes
+    Route::resource('donors', DonorController::class) ->names('admin.donors'); 
+    Route::resource('donations', DonationController::class) ->names('admin.donations');
+    Route::get('donation-communications', [ DonationCommunicationController::class, 'index'])->name('admin.donation-communications.index');
+    Route::get('donation-communications/{communication}', [ DonationCommunicationController::class,'show'])->name('admin.donation-communications.show');
+    Route::post('donation-communications/{communication}/cancel', [ DonationCommunicationController::class,'cancel'])->name('admin.donation-communications.cancel');
+    Route::post('donations/{donation}/resend-thank-you', [ DonationController::class, 'resendThankYou',])->name('admin.donations.resend-thank-you');
+
 });
 
 Route::middleware(['auth'])->prefix('admin/system')->group(function () {
@@ -146,6 +159,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::middleware(['auth'])->group(function() {
     Route::get('/merch/create', [MerchandiseController::class,'index'])->name('merch.create');
 });
+
+
 
 
 
