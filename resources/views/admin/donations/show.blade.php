@@ -3,9 +3,9 @@
 @section('content')
 
 @php
-
 $isCash = $donation->type === 'cash';
 $isInKind = $donation->type === 'in_kind';
+
 
 $classificationClasses = [
     'donation'     => 'donation-status-success',
@@ -32,34 +32,34 @@ $pendingCommunications = $donation->communications
 @endphp
 
 <style>
-
     /* =========================================================
-       DONATION DASHBOARD
+       COMPACT DONATION DASHBOARD
        ========================================================= */
 
     .donation-page {
-        max-width: 1450px;
+        width: 100%;
+        max-width: 1500px;
         margin: 0 auto;
-        padding-bottom: 30px;
+        padding: 0 0 12px;
     }
 
     .donation-topbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 15px;
-        margin-bottom: 14px;
+        gap: 10px;
+        margin-bottom: 8px;
     }
 
     .donation-breadcrumb {
-        font-size: 11px;
+        font-size: 9px;
         color: #94a3b8;
-        letter-spacing: .04em;
-        margin-bottom: 3px;
+        letter-spacing: .05em;
+        margin-bottom: 1px;
     }
 
     .donation-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 650;
         margin: 0;
         color: #172033;
@@ -67,12 +67,14 @@ $pendingCommunications = $donation->communications
 
     .donation-actions {
         display: flex;
-        gap: 7px;
+        gap: 5px;
         align-items: center;
     }
 
     .donation-actions .btn {
-        border-radius: 8px;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 10px;
     }
 
 
@@ -83,9 +85,9 @@ $pendingCommunications = $donation->communications
     .donation-hero {
         position: relative;
         overflow: hidden;
-        border-radius: 16px;
-        padding: 22px 24px;
-        margin-bottom: 14px;
+        border-radius: 10px;
+        padding: 13px 16px;
+        margin-bottom: 8px;
         color: #fff;
 
         background:
@@ -101,18 +103,7 @@ $pendingCommunications = $donation->communications
                 #1e293b 100%
             );
 
-        box-shadow: 0 10px 30px rgba(15, 23, 42, .12);
-    }
-
-    .donation-hero::after {
-        content: '';
-        position: absolute;
-        width: 180px;
-        height: 180px;
-        right: -70px;
-        bottom: -100px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.04);
+        box-shadow: 0 5px 16px rgba(15, 23, 42, .09);
     }
 
     .donation-hero-content {
@@ -121,23 +112,23 @@ $pendingCommunications = $donation->communications
     }
 
     .donation-hero-label {
-        font-size: 10px;
+        font-size: 8px;
         text-transform: uppercase;
         letter-spacing: .12em;
         color: #94a3b8;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
     }
 
     .donation-amount {
-        font-size: 32px;
+        font-size: 25px;
         line-height: 1;
         font-weight: 700;
-        letter-spacing: -1px;
+        letter-spacing: -.7px;
     }
 
     .donation-number {
-        margin-top: 8px;
-        font-size: 12px;
+        margin-top: 4px;
+        font-size: 9px;
         color: #cbd5e1;
     }
 
@@ -146,8 +137,8 @@ $pendingCommunications = $donation->communications
     }
 
     .donation-date {
-        margin-top: 10px;
-        font-size: 11px;
+        margin-top: 5px;
+        font-size: 9px;
         color: #94a3b8;
     }
 
@@ -159,18 +150,18 @@ $pendingCommunications = $donation->communications
     .donation-status {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 11px;
+        gap: 5px;
+        padding: 3px 7px;
+        border-radius: 14px;
+        font-size: 9px;
         font-weight: 600;
         white-space: nowrap;
     }
 
     .donation-status::before {
         content: '';
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: currentColor;
     }
@@ -208,28 +199,32 @@ $pendingCommunications = $donation->communications
     .donation-card {
         background: #fff;
         border: 1px solid #edf0f4;
-        border-radius: 13px;
+        border-radius: 9px;
         overflow: hidden;
         height: 100%;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, .035);
+        box-shadow: 0 2px 10px rgba(15, 23, 42, .025);
     }
 
     .donation-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 13px 17px;
+        padding: 8px 12px;
         border-bottom: 1px solid #f1f3f5;
     }
 
     .donation-card-title {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 650;
         color: #334155;
     }
 
     .donation-card-body {
-        padding: 16px 17px;
+        padding: 10px 12px;
+    }
+
+    .donation-page .mb-3 {
+        margin-bottom: 8px !important;
     }
 
 
@@ -243,7 +238,7 @@ $pendingCommunications = $donation->communications
     }
 
     .donation-detail {
-        padding: 11px 15px;
+        padding: 7px 10px;
         border-bottom: 1px solid #f3f4f6;
     }
 
@@ -253,15 +248,15 @@ $pendingCommunications = $donation->communications
 
     .donation-label {
         display: block;
-        font-size: 9px;
+        font-size: 7px;
         text-transform: uppercase;
         letter-spacing: .08em;
         color: #94a3b8;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
     }
 
     .donation-value {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 550;
         color: #334155;
         word-break: break-word;
@@ -275,45 +270,45 @@ $pendingCommunications = $donation->communications
     .donor-profile {
         display: flex;
         align-items: center;
-        gap: 11px;
+        gap: 8px;
     }
 
     .donor-avatar {
-        width: 39px;
-        height: 39px;
-        border-radius: 11px;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: #eef2ff;
         color: #3730a3;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 11px;
         flex-shrink: 0;
     }
 
     .donor-name {
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 650;
         color: #1e293b;
     }
 
     .donor-number {
-        font-size: 10px;
+        font-size: 8px;
         color: #94a3b8;
     }
 
     .donor-contact {
-        margin-top: 14px;
+        margin-top: 7px;
     }
 
     .donor-contact-row {
         display: flex;
         justify-content: space-between;
-        gap: 10px;
-        padding: 7px 0;
+        gap: 8px;
+        padding: 5px 0;
         border-bottom: 1px solid #f3f4f6;
-        font-size: 11px;
+        font-size: 9px;
     }
 
     .donor-contact-row:last-child {
@@ -328,6 +323,7 @@ $pendingCommunications = $donation->communications
         color: #475569;
         text-align: right;
         font-weight: 550;
+        word-break: break-word;
     }
 
 
@@ -336,11 +332,11 @@ $pendingCommunications = $donation->communications
        ========================================================= */
 
     .communication-card {
-        border-radius: 11px;
+        border-radius: 7px;
         border: 1px solid #e7edf5;
         background: #f8fafc;
-        padding: 11px 13px;
-        margin-bottom: 8px;
+        padding: 7px 9px;
+        margin-bottom: 5px;
     }
 
     .communication-card:last-child {
@@ -348,73 +344,101 @@ $pendingCommunications = $donation->communications
     }
 
     .communication-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 9px;
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: #fff;
         color: #475569;
-        box-shadow: 0 2px 6px rgba(0,0,0,.04);
+        box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        font-size: 10px;
     }
 
     .communication-title {
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 650;
         color: #334155;
     }
 
     .communication-recipient {
-        font-size: 10px;
+        font-size: 8px;
         color: #94a3b8;
     }
 
     .communication-countdown {
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 650;
         color: #b45309;
     }
 
     .communication-processing {
-        font-size: 11px;
+        font-size: 9px;
         color: #2563eb;
         font-weight: 600;
     }
 
+    .communication-cancel-button {
+        font-size: 8px !important;
+    }
+
 
     /* =========================================================
-       IN-KIND
+       IN-KIND ITEMS
        ========================================================= */
 
     .items-summary {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 17px;
+        padding: 8px 12px;
         background: #f8fafc;
         border-bottom: 1px solid #eef1f4;
     }
 
+    /*
+       Keep the item list compact.
+       If there are many items, only this area scrolls.
+    */
+    .items-table-wrapper {
+        max-height: 260px;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
     .items-table {
-        font-size: 11px;
+        font-size: 9px;
         margin-bottom: 0;
     }
 
     .items-table th {
-        font-size: 9px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+
+        font-size: 7px;
         text-transform: uppercase;
         letter-spacing: .05em;
         color: #94a3b8;
         background: #fafbfc;
         border-bottom: 1px solid #edf0f4;
-        padding: 9px 13px;
+        padding: 6px 9px;
+        white-space: nowrap;
     }
 
     .items-table td {
-        padding: 10px 13px;
+        padding: 6px 9px;
         vertical-align: middle;
         border-bottom: 1px solid #f3f4f6;
+    }
+
+    .items-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .items-table small {
+        font-size: 7px;
     }
 
 
@@ -423,15 +447,15 @@ $pendingCommunications = $donation->communications
        ========================================================= */
 
     .donation-note {
-        padding: 12px 17px;
+        padding: 8px 12px;
         border-top: 1px solid #f1f3f5;
     }
 
     .donation-note-text {
         margin: 0;
         color: #64748b;
-        font-size: 11px;
-        line-height: 1.5;
+        font-size: 9px;
+        line-height: 1.4;
         white-space: pre-line;
     }
 
@@ -443,10 +467,10 @@ $pendingCommunications = $donation->communications
     .record-row {
         display: flex;
         justify-content: space-between;
-        gap: 15px;
-        padding: 8px 0;
+        gap: 10px;
+        padding: 6px 0;
         border-bottom: 1px solid #f1f3f5;
-        font-size: 11px;
+        font-size: 9px;
     }
 
     .record-row:last-child {
@@ -465,6 +489,37 @@ $pendingCommunications = $donation->communications
 
 
     /* =========================================================
+       PAGE SCROLL / VIEWPORT
+       ========================================================= */
+
+    /*
+       Never allow the donation page to be trapped inside
+       a fixed-height container.
+    */
+    .donation-page {
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .donation-page .row {
+        min-height: 0;
+    }
+
+    /*
+       On smaller screens the entire page remains scrollable.
+    */
+    @media (max-width: 991px) {
+        .donation-page {
+            padding-bottom: 20px;
+        }
+
+        .items-table-wrapper {
+            max-height: 300px;
+        }
+    }
+
+
+    /* =========================================================
        MOBILE
        ========================================================= */
 
@@ -477,6 +532,7 @@ $pendingCommunications = $donation->communications
 
         .donation-actions {
             width: 100%;
+            flex-wrap: wrap;
         }
 
         .donation-actions .btn {
@@ -484,15 +540,15 @@ $pendingCommunications = $donation->communications
         }
 
         .donation-hero {
-            padding: 18px;
+            padding: 12px;
         }
 
         .donation-amount {
-            font-size: 27px;
+            font-size: 23px;
         }
 
         .donation-hero-right {
-            margin-top: 10px;
+            margin-top: 7px;
             text-align: left;
         }
 
@@ -504,8 +560,14 @@ $pendingCommunications = $donation->communications
             border-right: 0;
         }
 
-    }
+        .items-table-wrapper {
+            max-height: 280px;
+        }
 
+        .items-table {
+            min-width: 560px;
+        }
+    }
 </style>
 
 <div class="donation-page">
@@ -527,7 +589,6 @@ $pendingCommunications = $donation->communications
         </h5>
     </div>
 
-
     <div class="donation-actions">
 
         <a
@@ -546,8 +607,8 @@ $pendingCommunications = $donation->communications
             Edit
         </a>
 
-
         {{-- RESEND --}}
+
         @if(
             $donation->classification === 'donation'
             && $donation->donor
@@ -670,7 +731,6 @@ $pendingCommunications = $donation->communications
                     @endif
 
                 </div>
-
             </div>
 
         @endif
@@ -712,7 +772,6 @@ $pendingCommunications = $donation->communications
 
             </div>
 
-
             <div class="col-md-4 donation-hero-right">
 
                 <span class="donation-status {{ $classificationClass }}">
@@ -720,9 +779,11 @@ $pendingCommunications = $donation->communications
                 </span>
 
                 @if($donation->source)
+
                     <div class="donation-date">
                         Source · {{ ucfirst($donation->source) }}
                     </div>
+
                 @endif
 
             </div>
@@ -762,7 +823,8 @@ $pendingCommunications = $donation->communications
 
                 @php
                     $scheduledAt = $communication->scheduled_at;
-                    $hasStarted = $scheduledAt && !$scheduledAt->isFuture();
+                    $hasStarted =
+                        $scheduledAt && !$scheduledAt->isFuture();
                 @endphp
 
                 <div
@@ -772,22 +834,23 @@ $pendingCommunications = $donation->communications
                     data-scheduled-at="{{ $scheduledAt ? $scheduledAt->timestamp * 1000 : '' }}"
                 >
 
-                    <div class="d-flex justify-content-between align-items-center gap-3">
+                    <div class="d-flex justify-content-between align-items-center">
 
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center">
 
-                            <div class="communication-icon">
+                            <div class="communication-icon mr-2">
 
                                 @if($communication->channel === 'sms')
                                     <i class="fas fa-sms"></i>
+
                                 @elseif($communication->channel === 'email')
                                     <i class="fas fa-envelope"></i>
+
                                 @else
                                     <i class="fas fa-paper-plane"></i>
                                 @endif
 
                             </div>
-
 
                             <div>
 
@@ -795,10 +858,13 @@ $pendingCommunications = $donation->communications
 
                                     @if($communication->channel === 'sms')
                                         SMS Thank-you
+
                                     @elseif($communication->channel === 'email')
                                         Email Thank-you
+
                                     @else
-                                        {{ ucfirst($communication->channel) }} Thank-you
+                                        {{ ucfirst($communication->channel) }}
+                                        Thank-you
                                     @endif
 
                                 </div>
@@ -817,22 +883,21 @@ $pendingCommunications = $donation->communications
                             @if($hasStarted)
 
                                 <div class="communication-processing">
-                                    <i class="fas fa-spinner fa-spin me-1"></i>
+                                    <i class="fas fa-spinner fa-spin"></i>
                                     Processing
                                 </div>
 
                             @else
 
                                 <div class="communication-countdown-text">
-
                                     <span class="communication-countdown">
                                         --
                                     </span>
                                     sec
-
                                 </div>
 
                             @endif
+
 
                             <form
                                 method="POST"
@@ -910,7 +975,6 @@ $pendingCommunications = $donation->communications
 
                 let timer = null;
 
-
                 function showProcessingState() {
 
                     if (timer) {
@@ -924,16 +988,11 @@ $pendingCommunications = $donation->communications
                     }
 
                     if (cancelButton) {
-
                         cancelButton.disabled = true;
-
                         cancelButton.textContent =
                             'Processing...';
-
                     }
-
                 }
-
 
                 function updateCountdown() {
 
@@ -949,26 +1008,19 @@ $pendingCommunications = $donation->communications
                         );
 
                     if (countdownElement) {
-
                         countdownElement.textContent =
                             remainingSeconds;
-
                     }
 
                     if (remainingMilliseconds <= 0) {
                         showProcessingState();
                     }
-
                 }
-
 
                 if (Date.now() >= scheduledAt) {
-
                     showProcessingState();
                     return;
-
                 }
-
 
                 updateCountdown();
 
@@ -990,15 +1042,16 @@ $pendingCommunications = $donation->communications
      MAIN CONTENT
      ========================================================= --}}
 
-<div class="row g-3">
-
+<div class="row" style="margin-left:-4px;margin-right:-4px;">
 
     {{-- =====================================================
          LEFT
          ===================================================== --}}
 
-    <div class="col-lg-8">
-
+    <div
+        class="col-lg-8"
+        style="padding-left:4px;padding-right:4px;"
+    >
 
         {{-- Donation Details --}}
 
@@ -1023,37 +1076,45 @@ $pendingCommunications = $donation->communications
                     <span class="donation-label">
                         Donation Number
                     </span>
+
                     <span class="donation-value">
                         {{ $donation->donation_number }}
                     </span>
                 </div>
 
+
                 <div class="donation-detail">
                     <span class="donation-label">
                         Date
                     </span>
+
                     <span class="donation-value">
                         {{ $donation->donation_date?->format('d M Y') }}
                     </span>
                 </div>
 
+
                 <div class="donation-detail">
                     <span class="donation-label">
                         Type
                     </span>
+
                     <span class="donation-value">
                         {{ $isCash ? 'Cash' : 'In-Kind' }}
                     </span>
                 </div>
 
+
                 <div class="donation-detail">
                     <span class="donation-label">
                         Purpose
                     </span>
+
                     <span class="donation-value">
                         {{ $donation->purpose ?: '—' }}
                     </span>
                 </div>
+
 
                 @if($isCash)
 
@@ -1061,33 +1122,40 @@ $pendingCommunications = $donation->communications
                         <span class="donation-label">
                             Source
                         </span>
+
                         <span class="donation-value">
                             {{ ucfirst($donation->source) }}
                         </span>
                     </div>
 
+
                     <div class="donation-detail">
                         <span class="donation-label">
                             Currency
                         </span>
+
                         <span class="donation-value">
                             {{ $donation->currency }}
                         </span>
                     </div>
 
+
                     <div class="donation-detail">
                         <span class="donation-label">
                             Reference
                         </span>
+
                         <span class="donation-value">
                             {{ $donation->reference ?: '—' }}
                         </span>
                     </div>
 
+
                     <div class="donation-detail">
                         <span class="donation-label">
                             Payment Reference
                         </span>
+
                         <span class="donation-value">
                             {{ $donation->payment_reference ?: '—' }}
                         </span>
@@ -1134,7 +1202,9 @@ $pendingCommunications = $donation->communications
         </div>
 
 
-        {{-- In-Kind Items --}}
+        {{-- =================================================
+             IN-KIND ITEMS
+             ================================================= --}}
 
         @if($isInKind && $donation->items->count())
 
@@ -1148,7 +1218,8 @@ $pendingCommunications = $donation->communications
                             Items Received
                         </div>
 
-                        <div class="text-muted small">
+                        <div class="text-muted"
+                             style="font-size:8px;">
                             {{ $donation->items->count() }}
                             {{ $donation->items->count() === 1 ? 'item' : 'items' }}
                         </div>
@@ -1162,7 +1233,7 @@ $pendingCommunications = $donation->communications
                             Estimated Value
                         </span>
 
-                        <strong class="small">
+                        <strong style="font-size:9px;">
                             {{ $donation->currency }}
                             {{ number_format($totalEstimatedValue, 2) }}
                         </strong>
@@ -1172,7 +1243,7 @@ $pendingCommunications = $donation->communications
                 </div>
 
 
-                <div class="table-responsive">
+                <div class="items-table-wrapper">
 
                     <table class="table items-table">
 
@@ -1183,10 +1254,13 @@ $pendingCommunications = $donation->communications
                                 <th>Qty</th>
                                 <th>Unit</th>
                                 <th>Condition</th>
-                                <th class="text-end">Value</th>
+                                <th class="text-end">
+                                    Value
+                                </th>
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -1208,7 +1282,9 @@ $pendingCommunications = $donation->communications
 
                                     </td>
 
+
                                     <td>
+
                                         {{ rtrim(
                                             rtrim(
                                                 number_format(
@@ -1219,15 +1295,19 @@ $pendingCommunications = $donation->communications
                                             ),
                                             '.'
                                         ) }}
+
                                     </td>
+
 
                                     <td>
                                         {{ $item->unit ?: '—' }}
                                     </td>
 
+
                                     <td>
                                         {{ $item->condition ?: '—' }}
                                     </td>
+
 
                                     <td class="text-end">
 
@@ -1240,7 +1320,9 @@ $pendingCommunications = $donation->communications
                                             ) }}
 
                                         @else
+
                                             —
+
                                         @endif
 
                                     </td>
@@ -1266,8 +1348,10 @@ $pendingCommunications = $donation->communications
          RIGHT
          ===================================================== --}}
 
-    <div class="col-lg-4">
-
+    <div
+        class="col-lg-4"
+        style="padding-left:4px;padding-right:4px;"
+    >
 
         {{-- Donor --}}
 
@@ -1287,6 +1371,7 @@ $pendingCommunications = $donation->communications
                 @if($donation->donor)
 
                     @php
+
                         $initials = collect(
                             preg_split(
                                 '/\s+/',
@@ -1295,9 +1380,16 @@ $pendingCommunications = $donation->communications
                         )
                         ->filter()
                         ->take(2)
-                        ->map(fn($name) => strtoupper(substr($name, 0, 1)))
+                        ->map(
+                            fn($name) =>
+                                strtoupper(
+                                    substr($name, 0, 1)
+                                )
+                        )
                         ->implode('');
+
                     @endphp
+
 
                     <div class="donor-profile">
 
@@ -1325,32 +1417,49 @@ $pendingCommunications = $donation->communications
                         @if($donation->donor->organization)
 
                             <div class="donor-contact-row">
-                                <span>Organization</span>
+
+                                <span>
+                                    Organization
+                                </span>
+
                                 <strong>
                                     {{ $donation->donor->organization }}
                                 </strong>
+
                             </div>
 
                         @endif
+
 
                         @if($donation->donor->phone)
 
                             <div class="donor-contact-row">
-                                <span>Phone</span>
+
+                                <span>
+                                    Phone
+                                </span>
+
                                 <strong>
                                     {{ $donation->donor->phone }}
                                 </strong>
+
                             </div>
 
                         @endif
 
+
                         @if($donation->donor->email)
 
                             <div class="donor-contact-row">
-                                <span>Email</span>
+
+                                <span>
+                                    Email
+                                </span>
+
                                 <strong>
                                     {{ $donation->donor->email }}
                                 </strong>
+
                             </div>
 
                         @endif
@@ -1363,14 +1472,16 @@ $pendingCommunications = $donation->communications
                             'admin.donors.show',
                             $donation->donor
                         ) }}"
-                        class="btn btn-light btn-sm w-100 mt-3"
+                        class="btn btn-light btn-sm w-100 mt-2"
+                        style="font-size:9px;padding:4px 7px;"
                     >
                         View Donor
                     </a>
 
                 @else
 
-                    <div class="text-muted small">
+                    <div class="text-muted"
+                         style="font-size:9px;">
                         Anonymous / Not Specified
                     </div>
 
