@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('donations:send-pending') ->everyMinute(); 
+        $schedule->command('mpesa:review-reminder')->hourly();
     }
 
     /**

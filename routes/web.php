@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\DonationCommunicationController;
-
+use App\Http\Controllers\Admin\MpesaTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +121,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('donation-communications/{communication}', [ DonationCommunicationController::class,'show'])->name('admin.donation-communications.show');
     Route::post('donation-communications/{communication}/cancel', [ DonationCommunicationController::class,'cancel'])->name('admin.donation-communications.cancel');
     Route::post('donations/{donation}/resend-thank-you', [ DonationController::class, 'resendThankYou',])->name('admin.donations.resend-thank-you');
+/*
+|--------------------------------------------------------------------------
+| M-Pesa transaction review routes
+|--------------------------------------------------------------------------
+*/
+Route::get( 'mpesa-transactions',  [MpesaTransactionController::class, 'index'] )->name('admin.mpesa-transactions.index');
+Route::get('mpesa-transactions/{mpesaTransaction}', [MpesaTransactionController::class, 'show'])->name('admin.mpesa-transactions.show');
+Route::post('mpesa-transactions/{mpesaTransaction}/confirm',[MpesaTransactionController::class, 'confirm'])->name('admin.mpesa-transactions.confirm');
+Route::post( 'mpesa-transactions/{mpesaTransaction}/reject', [MpesaTransactionController::class, 'reject'])->name('admin.mpesa-transactions.reject');
 
 });
 
