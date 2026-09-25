@@ -118,56 +118,94 @@
                             </ul>
                         </li>
 
-                        <li>
-                            <a href="#comms" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
-                                <i>
-                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                                    </svg>
-                                </i>
+<li>
+    <a href="#comms" class="collapsed svg-icon"
+       data-toggle="collapse"
+       aria-expanded="false">
 
-                                <span class="ml-2">C&P</span>
+        <i>
+            <svg class="svg-icon"
+                 id="mm-extra-1"
+                 width="20"
+                 xmlns="http://www.w3.org/2000/svg"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
 
-                                <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
-                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
-                            </a>
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-12V5m0 14v-3m0-8a9 9 0 100 18 9 9 0 000-18z" />
+            </svg>
+        </i>
 
+        <span class="ml-2">Giving & Payments</span>
 
-                            <ul id="comms" class="submenu collapse" data-parent="#mm-sidebar-toggle">
-
-                                <li>
-                                    <a href="{{ route('admin.donations.index') }}" class="svg-icon">
-                                        <i class="fa fa-gift"></i>
-                                        <span>Donations</span>
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a href="{{ route('admin.donors.index') }}" class="svg-icon">
-                                        <i class="fa fa-users"></i>
-                                        <span>Donors</span>
-                                    </a>
-                                </li>
+        <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+        <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+    </a>
 
 
-                                <li>
-                                    <a href="{{ route('admin.donation-communications.index') }}" class="svg-icon">
-                                        <i class="fa fa-paper-plane"></i>
-                                        <span>Communications</span>
-                                    </a>
-                                </li>
+    <ul id="comms"
+        class="submenu collapse"
+        data-parent="#mm-sidebar-toggle">
 
-                                <li>
-                                    <a href="{{ route('admin.donations.create') }}" class="svg-icon">
-                                        <i class="fa fa-plus-circle"></i>
-                                        <span>Receive Donations</span>
-                                    </a>
-                                </li>
+        {{-- Donations --}}
+        <li>
+            <a href="{{ route('admin.donations.index') }}"
+               class="svg-icon">
 
-                            </ul>
-                        </li>
+                <i class="fa fa-gift"></i>
+                <span>Donations</span>
+            </a>
+        </li>
+
+
+        {{-- M-Pesa Transaction Review --}}
+        <li>
+            <a href="{{ route('admin.mpesa-transactions.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-mobile"></i>
+                <span>M-Pesa Reviews</span>
+            </a>
+        </li>
+
+
+        {{-- Donors --}}
+        <li>
+            <a href="{{ route('admin.donors.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-users"></i>
+                <span>Donors</span>
+            </a>
+        </li>
+
+
+        {{-- Communications --}}
+        <li>
+            <a href="{{ route('admin.donation-communications.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-paper-plane"></i>
+                <span>Communications</span>
+            </a>
+        </li>
+
+
+        {{-- Receive Manual Donation --}}
+        <li>
+            <a href="{{ route('admin.donations.create') }}"
+               class="svg-icon">
+
+                <i class="fa fa-plus-circle"></i>
+                <span>Receive Donation</span>
+            </a>
+        </li>
+
+    </ul>
+</li>
                         <li class>
                             <a href="#System" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
                                 <i class>
