@@ -3,474 +3,470 @@
 @section('content')
 
 @php
-$isCash = $donation->type === 'cash';
-$isInKind = $donation->type === 'in_kind';
+    $isCash = $donation->type === 'cash';
+    $isInKind = $donation->type === 'in_kind';
 
+    $classificationClasses = [
+        'donation' => 'donation-status-success',
+        'payment' => 'donation-status-info',
+        'refund' => 'donation-status-warning',
+        'other' => 'donation-status-secondary',
+        'unclassified' => 'donation-status-light',
+    ];
 
-$classificationClasses = [
-    'donation'     => 'donation-status-success',
-    'payment'      => 'donation-status-info',
-    'refund'       => 'donation-status-warning',
-    'other'        => 'donation-status-secondary',
-    'unclassified' => 'donation-status-light',
-];
+    $classificationClass =
+        $classificationClasses[$donation->classification]
+        ?? 'donation-status-light';
 
-$classificationClass =
-    $classificationClasses[$donation->classification]
-    ?? 'donation-status-light';
+    $totalEstimatedValue = $donation->items->sum(
+        fn ($item) => (float) ($item->estimated_value ?? 0)
+    );
 
-$totalEstimatedValue = $donation->items->sum(
-    fn ($item) => (float) ($item->estimated_value ?? 0)
-);
-
-$pendingCommunications = $donation->communications
-    ->where('status', 'pending')
-    ->whereNotNull('scheduled_at')
-    ->sortBy('scheduled_at');
-
-
+    $pendingCommunications = $donation->communications
+        ->where('status', 'pending')
+        ->whereNotNull('scheduled_at')
+        ->sortBy('scheduled_at');
 @endphp
 
+
 <style>
+
     /* =========================================================
-       COMPACT DONATION DASHBOARD
-       ========================================================= */
+       PAGE
+    ========================================================= */
 
     .donation-page {
-        width: 100%;
         max-width: 1500px;
         margin: 0 auto;
-        padding: 0 0 12px;
+        padding-bottom: 25px;
     }
 
     .donation-topbar {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
-    .donation-breadcrumb {
-        font-size: 9px;
-        color: #94a3b8;
-        letter-spacing: .05em;
-        margin-bottom: 1px;
-    }
-
-    .donation-title {
-        font-size: 16px;
-        font-weight: 650;
-        margin: 0;
-        color: #172033;
-    }
-
-    .donation-actions {
+    .donation-topbar-left,
+    .donation-topbar-right {
         display: flex;
-        gap: 5px;
         align-items: center;
-    }
-
-    .donation-actions .btn {
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 10px;
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
 
     /* =========================================================
        HERO
-       ========================================================= */
+    ========================================================= */
 
     .donation-hero {
-        position: relative;
-        overflow: hidden;
-        border-radius: 10px;
-        padding: 13px 16px;
-        margin-bottom: 8px;
-        color: #fff;
-
-        background:
-            radial-gradient(
-                circle at 85% 15%,
-                rgba(255,255,255,.12),
-                transparent 30%
-            ),
-            linear-gradient(
-                135deg,
-                #101828 0%,
-                #172554 55%,
-                #1e293b 100%
-            );
-
-        box-shadow: 0 5px 16px rgba(15, 23, 42, .09);
+        border-radius: 11px;
+        padding: 15px 18px;
+        margin-bottom: 12px;
+        background: linear-gradient(
+            135deg,
+            #f7f9fc 0%,
+            #ffffff 100%
+        );
+        border: 1px solid #e6eaf0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .035);
     }
 
-    .donation-hero-content {
-        position: relative;
-        z-index: 1;
+    .donation-hero-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
     }
 
-    .donation-hero-label {
-        font-size: 8px;
-        text-transform: uppercase;
-        letter-spacing: .12em;
-        color: #94a3b8;
-        margin-bottom: 3px;
-    }
-
-    .donation-amount {
-        font-size: 25px;
-        line-height: 1;
-        font-weight: 700;
-        letter-spacing: -.7px;
-    }
-
-    .donation-number {
-        margin-top: 4px;
-        font-size: 9px;
-        color: #cbd5e1;
+    .donation-hero-left {
+        min-width: 0;
     }
 
     .donation-hero-right {
         text-align: right;
-    }
-
-    .donation-date {
-        margin-top: 5px;
-        font-size: 9px;
-        color: #94a3b8;
-    }
-
-
-    /* =========================================================
-       STATUS
-       ========================================================= */
-
-    .donation-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 3px 7px;
-        border-radius: 14px;
-        font-size: 9px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .donation-status::before {
-        content: '';
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    .donation-status-success {
-        background: rgba(34, 197, 94, .12);
-        color: #15803d;
-    }
-
-    .donation-status-info {
-        background: rgba(59, 130, 246, .12);
-        color: #2563eb;
-    }
-
-    .donation-status-warning {
-        background: rgba(245, 158, 11, .13);
-        color: #b45309;
-    }
-
-    .donation-status-secondary {
-        background: rgba(100, 116, 139, .12);
-        color: #475569;
-    }
-
-    .donation-status-light {
-        background: #f1f5f9;
-        color: #475569;
-    }
-
-
-    /* =========================================================
-       CARDS
-       ========================================================= */
-
-    .donation-card {
-        background: #fff;
-        border: 1px solid #edf0f4;
-        border-radius: 9px;
-        overflow: hidden;
-        height: 100%;
-        box-shadow: 0 2px 10px rgba(15, 23, 42, .025);
-    }
-
-    .donation-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 12px;
-        border-bottom: 1px solid #f1f3f5;
-    }
-
-    .donation-card-title {
-        font-size: 10px;
-        font-weight: 650;
-        color: #334155;
-    }
-
-    .donation-card-body {
-        padding: 10px 12px;
-    }
-
-    .donation-page .mb-3 {
-        margin-bottom: 8px !important;
-    }
-
-
-    /* =========================================================
-       DETAILS
-       ========================================================= */
-
-    .donation-details-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .donation-detail {
-        padding: 7px 10px;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .donation-detail:nth-child(odd) {
-        border-right: 1px solid #f3f4f6;
-    }
-
-    .donation-label {
-        display: block;
-        font-size: 7px;
-        text-transform: uppercase;
-        letter-spacing: .08em;
-        color: #94a3b8;
-        margin-bottom: 2px;
-    }
-
-    .donation-value {
-        font-size: 10px;
-        font-weight: 550;
-        color: #334155;
-        word-break: break-word;
-    }
-
-
-    /* =========================================================
-       DONOR
-       ========================================================= */
-
-    .donor-profile {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .donor-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef2ff;
-        color: #3730a3;
-        font-weight: 700;
-        font-size: 11px;
         flex-shrink: 0;
     }
 
-    .donor-name {
-        font-size: 11px;
-        font-weight: 650;
-        color: #1e293b;
+    .donation-type {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #667085;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: .3px;
     }
 
-    .donor-number {
-        font-size: 8px;
-        color: #94a3b8;
+    .donation-type i {
+        margin-right: 6px;
     }
 
-    .donor-contact {
-        margin-top: 7px;
+    .donation-amount {
+        font-size: 27px;
+        line-height: 1.1;
+        font-weight: 700;
+        color: #202b3c;
+        margin-bottom: 5px;
     }
 
-    .donor-contact-row {
+    .donation-meta {
         display: flex;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 5px 0;
-        border-bottom: 1px solid #f3f4f6;
-        font-size: 9px;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px 14px;
+        color: #687385;
+        font-size: 13px;
     }
 
-    .donor-contact-row:last-child {
-        border-bottom: 0;
+    .donation-meta span {
+        white-space: nowrap;
     }
 
-    .donor-contact-row span {
-        color: #94a3b8;
+    .donation-classification {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
     }
 
-    .donor-contact-row strong {
-        color: #475569;
-        text-align: right;
-        font-weight: 550;
-        word-break: break-word;
+    .donation-status-success {
+        background: #e8f7ee;
+        color: #18794e;
+    }
+
+    .donation-status-info {
+        background: #e8f2ff;
+        color: #1769aa;
+    }
+
+    .donation-status-warning {
+        background: #fff4db;
+        color: #996c00;
+    }
+
+    .donation-status-secondary {
+        background: #edf0f3;
+        color: #59636f;
+    }
+
+    .donation-status-light {
+        background: #f3f4f6;
+        color: #59636f;
     }
 
 
     /* =========================================================
        COMMUNICATIONS
-       ========================================================= */
+    ========================================================= */
 
     .communication-card {
-        border-radius: 7px;
-        border: 1px solid #e7edf5;
-        background: #f8fafc;
-        padding: 7px 9px;
-        margin-bottom: 5px;
+        border: 1px solid #e5e9ee;
+        border-radius: 9px;
+        margin-bottom: 12px;
+        background: #fff;
     }
 
-    .communication-card:last-child {
-        margin-bottom: 0;
-    }
-
-    .communication-icon {
-        width: 24px;
-        height: 24px;
-        border-radius: 7px;
+    .communication-header {
+        padding: 9px 13px;
+        border-bottom: 1px solid #edf0f3;
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: #fff;
-        color: #475569;
-        box-shadow: 0 1px 4px rgba(0,0,0,.04);
-        font-size: 10px;
+        justify-content: space-between;
     }
 
-    .communication-title {
-        font-size: 9px;
-        font-weight: 650;
-        color: #334155;
-    }
-
-    .communication-recipient {
-        font-size: 8px;
-        color: #94a3b8;
-    }
-
-    .communication-countdown {
-        font-size: 9px;
-        font-weight: 650;
-        color: #b45309;
-    }
-
-    .communication-processing {
-        font-size: 9px;
-        color: #2563eb;
+    .communication-header h6 {
+        margin: 0;
+        font-size: 13px;
         font-weight: 600;
     }
 
-    .communication-cancel-button {
-        font-size: 8px !important;
+    .communication-body {
+        padding: 9px 11px;
+    }
+
+    .communication-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 9px;
+        border: 1px solid #edf0f3;
+        border-radius: 6px;
+        margin-bottom: 6px;
+    }
+
+    .communication-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .communication-main {
+        min-width: 0;
+    }
+
+    .communication-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #303846;
+    }
+
+    .communication-recipient {
+        font-size: 12px;
+        color: #7a8491;
+    }
+
+    .communication-countdown {
+        font-size: 12px;
+        font-weight: 600;
+        color: #b36b00;
+        white-space: nowrap;
+        margin-left: 12px;
+    }
+
+
+    /* =========================================================
+       MAIN LAYOUT
+    ========================================================= */
+
+    .donation-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 14px;
+        align-items: start;
+    }
+
+    .donation-primary {
+        min-width: 0;
+    }
+
+    .donation-sidebar {
+        min-width: 0;
+    }
+
+
+    /* =========================================================
+       CARDS
+    ========================================================= */
+
+    .donation-card {
+        border: 1px solid #e5e9ee;
+        border-radius: 10px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .donation-card-header {
+        min-height: 45px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #edf0f3;
+    }
+
+    .donation-card-header h6 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #303846;
+    }
+
+    .donation-card-body {
+        padding: 13px 14px;
+    }
+
+
+    /* =========================================================
+       DONATION DETAILS
+    ========================================================= */
+
+    .donation-details-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border: 1px solid #e9edf1;
+        border-radius: 7px;
+        overflow: hidden;
+    }
+
+    .detail-item {
+        padding: 11px 13px;
+        min-height: 68px;
+        border-right: 1px solid #e9edf1;
+        border-bottom: 1px solid #e9edf1;
+        background: #fff;
+    }
+
+    .detail-item:nth-child(4n) {
+        border-right: 0;
+    }
+
+    .detail-label {
+        font-size: 11px;
+        color: #7a8491;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: .25px;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #263238;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .detail-wide {
+        padding: 10px 12px;
+        background: #f8f9fa;
+        border-radius: 7px;
     }
 
 
     /* =========================================================
        IN-KIND ITEMS
-       ========================================================= */
+    ========================================================= */
+
+    .items-header {
+        min-height: 48px;
+    }
 
     .items-summary {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 8px 12px;
-        background: #f8fafc;
-        border-bottom: 1px solid #eef1f4;
+        gap: 18px;
+        color: #687385;
+        font-size: 13px;
+        flex-wrap: wrap;
+    }
+
+    .items-summary strong {
+        color: #303846;
     }
 
     /*
-       Keep the item list compact.
-       If there are many items, only this area scrolls.
-    */
+     * The table gets its own scroll area.
+     * This prevents many donated items from pushing
+     * the rest of the page endlessly downward.
+     */
     .items-table-wrapper {
-        max-height: 260px;
+        max-height: 460px;
         overflow-y: auto;
         overflow-x: auto;
     }
 
     .items-table {
-        font-size: 9px;
-        margin-bottom: 0;
+        min-width: 680px;
+        margin-bottom: 0 !important;
+        font-size: 13px;
     }
 
-    .items-table th {
+    .items-table thead th {
         position: sticky;
         top: 0;
         z-index: 2;
-
-        font-size: 7px;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        color: #94a3b8;
-        background: #fafbfc;
-        border-bottom: 1px solid #edf0f4;
-        padding: 6px 9px;
+        background: #f7f8fa;
+        border-top: 0;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555f6d;
         white-space: nowrap;
     }
 
-    .items-table td {
-        padding: 6px 9px;
+    .items-table tbody td {
+        padding: 11px 12px;
         vertical-align: middle;
-        border-bottom: 1px solid #f3f4f6;
     }
 
     .items-table tbody tr:last-child td {
         border-bottom: 0;
     }
 
-    .items-table small {
-        font-size: 7px;
+    .item-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #263238;
+    }
+
+    .item-notes {
+        margin-top: 3px;
+        font-size: 12px;
+        color: #7a8491;
     }
 
 
     /* =========================================================
-       TEXT SECTIONS
-       ========================================================= */
+       DONOR
+    ========================================================= */
 
-    .donation-note {
-        padding: 8px 12px;
-        border-top: 1px solid #f1f3f5;
+    .donor-profile {
+        display: flex;
+        align-items: center;
+        margin-bottom: 13px;
     }
 
-    .donation-note-text {
-        margin: 0;
-        color: #64748b;
-        font-size: 9px;
+    .donor-avatar {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef1f5;
+        color: #4b5563;
+        font-size: 17px;
+        font-weight: 600;
+        margin-right: 10px;
+    }
+
+    .donor-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #263238;
+        line-height: 1.3;
+    }
+
+    .donor-meta {
+        font-size: 12px;
+        color: #7a8491;
+        margin-top: 2px;
+    }
+
+    .donor-detail {
+        font-size: 13px;
+        padding: 7px 0;
+        border-bottom: 1px solid #edf0f3;
+        word-break: break-word;
         line-height: 1.4;
-        white-space: pre-line;
+    }
+
+    .donor-detail strong {
+        font-weight: 500;
+        color: #59636f;
     }
 
 
     /* =========================================================
        RECORD
-       ========================================================= */
+    ========================================================= */
 
     .record-row {
         display: flex;
         justify-content: space-between;
-        gap: 10px;
-        padding: 6px 0;
-        border-bottom: 1px solid #f1f3f5;
-        font-size: 9px;
+        align-items: flex-start;
+        padding: 8px 0;
+        border-bottom: 1px solid #edf0f3;
+        font-size: 13px;
+        line-height: 1.4;
     }
 
     .record-row:last-child {
@@ -478,313 +474,358 @@ $pendingCommunications = $donation->communications
     }
 
     .record-row span {
-        color: #94a3b8;
+        color: #7a8491;
+        margin-right: 10px;
     }
 
     .record-row strong {
-        color: #475569;
         text-align: right;
-        font-weight: 550;
+        font-weight: 500;
+        color: #303846;
     }
 
 
     /* =========================================================
-       PAGE SCROLL / VIEWPORT
-       ========================================================= */
+       BUTTONS
+    ========================================================= */
 
-    /*
-       Never allow the donation page to be trapped inside
-       a fixed-height container.
-    */
-    .donation-page {
-        min-height: 0;
-        overflow: visible;
+    .donation-topbar .btn {
+        font-size: 13px;
+        padding: 6px 10px;
     }
 
-    .donation-page .row {
-        min-height: 0;
+    .donation-topbar .dropdown-menu {
+        font-size: 13px;
     }
 
-    /*
-       On smaller screens the entire page remains scrollable.
-    */
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 1199px) {
+
+        .donation-layout {
+            grid-template-columns: minmax(0, 1fr) 275px;
+        }
+
+        .donation-details-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .detail-item:nth-child(4n) {
+            border-right: 1px solid #e9edf1;
+        }
+
+        .detail-item:nth-child(2n) {
+            border-right: 0;
+        }
+
+    }
+
+
     @media (max-width: 991px) {
-        .donation-page {
-            padding-bottom: 20px;
+
+        .donation-layout {
+            grid-template-columns: 1fr;
         }
 
-        .items-table-wrapper {
-            max-height: 300px;
+        .donation-sidebar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
         }
+
     }
 
-
-    /* =========================================================
-       MOBILE
-       ========================================================= */
 
     @media (max-width: 767px) {
 
-        .donation-topbar {
+        .donation-page {
+            padding-bottom: 15px;
+        }
+
+        .donation-hero-inner {
             align-items: flex-start;
             flex-direction: column;
         }
 
-        .donation-actions {
-            width: 100%;
-            flex-wrap: wrap;
-        }
-
-        .donation-actions .btn {
-            flex: 1;
-        }
-
-        .donation-hero {
-            padding: 12px;
+        .donation-hero-right {
+            text-align: left;
         }
 
         .donation-amount {
-            font-size: 23px;
+            font-size: 25px;
         }
 
-        .donation-hero-right {
-            margin-top: 7px;
-            text-align: left;
+        .donation-layout {
+            display: block;
+        }
+
+        .donation-sidebar {
+            display: block;
+        }
+
+        .donation-sidebar .donation-card {
+            margin-top: 12px;
         }
 
         .donation-details-grid {
             grid-template-columns: 1fr;
         }
 
-        .donation-detail:nth-child(odd) {
+        .detail-item,
+        .detail-item:nth-child(2n),
+        .detail-item:nth-child(4n) {
             border-right: 0;
         }
 
         .items-table-wrapper {
-            max-height: 280px;
+            max-height: 360px;
         }
 
-        .items-table {
-            min-width: 560px;
+        .items-summary {
+            gap: 8px;
         }
+
+        .communication-item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .communication-countdown {
+            margin-left: 0;
+            margin-top: 4px;
+        }
+
     }
+
 </style>
+
 
 <div class="donation-page">
 
 
-{{-- =========================================================
-     TOP BAR
-     ========================================================= --}}
+    {{-- =====================================================
+         TOP BAR
+    ====================================================== --}}
 
-<div class="donation-topbar">
+    <div class="donation-topbar">
 
-    <div>
-        <div class="donation-breadcrumb">
-            DONATIONS / {{ $donation->donation_number }}
+        <div class="donation-topbar-left">
+
+            <a href="{{ route('admin.donations.index') }}"
+               class="btn btn-light btn-sm">
+
+                <i class="fa fa-arrow-left mr-1"></i>
+                Back
+
+            </a>
+
+            <a href="{{ route('admin.donations.edit', $donation) }}"
+               class="btn btn-primary btn-sm">
+
+                <i class="fa fa-edit mr-1"></i>
+                Edit
+
+            </a>
+
         </div>
 
-        <h5 class="donation-title">
-            Donation Overview
-        </h5>
-    </div>
-
-    <div class="donation-actions">
-
-        <a
-            href="{{ route('admin.donations.index') }}"
-            class="btn btn-light btn-sm"
-        >
-            <i class="fas fa-arrow-left me-1"></i>
-            Back
-        </a>
-
-        <a
-            href="{{ route('admin.donations.edit', $donation) }}"
-            class="btn btn-primary btn-sm"
-        >
-            <i class="fas fa-edit me-1"></i>
-            Edit
-        </a>
-
-        {{-- RESEND --}}
 
         @if(
             $donation->classification === 'donation'
             && $donation->donor
         )
 
-            <div class="dropdown d-inline-block">
+            <div class="donation-topbar-right">
 
-                <button
-                    type="button"
-                    class="btn btn-success btn-sm dropdown-toggle"
-                    data-toggle="dropdown"
-                >
-                    <i class="fas fa-paper-plane me-1"></i>
-                    Thank-You
-                </button>
+                <div class="dropdown">
 
-                <div class="dropdown-menu dropdown-menu-right">
+                    <button
+                        class="btn btn-outline-primary btn-sm dropdown-toggle"
+                        type="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
 
-                    @if($donation->donor->phone)
+                        <i class="fa fa-paper-plane mr-1"></i>
+                        Thank You
 
-                        <form
-                            method="POST"
-                            action="{{ route(
-                                'admin.donations.resend-thank-you',
-                                $donation
-                            ) }}"
-                        >
-                            @csrf
+                    </button>
 
-                            <input
-                                type="hidden"
-                                name="channel"
-                                value="sms"
-                            >
+                    <div class="dropdown-menu dropdown-menu-right">
 
-                            <button
-                                type="submit"
-                                class="dropdown-item"
-                                onclick="return confirm(
-                                    'Schedule a new thank-you SMS?'
-                                )"
-                            >
-                                <i class="fas fa-sms mr-2"></i>
-                                Resend SMS
-                            </button>
+                        <a class="dropdown-item"
+                           href="#"
+                           onclick="
+                               event.preventDefault();
+                               document.getElementById('resend-sms-form').submit();
+                           ">
 
-                        </form>
+                            <i class="fa fa-mobile-alt mr-2"></i>
+                            Send SMS
 
-                    @endif
+                        </a>
 
+                        <a class="dropdown-item"
+                           href="#"
+                           onclick="
+                               event.preventDefault();
+                               document.getElementById('resend-email-form').submit();
+                           ">
 
-                    @if($donation->donor->email)
+                            <i class="fa fa-envelope mr-2"></i>
+                            Send Email
 
-                        <form
-                            method="POST"
-                            action="{{ route(
-                                'admin.donations.resend-thank-you',
-                                $donation
-                            ) }}"
-                        >
-                            @csrf
-
-                            <input
-                                type="hidden"
-                                name="channel"
-                                value="email"
-                            >
-
-                            <button
-                                type="submit"
-                                class="dropdown-item"
-                                onclick="return confirm(
-                                    'Schedule a new thank-you email?'
-                                )"
-                            >
-                                <i class="fas fa-envelope mr-2"></i>
-                                Resend Email
-                            </button>
-
-                        </form>
-
-                    @endif
-
-
-                    @if(
-                        $donation->donor->phone
-                        && $donation->donor->email
-                    )
+                        </a>
 
                         <div class="dropdown-divider"></div>
 
-                        <form
-                            method="POST"
-                            action="{{ route(
-                                'admin.donations.resend-thank-you',
-                                $donation
-                            ) }}"
-                        >
-                            @csrf
+                        <a class="dropdown-item"
+                           href="#"
+                           onclick="
+                               event.preventDefault();
+                               document.getElementById('resend-both-form').submit();
+                           ">
 
-                            <input
-                                type="hidden"
-                                name="channel"
-                                value="both"
-                            >
+                            <i class="fa fa-paper-plane mr-2"></i>
+                            Send Both
 
-                            <button
-                                type="submit"
-                                class="dropdown-item"
-                                onclick="return confirm(
-                                    'Schedule a new thank-you SMS and email?'
-                                )"
-                            >
-                                <i class="fas fa-paper-plane mr-2"></i>
-                                Resend Both
-                            </button>
+                        </a>
 
-                        </form>
-
-                    @endif
+                    </div>
 
                 </div>
+
+
+                <form
+                    id="resend-sms-form"
+                    method="POST"
+                    action="{{ route('admin.donations.resend-thank-you', $donation) }}"
+                    style="display:none;">
+
+                    @csrf
+
+                    <input type="hidden"
+                           name="channel"
+                           value="sms">
+
+                </form>
+
+
+                <form
+                    id="resend-email-form"
+                    method="POST"
+                    action="{{ route('admin.donations.resend-thank-you', $donation) }}"
+                    style="display:none;">
+
+                    @csrf
+
+                    <input type="hidden"
+                           name="channel"
+                           value="email">
+
+                </form>
+
+
+                <form
+                    id="resend-both-form"
+                    method="POST"
+                    action="{{ route('admin.donations.resend-thank-you', $donation) }}"
+                    style="display:none;">
+
+                    @csrf
+
+                    <input type="hidden"
+                           name="channel"
+                           value="both">
+
+                </form>
+
             </div>
 
         @endif
 
     </div>
 
-</div>
 
+    {{-- =====================================================
+         HERO
+    ====================================================== --}}
 
-<x-message></x-message>
+    <div class="donation-hero">
 
+        <div class="donation-hero-inner">
 
-{{-- =========================================================
-     HERO
-     ========================================================= --}}
+            <div class="donation-hero-left">
 
-<div class="donation-hero">
+                <div class="donation-type">
 
-    <div class="donation-hero-content">
+                    @if($isCash)
 
-        <div class="row align-items-center">
+                        <i class="fa fa-money-bill-wave"></i>
+                        Cash Donation
 
-            <div class="col-md-8">
+                    @elseif($isInKind)
 
-                <div class="donation-hero-label">
-                    {{ $isCash ? 'Cash Donation' : 'In-Kind Donation' }}
+                        <i class="fa fa-gift"></i>
+                        In-Kind Donation
+
+                    @else
+
+                        <i class="fa fa-hand-holding-heart"></i>
+                        Donation
+
+                    @endif
+
                 </div>
+
 
                 <div class="donation-amount">
-                    {{ $donation->currency }}
-                    {{ number_format($donation->amount ?? 0, 2) }}
+
+                    {{ $donation->currency ?? 'KES' }}
+
+                    {{ number_format((float) $donation->amount, 2) }}
+
                 </div>
 
-                <div class="donation-number">
-                    {{ $donation->donation_number }}
-                    ·
-                    {{ $donation->donation_date?->format('d M Y') }}
+
+                <div class="donation-meta">
+
+                    <span>
+                        <i class="fa fa-hashtag mr-1"></i>
+                        {{ $donation->donation_number }}
+                    </span>
+
+                    <span>
+                        <i class="fa fa-calendar mr-1"></i>
+
+                        {{ optional($donation->donation_date)->format('d M Y') }}
+
+                    </span>
+
+                    @if($donation->source)
+
+                        <span>
+                            <i class="fa fa-credit-card mr-1"></i>
+                            {{ ucfirst($donation->source) }}
+                        </span>
+
+                    @endif
+
                 </div>
 
             </div>
 
-            <div class="col-md-4 donation-hero-right">
 
-                <span class="donation-status {{ $classificationClass }}">
-                    {{ ucfirst($donation->classification) }}
+            <div class="donation-hero-right">
+
+                <span class="donation-classification {{ $classificationClass }}">
+
+                    {{ str_replace('_', ' ', $donation->classification) }}
+
                 </span>
-
-                @if($donation->source)
-
-                    <div class="donation-date">
-                        Source · {{ ucfirst($donation->source) }}
-                    </div>
-
-                @endif
 
             </div>
 
@@ -792,408 +833,490 @@ $pendingCommunications = $donation->communications
 
     </div>
 
-</div>
 
+    {{-- =====================================================
+         PENDING COMMUNICATIONS
+    ====================================================== --}}
 
-{{-- =========================================================
-     COMMUNICATION COUNTDOWNS
-     ========================================================= --}}
+    @if($pendingCommunications->count())
 
-@if($pendingCommunications->count())
+        <div class="communication-card">
 
-    <div class="donation-card mb-3">
+            <div class="communication-header">
 
-        <div class="donation-card-header">
+                <h6>
+                    <i class="fa fa-clock mr-2"></i>
+                    Pending Thank-You Communications
+                </h6>
 
-            <div class="donation-card-title">
-                <i class="fas fa-bolt me-1"></i>
-                Scheduled Communications
+                <span class="badge badge-warning">
+
+                    {{ $pendingCommunications->count() }}
+
+                </span>
+
             </div>
 
-            <span class="text-muted small">
-                {{ $pendingCommunications->count() }}
-            </span>
 
-        </div>
+            <div class="communication-body">
 
+                @foreach($pendingCommunications as $communication)
 
-        <div class="donation-card-body">
+                    <div class="communication-item">
 
-            @foreach($pendingCommunications as $communication)
+                        <div class="communication-main">
 
-                @php
-                    $scheduledAt = $communication->scheduled_at;
-                    $hasStarted =
-                        $scheduledAt && !$scheduledAt->isFuture();
-                @endphp
-
-                <div
-                    class="communication-card donation-communication-item"
-                    id="donationCommunication-{{ $communication->id }}"
-                    data-communication-id="{{ $communication->id }}"
-                    data-scheduled-at="{{ $scheduledAt ? $scheduledAt->timestamp * 1000 : '' }}"
-                >
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div class="d-flex align-items-center">
-
-                            <div class="communication-icon mr-2">
+                            <div class="communication-title">
 
                                 @if($communication->channel === 'sms')
-                                    <i class="fas fa-sms"></i>
+
+                                    <i class="fa fa-mobile-alt mr-1"></i>
+                                    SMS
 
                                 @elseif($communication->channel === 'email')
-                                    <i class="fas fa-envelope"></i>
+
+                                    <i class="fa fa-envelope mr-1"></i>
+                                    Email
 
                                 @else
-                                    <i class="fas fa-paper-plane"></i>
+
+                                    {{ ucfirst($communication->channel) }}
+
                                 @endif
 
                             </div>
 
-                            <div>
+                            <div class="communication-recipient">
 
-                                <div class="communication-title communication-status-title">
-
-                                    @if($communication->channel === 'sms')
-                                        SMS Thank-you
-
-                                    @elseif($communication->channel === 'email')
-                                        Email Thank-you
-
-                                    @else
-                                        {{ ucfirst($communication->channel) }}
-                                        Thank-you
-                                    @endif
-
-                                </div>
-
-                                <div class="communication-recipient">
-                                    {{ $communication->recipient }}
-                                </div>
+                                {{ $communication->recipient }}
 
                             </div>
 
                         </div>
 
 
-                        <div class="text-end">
+                        <div class="communication-countdown"
+                             data-scheduled-at="{{ optional($communication->scheduled_at)->toIso8601String() }}">
 
-                            @if($hasStarted)
+                            Calculating...
 
-                                <div class="communication-processing">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    Processing
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{{ route('admin.donation-communications.cancel', $communication) }}"
+                            class="ml-2">
+
+                            @csrf
+
+                            @method('PATCH')
+
+                            <button
+                                type="submit"
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Cancel this scheduled communication?')">
+
+                                <i class="fa fa-times"></i>
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =====================================================
+         MAIN CONTENT
+    ====================================================== --}}
+
+    <div class="donation-layout">
+
+
+        {{-- =================================================
+             LEFT COLUMN
+        ================================================== --}}
+
+        <div class="donation-primary">
+
+
+            {{-- =============================================
+                 DONATION DETAILS
+            ============================================== --}}
+
+            <div class="card donation-card mb-3">
+
+                <div class="donation-card-header">
+
+                    <h6>
+
+                        <i class="fa fa-info-circle mr-2"></i>
+                        Donation Details
+
+                    </h6>
+
+                </div>
+
+
+                <div class="donation-card-body">
+
+                    <div class="donation-details-grid">
+
+
+                        {{-- Donation Number --}}
+
+                        <div class="detail-item">
+
+                            <div class="detail-label">
+                                Donation Number
+                            </div>
+
+                            <div class="detail-value">
+                                {{ $donation->donation_number }}
+                            </div>
+
+                        </div>
+
+
+                        {{-- Date --}}
+
+                        <div class="detail-item">
+
+                            <div class="detail-label">
+                                Date
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ optional($donation->donation_date)->format('d M Y') }}
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- Type --}}
+
+                        <div class="detail-item">
+
+                            <div class="detail-label">
+                                Type
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ ucfirst(str_replace('_', ' ', $donation->type)) }}
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- Purpose --}}
+
+                        <div class="detail-item">
+
+                            <div class="detail-label">
+                                Purpose
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ $donation->purpose ?: '—' }}
+
+                            </div>
+
+                        </div>
+
+
+                        @if($isCash)
+
+
+                            {{-- Source --}}
+
+                            <div class="detail-item">
+
+                                <div class="detail-label">
+                                    Source
                                 </div>
 
-                            @else
+                                <div class="detail-value">
 
-                                <div class="communication-countdown-text">
-                                    <span class="communication-countdown">
-                                        --
-                                    </span>
-                                    sec
+                                    {{ ucfirst($donation->source ?? '—') }}
+
                                 </div>
+
+                            </div>
+
+
+                            {{-- Currency --}}
+
+                            <div class="detail-item">
+
+                                <div class="detail-label">
+                                    Currency
+                                </div>
+
+                                <div class="detail-value">
+
+                                    {{ $donation->currency ?? 'KES' }}
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Reference --}}
+
+                            <div class="detail-item">
+
+                                <div class="detail-label">
+                                    Reference
+                                </div>
+
+                                <div class="detail-value">
+
+                                    {{ $donation->reference ?: '—' }}
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- Payment Reference --}}
+
+                            <div class="detail-item">
+
+                                <div class="detail-label">
+                                    Payment Reference
+                                </div>
+
+                                <div class="detail-value">
+
+                                    {{ $donation->payment_reference ?: '—' }}
+
+                                </div>
+
+                            </div>
+
+
+                        @endif
+
+
+                    </div>
+
+
+                    {{-- Description --}}
+
+                    @if($donation->description)
+
+                        <div class="detail-wide mt-3">
+
+                            <div class="detail-label">
+                                Description
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ $donation->description }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+
+                    {{-- Notes --}}
+
+                    @if($donation->notes)
+
+                        <div class="detail-wide mt-2">
+
+                            <div class="detail-label">
+                                Notes
+                            </div>
+
+                            <div class="detail-value">
+
+                                {{ $donation->notes }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+
+            {{-- =============================================
+                 IN-KIND ITEMS
+            ============================================== --}}
+
+            @if($isInKind && $donation->items->count())
+
+                <div class="card donation-card">
+
+                    <div class="donation-card-header items-header">
+
+                        <h6>
+
+                            <i class="fa fa-gift mr-2"></i>
+                            In-Kind Items
+
+                        </h6>
+
+
+                        <div class="items-summary">
+
+                            <span>
+
+                                {{ $donation->items->count() }}
+
+                                item{{ $donation->items->count() == 1 ? '' : 's' }}
+
+                            </span>
+
+
+                            @if($totalEstimatedValue > 0)
+
+                                <span>
+
+                                    Estimated:
+
+                                    <strong>
+
+                                        KES
+                                        {{ number_format($totalEstimatedValue, 2) }}
+
+                                    </strong>
+
+                                </span>
 
                             @endif
-
-
-                            <form
-                                method="POST"
-                                action="{{ route(
-                                    'admin.donation-communications.cancel',
-                                    $communication
-                                ) }}"
-                                class="communication-cancel-form mt-1"
-                                onsubmit="return confirm(
-                                    'Cancel this ' +
-                                    '{{ strtoupper($communication->channel) }}' +
-                                    ' message?'
-                                )"
-                            >
-
-                                @csrf
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-link btn-sm text-danger p-0 communication-cancel-button"
-                                    @if($hasStarted) disabled @endif
-                                >
-                                    @if($hasStarted)
-                                        Processing...
-                                    @else
-                                        Cancel
-                                    @endif
-                                </button>
-
-                            </form>
 
                         </div>
 
                     </div>
 
-                </div>
 
-            @endforeach
+                    <div class="items-table-wrapper">
 
-        </div>
+                        <table class="table table-hover items-table">
 
-    </div>
+                            <thead>
 
+                                <tr>
 
-    <script>
+                                    <th>
+                                        Item
+                                    </th>
 
-        document.addEventListener('DOMContentLoaded', function () {
+                                    <th width="90">
+                                        Qty
+                                    </th>
 
-            const communicationItems =
-                document.querySelectorAll(
-                    '.donation-communication-item'
-                );
+                                    <th width="110">
+                                        Unit
+                                    </th>
 
-            communicationItems.forEach(function (item) {
+                                    <th width="130">
+                                        Condition
+                                    </th>
 
-                const scheduledAt =
-                    parseInt(
-                        item.dataset.scheduledAt,
-                        10
-                    );
+                                    <th width="150">
+                                        Estimated Value
+                                    </th>
 
-                const countdownElement =
-                    item.querySelector(
-                        '.communication-countdown'
-                    );
+                                </tr>
 
-                const cancelButton =
-                    item.querySelector(
-                        '.communication-cancel-button'
-                    );
-
-                if (isNaN(scheduledAt)) {
-                    return;
-                }
-
-                let timer = null;
-
-                function showProcessingState() {
-
-                    if (timer) {
-                        clearInterval(timer);
-                        timer = null;
-                    }
-
-                    if (countdownElement) {
-                        countdownElement.innerHTML =
-                            '<i class="fas fa-spinner fa-spin"></i> Processing';
-                    }
-
-                    if (cancelButton) {
-                        cancelButton.disabled = true;
-                        cancelButton.textContent =
-                            'Processing...';
-                    }
-                }
-
-                function updateCountdown() {
-
-                    const remainingMilliseconds =
-                        scheduledAt - Date.now();
-
-                    const remainingSeconds =
-                        Math.max(
-                            0,
-                            Math.ceil(
-                                remainingMilliseconds / 1000
-                            )
-                        );
-
-                    if (countdownElement) {
-                        countdownElement.textContent =
-                            remainingSeconds;
-                    }
-
-                    if (remainingMilliseconds <= 0) {
-                        showProcessingState();
-                    }
-                }
-
-                if (Date.now() >= scheduledAt) {
-                    showProcessingState();
-                    return;
-                }
-
-                updateCountdown();
-
-                timer = setInterval(
-                    updateCountdown,
-                    1000
-                );
-
-            });
-
-        });
-
-    </script>
-
-@endif
+                            </thead>
 
 
-{{-- =========================================================
-     MAIN CONTENT
-     ========================================================= --}}
+                            <tbody>
 
-<div class="row" style="margin-left:-4px;margin-right:-4px;">
+                                @foreach($donation->items as $item)
 
-    {{-- =====================================================
-         LEFT
-         ===================================================== --}}
+                                    <tr>
 
-    <div
-        class="col-lg-8"
-        style="padding-left:4px;padding-right:4px;"
-    >
+                                        <td>
 
-        {{-- Donation Details --}}
+                                            <div class="item-name">
 
-        <div class="donation-card mb-3">
+                                                {{ $item->item_name }}
 
-            <div class="donation-card-header">
-
-                <span class="donation-card-title">
-                    Donation Details
-                </span>
-
-                <span class="text-muted small">
-                    {{ $isCash ? 'Cash' : 'In-Kind' }}
-                </span>
-
-            </div>
+                                            </div>
 
 
-            <div class="donation-details-grid">
+                                            @if($item->notes)
 
-                <div class="donation-detail">
-                    <span class="donation-label">
-                        Donation Number
-                    </span>
+                                                <div class="item-notes">
 
-                    <span class="donation-value">
-                        {{ $donation->donation_number }}
-                    </span>
-                </div>
+                                                    {{ $item->notes }}
 
+                                                </div>
 
-                <div class="donation-detail">
-                    <span class="donation-label">
-                        Date
-                    </span>
+                                            @endif
 
-                    <span class="donation-value">
-                        {{ $donation->donation_date?->format('d M Y') }}
-                    </span>
-                </div>
+                                        </td>
 
 
-                <div class="donation-detail">
-                    <span class="donation-label">
-                        Type
-                    </span>
+                                        <td>
 
-                    <span class="donation-value">
-                        {{ $isCash ? 'Cash' : 'In-Kind' }}
-                    </span>
-                </div>
+                                            {{ number_format((float) $item->quantity, 2) }}
+
+                                        </td>
 
 
-                <div class="donation-detail">
-                    <span class="donation-label">
-                        Purpose
-                    </span>
+                                        <td>
 
-                    <span class="donation-value">
-                        {{ $donation->purpose ?: '—' }}
-                    </span>
-                </div>
+                                            {{ $item->unit ?: '—' }}
+
+                                        </td>
 
 
-                @if($isCash)
+                                        <td>
 
-                    <div class="donation-detail">
-                        <span class="donation-label">
-                            Source
-                        </span>
+                                            {{ $item->condition ?: '—' }}
 
-                        <span class="donation-value">
-                            {{ ucfirst($donation->source) }}
-                        </span>
+                                        </td>
+
+
+                                        <td>
+
+                                            @if($item->estimated_value)
+
+                                                KES
+                                                {{ number_format((float) $item->estimated_value, 2) }}
+
+                                            @else
+
+                                                —
+
+                                            @endif
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
                     </div>
-
-
-                    <div class="donation-detail">
-                        <span class="donation-label">
-                            Currency
-                        </span>
-
-                        <span class="donation-value">
-                            {{ $donation->currency }}
-                        </span>
-                    </div>
-
-
-                    <div class="donation-detail">
-                        <span class="donation-label">
-                            Reference
-                        </span>
-
-                        <span class="donation-value">
-                            {{ $donation->reference ?: '—' }}
-                        </span>
-                    </div>
-
-
-                    <div class="donation-detail">
-                        <span class="donation-label">
-                            Payment Reference
-                        </span>
-
-                        <span class="donation-value">
-                            {{ $donation->payment_reference ?: '—' }}
-                        </span>
-                    </div>
-
-                @endif
-
-            </div>
-
-
-            @if($donation->description)
-
-                <div class="donation-note">
-
-                    <span class="donation-label">
-                        Description
-                    </span>
-
-                    <p class="donation-note-text">
-                        {{ $donation->description }}
-                    </p>
-
-                </div>
-
-            @endif
-
-
-            @if($donation->notes)
-
-                <div class="donation-note">
-
-                    <span class="donation-label">
-                        Notes
-                    </span>
-
-                    <p class="donation-note-text">
-                        {{ $donation->notes }}
-                    </p>
 
                 </div>
 
@@ -1203,228 +1326,76 @@ $pendingCommunications = $donation->communications
 
 
         {{-- =================================================
-             IN-KIND ITEMS
-             ================================================= --}}
+             RIGHT COLUMN
+        ================================================== --}}
 
-        @if($isInKind && $donation->items->count())
-
-            <div class="donation-card">
-
-                <div class="items-summary">
-
-                    <div>
-
-                        <div class="donation-card-title">
-                            Items Received
-                        </div>
-
-                        <div class="text-muted"
-                             style="font-size:8px;">
-                            {{ $donation->items->count() }}
-                            {{ $donation->items->count() === 1 ? 'item' : 'items' }}
-                        </div>
-
-                    </div>
+        <div class="donation-sidebar">
 
 
-                    <div class="text-end">
+            {{-- =============================================
+                 DONOR
+            ============================================== --}}
 
-                        <span class="donation-label">
-                            Estimated Value
-                        </span>
+            <div class="card donation-card mb-3">
 
-                        <strong style="font-size:9px;">
-                            {{ $donation->currency }}
-                            {{ number_format($totalEstimatedValue, 2) }}
-                        </strong>
+                <div class="donation-card-header">
 
-                    </div>
+                    <h6>
+
+                        <i class="fa fa-user mr-2"></i>
+                        Donor
+
+                    </h6>
 
                 </div>
 
 
-                <div class="items-table-wrapper">
+                <div class="donation-card-body">
 
-                    <table class="table items-table">
+                    @if($donation->donor)
 
-                        <thead>
+                        <div class="donor-profile">
 
-                            <tr>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Unit</th>
-                                <th>Condition</th>
-                                <th class="text-end">
-                                    Value
-                                </th>
-                            </tr>
+                            <div class="donor-avatar">
 
-                        </thead>
+                                {{ strtoupper(substr($donation->donor->name, 0, 1)) }}
 
-
-                        <tbody>
-
-                            @foreach($donation->items as $item)
-
-                                <tr>
-
-                                    <td>
-
-                                        {{ $item->item }}
-
-                                        @if($item->notes)
-
-                                            <small class="d-block text-muted">
-                                                {{ $item->notes }}
-                                            </small>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    <td>
-
-                                        {{ rtrim(
-                                            rtrim(
-                                                number_format(
-                                                    $item->quantity,
-                                                    2
-                                                ),
-                                                '0'
-                                            ),
-                                            '.'
-                                        ) }}
-
-                                    </td>
-
-
-                                    <td>
-                                        {{ $item->unit ?: '—' }}
-                                    </td>
-
-
-                                    <td>
-                                        {{ $item->condition ?: '—' }}
-                                    </td>
-
-
-                                    <td class="text-end">
-
-                                        @if($item->estimated_value !== null)
-
-                                            {{ $donation->currency }}
-                                            {{ number_format(
-                                                $item->estimated_value,
-                                                2
-                                            ) }}
-
-                                        @else
-
-                                            —
-
-                                        @endif
-
-                                    </td>
-
-                                </tr>
-
-                            @endforeach
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        @endif
-
-    </div>
-
-
-    {{-- =====================================================
-         RIGHT
-         ===================================================== --}}
-
-    <div
-        class="col-lg-4"
-        style="padding-left:4px;padding-right:4px;"
-    >
-
-        {{-- Donor --}}
-
-        <div class="donation-card mb-3">
-
-            <div class="donation-card-header">
-
-                <span class="donation-card-title">
-                    Donor
-                </span>
-
-            </div>
-
-
-            <div class="donation-card-body">
-
-                @if($donation->donor)
-
-                    @php
-
-                        $initials = collect(
-                            preg_split(
-                                '/\s+/',
-                                trim($donation->donor->name)
-                            )
-                        )
-                        ->filter()
-                        ->take(2)
-                        ->map(
-                            fn($name) =>
-                                strtoupper(
-                                    substr($name, 0, 1)
-                                )
-                        )
-                        ->implode('');
-
-                    @endphp
-
-
-                    <div class="donor-profile">
-
-                        <div class="donor-avatar">
-                            {{ $initials ?: 'D' }}
-                        </div>
-
-                        <div>
-
-                            <div class="donor-name">
-                                {{ $donation->donor->name }}
                             </div>
 
-                            <div class="donor-number">
-                                {{ $donation->donor->donor_number }}
+
+                            <div>
+
+                                <div class="donor-name">
+
+                                    {{ $donation->donor->name }}
+
+                                </div>
+
+
+                                @if($donation->donor->donor_number)
+
+                                    <div class="donor-meta">
+
+                                        {{ $donation->donor->donor_number }}
+
+                                    </div>
+
+                                @endif
+
                             </div>
 
                         </div>
 
-                    </div>
-
-
-                    <div class="donor-contact">
 
                         @if($donation->donor->organization)
 
-                            <div class="donor-contact-row">
-
-                                <span>
-                                    Organization
-                                </span>
+                            <div class="donor-detail">
 
                                 <strong>
-                                    {{ $donation->donor->organization }}
+                                    Organization:
                                 </strong>
+
+                                {{ $donation->donor->organization }}
 
                             </div>
 
@@ -1433,15 +1404,13 @@ $pendingCommunications = $donation->communications
 
                         @if($donation->donor->phone)
 
-                            <div class="donor-contact-row">
-
-                                <span>
-                                    Phone
-                                </span>
+                            <div class="donor-detail">
 
                                 <strong>
-                                    {{ $donation->donor->phone }}
+                                    Phone:
                                 </strong>
+
+                                {{ $donation->donor->phone }}
 
                             </div>
 
@@ -1450,98 +1419,108 @@ $pendingCommunications = $donation->communications
 
                         @if($donation->donor->email)
 
-                            <div class="donor-contact-row">
-
-                                <span>
-                                    Email
-                                </span>
+                            <div class="donor-detail">
 
                                 <strong>
-                                    {{ $donation->donor->email }}
+                                    Email:
                                 </strong>
+
+                                {{ $donation->donor->email }}
 
                             </div>
 
                         @endif
 
-                    </div>
 
+                        <a
+                            href="{{ route('admin.donors.show', $donation->donor) }}"
+                            class="btn btn-outline-primary btn-sm btn-block mt-3">
 
-                    <a
-                        href="{{ route(
-                            'admin.donors.show',
-                            $donation->donor
-                        ) }}"
-                        class="btn btn-light btn-sm w-100 mt-2"
-                        style="font-size:9px;padding:4px 7px;"
-                    >
-                        View Donor
-                    </a>
+                            <i class="fa fa-user mr-1"></i>
+                            View Donor
 
-                @else
+                        </a>
 
-                    <div class="text-muted"
-                         style="font-size:9px;">
-                        Anonymous / Not Specified
-                    </div>
+                    @else
 
-                @endif
+                        <div class="text-muted">
 
-            </div>
+                            No donor linked to this donation.
 
-        </div>
+                        </div>
 
+                    @endif
 
-        {{-- Record Information --}}
-
-        <div class="donation-card">
-
-            <div class="donation-card-header">
-
-                <span class="donation-card-title">
-                    Record
-                </span>
+                </div>
 
             </div>
 
 
-            <div class="donation-card-body">
+            {{-- =============================================
+                 RECORD
+            ============================================== --}}
 
-                <div class="record-row">
+            <div class="card donation-card">
 
-                    <span>
-                        Received By
-                    </span>
+                <div class="donation-card-header">
 
-                    <strong>
-                        {{ $donation->receivedBy?->name ?? 'Not specified' }}
-                    </strong>
+                    <h6>
 
-                </div>
+                        <i class="fa fa-history mr-2"></i>
+                        Record
 
-
-                <div class="record-row">
-
-                    <span>
-                        Created
-                    </span>
-
-                    <strong>
-                        {{ $donation->created_at?->format('d M Y H:i') }}
-                    </strong>
+                    </h6>
 
                 </div>
 
 
-                <div class="record-row">
+                <div class="donation-card-body">
 
-                    <span>
-                        Updated
-                    </span>
 
-                    <strong>
-                        {{ $donation->updated_at?->format('d M Y H:i') }}
-                    </strong>
+                    <div class="record-row">
+
+                        <span>
+                            Received By
+                        </span>
+
+                        <strong>
+
+                            {{ optional($donation->receivedBy)->name ?? '—' }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="record-row">
+
+                        <span>
+                            Created
+                        </span>
+
+                        <strong>
+
+                            {{ optional($donation->created_at)->format('d M Y H:i') }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="record-row">
+
+                        <span>
+                            Updated
+                        </span>
+
+                        <strong>
+
+                            {{ optional($donation->updated_at)->format('d M Y H:i') }}
+
+                        </strong>
+
+                    </div>
+
 
                 </div>
 
@@ -1554,6 +1533,90 @@ $pendingCommunications = $donation->communications
 </div>
 
 
-</div>
+{{-- =========================================================
+     COUNTDOWN SCRIPT
+========================================================= --}}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    function updateCountdowns() {
+
+        document
+            .querySelectorAll('.communication-countdown')
+            .forEach(function (element) {
+
+                const scheduledAt = element.dataset.scheduledAt;
+
+                if (!scheduledAt) {
+                    return;
+                }
+
+                const scheduledTime =
+                    new Date(scheduledAt).getTime();
+
+                const now =
+                    new Date().getTime();
+
+                const difference =
+                    scheduledTime - now;
+
+
+                if (difference <= 0) {
+
+                    element.textContent =
+                        'Sending soon...';
+
+                    return;
+
+                }
+
+
+                const totalSeconds =
+                    Math.floor(difference / 1000);
+
+                const hours =
+                    Math.floor(totalSeconds / 3600);
+
+                const minutes =
+                    Math.floor((totalSeconds % 3600) / 60);
+
+                const seconds =
+                    totalSeconds % 60;
+
+
+                if (hours > 0) {
+
+                    element.textContent =
+                        'Sending in ' +
+                        hours +
+                        'h ' +
+                        minutes +
+                        'm';
+
+                } else {
+
+                    element.textContent =
+                        'Sending in ' +
+                        minutes +
+                        'm ' +
+                        seconds +
+                        's';
+
+                }
+
+            });
+
+    }
+
+
+    updateCountdowns();
+
+    setInterval(updateCountdowns, 1000);
+
+});
+
+</script>
 
 @endsection
