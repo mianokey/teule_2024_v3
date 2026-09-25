@@ -60,20 +60,26 @@
 
 
     /* =========================================================
-       HERO
+       HERO - BLUE THEME
     ========================================================= */
 
     .donation-hero {
         border-radius: 11px;
         padding: 15px 18px;
         margin-bottom: 12px;
-        background: linear-gradient(
-            135deg,
-            #f7f9fc 0%,
-            #ffffff 100%
-        );
-        border: 1px solid #e6eaf0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, .035);
+
+        background:
+            linear-gradient(
+                135deg,
+                #eef4ff 0%,
+                #f8fbff 55%,
+                #ffffff 100%
+            );
+
+        border: 1px solid #dce7f8;
+
+        box-shadow:
+            0 3px 10px rgba(37, 99, 235, .06);
     }
 
     .donation-hero-inner {
@@ -97,7 +103,7 @@
         align-items: center;
         font-size: 12px;
         font-weight: 600;
-        color: #667085;
+        color: #52709d;
         margin-bottom: 4px;
         text-transform: uppercase;
         letter-spacing: .3px;
@@ -105,13 +111,14 @@
 
     .donation-type i {
         margin-right: 6px;
+        color: #3b82f6;
     }
 
     .donation-amount {
         font-size: 27px;
         line-height: 1.1;
         font-weight: 700;
-        color: #202b3c;
+        color: #163a68;
         margin-bottom: 5px;
     }
 
@@ -120,7 +127,7 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 5px 14px;
-        color: #687385;
+        color: #687b95;
         font-size: 13px;
     }
 
@@ -137,13 +144,18 @@
         text-transform: capitalize;
     }
 
+
+    /* =========================================================
+       STATUS COLORS
+    ========================================================= */
+
     .donation-status-success {
-        background: #e8f7ee;
+        background: #e7f7ef;
         color: #18794e;
     }
 
     .donation-status-info {
-        background: #e8f2ff;
+        background: #e7f1ff;
         color: #1769aa;
     }
 
@@ -153,13 +165,13 @@
     }
 
     .donation-status-secondary {
-        background: #edf0f3;
+        background: #edf0f5;
         color: #59636f;
     }
 
     .donation-status-light {
-        background: #f3f4f6;
-        color: #59636f;
+        background: #eef3f9;
+        color: #52657d;
     }
 
 
@@ -168,15 +180,22 @@
     ========================================================= */
 
     .communication-card {
-        border: 1px solid #e5e9ee;
+        border: 1px solid #dfe8f4;
         border-radius: 9px;
         margin-bottom: 12px;
         background: #fff;
+
+        box-shadow:
+            0 2px 7px rgba(37, 99, 235, .035);
     }
 
     .communication-header {
         padding: 9px 13px;
-        border-bottom: 1px solid #edf0f3;
+
+        border-bottom: 1px solid #e7eef8;
+
+        background: #f6f9fe;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -186,6 +205,7 @@
         margin: 0;
         font-size: 13px;
         font-weight: 600;
+        color: #29486d;
     }
 
     .communication-body {
@@ -196,9 +216,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+
         padding: 7px 9px;
-        border: 1px solid #edf0f3;
+
+        border: 1px solid #e6edf6;
         border-radius: 6px;
+
         margin-bottom: 6px;
     }
 
@@ -213,12 +236,12 @@
     .communication-title {
         font-size: 13px;
         font-weight: 600;
-        color: #303846;
+        color: #304967;
     }
 
     .communication-recipient {
         font-size: 12px;
-        color: #7a8491;
+        color: #7a899d;
     }
 
     .communication-countdown {
@@ -255,26 +278,37 @@
     ========================================================= */
 
     .donation-card {
-        border: 1px solid #e5e9ee;
+        border: 1px solid #dfe7f1;
         border-radius: 10px;
         background: #fff;
         overflow: hidden;
+
+        box-shadow:
+            0 2px 8px rgba(37, 99, 235, .035);
     }
 
     .donation-card-header {
         min-height: 45px;
         padding: 10px 14px;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid #edf0f3;
+
+        border-bottom: 1px solid #e5edf7;
+
+        background: #f7faff;
     }
 
     .donation-card-header h6 {
         margin: 0;
         font-size: 14px;
         font-weight: 600;
-        color: #303846;
+        color: #29486d;
+    }
+
+    .donation-card-header h6 i {
+        color: #3d7dcc;
     }
 
     .donation-card-body {
@@ -289,16 +323,20 @@
     .donation-details-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        border: 1px solid #e9edf1;
+
+        border: 1px solid #e3ebf5;
         border-radius: 7px;
+
         overflow: hidden;
     }
 
     .detail-item {
         padding: 11px 13px;
         min-height: 68px;
-        border-right: 1px solid #e9edf1;
-        border-bottom: 1px solid #e9edf1;
+
+        border-right: 1px solid #e3ebf5;
+        border-bottom: 1px solid #e3ebf5;
+
         background: #fff;
     }
 
@@ -308,24 +346,32 @@
 
     .detail-label {
         font-size: 11px;
-        color: #7a8491;
+        color: #74859b;
+
         margin-bottom: 4px;
+
         text-transform: uppercase;
         letter-spacing: .25px;
+
         font-weight: 500;
     }
 
     .detail-value {
         font-size: 14px;
         font-weight: 500;
-        color: #263238;
+
+        color: #263f5d;
+
         line-height: 1.4;
         word-break: break-word;
     }
 
     .detail-wide {
         padding: 10px 12px;
-        background: #f8f9fa;
+
+        background: #f5f8fc;
+
+        border: 1px solid #e5edf6;
         border-radius: 7px;
     }
 
@@ -341,30 +387,35 @@
     .items-summary {
         display: flex;
         align-items: center;
+
         gap: 18px;
-        color: #687385;
+
+        color: #687b95;
         font-size: 13px;
+
         flex-wrap: wrap;
     }
 
     .items-summary strong {
-        color: #303846;
+        color: #304967;
     }
 
     /*
-     * The table gets its own scroll area.
-     * This prevents many donated items from pushing
-     * the rest of the page endlessly downward.
+     * Only the items table scrolls.
+     * This keeps the whole card visible.
      */
     .items-table-wrapper {
         max-height: 460px;
+
         overflow-y: auto;
         overflow-x: auto;
     }
 
     .items-table {
         min-width: 680px;
+
         margin-bottom: 0 !important;
+
         font-size: 13px;
     }
 
@@ -372,18 +423,30 @@
         position: sticky;
         top: 0;
         z-index: 2;
-        background: #f7f8fa;
+
+        background: #eef4fb;
+
         border-top: 0;
+
         padding: 10px 12px;
+
         font-size: 12px;
         font-weight: 600;
-        color: #555f6d;
+
+        color: #48627f;
+
         white-space: nowrap;
     }
 
     .items-table tbody td {
         padding: 11px 12px;
         vertical-align: middle;
+
+        border-color: #edf1f6;
+    }
+
+    .items-table tbody tr:hover {
+        background: #f8fbff;
     }
 
     .items-table tbody tr:last-child td {
@@ -393,13 +456,15 @@
     .item-name {
         font-size: 14px;
         font-weight: 500;
-        color: #263238;
+        color: #263f5d;
     }
 
     .item-notes {
         margin-top: 3px;
+
         font-size: 12px;
-        color: #7a8491;
+
+        color: #7a899d;
     }
 
 
@@ -417,41 +482,50 @@
         width: 42px;
         height: 42px;
         min-width: 42px;
+
         border-radius: 50%;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #eef1f5;
-        color: #4b5563;
+
+        background: #eaf2fc;
+        color: #3975b9;
+
         font-size: 17px;
         font-weight: 600;
+
         margin-right: 10px;
     }
 
     .donor-name {
         font-size: 15px;
         font-weight: 600;
-        color: #263238;
+        color: #263f5d;
         line-height: 1.3;
     }
 
     .donor-meta {
         font-size: 12px;
-        color: #7a8491;
+        color: #7a899d;
         margin-top: 2px;
     }
 
     .donor-detail {
         font-size: 13px;
+
         padding: 7px 0;
-        border-bottom: 1px solid #edf0f3;
+
+        border-bottom: 1px solid #edf1f6;
+
         word-break: break-word;
+
         line-height: 1.4;
     }
 
     .donor-detail strong {
         font-weight: 500;
-        color: #59636f;
+        color: #59718e;
     }
 
 
@@ -463,8 +537,11 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
+
         padding: 8px 0;
-        border-bottom: 1px solid #edf0f3;
+
+        border-bottom: 1px solid #edf1f6;
+
         font-size: 13px;
         line-height: 1.4;
     }
@@ -474,14 +551,14 @@
     }
 
     .record-row span {
-        color: #7a8491;
+        color: #7a899d;
         margin-right: 10px;
     }
 
     .record-row strong {
         text-align: right;
         font-weight: 500;
-        color: #303846;
+        color: #304967;
     }
 
 
@@ -514,7 +591,7 @@
         }
 
         .detail-item:nth-child(4n) {
-            border-right: 1px solid #e9edf1;
+            border-right: 1px solid #e3ebf5;
         }
 
         .detail-item:nth-child(2n) {
@@ -845,8 +922,10 @@
             <div class="communication-header">
 
                 <h6>
+
                     <i class="fa fa-clock mr-2"></i>
                     Pending Thank-You Communications
+
                 </h6>
 
                 <span class="badge badge-warning">
@@ -971,8 +1050,6 @@
                     <div class="donation-details-grid">
 
 
-                        {{-- Donation Number --}}
-
                         <div class="detail-item">
 
                             <div class="detail-label">
@@ -985,8 +1062,6 @@
 
                         </div>
 
-
-                        {{-- Date --}}
 
                         <div class="detail-item">
 
@@ -1003,8 +1078,6 @@
                         </div>
 
 
-                        {{-- Type --}}
-
                         <div class="detail-item">
 
                             <div class="detail-label">
@@ -1019,8 +1092,6 @@
 
                         </div>
 
-
-                        {{-- Purpose --}}
 
                         <div class="detail-item">
 
@@ -1039,9 +1110,6 @@
 
                         @if($isCash)
 
-
-                            {{-- Source --}}
-
                             <div class="detail-item">
 
                                 <div class="detail-label">
@@ -1056,8 +1124,6 @@
 
                             </div>
 
-
-                            {{-- Currency --}}
 
                             <div class="detail-item">
 
@@ -1074,8 +1140,6 @@
                             </div>
 
 
-                            {{-- Reference --}}
-
                             <div class="detail-item">
 
                                 <div class="detail-label">
@@ -1091,8 +1155,6 @@
                             </div>
 
 
-                            {{-- Payment Reference --}}
-
                             <div class="detail-item">
 
                                 <div class="detail-label">
@@ -1107,14 +1169,11 @@
 
                             </div>
 
-
                         @endif
 
 
                     </div>
 
-
-                    {{-- Description --}}
 
                     @if($donation->description)
 
@@ -1134,8 +1193,6 @@
 
                     @endif
 
-
-                    {{-- Notes --}}
 
                     @if($donation->notes)
 
@@ -1252,9 +1309,11 @@
 
                                         <td>
 
+                                            {{-- IMPORTANT:
+                                                 Database column is "item" --}}
                                             <div class="item-name">
 
-                                                {{ $item->item_name }}
+                                                {{ $item->item }}
 
                                             </div>
 
@@ -1476,7 +1535,6 @@
 
                 <div class="donation-card-body">
 
-
                     <div class="record-row">
 
                         <span>
@@ -1521,7 +1579,6 @@
 
                     </div>
 
-
                 </div>
 
             </div>
@@ -1533,10 +1590,6 @@
 </div>
 
 
-{{-- =========================================================
-     COUNTDOWN SCRIPT
-========================================================= --}}
-
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1547,7 +1600,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .querySelectorAll('.communication-countdown')
             .forEach(function (element) {
 
-                const scheduledAt = element.dataset.scheduledAt;
+                const scheduledAt =
+                    element.dataset.scheduledAt;
 
                 if (!scheduledAt) {
                     return;
@@ -1569,7 +1623,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Sending soon...';
 
                     return;
-
                 }
 
 
@@ -1580,7 +1633,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     Math.floor(totalSeconds / 3600);
 
                 const minutes =
-                    Math.floor((totalSeconds % 3600) / 60);
+                    Math.floor(
+                        (totalSeconds % 3600) / 60
+                    );
 
                 const seconds =
                     totalSeconds % 60;
@@ -1613,7 +1668,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     updateCountdowns();
 
-    setInterval(updateCountdowns, 1000);
+    setInterval(
+        updateCountdowns,
+        1000
+    );
 
 });
 
