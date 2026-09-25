@@ -49,17 +49,66 @@ public function show(MpesaTransaction $mpesaTransaction)
 
     $matchedDonor = null;
 
-    if ($mpesaTransaction->phone_number) {
-        $phone = preg_replace(
-            '/\D+/',
-            '',
-            $mpesaTransaction->phone_number
+    /*
+     * 1. If the transaction already has a donor, keep that.
+     */
+    if ($mpesaTransaction->donor) {
+
+        $matchedDonor = $mpesaTransaction->donor;
+
+    } elseif ($mpesaTransaction->phone_number) {
+
+        /*
+         * 2. Safaricom sends the MSISDN as a SHA-256 hash.
+         *
+         * We therefore normalize each donor phone number to:
+         *
+         *     254XXXXXXXXX
+         *
+         * then hash it and compare it with the value
+         * received from Safaricom.
+         */
+
+        $safaricomHash = strtolower(
+            trim($mpesaTransaction->phone_number)
         );
 
-        $matchedDonor = Donor::whereRaw(
-            "REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '+', ''), '-', ''), '(', '') LIKE ?",
-            ['%' . $phone]
-        )->first();
+        foreach ($donors as $donor) {
+
+            if (!$donor->phone) {
+                continue;
+            }
+
+            // Remove spaces, +, -, brackets, etc.
+            $normalizedPhone = preg_replace(
+                '/\D+/',
+                '',
+                $donor->phone
+            );
+
+            // Convert Kenyan 07XXXXXXXX / 01XXXXXXXX
+            // to 2547XXXXXXXX / 2541XXXXXXXX
+            if (str_starts_with($normalizedPhone, '0')) {
+
+                $normalizedPhone =
+                    '254' . substr($normalizedPhone, 1);
+
+            }
+
+            // If stored as 254XXXXXXXXX, leave it unchanged.
+            // Hash the normalized number.
+            $donorHash = hash(
+                'sha256',
+                $normalizedPhone
+            );
+
+            if (hash_equals($safaricomHash, $donorHash)) {
+
+                $matchedDonor = $donor;
+
+                break;
+            }
+        }
     }
 
     return view(
