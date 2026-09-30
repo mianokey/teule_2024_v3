@@ -14,6 +14,16 @@ use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\DonationCommunicationController;
 use App\Http\Controllers\Admin\MpesaTransactionController;
+use App\Http\Controllers\Admin\StoreItemCategoryController;
+use App\Http\Controllers\Admin\StoreUnitController;
+use App\Http\Controllers\Admin\StoreController;
+use App\Http\Controllers\Admin\StoreItemController;
+use App\Http\Controllers\Admin\StoreItemVariantController;
+use App\Http\Controllers\Admin\StoreReceiptController;
+use App\Http\Controllers\Admin\StoreReceiptItemController;
+use App\Http\Controllers\Admin\StoreStockController;
+use App\Http\Controllers\Admin\StoreRequisitionController;
+use App\Http\Controllers\Admin\StoreFulfillmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,8 +131,79 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('donation-communications/{communication}', [ DonationCommunicationController::class,'show'])->name('admin.donation-communications.show');
     Route::post('donation-communications/{communication}/cancel', [ DonationCommunicationController::class,'cancel'])->name('admin.donation-communications.cancel');
     Route::post('donations/{donation}/resend-thank-you', [ DonationController::class, 'resendThankYou',])->name('admin.donations.resend-thank-you');
+    Route::get('/donations/{donation}/receipt',[DonationController::class, 'receipt'])->name('admin.donations.receipt');
+// Stores - Item Categories
+
+Route::resource('store-categories', StoreItemCategoryController::class)->parameters(['store-categories' => 'storeCategory'])->names('admin.store-categories');
+
+Route::patch('store-categories/{storeCategory}/toggle-status', [StoreItemCategoryController::class, 'toggleStatus'])->name('admin.store-categories.toggle-status');
+
+
+// Stores - Units
+
+Route::resource('store-units', StoreUnitController::class)->parameters(['store-units' => 'storeUnit'])->names('admin.store-units');
+
+Route::patch('store-units/{storeUnit}/toggle-status', [StoreUnitController::class, 'toggleStatus'])->name('admin.store-units.toggle-status');
+
+
+// Stores - Physical/Logical Stores
+
+Route::get('stores/store-requisitions', [StoreRequisitionController::class, 'index'])->name('admin.stores.store-requisitions.index');
+Route::get('stores/store-requisitions/create', [StoreRequisitionController::class, 'create'])->name('admin.stores.store-requisitions.create');
+Route::post('stores/store-requisitions', [StoreRequisitionController::class, 'store'])->name('admin.stores.store-requisitions.store');
+Route::get('stores/store-requisitions/{storeRequisition}/edit', [StoreRequisitionController::class, 'edit'])->name('admin.stores.store-requisitions.edit');
+Route::put('stores/store-requisitions/{storeRequisition}', [StoreRequisitionController::class, 'update'])->name('admin.stores.store-requisitions.update');
+Route::post('stores/store-requisitions/{storeRequisition}/submit', [StoreRequisitionController::class, 'submit'])->name('admin.stores.store-requisitions.submit');
+Route::post('stores/store-requisitions/{storeRequisition}/approve', [StoreRequisitionController::class, 'approve'])->name('admin.stores.store-requisitions.approve');
+Route::post('stores/store-requisitions/{storeRequisition}/reject', [StoreRequisitionController::class, 'reject'])->name('admin.stores.store-requisitions.reject');
+Route::post('stores/store-requisitions/{storeRequisition}/send-back', [StoreRequisitionController::class, 'sendBack'])->name('admin.stores.store-requisitions.send-back');
+Route::get('stores/store-requisitions/{storeRequisition}', [StoreRequisitionController::class, 'show'])->name('admin.stores.store-requisitions.show');
+Route::delete( '/stores/store-requisitions/{storeRequisition}',[StoreRequisitionController::class, 'destroy'])->name('admin.stores.store-requisitions.destroy');
+
+
+Route::resource('stores', StoreController::class)->parameters(['stores' => 'store'])->names('admin.stores');
+
+Route::patch('stores/{store}/toggle-status', [StoreController::class, 'toggleStatus'])->name('admin.stores.toggle-status');
+
+
+// Stores - Items
+
+Route::resource('store-items', StoreItemController::class)->parameters(['store-items' => 'storeItem'])->names('admin.store-items');
+
+Route::patch('store-items/{storeItem}/toggle-status', [StoreItemController::class, 'toggleStatus'])->name('admin.store-items.toggle-status');
+
+
+// Stores - Item Variants
+
+Route::resource('store-items.variants', StoreItemVariantController::class)->parameters(['store-items' => 'storeItem', 'variants' => 'variant'])->names('admin.store-item-variants');
+
+Route::patch('store-items/{storeItem}/variants/{variant}/toggle-status', [StoreItemVariantController::class, 'toggleStatus'])->name('admin.store-item-variants.toggle-status');
+
+
+// Stores - Receipts
+
+Route::resource('store-receipts', StoreReceiptController::class)->parameters(['store-receipts' => 'storeReceipt'])->names('admin.store-receipts');
+
+Route::post('store-receipts/{storeReceipt}/items', [StoreReceiptItemController::class, 'store'])->name('admin.store-receipt-items.store');
+
+Route::put('store-receipts/{storeReceipt}/items/{storeReceiptItem}', [StoreReceiptItemController::class, 'update'])->name('admin.store-receipt-items.update');
+
+Route::delete('store-receipts/{storeReceipt}/items/{storeReceiptItem}', [StoreReceiptItemController::class, 'destroy'])->name('admin.store-receipt-items.destroy');
+
+Route::post('store-receipts/{storeReceipt}/post', [StoreReceiptController::class, 'post'])->name('admin.store-receipts.post');
+
+
+// Stores - Stock
+
+Route::get('store-stock', [StoreStockController::class, 'index'])->name('admin.store-stock.index');
+
+Route::get('store-stock/{storeStock}/ledger', [StoreStockController::class, 'ledger'])->name('admin.store-stock.ledger');
+
+
+// Stores - Fulfillments
+Route::post('/stores/store-requisitions/{storeRequisition}/fulfill', [StoreFulfillmentController::class, 'store'])->name('admin.stores.store-requisitions.fulfill');
+
 /*
-|--------------------------------------------------------------------------
 | M-Pesa transaction review routes
 |--------------------------------------------------------------------------
 */

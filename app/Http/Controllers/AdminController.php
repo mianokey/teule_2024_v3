@@ -400,7 +400,14 @@ public function child_card_select()
 
 
 
+public function user_index()
+{
+    $users = User::with('details')
+        ->orderBy('name')
+        ->get();
 
+    return view('admin.user.index', compact('users'));
+}
 
 
     public function user_edit(Request $request, $id)

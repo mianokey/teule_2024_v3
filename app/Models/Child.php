@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\StoreRequisitionItem;
 
 class Child extends Model
 {
@@ -25,5 +26,13 @@ class Child extends Model
     {
         return $this->details()->where('key', '!=', 'sponsors');
     }
+    public function storeRequisitionItems()
+{
+    return $this->belongsToMany(
+        StoreRequisitionItem::class,
+        'store_requisition_item_child'
+    )->withTimestamps();
+}
+
 
 }

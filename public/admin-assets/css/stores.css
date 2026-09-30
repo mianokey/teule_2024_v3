@@ -1,0 +1,2758 @@
+/* =========================================================
+   TEULE KENYA — STORES MODULE
+   Shared UI / Design System
+   ========================================================= */
+
+:root {
+    --stores-primary: #00096A;
+    --stores-primary-dark: #00054d;
+    --stores-primary-soft: #eef1ff;
+
+    --stores-accent: #EF4700;
+    --stores-accent-soft: #fff1eb;
+
+    --stores-success: #198754;
+    --stores-success-soft: #eaf7ef;
+
+    --stores-warning: #f59e0b;
+    --stores-warning-soft: #fff7e6;
+
+    --stores-danger: #dc3545;
+    --stores-danger-soft: #fff0f1;
+
+    --stores-info: #0d6efd;
+    --stores-info-soft: #edf5ff;
+
+    --stores-purple: #6f42c1;
+    --stores-purple-soft: #f3edff;
+
+    --stores-bg: #f8f9fc;
+    --stores-card: #ffffff;
+    --stores-border: #e7eaf0;
+
+    --stores-text: #1f2937;
+    --stores-muted: #6b7280;
+    --stores-light-text: #9ca3af;
+
+    --stores-radius: 14px;
+    --stores-radius-sm: 9px;
+
+    --stores-shadow:
+        0 4px 18px rgba(15, 23, 42, 0.06);
+
+    --stores-shadow-lg:
+        0 10px 35px rgba(15, 23, 42, 0.10);
+
+    --stores-transition:
+        all .2s ease;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.stores-page {
+    width: 100%;
+    min-height: 100%;
+    color: var(--stores-text);
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.stores-header {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--stores-primary) 0%,
+            #10187f 55%,
+            #1d258f 100%
+        );
+
+    color: #fff;
+
+    border-radius: var(--stores-radius);
+
+    padding: 24px 26px;
+
+    margin-bottom: 20px;
+
+    box-shadow: var(--stores-shadow-lg);
+}
+
+.stores-header::before {
+    content: "";
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    right: -80px;
+    top: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.stores-header::after {
+    content: "";
+    position: absolute;
+
+    width: 140px;
+    height: 140px;
+
+    right: 120px;
+    bottom: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stores-header-content {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.stores-header-title {
+    margin: 0;
+
+    font-size: 1.35rem;
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
+}
+
+.stores-header-subtitle {
+    margin: 5px 0 0;
+
+    color: rgba(255, 255, 255, 0.78);
+
+    font-size: .88rem;
+}
+
+.stores-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   COMMON CARDS
+   ========================================================= */
+
+.stores-card {
+    background: var(--stores-card);
+
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius);
+
+    box-shadow: var(--stores-shadow);
+
+    overflow: hidden;
+
+    margin-bottom: 20px;
+}
+
+.stores-card-header {
+    padding: 16px 20px;
+
+    border-bottom: 1px solid var(--stores-border);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.stores-card-title {
+    margin: 0;
+
+    font-size: .98rem;
+    font-weight: 700;
+
+    color: var(--stores-text);
+}
+
+.stores-card-subtitle {
+    margin: 3px 0 0;
+
+    font-size: .78rem;
+    color: var(--stores-muted);
+}
+
+.stores-card-body {
+    padding: 20px;
+}
+
+.stores-card-footer {
+    padding: 14px 20px;
+
+    background: #fafbfc;
+
+    border-top: 1px solid var(--stores-border);
+}
+
+
+/* =========================================================
+   FILTER AREA
+   ========================================================= */
+
+.stores-filter-card {
+    background: var(--stores-card);
+
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius);
+
+    box-shadow: var(--stores-shadow);
+
+    padding: 18px;
+
+    margin-bottom: 20px;
+}
+
+.stores-filter-row {
+    display: flex;
+
+    align-items: end;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+}
+
+.stores-filter-field {
+    flex: 1 1 180px;
+}
+
+.stores-filter-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: .76rem;
+
+    font-weight: 600;
+
+    color: var(--stores-muted);
+}
+
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+.stores-page .form-control,
+.stores-page .form-select {
+    min-height: 40px;
+
+    border-color: #dfe3ea;
+
+    border-radius: var(--stores-radius-sm);
+
+    font-size: .85rem;
+
+    color: var(--stores-text);
+
+    transition: var(--stores-transition);
+
+    box-shadow: none;
+}
+
+.stores-page .form-control:focus,
+.stores-page .form-select:focus {
+    border-color: var(--stores-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(0, 9, 106, .08);
+}
+
+.stores-page textarea.form-control {
+    min-height: 100px;
+}
+
+.stores-page .form-label {
+    font-size: .78rem;
+
+    font-weight: 600;
+
+    color: #4b5563;
+
+    margin-bottom: 6px;
+}
+
+.stores-page .form-text {
+    font-size: .74rem;
+
+    color: var(--stores-muted);
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.stores-page .btn {
+    border-radius: var(--stores-radius-sm);
+
+    font-size: .82rem;
+
+    font-weight: 600;
+
+    padding: 8px 13px;
+
+    transition: var(--stores-transition);
+}
+
+.stores-page .btn:hover {
+    transform: translateY(-1px);
+}
+
+.stores-btn-primary {
+    background: var(--stores-primary);
+
+    border-color: var(--stores-primary);
+
+    color: #fff;
+}
+
+.stores-btn-primary:hover {
+    background: var(--stores-primary-dark);
+
+    border-color: var(--stores-primary-dark);
+
+    color: #fff;
+}
+
+.stores-btn-accent {
+    background: var(--stores-accent);
+
+    border-color: var(--stores-accent);
+
+    color: #fff;
+}
+
+.stores-btn-accent:hover {
+    background: #d93f00;
+
+    border-color: #d93f00;
+
+    color: #fff;
+}
+
+.stores-btn-light {
+    background: #fff;
+
+    border: 1px solid var(--stores-border);
+
+    color: var(--stores-text);
+}
+
+.stores-btn-light:hover {
+    background: #f8f9fc;
+
+    border-color: #d6dae2;
+
+    color: var(--stores-primary);
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.stores-table-card {
+    background: #fff;
+
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius);
+
+    box-shadow: var(--stores-shadow);
+
+    overflow: hidden;
+}
+
+.stores-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.stores-table {
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+}
+
+.stores-table thead th {
+    background: #f8f9fc;
+
+    color: #6b7280;
+
+    font-size: .72rem;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: .035em;
+
+    padding: 13px 16px;
+
+    border-bottom: 1px solid var(--stores-border);
+
+    white-space: nowrap;
+}
+
+.stores-table tbody td {
+    padding: 14px 16px;
+
+    font-size: .82rem;
+
+    color: var(--stores-text);
+
+    border-bottom: 1px solid #f0f1f4;
+
+    vertical-align: middle;
+}
+
+.stores-table tbody tr {
+    transition: var(--stores-transition);
+}
+
+.stores-table tbody tr:hover {
+    background: #fafbff;
+}
+
+.stores-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.stores-table .stores-primary-text {
+    font-weight: 600;
+
+    color: var(--stores-primary);
+}
+
+.stores-table .stores-muted {
+    color: var(--stores-muted);
+
+    font-size: .76rem;
+}
+
+
+/* =========================================================
+   TABLE ACTIONS
+   ========================================================= */
+
+.stores-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 5px;
+
+    flex-wrap: wrap;
+}
+
+.stores-action-btn {
+    width: 32px;
+    height: 32px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    border: 1px solid var(--stores-border);
+
+    background: #fff;
+
+    color: var(--stores-muted);
+
+    transition: var(--stores-transition);
+}
+
+.stores-action-btn:hover {
+    color: var(--stores-primary);
+
+    border-color: #cfd5e3;
+
+    background: var(--stores-primary-soft);
+}
+
+
+/* =========================================================
+   BADGES / STATUS
+   ========================================================= */
+
+.stores-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: .70rem;
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+.stores-badge-primary {
+    color: var(--stores-primary);
+
+    background: var(--stores-primary-soft);
+}
+
+.stores-badge-success {
+    color: #13733f;
+
+    background: var(--stores-success-soft);
+}
+
+.stores-badge-warning {
+    color: #a16207;
+
+    background: var(--stores-warning-soft);
+}
+
+.stores-badge-danger {
+    color: #b42333;
+
+    background: var(--stores-danger-soft);
+}
+
+.stores-badge-info {
+    color: #0759c9;
+
+    background: var(--stores-info-soft);
+}
+
+.stores-badge-purple {
+    color: #5b21b6;
+
+    background: var(--stores-purple-soft);
+}
+
+.stores-badge-muted {
+    color: #596273;
+
+    background: #f1f3f6;
+}
+
+
+/* =========================================================
+   ITEM / VARIANT DISPLAY
+   ========================================================= */
+
+.stores-item-name {
+    font-weight: 650;
+
+    color: var(--stores-text);
+}
+
+.stores-item-meta {
+    margin-top: 3px;
+
+    font-size: .74rem;
+
+    color: var(--stores-muted);
+}
+
+.stores-variant {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    background: var(--stores-primary-soft);
+
+    color: var(--stores-primary);
+
+    font-size: .70rem;
+
+    font-weight: 700;
+}
+
+.stores-code {
+    font-family:
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: .72rem;
+
+    color: var(--stores-muted);
+
+    background: #f5f6f8;
+
+    border-radius: 6px;
+
+    padding: 3px 6px;
+}
+
+
+/* =========================================================
+   STOCK SPECIFIC
+   ========================================================= */
+
+.stock-balance {
+    font-size: .95rem;
+
+    font-weight: 750;
+
+    color: var(--stores-text);
+}
+
+.stock-balance.stock-positive {
+    color: var(--stores-success);
+}
+
+.stock-balance.stock-low {
+    color: var(--stores-warning);
+}
+
+.stock-balance.stock-empty {
+    color: var(--stores-danger);
+}
+
+.stock-unit {
+    margin-left: 3px;
+
+    font-size: .72rem;
+
+    color: var(--stores-muted);
+}
+
+
+/* =========================================================
+   MOVEMENTS / LEDGER
+   ========================================================= */
+
+.stores-movement {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    font-size: .68rem;
+
+    font-weight: 700;
+}
+
+.stores-movement-in {
+    color: #13733f;
+
+    background: var(--stores-success-soft);
+}
+
+.stores-movement-out {
+    color: #b42333;
+
+    background: var(--stores-danger-soft);
+}
+
+.stores-movement-neutral {
+    color: #0759c9;
+
+    background: var(--stores-info-soft);
+}
+
+.stores-ledger-balance {
+    font-weight: 700;
+
+    color: var(--stores-primary);
+}
+
+
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
+
+.stores-empty {
+    padding: 55px 20px;
+
+    text-align: center;
+
+    color: var(--stores-muted);
+}
+
+.stores-empty-icon {
+    width: 55px;
+    height: 55px;
+
+    margin: 0 auto 13px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--stores-primary-soft);
+
+    color: var(--stores-primary);
+
+    font-size: 1.25rem;
+}
+
+.stores-empty-title {
+    margin: 0 0 5px;
+
+    color: var(--stores-text);
+
+    font-size: .95rem;
+
+    font-weight: 700;
+}
+
+.stores-empty-text {
+    margin: 0;
+
+    font-size: .80rem;
+}
+
+
+/* =========================================================
+   ALERTS / VALIDATION
+   ========================================================= */
+
+.stores-page .alert {
+    border-radius: var(--stores-radius-sm);
+
+    font-size: .82rem;
+
+    border-width: 1px;
+}
+
+.stores-error {
+    margin-top: 5px;
+
+    font-size: .74rem;
+
+    color: var(--stores-danger);
+}
+
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.stores-pagination {
+    padding: 15px 18px;
+
+    border-top: 1px solid var(--stores-border);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+.stores-pagination-info {
+    font-size: .75rem;
+
+    color: var(--stores-muted);
+}
+
+.stores-pagination .pagination {
+    margin: 0;
+
+    gap: 4px;
+}
+
+.stores-pagination .page-link {
+    border: 0;
+
+    border-radius: 8px !important;
+
+    min-width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: .75rem;
+
+    color: var(--stores-muted);
+
+    background: #f5f6f8;
+}
+
+.stores-pagination .page-link:hover {
+    color: var(--stores-primary);
+
+    background: var(--stores-primary-soft);
+}
+
+.stores-pagination .page-item.active .page-link {
+    background: var(--stores-primary);
+
+    color: #fff;
+}
+
+.stores-pagination .page-item.disabled .page-link {
+    opacity: .45;
+}
+
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+
+.stores-modal .modal-content {
+    border: 0;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow: var(--stores-shadow-lg);
+}
+
+.stores-modal .modal-header {
+    background:
+        linear-gradient(
+            135deg,
+            var(--stores-primary),
+            #171f89
+        );
+
+    color: #fff;
+
+    border: 0;
+
+    padding: 17px 20px;
+}
+
+.stores-modal .modal-title {
+    font-size: .95rem;
+
+    font-weight: 700;
+}
+
+.stores-modal .btn-close {
+    filter: brightness(0) invert(1);
+
+    opacity: .8;
+}
+
+.stores-modal .modal-body {
+    padding: 20px;
+}
+
+.stores-modal .modal-footer {
+    border-top: 1px solid var(--stores-border);
+
+    background: #fafbfc;
+}
+
+
+/* =========================================================
+   DETAILS / SUMMARY BLOCKS
+   ========================================================= */
+
+.stores-detail-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: 12px;
+}
+
+.stores-detail {
+    padding: 13px 15px;
+
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius-sm);
+
+    background: #fafbfc;
+}
+
+.stores-detail-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: .68rem;
+
+    font-weight: 700;
+
+    color: var(--stores-muted);
+
+    text-transform: uppercase;
+
+    letter-spacing: .03em;
+}
+
+.stores-detail-value {
+    font-size: .84rem;
+
+    font-weight: 600;
+
+    color: var(--stores-text);
+}
+
+
+/* =========================================================
+   SUMMARY STAT CARDS
+   ========================================================= */
+
+.stores-stat-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.stores-stat {
+    position: relative;
+
+    overflow: hidden;
+
+    background: #fff;
+
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius);
+
+    padding: 18px;
+
+    box-shadow: var(--stores-shadow);
+}
+
+.stores-stat-label {
+    font-size: .72rem;
+
+    font-weight: 700;
+
+    color: var(--stores-muted);
+
+    text-transform: uppercase;
+
+    letter-spacing: .03em;
+}
+
+.stores-stat-value {
+    margin-top: 7px;
+
+    font-size: 1.35rem;
+
+    font-weight: 750;
+
+    color: var(--stores-text);
+}
+
+.stores-stat-icon {
+    position: absolute;
+
+    right: 16px;
+    top: 16px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--stores-primary-soft);
+
+    color: var(--stores-primary);
+}
+
+
+/* =========================================================
+   RECEIPTS
+   ========================================================= */
+
+.receipt-source {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: .72rem;
+
+    font-weight: 700;
+}
+
+.receipt-source-purchase {
+    color: #0759c9;
+}
+
+.receipt-source-donation {
+    color: #13733f;
+}
+
+
+/* =========================================================
+   REQUISITIONS
+   ========================================================= */
+
+.requisition-number {
+    font-weight: 750;
+
+    color: var(--stores-primary);
+}
+
+.requisition-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: .69rem;
+
+    font-weight: 700;
+}
+
+.requisition-status-draft {
+    color: #596273;
+
+    background: #f1f3f6;
+}
+
+.requisition-status-pending {
+    color: #0759c9;
+
+    background: var(--stores-info-soft);
+}
+
+.requisition-status-approved {
+    color: #13733f;
+
+    background: var(--stores-success-soft);
+}
+
+.requisition-status-returned {
+    color: #a16207;
+
+    background: var(--stores-warning-soft);
+}
+
+.requisition-status-rejected {
+    color: #b42333;
+
+    background: var(--stores-danger-soft);
+}
+
+.requisition-status-completed {
+    color: #5b21b6;
+
+    background: var(--stores-purple-soft);
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.stores-progress {
+    width: 100%;
+
+    height: 7px;
+
+    overflow: hidden;
+
+    background: #edf0f4;
+
+    border-radius: 999px;
+}
+
+.stores-progress-bar {
+    height: 100%;
+
+    background: var(--stores-primary);
+
+    border-radius: inherit;
+
+    transition: width .3s ease;
+}
+
+.stores-progress-bar-success {
+    background: var(--stores-success);
+}
+
+.stores-progress-bar-warning {
+    background: var(--stores-warning);
+}
+
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+.stores-timeline {
+    position: relative;
+
+    padding-left: 28px;
+}
+
+.stores-timeline::before {
+    content: "";
+
+    position: absolute;
+
+    left: 7px;
+    top: 5px;
+    bottom: 5px;
+
+    width: 2px;
+
+    background: #e5e7eb;
+}
+
+.stores-timeline-item {
+    position: relative;
+
+    padding-bottom: 20px;
+}
+
+.stores-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.stores-timeline-dot {
+    position: absolute;
+
+    left: -28px;
+    top: 3px;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    border: 3px solid var(--stores-primary);
+}
+
+.stores-timeline-title {
+    margin: 0;
+
+    font-size: .82rem;
+
+    font-weight: 700;
+
+    color: var(--stores-text);
+}
+
+.stores-timeline-meta {
+    margin-top: 3px;
+
+    font-size: .72rem;
+
+    color: var(--stores-muted);
+}
+
+
+/* =========================================================
+   LINE ITEMS
+   ========================================================= */
+
+.stores-line-items {
+    border: 1px solid var(--stores-border);
+
+    border-radius: var(--stores-radius-sm);
+
+    overflow: hidden;
+}
+
+.stores-line-item {
+    padding: 13px 15px;
+
+    border-bottom: 1px solid var(--stores-border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.stores-line-item:last-child {
+    border-bottom: 0;
+}
+
+.stores-line-item-main {
+    min-width: 0;
+}
+
+.stores-line-item-title {
+    font-size: .82rem;
+
+    font-weight: 650;
+
+    color: var(--stores-text);
+}
+
+.stores-line-item-meta {
+    margin-top: 3px;
+
+    font-size: .72rem;
+
+    color: var(--stores-muted);
+}
+
+.stores-line-item-value {
+    flex-shrink: 0;
+
+    font-size: .84rem;
+
+    font-weight: 700;
+
+    color: var(--stores-primary);
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.stores-search {
+    position: relative;
+}
+
+.stores-search .stores-search-icon {
+    position: absolute;
+
+    left: 12px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: var(--stores-light-text);
+
+    pointer-events: none;
+}
+
+.stores-search .form-control {
+    padding-left: 35px;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.stores-loading {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 35px;
+
+    color: var(--stores-muted);
+
+    font-size: .82rem;
+}
+
+.stores-spinner {
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid #dfe3ea;
+
+    border-top-color: var(--stores-primary);
+
+    border-radius: 50%;
+
+    animation: stores-spin .7s linear infinite;
+}
+
+@keyframes stores-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   DIVIDERS
+   ========================================================= */
+
+.stores-divider {
+    height: 1px;
+
+    background: var(--stores-border);
+
+    margin: 18px 0;
+}
+
+
+/* =========================================================
+   ICON BOX
+   ========================================================= */
+
+.stores-icon-box {
+    width: 40px;
+    height: 40px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: var(--stores-primary-soft);
+
+    color: var(--stores-primary);
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    .stores-no-print,
+    .stores-header-actions,
+    .stores-filter-card,
+    .stores-actions,
+    .stores-pagination {
+        display: none !important;
+    }
+
+    .stores-card,
+    .stores-table-card {
+        box-shadow: none !important;
+
+        border: 1px solid #ddd !important;
+    }
+
+    .stores-header {
+        color: #000;
+
+        background: #fff !important;
+
+        border: 1px solid #ddd;
+
+        box-shadow: none;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+
+    .stores-header-content {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .stores-header-actions {
+        width: 100%;
+    }
+
+    .stores-filter-row {
+        align-items: stretch;
+    }
+
+    .stores-filter-field {
+        flex: 1 1 100%;
+    }
+
+}
+
+
+@media (max-width: 767.98px) {
+
+    .stores-header {
+        padding: 20px;
+    }
+
+    .stores-header-title {
+        font-size: 1.15rem;
+    }
+
+    .stores-card-body {
+        padding: 15px;
+    }
+
+    .stores-table thead th,
+    .stores-table tbody td {
+        padding: 11px 12px;
+    }
+
+    .stores-pagination {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .stores-line-item {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .stores-line-item-value {
+        align-self: flex-start;
+    }
+
+}
+
+
+@media (max-width: 575.98px) {
+
+    .stores-header {
+        border-radius: 11px;
+    }
+
+    .stores-card,
+    .stores-filter-card,
+    .stores-table-card {
+        border-radius: 11px;
+    }
+
+    .stores-header-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .stores-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* =========================================================
+   REUSABLE LIST COMPONENTS
+   ========================================================= */
+
+.app-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.app-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid #e3e6ee;
+    border-radius: 10px;
+    background: #fff;
+    transition: all 0.18s ease;
+}
+
+.app-list-item:hover {
+    border-color: rgba(0, 9, 106, 0.35);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.app-list-item.is-selected {
+    border-color: var(--stores-primary);
+    background: rgba(0, 9, 106, 0.035);
+}
+
+.app-list-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.app-list-item-title {
+    display: block;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.app-list-item-meta {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+.app-list-item-status {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.app-list-item-status.is-active {
+    color: #198754;
+}
+
+.app-list-item-status.is-inactive {
+    color: #9ca3af;
+}
+
+
+/* =========================================================
+   REUSABLE TOOLBAR
+   ========================================================= */
+
+.app-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    background: #f8f9fc;
+    border: 1px solid #e6e8f0;
+    border-radius: 10px;
+}
+
+.app-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.app-toolbar-title {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.app-toolbar-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.app-selection-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(0, 9, 106, 0.08);
+    color: var(--stores-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* =========================================================
+MODERN STORE REQUISITION
+========================================================= */
+
+.store-requisition-page {
+max-width: 1400px;
+margin: 0 auto;
+}
+
+/* =========================================================
+PAGE HEADER
+========================================================= */
+
+.requisition-page-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1.5rem;
+padding: 1.25rem 1.5rem;
+margin-bottom: 1.25rem;
+background: #fff;
+border: 1px solid #e6e8f0;
+border-radius: 14px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.requisition-header-content {
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.requisition-header-icon {
+width: 46px;
+height: 46px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex: 0 0 46px;
+border-radius: 12px;
+background: rgba(0, 9, 106, 0.08);
+color: var(--stores-primary);
+font-size: 1.15rem;
+}
+
+.requisition-breadcrumb {
+margin-bottom: 0.15rem;
+color: #8a93a5;
+font-size: 0.75rem;
+font-weight: 500;
+}
+
+.requisition-breadcrumb span {
+margin: 0 0.35rem;
+}
+
+.requisition-page-title {
+margin: 0;
+color: #182033;
+font-size: 1.3rem;
+font-weight: 700;
+}
+
+.requisition-page-subtitle {
+margin: 0.2rem 0 0;
+color: #737c8f;
+font-size: 0.8rem;
+}
+
+.requisition-header-right {
+display: flex;
+align-items: center;
+gap: 0.65rem;
+}
+
+.requisition-draft-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.45rem;
+padding: 0.4rem 0.75rem;
+border: 1px solid #e6e8ee;
+border-radius: 999px;
+background: #f8f9fc;
+color: #687184;
+font-size: 0.75rem;
+font-weight: 600;
+}
+
+.requisition-status-dot {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: #f0ad4e;
+}
+
+.requisition-help-icon {
+width: 28px;
+height: 28px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border: 1px solid #dfe3ea;
+border-radius: 50%;
+background: #fff;
+color: #7f8898;
+font-size: 0.68rem;
+cursor: help;
+transition: all 0.18s ease;
+}
+
+.requisition-help-icon:hover {
+border-color: var(--stores-primary);
+background: rgba(0, 9, 106, 0.05);
+color: var(--stores-primary);
+}
+
+/* =========================================================
+SECTIONS
+========================================================= */
+
+.requisition-section {
+margin-bottom: 1.15rem;
+overflow: hidden;
+background: #fff;
+border: 1px solid #e5e8ef;
+border-radius: 14px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025);
+}
+
+.requisition-section-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+padding: 1rem 1.25rem;
+border-bottom: 1px solid #edf0f4;
+background: #fbfcfe;
+}
+
+.requisition-section-heading {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+
+.requisition-section-icon {
+width: 36px;
+height: 36px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex: 0 0 36px;
+border-radius: 9px;
+background: rgba(0, 9, 106, 0.08);
+color: var(--stores-primary);
+}
+
+.requisition-items-icon {
+background: rgba(239, 71, 0, 0.08);
+color: #ef4700;
+}
+
+.requisition-section-heading h5 {
+margin: 0;
+color: #20283a;
+font-size: 0.92rem;
+font-weight: 700;
+}
+
+.requisition-section-heading p {
+margin: 0.15rem 0 0;
+color: #8991a1;
+font-size: 0.73rem;
+}
+
+/* =========================================================
+ITEM COUNT
+========================================================= */
+
+.requisition-count-badge {
+display: inline-flex;
+align-items: center;
+padding: 0.22rem 0.55rem;
+border-radius: 999px;
+background: rgba(0, 9, 106, 0.07);
+color: var(--stores-primary);
+font-size: 0.68rem;
+font-weight: 700;
+}
+
+/* =========================================================
+ADD ITEM BUTTON
+========================================================= */
+
+.requisition-add-button {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.5rem 0.8rem;
+border: 1px solid var(--stores-primary);
+border-radius: 8px;
+background: var(--stores-primary);
+color: #fff;
+font-size: 0.75rem;
+font-weight: 600;
+transition: all 0.18s ease;
+}
+
+.requisition-add-button:hover {
+background: #00076f;
+color: #fff;
+transform: translateY(-1px);
+}
+
+/* =========================================================
+REQUISITION ITEM TABLE
+========================================================= */
+
+.requisition-table-wrapper {
+position: relative;
+max-height: 430px;
+overflow: auto;
+border-bottom: 1px solid #e5e8ee;
+}
+
+.requisition-items-table {
+min-width: 1050px;
+margin: 0;
+}
+
+.requisition-items-table thead th {
+position: sticky;
+top: 0;
+z-index: 5;
+padding: 0.7rem 0.7rem;
+border-bottom: 1px solid #dfe3ea;
+background: #f8f9fc;
+color: #697284;
+font-size: 0.68rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.025em;
+white-space: nowrap;
+}
+
+.requisition-items-table tbody td {
+padding: 0.6rem 0.7rem;
+vertical-align: middle;
+border-bottom: 1px solid #edf0f4;
+background: #fff;
+}
+
+.requisition-items-table tbody tr:last-child td {
+border-bottom: 0;
+}
+
+.requisition-item-row:hover td {
+background: #fafbfe;
+}
+
+.requisition-row-number {
+color: #929aaa;
+font-size: 0.7rem;
+font-weight: 700;
+}
+
+/* =========================================================
+TABLE INPUTS
+========================================================= */
+
+.requisition-table-input {
+min-height: 38px;
+border-color: #dfe3ea;
+border-radius: 7px;
+color: #293244;
+font-size: 0.76rem;
+}
+
+.requisition-table-input:focus {
+border-color: var(--stores-primary);
+box-shadow: 0 0 0 3px rgba(0, 9, 106, 0.07);
+}
+
+.requisition-table-input:disabled {
+background: #f5f6f8;
+cursor: not-allowed;
+}
+
+/* =========================================================
+UOM
+========================================================= */
+
+.requisition-uom-display {
+min-height: 38px;
+display: flex;
+align-items: center;
+padding: 0 0.6rem;
+border: 1px solid #e5e8ee;
+border-radius: 7px;
+background: #f8f9fb;
+}
+
+.uom-value {
+color: #596274;
+font-size: 0.74rem;
+font-weight: 600;
+white-space: nowrap;
+}
+
+/* =========================================================
+REMOVE ITEM
+========================================================= */
+
+.requisition-row-remove {
+width: 30px;
+height: 30px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border: 0;
+border-radius: 7px;
+background: transparent;
+color: #9aa2b1;
+transition: all 0.18s ease;
+}
+
+.requisition-row-remove:hover {
+background: #fff0f0;
+color: #dc3545;
+}
+
+/* =========================================================
+ADD ITEM AREA
+========================================================= */
+
+.requisition-add-item-area {
+display: flex;
+justify-content: center;
+padding: 0.8rem;
+border-top: 1px solid #edf0f4;
+background: #fbfcfd;
+}
+
+/* =========================================================
+EMPTY TABLE STATE
+========================================================= */
+
+.requisition-table-empty {
+min-height: 150px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 0.2rem;
+color: #929aaa;
+text-align: center;
+}
+
+.requisition-empty-icon {
+width: 42px;
+height: 42px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-bottom: 0.5rem;
+border-radius: 10px;
+background: #f0f2f6;
+color: #9aa2b1;
+font-size: 1rem;
+}
+
+.requisition-table-empty strong {
+color: #596274;
+font-size: 0.8rem;
+}
+
+.requisition-table-empty span {
+font-size: 0.7rem;
+}
+
+/* =========================================================
+REQUEST DETAILS
+========================================================= */
+
+.requisition-details-section {
+margin-bottom: 1.15rem;
+}
+
+.requisition-details-header {
+padding: 0.8rem 1.1rem;
+border-bottom: 1px solid #edf0f4;
+background: #fbfcfe;
+}
+
+.requisition-details-header strong {
+display: block;
+color: #3c4557;
+font-size: 0.78rem;
+}
+
+.requisition-details-header span {
+display: block;
+margin-top: 0.1rem;
+color: #929aaa;
+font-size: 0.68rem;
+}
+
+.requisition-details-body {
+padding: 1rem 1.1rem;
+}
+
+/* =========================================================
+FORM FIELDS
+========================================================= */
+
+.requisition-field-label {
+display: block;
+margin-bottom: 0.4rem;
+color: #50596b;
+font-size: 0.75rem;
+font-weight: 600;
+}
+
+.required-mark {
+color: #dc3545;
+}
+
+.optional-label {
+margin-left: 0.3rem;
+color: #9aa2b1;
+font-size: 0.7rem;
+font-weight: 400;
+}
+
+.requisition-input {
+min-height: 42px;
+border-color: #dfe3ea;
+border-radius: 8px;
+color: #293244;
+font-size: 0.82rem;
+}
+
+.requisition-input:focus {
+border-color: var(--stores-primary);
+box-shadow: 0 0 0 3px rgba(0, 9, 106, 0.08);
+}
+
+.requisition-textarea {
+min-height: 90px;
+resize: vertical;
+}
+
+/* =========================================================
+ACTION BAR
+========================================================= */
+
+.requisition-action-bar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+padding: 0.85rem 1.1rem;
+margin-bottom: 1.5rem;
+border: 1px solid #e3e6ed;
+border-radius: 12px;
+background: #fff;
+box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
+}
+
+.requisition-action-right {
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.requisition-action-hint {
+color: #929aaa;
+font-size: 0.7rem;
+}
+
+.requisition-cancel-button {
+display: inline-flex;
+align-items: center;
+gap: 0.4rem;
+padding: 0.5rem 0.8rem;
+border: 1px solid #dfe3ea;
+border-radius: 8px;
+background: #fff;
+color: #697284;
+font-size: 0.75rem;
+font-weight: 600;
+text-decoration: none;
+}
+
+.requisition-cancel-button:hover {
+background: #f7f8fa;
+color: #394256;
+}
+
+.requisition-save-button {
+display: inline-flex;
+align-items: center;
+gap: 0.45rem;
+padding: 0.55rem 0.9rem;
+border: 0;
+border-radius: 8px;
+background: var(--stores-primary);
+color: #fff;
+font-size: 0.75rem;
+font-weight: 600;
+box-shadow: 0 3px 8px rgba(0, 9, 106, 0.16);
+transition: all 0.18s ease;
+}
+
+.requisition-save-button:hover {
+background: #00076f;
+color: #fff;
+transform: translateY(-1px);
+}
+
+.requisition-save-button:disabled {
+opacity: 0.7;
+cursor: wait;
+transform: none;
+}
+
+/* =========================================================
+CONFIRMATION MODAL
+========================================================= */
+
+.requisition-confirm-icon {
+width: 46px;
+height: 46px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 0.75rem;
+border-radius: 50%;
+background: rgba(0, 9, 106, 0.08);
+color: var(--stores-primary);
+font-size: 1.1rem;
+}
+
+#requisitionConfirmModal .modal-body {
+padding: 1.5rem;
+}
+
+#requisitionConfirmModal .modal-body h6 {
+color: #293244;
+font-weight: 700;
+text-align: center;
+}
+
+#requisitionConfirmModal .modal-body > p {
+margin-bottom: 0;
+color: #7c8596;
+font-size: 0.76rem;
+text-align: center;
+}
+
+#requisitionConfirmModal .modal-footer {
+padding: 0.8rem 1.1rem;
+border-top: 1px solid #edf0f4;
+}
+
+/* =========================================================
+MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+
+.requisition-page-header {
+    align-items: flex-start;
+    padding: 1rem;
+}
+
+.requisition-header-right {
+    display: none;
+}
+
+.requisition-section-header {
+    align-items: flex-start;
+}
+
+.requisition-table-wrapper {
+    max-height: 380px;
+}
+
+.requisition-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.requisition-action-right {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.requisition-action-hint {
+    display: none;
+}
+
+.requisition-save-button,
+.requisition-cancel-button {
+    justify-content: center;
+}
+
+
+}
+
+.requisition-child-assignment {
+    min-width: 180px;
+}
+
+.requisition-assign-child-button {
+    border: 1px solid #d9dee7;
+    background: #fff;
+    color: #495057;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.requisition-assign-child-button:hover {
+    background: #f8f9fa;
+    border-color: #b8c0cc;
+}
+
+.requisition-assign-child-button i {
+    margin-right: 5px;
+}
+
+.requisition-selected-children {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.requisition-child-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    background: #eef2ff;
+    color: #3949ab;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.requisition-no-child-label {
+    color: #89919d;
+    font-size: 11px;
+}
+
+.requisition-child-inputs {
+    display: none;
+}
+
+.requisition-child-modal .modal-header {
+    padding: 18px 20px;
+}
+
+.requisition-modal-subtitle {
+    color: #7b8490;
+    font-size: 12px;
+}
+
+.requisition-child-search {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.requisition-child-search i {
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    color: #8a929d;
+    z-index: 2;
+}
+
+.requisition-child-search input {
+    padding-left: 34px;
+}
+
+.requisition-child-selection-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e2e6eb;
+    border-radius: 6px;
+}
+
+.requisition-child-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 0;
+    border-bottom: 1px solid #edf0f3;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.requisition-child-option:last-child {
+    border-bottom: 0;
+}
+
+.requisition-child-option:hover {
+    background: #f8f9fa;
+}
+
+.requisition-child-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.requisition-child-checkmark {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 1px solid #b8c0ca;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 10px;
+}
+
+.requisition-child-checkbox:checked
++ .requisition-child-checkmark {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.requisition-child-name {
+    font-size: 13px;
+    color: #343a40;
+}
+
+.requisition-selected-count {
+    margin-right: auto;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.requisition-no-children-found {
+    text-align: center;
+    padding: 25px;
+    color: #89919d;
+    font-size: 13px;
+}
+
+/* =========================================================
+STORE REQUISITIONS - LIST TABLE
+========================================================= */
+
+.requisition-list-table-wrapper {
+width: 100%;
+overflow-x: auto;
+background: #ffffff;
+border-top: 1px solid #e9edf3;
+}
+
+.requisition-list-table {
+width: 100%;
+min-width: 1050px;
+border-collapse: separate;
+border-spacing: 0;
+margin: 0;
+}
+
+/* ---------------------------------------------------------
+TABLE HEADER
+--------------------------------------------------------- */
+
+.requisition-list-table thead th {
+background: #f7f8fb;
+color: #5b6472;
+font-size: 11px;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+padding: 13px 16px;
+border-bottom: 1px solid #e3e7ed;
+white-space: nowrap;
+vertical-align: middle;
+}
+
+.requisition-list-table thead th:first-child {
+padding-left: 20px;
+}
+
+.requisition-list-table thead th:last-child {
+padding-right: 20px;
+}
+
+/* ---------------------------------------------------------
+TABLE BODY
+--------------------------------------------------------- */
+
+.requisition-list-table tbody td {
+padding: 15px 16px;
+background: #ffffff;
+color: #374151;
+font-size: 13px;
+font-weight: 400;
+line-height: 1.45;
+border-bottom: 1px solid #edf0f4;
+vertical-align: middle;
+}
+
+.requisition-list-table tbody tr {
+transition:
+background-color 0.15s ease,
+box-shadow 0.15s ease;
+}
+
+.requisition-list-table tbody tr:hover td {
+background: #fafbfc;
+}
+
+.requisition-list-table tbody tr:last-child td {
+border-bottom: none;
+}
+
+.requisition-list-table tbody td:first-child {
+padding-left: 20px;
+}
+
+.requisition-list-table tbody td:last-child {
+padding-right: 20px;
+}
+
+/* ---------------------------------------------------------
+ROW NUMBER
+--------------------------------------------------------- */
+
+.requisition-list-row-number {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 30px;
+height: 30px;
+border-radius: 8px;
+background: #f1f3f7;
+color: #6b7280;
+font-size: 12px;
+font-weight: 700;
+}
+
+/* ---------------------------------------------------------
+REQUISITION NUMBER
+--------------------------------------------------------- */
+
+.requisition-list-number {
+color: #111827;
+font-size: 13px;
+font-weight: 700;
+line-height: 1.35;
+white-space: nowrap;
+}
+
+.requisition-list-meta {
+margin-top: 3px;
+color: #8a94a3;
+font-size: 11px;
+line-height: 1.3;
+}
+
+/* ---------------------------------------------------------
+DEPARTMENT
+--------------------------------------------------------- */
+
+.requisition-list-department {
+color: #4b5563;
+font-size: 13px;
+font-weight: 500;
+}
+
+/* ---------------------------------------------------------
+ITEM COUNT
+--------------------------------------------------------- */
+
+.requisition-list-item-count {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 58px;
+padding: 5px 9px;
+border-radius: 7px;
+background: #f1f4f8;
+color: #4b5563;
+font-size: 11px;
+font-weight: 700;
+white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+PURPOSE
+--------------------------------------------------------- */
+
+.requisition-list-purpose {
+max-width: 300px;
+color: #5f6875;
+font-size: 12px;
+line-height: 1.5;
+}
+
+/* ---------------------------------------------------------
+DATE
+--------------------------------------------------------- */
+
+.requisition-list-date {
+color: #374151;
+font-size: 12px;
+font-weight: 600;
+white-space: nowrap;
+}
+
+.requisition-list-time {
+margin-top: 2px;
+color: #9aa2ad;
+font-size: 11px;
+white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+STATUS
+--------------------------------------------------------- */
+
+.requisition-list-status {
+display: inline-flex;
+align-items: center;
+gap: 7px;
+padding: 5px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 700;
+line-height: 1;
+white-space: nowrap;
+}
+
+.requisition-list-status-dot {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: currentColor;
+flex-shrink: 0;
+}
+
+/* Draft */
+
+.requisition-list-status-draft {
+background: #f3f4f6;
+color: #6b7280;
+}
+
+/* Submitted */
+
+.requisition-list-status-submitted {
+background: #fff7e6;
+color: #c47b00;
+}
+
+/* Approved */
+
+.requisition-list-status-approved {
+background: #eaf7ef;
+color: #27864b;
+}
+
+/* Completed */
+
+.requisition-list-status-completed {
+background: #e8f1ff;
+color: #2867b2;
+}
+
+/* Rejected */
+
+.requisition-list-status-rejected {
+background: #fdecec;
+color: #c43d3d;
+}
+
+/* Cancelled */
+
+.requisition-list-status-cancelled {
+background: #f1f1f1;
+color: #777777;
+}
+
+/* ---------------------------------------------------------
+ACTIONS
+--------------------------------------------------------- */
+
+.requisition-list-actions {
+display: flex;
+align-items: center;
+gap: 6px;
+white-space: nowrap;
+}
+
+.requisition-list-action {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 32px;
+height: 32px;
+padding: 0;
+border: 1px solid #e0e4ea;
+border-radius: 7px;
+background: #ffffff;
+color: #6b7280;
+font-size: 12px;
+cursor: pointer;
+transition:
+background-color 0.15s ease,
+border-color 0.15s ease,
+color 0.15s ease,
+transform 0.15s ease;
+}
+
+.requisition-list-action:hover:not(:disabled) {
+background: #f4f6f9;
+border-color: #cfd5dd;
+color: #374151;
+transform: translateY(-1px);
+}
+
+.requisition-list-action:disabled {
+opacity: 0.55;
+cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------
+EMPTY STATE
+--------------------------------------------------------- */
+
+.requisition-list-table .requisition-table-empty {
+padding: 55px 25px;
+text-align: center;
+}
+
+.requisition-list-table .requisition-table-empty .requisition-empty-icon {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 58px;
+height: 58px;
+margin-bottom: 14px;
+border-radius: 14px;
+background: #f1f3f7;
+color: #8b95a3;
+font-size: 22px;
+}
+
+.requisition-list-table .requisition-table-empty h5 {
+margin: 0 0 6px;
+color: #374151;
+font-size: 15px;
+font-weight: 700;
+}
+
+.requisition-list-table .requisition-table-empty p {
+margin: 0 0 18px;
+color: #8a94a3;
+font-size: 12px;
+}
+
+/* ---------------------------------------------------------
+PAGINATION
+--------------------------------------------------------- */
+
+.requisition-pagination {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+padding: 16px 20px;
+border-top: 1px solid #edf0f4;
+background: #ffffff;
+}
+
+.requisition-pagination nav {
+margin: 0;
+}
+
+.requisition-pagination .pagination {
+margin: 0;
+}
+
+/* ---------------------------------------------------------
+RESPONSIVE
+--------------------------------------------------------- */
+
+@media (max-width: 991.98px) {
+
+
+.requisition-list-table {
+    min-width: 1000px;
+}
+
+.requisition-list-purpose {
+    max-width: 240px;
+}
+
+
+}
+
+@media (max-width: 767.98px) {
+
+
+.requisition-list-table-wrapper {
+    border-radius: 0;
+}
+
+.requisition-list-table {
+    min-width: 950px;
+}
+
+.requisition-list-table thead th,
+.requisition-list-table tbody td {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.requisition-list-table thead th:first-child,
+.requisition-list-table tbody td:first-child {
+    padding-left: 15px;
+}
+
+.requisition-list-table thead th:last-child,
+.requisition-list-table tbody td:last-child {
+    padding-right: 15px;
+}
+
+
+}
+
+.requisition-list-action {
+    text-decoration: none;
+}
+
+

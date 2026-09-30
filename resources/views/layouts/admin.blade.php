@@ -24,6 +24,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Include Selectize CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('admin-assets/css/stores.css') }}">
 
 
 
@@ -117,6 +118,254 @@
 
                             </ul>
                         </li>
+
+         
+{{-- ==========================================================
+     STORES & INVENTORY
+=========================================================== --}}
+
+<li class="nav-item">
+    <a href="#stores_inventory"
+       class="collapsed svg-icon"
+       data-toggle="collapse"
+       aria-expanded="false">
+
+        <i>
+            <svg class="svg-icon"
+                 width="20"
+                 xmlns="http://www.w3.org/2000/svg"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 0L4 7m8 4v10" />
+
+            </svg>
+        </i>
+
+        <span class="ml-2">Stores & Inventory</span>
+
+        <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+        <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+
+    </a>
+
+    <ul id="stores_inventory"
+        class="submenu collapse"
+        data-parent="#mm-sidebar-toggle">
+
+        {{-- ==================================================
+             STORE REQUISITIONS
+        =================================================== --}}
+
+        @if(
+            auth()->user()->can('MAKE REQUISITION') ||
+            auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+            auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+            auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+        )
+
+            <li>
+                <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                   class="svg-icon">
+
+                    <i class="fa fa-list-alt"></i>
+
+                    <span>Store Requisitions</span>
+
+                </a>
+            </li>
+
+        @endif
+
+
+        {{-- ==================================================
+             NEW REQUISITION
+        =================================================== --}}
+
+        @if(auth()->user()->can('MAKE REQUISITION'))
+
+            <li>
+                <a href="{{ route('admin.stores.store-requisitions.create') }}"
+                   class="svg-icon">
+
+                    <i class="fa fa-plus-circle"></i>
+
+                    <span>New Requisition</span>
+
+                </a>
+            </li>
+
+        @endif
+
+
+        {{-- ==================================================
+             MY REQUISITIONS
+        =================================================== --}}
+
+        @if(auth()->user()->can('MAKE REQUISITION'))
+
+            <li>
+                <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                   class="svg-icon">
+
+                    <i class="fa fa-file-text-o"></i>
+
+                    <span>My Requisitions</span>
+
+                </a>
+            </li>
+
+        @endif
+
+
+        {{-- ==================================================
+             APPROVALS
+        =================================================== --}}
+
+        @if(
+            auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+            auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+            auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+        )
+
+            <li>
+                <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                   class="svg-icon">
+
+                    <i class="fa fa-check-square-o"></i>
+
+                    <span>Requisition Approvals</span>
+
+                </a>
+            </li>
+
+        @endif
+
+
+        {{-- ==================================================
+             INVENTORY
+             
+             These will be enabled once the corresponding
+             inventory routes/controllers are implemented.
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.stores.stock.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-cubes"></i>
+
+                <span>Stock Balances</span>
+
+            </a>
+        </li>
+        --}}
+
+
+        {{-- ==================================================
+             STOCK MOVEMENTS
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.stores.stock-movements.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-exchange"></i>
+
+                <span>Stock Movements</span>
+
+            </a>
+        </li>
+        --}}
+
+
+        {{-- ==================================================
+             STORE TRANSFERS
+             
+             This will eventually show transfer requisitions
+             and completed transfers.
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.stores.transfers.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-random"></i>
+
+                <span>Stock Transfers</span>
+
+            </a>
+        </li>
+        --}}
+
+
+        {{-- ==================================================
+             STORES
+             
+             Main Store, School Store, Farm Store, etc.
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.stores.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-building-o"></i>
+
+                <span>Stores</span>
+
+            </a>
+        </li>
+        --}}
+
+
+        {{-- ==================================================
+             STORE ITEMS
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.store-items.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-cubes"></i>
+
+                <span>Store Items</span>
+
+            </a>
+        </li>
+        --}}
+
+
+        {{-- ==================================================
+             STOCK RECEIPTS
+        =================================================== --}}
+
+        {{--
+        <li>
+            <a href="{{ route('admin.stores.receipts.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-download"></i>
+
+                <span>Stock Receipts</span>
+
+            </a>
+        </li>
+        --}}
+
+    </ul>
+</li>
+
+
+
 
 <li>
     <a href="#comms" class="collapsed svg-icon"

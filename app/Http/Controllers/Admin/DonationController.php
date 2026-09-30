@@ -358,4 +358,30 @@ public function resendThankYou(
     );
 }
 
+public function receipt(\App\Models\Donation $donation)
+{
+    $donation->load([
+        'donor',
+        'items',
+        'receivedBy',
+    ]);
+
+    $generatedAt = now();
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        'admin.donations.receipt',
+        [
+            'donation' => $donation,
+            'generatedAt' => $generatedAt,
+        ]
+    );
+
+    $filename = 'Donation-Receipt-' .
+        $donation->donation_number .
+        '.pdf';
+
+    return $pdf->download($filename);
+}
+
+
 }

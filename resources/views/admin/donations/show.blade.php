@@ -691,21 +691,24 @@
 
         <div class="donation-topbar-left">
 
-            <a href="{{ route('admin.donations.index') }}"
-               class="btn btn-light btn-sm">
+           <a href="{{ route('admin.donations.index') }}"
+   class="btn btn-light btn-sm">
+    <i class="fa fa-arrow-left mr-1"></i>
+    Back
+</a>
 
-                <i class="fa fa-arrow-left mr-1"></i>
-                Back
+<a href="{{ route('admin.donations.edit', $donation) }}"
+   class="btn btn-primary btn-sm">
+    <i class="fa fa-edit mr-1"></i>
+    Edit
+</a>
 
-            </a>
-
-            <a href="{{ route('admin.donations.edit', $donation) }}"
-               class="btn btn-primary btn-sm">
-
-                <i class="fa fa-edit mr-1"></i>
-                Edit
-
-            </a>
+<a href="{{ route('admin.donations.receipt', $donation) }}"
+   class="btn btn-outline-danger btn-sm"
+   title="Download donation receipt">
+    <i class="fa fa-file-pdf mr-1"></i>
+    Download Receipt
+</a>
 
         </div>
 
