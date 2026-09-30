@@ -358,6 +358,7 @@ public function resendThankYou(
     );
 }
 
+
 public function receipt(\App\Models\Donation $donation)
 {
     $donation->load([
@@ -366,18 +367,47 @@ public function receipt(\App\Models\Donation $donation)
         'receivedBy',
     ]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Receipt Type
+    |--------------------------------------------------------------------------
+    | internal = includes estimated values for in-kind donations
+    | donor    = excludes estimated values for in-kind donations
+    |--------------------------------------------------------------------------
+    */
+
+    $receiptType = request('type', 'internal');
+
+    // Only allow the two supported receipt types
+    if (!in_array($receiptType, ['internal', 'donor'], true)) {
+        $receiptType = 'internal';
+    }
+
     $generatedAt = now();
 
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
         'admin.donations.receipt',
         [
-            'donation' => $donation,
+            'donation'   => $donation,
             'generatedAt' => $generatedAt,
+            'receiptType' => $receiptType,
         ]
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Filename
+    |--------------------------------------------------------------------------
+    */
+
+    $typeLabel = $receiptType === 'donor'
+        ? 'Donor'
+        : 'Internal';
+
     $filename = 'Donation-Receipt-' .
         $donation->donation_number .
+        '-' .
+        $typeLabel .
         '.pdf';
 
     return $pdf->download($filename);
