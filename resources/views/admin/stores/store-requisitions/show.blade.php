@@ -5,143 +5,121 @@
 @php
     /*
     |--------------------------------------------------------------------------
-    | BASIC STATE
+    | STATUS
     |--------------------------------------------------------------------------
     */
 
     $status = strtolower($storeRequisition->status ?? 'draft');
-
-    $approvalStage = strtolower(
-        $storeRequisition->approval_stage ?? 'none'
-    );
+    $approvalStage = strtolower($storeRequisition->approval_stage ?? 'none');
 
     $isDraft = $status === 'draft';
 
-    $isPending = in_array(
-        $status,
-        ['pending', 'submitted'],
-        true
-    );
+    $isPending = in_array($status, [
+        'pending',
+        'submitted',
+    ], true);
 
-    $isApproved =
-        $status === 'approved'
+    $isApproved = $status === 'approved'
         && $approvalStage === 'approved';
 
     $isRejected = $status === 'rejected';
 
     $isReturned = $status === 'returned';
 
-    $isRequester =
-        (int) $storeRequisition->requested_by
-        === (int) auth()->id();
+    $isClosed = in_array($status, [
+        'closed',
+        'fulfilled',
+        'completed',
+    ], true);
+
+    $isCancelled = $status === 'cancelled';
+
+    $isRequester = (int) $storeRequisition->requested_by === (int) auth()->id();
+
+    $isEditable = ($isDraft || $isReturned) && $isRequester;
 
 
     /*
     |--------------------------------------------------------------------------
-    | STATUS
+    | STATUS DISPLAY
     |--------------------------------------------------------------------------
     */
 
     $statusClass = match ($status) {
-
-        'draft' =>
-            'requisition-status-draft',
+        'draft' => 'requisition-status-draft',
 
         'pending',
-        'submitted' =>
-            'requisition-status-pending',
+        'submitted' => 'requisition-status-pending',
 
-        'approved' =>
-            'requisition-status-approved',
+        'approved' => 'requisition-status-approved',
 
-        'returned' =>
-            'requisition-status-returned',
+        'returned' => 'requisition-status-returned',
 
-        'rejected' =>
-            'requisition-status-rejected',
+        'rejected' => 'requisition-status-rejected',
 
-        default =>
-            'requisition-status-draft',
+        'cancelled' => 'requisition-status-rejected',
+
+        'closed',
+        'fulfilled',
+        'completed' => 'requisition-status-closed',
+
+        default => 'requisition-status-draft',
     };
 
-
-    $statusLabel = ucfirst(
-        str_replace('_', ' ', $status)
-    );
+    $statusLabel = match ($status) {
+        'submitted' => 'Pending Approval',
+        'cancelled' => 'Cancelled',
+        default => ucfirst(str_replace('_', ' ', $status)),
+    };
 
 
     /*
     |--------------------------------------------------------------------------
-    | USER PERMISSIONS
+    | PERMISSIONS
     |--------------------------------------------------------------------------
     */
 
     $user = auth()->user();
 
     $canApproveGeneral =
-        $user->can(
-            'APPROVE STORE REQUISITIONS'
-        );
+        $user->can('APPROVE STORE REQUISITIONS');
 
     $canApproveHod =
-        $user->can(
-            'APPROVE STORE REQUISITIONS - HOD'
-        );
+        $user->can('APPROVE STORE REQUISITIONS - HOD');
 
     $canApproveManagement =
-        $user->can(
-            'APPROVE STORE REQUISITIONS - MANAGEMENT'
-        );
+        $user->can('APPROVE STORE REQUISITIONS - MANAGEMENT');
 
     $canApproveStores =
-        $user->can(
-            'APPROVE STORE REQUISITIONS - STORES'
-        );
+        $user->can('APPROVE STORE REQUISITIONS - STORES');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CURRENT STAGE APPROVAL AUTHORITY
-    |--------------------------------------------------------------------------
-    */
 
     $canApproveCurrentStage = false;
 
     if ($approvalStage === 'hod') {
 
         $canApproveCurrentStage =
-            $canApproveGeneral
-            || $canApproveHod;
+            $canApproveGeneral || $canApproveHod;
 
     } elseif ($approvalStage === 'management') {
 
         $canApproveCurrentStage =
-            $canApproveGeneral
-            || $canApproveManagement;
+            $canApproveGeneral || $canApproveManagement;
 
     } elseif ($approvalStage === 'stores') {
 
         $canApproveCurrentStage =
-            $canApproveGeneral
-            || $canApproveStores;
-
+            $canApproveGeneral || $canApproveStores;
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPROVAL ACTIONS
-    |--------------------------------------------------------------------------
-    */
-
     $showApprovalActions =
-        $isPending
-        && $canApproveCurrentStage;
+        $isPending && $canApproveCurrentStage;
 
 
     /*
     |--------------------------------------------------------------------------
-    | APPROVAL STAGE LABEL
+    | STAGE LABEL
     |--------------------------------------------------------------------------
     */
 
@@ -161,76 +139,6 @@
 
         default =>
             'Not Submitted',
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FULFILLMENT STATE
-    |--------------------------------------------------------------------------
-    */
-
-    $hasOutstanding = false;
-
-    $hasIssued = false;
-
-    foreach ($storeRequisition->items as $requisitionItem) {
-
-        if (
-            (float) $requisitionItem->issued_quantity > 0
-        ) {
-            $hasIssued = true;
-        }
-
-        if ($isApproved) {
-
-            $approvedQuantity =
-                (float) $requisitionItem->approved_quantity;
-
-            $issuedQuantity =
-                (float) $requisitionItem->issued_quantity;
-
-            $outstandingQuantity =
-                max(
-                    0,
-                    $approvedQuantity - $issuedQuantity
-                );
-
-            if ($outstandingQuantity > 0) {
-                $hasOutstanding = true;
-            }
-        }
-    }
-
-
-    $fulfillmentLabel = match (
-        $storeRequisition->fulfillment_status
-    ) {
-
-        'fully_issued' =>
-            'Fully Fulfilled',
-
-        'partially_issued' =>
-            'Partially Fulfilled',
-
-        default =>
-            'Not Issued',
-    };
-
-
-    $fulfillmentBadge = match (
-        $storeRequisition->fulfillment_status
-    ) {
-
-        'fully_issued' =>
-            'stores-badge-success',
-
-        'partially_issued' =>
-            'stores-badge-warning',
-
-        default =>
-            'stores-badge-muted',
     };
 
 
@@ -247,2928 +155,926 @@
 
     foreach ($storeRequisition->items as $item) {
 
-        $totalRequested +=
+        $requested =
             (float) $item->requested_quantity;
 
-        if ($isApproved) {
+        $approved =
+            (float) $item->approved_quantity;
 
-            $totalApproved +=
-                (float) $item->approved_quantity;
+        $issued =
+            (float) $item->issued_quantity;
 
-            $totalIssued +=
-                (float) $item->issued_quantity;
+        $totalRequested += $requested;
+
+        if ($isApproved || $isClosed) {
+
+            $totalApproved += $approved;
+
+            $totalIssued += $issued;
 
             $totalOutstanding += max(
                 0,
-                (float) $item->approved_quantity
-                -
-                (float) $item->issued_quantity
+                $approved - $issued
             );
         }
     }
 
-@endphp
-
-
-{{-- =========================================================
-     PAGE HEADER
-     ========================================================= --}}
-
-<div class="requisition-page-header">
-
-    <div class="requisition-header-content">
-
-        <div class="requisition-header-icon">
-
-            <i class="fas fa-file-invoice"></i>
-
-        </div>
-
-        <div>
-
-            <div class="requisition-breadcrumb">
-
-                Stores
-
-                <span>/</span>
-
-                Requisitions
-
-                <span>/</span>
-
-                Details
-
-            </div>
-
-            <h1 class="requisition-page-title">
-
-                {{ $storeRequisition->requisition_number }}
-
-            </h1>
-
-            <p class="requisition-page-subtitle">
-
-                Store requisition
-
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="requisition-header-right">
-
-        {{-- =================================================
-             DRAFT ACTIONS
-             ================================================= --}}
-
-        @if(
-            $isDraft
-            && $isRequester
-        )
-
-            <a
-                href="{{ route(
-                    'admin.stores.store-requisitions.edit',
-                    $storeRequisition
-                ) }}"
-                class="stores-btn-light"
-            >
-
-                <i class="fas fa-pen me-1"></i>
-
-                Edit
-
-            </a>
-
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.submit',
-                    $storeRequisition
-                ) }}"
-                class="d-inline"
-                onsubmit="return confirm(
-                    'Submit this requisition for approval? You will not be able to edit it while it is under approval.'
-                );"
-            >
-
-                @csrf
-
-                <button
-                    type="submit"
-                    class="stores-btn-primary"
-                >
-
-                    <i class="fas fa-paper-plane me-1"></i>
-
-                    Submit
-
-                </button>
-
-            </form>
-
-        @endif
-
-
-        {{-- =================================================
-             STATUS
-             ================================================= --}}
-
-        <span class="requisition-list-status {{ $statusClass }}">
-
-            <span class="requisition-list-status-dot"></span>
-
-            {{ $statusLabel }}
-
-        </span>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     FLASH MESSAGES
-     ========================================================= --}}
-
-@if(session('success'))
-
-    <div class="alert alert-success">
-
-        <i class="fas fa-check-circle me-1"></i>
-
-        {{ session('success') }}
-
-    </div>
-
-@endif
-
-
-@if(session('error'))
-
-    <div class="alert alert-danger">
-
-        <i class="fas fa-exclamation-circle me-1"></i>
-
-        {{ session('error') }}
-
-    </div>
-
-@endif
-
-
-@if($errors->any())
-
-    <div class="alert alert-danger">
-
-        <strong>
-            Please correct the following:
-        </strong>
-
-        <ul class="mb-0 mt-2">
-
-            @foreach($errors->all() as $error)
-
-                <li>
-                    {{ $error }}
-                </li>
-
-            @endforeach
-
-        </ul>
-
-    </div>
-
-@endif
-
-
-{{-- =========================================================
-     MINIMAL TOP CARD
-     ========================================================= --}}
-
-<div class="requisition-section">
-
-    <div class="requisition-section-header">
-
-        <div class="requisition-section-heading">
-
-            <div class="requisition-section-icon">
-
-                <i class="fas fa-file-alt"></i>
-
-            </div>
-
-            <div>
-
-                <h5>
-                    Requisition
-                </h5>
-
-                <p>
-                    {{ $stageLabel }}
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="d-flex align-items-center gap-2">
-
-            {{-- DETAILS MODAL --}}
-
-            <button
-                type="button"
-                class="requisition-list-action"
-                data-toggle="modal"
-                data-target="#requisitionDetailsModal"
-                title="View requisition details"
-            >
-
-                <i class="fas fa-info-circle"></i>
-
-            </button>
-
-
-            {{-- APPROVAL HISTORY --}}
-
-            @if(
-                $storeRequisition->approvals->count()
-            )
-
-                <button
-                    type="button"
-                    class="requisition-list-action"
-                    data-toggle="modal"
-                    data-target="#approvalHistoryModal"
-                    title="Approval history"
-                >
-
-                    <i class="fas fa-history"></i>
-
-                </button>
-
-            @endif
-
-
-            {{-- FULFILLMENT HISTORY --}}
-
-            @if(
-                $isApproved
-                && $storeRequisition->fulfillments->count()
-            )
-
-                <button
-                    type="button"
-                    class="requisition-list-action"
-                    data-toggle="modal"
-                    data-target="#fulfillmentHistoryModal"
-                    title="Fulfillment history"
-                >
-
-                    <i class="fas fa-exchange-alt"></i>
-
-                </button>
-
-            @endif
-
-        </div>
-
-    </div>
-
-
-    <div class="requisition-section-body">
-
-        {{-- =================================================
-             COMPACT SUMMARY
-             ================================================= --}}
-
-        <div class="stores-detail-grid">
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Requested By
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        optional(
-                            $storeRequisition->requester
-                        )->name
-                        ?? '—'
-                    }}
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Department
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        $storeRequisition->department
-                        ?: '—'
-                    }}
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Type
-                </span>
-
-                <span class="stores-detail-value">
-
-                    @if(
-                        $storeRequisition->requisition_type
-                        === 'TRANSFER'
-                    )
-
-                        <span class="stores-badge stores-badge-info">
-
-                            <i class="fas fa-exchange-alt"></i>
-
-                            Transfer
-
-                        </span>
-
-                    @else
-
-                        <span class="stores-badge stores-badge-primary">
-
-                            <i class="fas fa-box"></i>
-
-                            Item Issue
-
-                        </span>
-
-                    @endif
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Source Store
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        optional(
-                            $storeRequisition->sourceStore
-                        )->name
-                        ?? '—'
-                    }}
-
-                </span>
-
-            </div>
-
-
-            @if(
-                $storeRequisition->requisition_type
-                === 'TRANSFER'
-            )
-
-                <div class="stores-detail">
-
-                    <span class="stores-detail-label">
-                        Destination
-                    </span>
-
-                    <span class="stores-detail-value">
-
-                        {{
-                            optional(
-                                $storeRequisition->destinationStore
-                            )->name
-                            ?? '—'
-                        }}
-
-                    </span>
-
-                </div>
-
-            @endif
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Approval Stage
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{ $stageLabel }}
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        {{-- =================================================
-             APPROVAL ACTION BAR
-             ================================================= --}}
-
-
-
-
-        {{-- =================================================
-             APPROVED SUMMARY
-             ================================================= --}}
-
-        @if($isApproved)
-
-            <div class="stores-divider"></div>
-
-            <div class="d-flex align-items-center justify-content-between flex-wrap">
-
-                <div>
-
-                    <span class="stores-detail-label">
-                        Fulfillment
-                    </span>
-
-                    <div class="mt-1">
-
-                        <span class="stores-badge {{ $fulfillmentBadge }}">
-
-                            @if(
-                                $storeRequisition->fulfillment_status
-                                === 'fully_issued'
-                            )
-
-                                <i class="fas fa-check-circle"></i>
-
-                            @else
-
-                                <i class="fas fa-box-open"></i>
-
-                            @endif
-
-                            {{ $fulfillmentLabel }}
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                @if($hasOutstanding)
-
-                    <button
-                        type="button"
-                        class="stores-btn-primary"
-                        data-toggle="modal"
-                        data-target="#fulfillmentModal"
-                    >
-
-                        <i class="fas fa-box-open me-1"></i>
-
-                        Fulfill Outstanding
-
-                    </button>
-
-                @else
-
-                    <span class="stores-badge stores-badge-success">
-
-                        <i class="fas fa-check-circle"></i>
-
-                        Nothing Outstanding
-
-                    </span>
-
-                @endif
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     ITEMS
-     ========================================================= --}}
-
-<div class="requisition-section">
-
-    <div class="requisition-section-header">
-
-        <div class="requisition-section-heading">
-
-            <div class="requisition-section-icon requisition-items-icon">
-
-                <i class="fas fa-boxes"></i>
-
-            </div>
-
-            <div>
-
-                <h5>
-                    Requisition Items
-                </h5>
-
-                <p>
-                    Quantities and fulfillment status
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="d-flex align-items-center gap-2">
-
-            <span class="requisition-count-badge">
-
-                {{ $storeRequisition->items->count() }}
-
-                {{
-                    Str::plural(
-                        'item',
-                        $storeRequisition->items->count()
-                    )
-                }}
-
-            </span>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         QUANTITY SUMMARY
-         ===================================================== --}}
-
-    <div class="requisition-section-body pb-0">
-
-        <div class="stores-detail-grid">
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Requested
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        number_format(
-                            $totalRequested,
-                            3
-                        )
-                    }}
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Approved
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        number_format(
-                            $totalApproved,
-                            3
-                        )
-                    }}
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Issued
-                </span>
-
-                <span class="stores-detail-value">
-
-                    {{
-                        number_format(
-                            $totalIssued,
-                            3
-                        )
-                    }}
-
-                </span>
-
-            </div>
-
-
-            <div class="stores-detail">
-
-                <span class="stores-detail-label">
-                    Outstanding
-                </span>
-
-                <span class="stores-detail-value">
-
-                    @if(
-                        !$isApproved
-                    )
-
-                        0.000
-
-                    @elseif(
-                        $totalOutstanding > 0
-                    )
-
-                        <span class="stores-quantity outstanding">
-
-                            {{
-                                number_format(
-                                    $totalOutstanding,
-                                    3
-                                )
-                            }}
-
-                        </span>
-
-                    @else
-
-                        <span class="stores-quantity complete">
-
-                            <i class="fas fa-check"></i>
-
-                            0.000
-
-                        </span>
-
-                    @endif
-
-                </span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="stores-table-wrapper">
-
-        <table class="stores-table requisition-list-table">
-
-            <thead>
-
-                <tr>
-
-                    <th style="width:45px;">
-                        #
-                    </th>
-
-                    <th>
-                        Item
-                    </th>
-
-                    <th>
-                        Variant
-                    </th>
-
-                    <th>
-                        Unit
-                    </th>
-
-                    <th class="text-end">
-                        Requested
-                    </th>
-
-                    <th class="text-end">
-                        Approved
-                    </th>
-
-                    <th class="text-end">
-                        Issued
-                    </th>
-
-                    <th class="text-end">
-                        Outstanding
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @forelse(
-                    $storeRequisition->items as $item
-                )
-
-                    @php
-
-                        $requested =
-                            (float)
-                            $item->requested_quantity;
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | BEFORE APPROVAL
-                        |--------------------------------------------------------------------------
-                        |
-                        | Approved = 0
-                        | Issued = 0
-                        | Outstanding = 0
-                        |
-                        |--------------------------------------------------------------------------
-                        | AFTER APPROVAL
-                        |--------------------------------------------------------------------------
-                        |
-                        | Approved = approved_quantity
-                        | Issued = issued_quantity
-                        | Outstanding = approved - issued
-                        |
-                        */
-
-                        if ($isApproved) {
-
-                            $approved =
-                                (float)
-                                $item->approved_quantity;
-
-                            $issued =
-                                (float)
-                                $item->issued_quantity;
-
-                            $outstanding =
-                                max(
-                                    0,
-                                    $approved - $issued
-                                );
-
-                        } else {
-
-                            $approved = 0;
-
-                            $issued = 0;
-
-                            $outstanding = 0;
-
-                        }
-
-                    @endphp
-
-
-                    <tr>
-
-                        {{-- NUMBER --}}
-
-                        <td>
-
-                            <span class="requisition-row-number">
-
-                                {{ $loop->iteration }}
-
-                            </span>
-
-                        </td>
-
-
-                        {{-- ITEM --}}
-
-                        <td>
-
-                            <div class="stores-item-name">
-
-                                {{
-                                    optional(
-                                        $item->item
-                                    )->name
-                                    ??
-                                    'Item #'
-                                    .
-                                    $item->store_item_id
-                                }}
-
-                            </div>
-
-
-                            @if(
-                                $item->item?->item_code
-                            )
-
-                                <div class="stores-code">
-
-                                    {{
-                                        $item->item->item_code
-                                    }}
-
-                                </div>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- VARIANT --}}
-
-                        <td>
-
-                            @if(
-                                $item->variant
-                            )
-
-                                <span class="stores-variant">
-
-                                    {{
-                                        $item->variant->name
-                                    }}
-
-                                </span>
-
-                            @else
-
-                                <span class="text-muted">
-                                    —
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- UNIT --}}
-
-                        <td>
-
-                            {{
-                                optional(
-                                    $item->item?->unit
-                                )->name
-                                ?? '—'
-                            }}
-
-                        </td>
-
-
-                        {{-- REQUESTED --}}
-
-                        <td class="text-end">
-
-                            <strong>
-
-                                {{
-                                    number_format(
-                                        $requested,
-                                        3
-                                    )
-                                }}
-
-                            </strong>
-
-                        </td>
-
-
-                        {{-- APPROVED --}}
-
-                        <td class="text-end">
-
-                            @if($isApproved)
-
-                                <span class="stores-quantity approved">
-
-                                    {{
-                                        number_format(
-                                            $approved,
-                                            3
-                                        )
-                                    }}
-
-                                </span>
-
-                            @else
-
-                                <span class="text-muted">
-                                    0.000
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- ISSUED --}}
-
-                        <td class="text-end">
-
-                            @if(
-                                $isApproved
-                                && $issued > 0
-                            )
-
-                                <span class="stores-quantity issued">
-
-                                    {{
-                                        number_format(
-                                            $issued,
-                                            3
-                                        )
-                                    }}
-
-                                </span>
-
-                            @else
-
-                                <span class="text-muted">
-                                    0.000
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- OUTSTANDING --}}
-
-                        <td class="text-end">
-
-                            @if(!$isApproved)
-
-                                <span class="text-muted">
-                                    0.000
-                                </span>
-
-                            @elseif(
-                                $outstanding > 0
-                            )
-
-                                <span class="stores-quantity outstanding">
-
-                                    {{
-                                        number_format(
-                                            $outstanding,
-                                            3
-                                        )
-                                    }}
-
-                                </span>
-
-                            @else
-
-                                <span class="stores-quantity complete">
-
-                                    <i class="fas fa-check"></i>
-
-                                    0.000
-
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                    </tr>
-
-
-                    {{-- ITEM NOTES --}}
-
-                    @if($item->notes)
-
-                        <tr>
-
-                            <td></td>
-
-                            <td colspan="7">
-
-                                <div class="stores-item-meta">
-
-                                    <i class="fas fa-info-circle"></i>
-
-                                    {{ $item->notes }}
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @endif
-
-                @empty
-
-                    <tr>
-
-                        <td
-                            colspan="8"
-                            class="text-center py-5"
-                        >
-
-                            <div class="text-muted">
-
-                                <i
-                                    class="fas fa-box-open fa-2x mb-2"
-                                ></i>
-
-                                <div>
-                                    No items found.
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    {{-- =====================================================
-         APPROVAL QUANTITY MESSAGE
-         ===================================================== --}}
-
-    @if(!$isApproved)
-
-        <div class="requisition-info-banner">
-
-            <div class="requisition-info-banner-icon">
-
-                <i class="fas fa-info-circle"></i>
-
-            </div>
-
-
-@if($showApprovalActions)
-
-    <div class="stores-divider"></div>
-
-    <div class="requisition-approval-panel"
-         style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:16px;">
-
-        <div class="requisition-approval-panel-content"
-             style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-
-            <div class="requisition-approval-panel-icon">
-                <i class="fas fa-user-check"></i>
-            </div>
-
-            <div class="mt-2 mb-4">
-                <strong>
-                    Action Required
-                </strong>
-
-                <div class="text-muted">
-                    Awaiting your {{ strtolower($stageLabel) }}
-                    decision.
-                </div>
-            </div>
-
-        </div>
-
-        <div class="requisition-approval-actions mb-5"
-             style="display:flex; align-items:center; justify-content:center; gap:10px;">
-
-            {{-- APPROVE --}}
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.approve',
-                    $storeRequisition
-                ) }}"
-                class="d-inline"
-                onsubmit="return confirm(
-                    'Approve this requisition? The requested quantities will become the approved quantities.'
-                );"
-            >
-                @csrf
-
-                <button
-                    type="submit"
-                    class="stores-btn-primary"
-                >
-                    <i class="fas fa-check me-1"></i>
-                    Approve
-                </button>
-            </form>
-
-            {{-- SEND BACK --}}
-            <button
-                type="button"
-                class="stores-btn-light"
-                data-toggle="modal"
-                data-target="#sendBackModal"
-            >
-                <i class="fas fa-undo me-1"></i>
-                Send Back
-            </button>
-
-            {{-- REJECT --}}
-            <button
-                type="button"
-                class="stores-btn-light requisition-danger-action"
-                data-toggle="modal"
-                data-target="#rejectModal"
-            >
-                <i class="fas fa-times me-1"></i>
-                Reject
-            </button>
-
-        </div>
-
-    </div>
-
-@elseif($isPending)
-
-    <div class="stores-divider"></div>
-
-    <div class="d-flex align-items-center justify-content-center">
-        <span class="stores-badge stores-badge-warning">
-            <i class="fas fa-hourglass-half"></i>
-            Awaiting {{ $stageLabel }}
-        </span>
-    </div>
-
-@endif
-
-
-        </div>
-
-    @endif
-
-
-    {{-- =====================================================
-         FULLY FULFILLED
-         ===================================================== --}}
-
-    @if(
-        $isApproved
-        && !$hasOutstanding
-    )
-
-        <div class="requisition-success-banner">
-
-            <div class="requisition-success-banner-icon">
-
-                <i class="fas fa-check-circle"></i>
-
-            </div>
-
-            <div>
-
-                <strong>
-                    Requisition fully fulfilled
-                </strong>
-
-                <div>
-
-                    All approved quantities have been physically
-                    issued or transferred.
-
-                </div>
-
-            </div>
-
-        </div>
-
-    @endif
-
-</div>
-
-
-{{-- =========================================================
-     REQUISITION DETAILS MODAL
-     ========================================================= --}}
-
-<div
-    class="modal fade stores-modal"
-    id="requisitionDetailsModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="requisitionDetailsModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-lg modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <h5
-                        class="modal-title"
-                        id="requisitionDetailsModalLabel"
-                    >
-
-                        <i class="fas fa-info-circle me-2"></i>
-
-                        Requisition Details
-
-                    </h5>
-
-                    <div class="small opacity-75 mt-1">
-
-                        {{ $storeRequisition->requisition_number }}
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="stores-detail-grid">
-
-                    {{-- NUMBER --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Requisition Number
-                        </span>
-
-                        <span class="stores-detail-value">
-                            {{ $storeRequisition->requisition_number }}
-                        </span>
-
-                    </div>
-
-
-                    {{-- REQUESTER --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Requested By
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            {{
-                                optional(
-                                    $storeRequisition->requester
-                                )->name
-                                ?? '—'
-                            }}
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- DEPARTMENT --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Department
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            {{
-                                $storeRequisition->department
-                                ?: '—'
-                            }}
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- TYPE --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Request Type
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            @if(
-                                $storeRequisition->requisition_type
-                                === 'TRANSFER'
-                            )
-
-                                <span class="stores-badge stores-badge-info">
-
-                                    <i class="fas fa-exchange-alt"></i>
-
-                                    Stock Transfer
-
-                                </span>
-
-                            @else
-
-                                <span class="stores-badge stores-badge-primary">
-
-                                    <i class="fas fa-box"></i>
-
-                                    Item Issue
-
-                                </span>
-
-                            @endif
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- SOURCE --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Source Store
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            {{
-                                optional(
-                                    $storeRequisition->sourceStore
-                                )->name
-                                ?? '—'
-                            }}
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- DESTINATION --}}
-
-                    @if(
-                        $storeRequisition->requisition_type
-                        === 'TRANSFER'
-                    )
-
-                        <div class="stores-detail">
-
-                            <span class="stores-detail-label">
-                                Destination Store
-                            </span>
-
-                            <span class="stores-detail-value">
-
-                                {{
-                                    optional(
-                                        $storeRequisition
-                                            ->destinationStore
-                                    )->name
-                                    ?? '—'
-                                }}
-
-                            </span>
-
-                        </div>
-
-                    @endif
-
-
-                    {{-- CREATED --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Created
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            @if(
-                                $storeRequisition->created_at
-                            )
-
-                                {{
-                                    $storeRequisition
-                                        ->created_at
-                                        ->format(
-                                            'd M Y, H:i'
-                                        )
-                                }}
-
-                            @else
-
-                                —
-
-                            @endif
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- SUBMITTED --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Submitted
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            @if(
-                                $storeRequisition->submitted_at
-                            )
-
-                                {{
-                                    $storeRequisition
-                                        ->submitted_at
-                                        ->format(
-                                            'd M Y, H:i'
-                                        )
-                                }}
-
-                            @else
-
-                                <span class="text-muted">
-                                    Not submitted
-                                </span>
-
-                            @endif
-
-                        </span>
-
-                    </div>
-
-
-                    {{-- APPROVAL STAGE --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Approval Stage
-                        </span>
-
-                        <span class="stores-detail-value">
-                            {{ $stageLabel }}
-                        </span>
-
-                    </div>
-
-
-                    {{-- APPROVED AT --}}
-
-                    <div class="stores-detail">
-
-                        <span class="stores-detail-label">
-                            Approved At
-                        </span>
-
-                        <span class="stores-detail-value">
-
-                            @if(
-                                $storeRequisition->approved_at
-                            )
-
-                                {{
-                                    $storeRequisition
-                                        ->approved_at
-                                        ->format(
-                                            'd M Y, H:i'
-                                        )
-                                }}
-
-                            @else
-
-                                <span class="text-muted">
-                                    Not approved
-                                </span>
-
-                            @endif
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                {{-- PURPOSE --}}
-
-                @if(
-                    $storeRequisition->purpose
-                )
-
-                    <div class="stores-divider"></div>
-
-                    <div>
-
-                        <span class="stores-detail-label">
-                            Purpose
-                        </span>
-
-                        <div class="mt-1">
-
-                            {{ $storeRequisition->purpose }}
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-
-                {{-- SUBMISSION NOTES --}}
-
-                @if(
-                    $storeRequisition->submission_notes
-                )
-
-                    <div class="stores-divider"></div>
-
-                    <div>
-
-                        <span class="stores-detail-label">
-                            Submission Notes
-                        </span>
-
-                        <div class="mt-1">
-
-                            {{ $storeRequisition->submission_notes }}
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn stores-btn-light"
-                    data-dismiss="modal"
-                >
-                    Close
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     APPROVAL HISTORY MODAL
-     ========================================================= --}}
-
-@if(
-    $storeRequisition->approvals->count()
-)
-
-<div
-    class="modal fade stores-modal"
-    id="approvalHistoryModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="approvalHistoryModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-lg modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <h5
-                        class="modal-title"
-                        id="approvalHistoryModalLabel"
-                    >
-
-                        <i class="fas fa-history me-2"></i>
-
-                        Approval History
-
-                    </h5>
-
-                    <div class="small opacity-75 mt-1">
-
-                        {{ $storeRequisition->requisition_number }}
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div class="stores-timeline">
-
-                    @foreach(
-                        $storeRequisition
-                            ->approvals
-                            ->sortBy('decided_at')
-                        as $approval
-                    )
-
-                        <div class="stores-timeline-item">
-
-                            <div class="stores-timeline-dot">
-
-                                @if(
-                                    $approval->decision
-                                    === 'approved'
-                                )
-
-                                    <i class="fas fa-check"></i>
-
-                                @elseif(
-                                    $approval->decision
-                                    === 'rejected'
-                                )
-
-                                    <i class="fas fa-times"></i>
-
-                                @else
-
-                                    <i class="fas fa-undo"></i>
-
-                                @endif
-
-                            </div>
-
-
-                            <div>
-
-                                <div class="stores-timeline-title">
-
-                                    {{
-                                        ucfirst(
-                                            $approval
-                                                ->approval_level
-                                        )
-                                    }}
-
-                                    —
-
-                                    {{
-                                        ucfirst(
-                                            $approval->decision
-                                        )
-                                    }}
-
-                                </div>
-
-
-                                <div class="stores-timeline-meta">
-
-                                    {{
-                                        optional(
-                                            $approval
-                                                ->approver
-                                        )->name
-                                        ?? 'Unknown user'
-                                    }}
-
-                                    @if(
-                                        $approval->decided_at
-                                    )
-
-                                        <span>
-                                            •
-                                        </span>
-
-                                        {{
-                                            $approval
-                                                ->decided_at
-                                                ->format(
-                                                    'd M Y, H:i'
-                                                )
-                                        }}
-
-                                    @endif
-
-                                </div>
-
-
-                                @if(
-                                    $approval->comments
-                                )
-
-                                    <div class="mt-2">
-
-                                        {{ $approval->comments }}
-
-                                    </div>
-
-                                @endif
-
-                            </div>
-
-                        </div>
-
-                    @endforeach
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn stores-btn-light"
-                    data-dismiss="modal"
-                >
-                    Close
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-
-{{-- =========================================================
-     SEND BACK MODAL
-     ========================================================= --}}
-
-@if($showApprovalActions)
-
-<div
-    class="modal fade stores-modal"
-    id="sendBackModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="sendBackModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5
-                    class="modal-title"
-                    id="sendBackModalLabel"
-                >
-
-                    <i class="fas fa-undo me-2"></i>
-
-                    Send Requisition Back
-
-                </h5>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.send-back',
-                    $storeRequisition
-                ) }}"
-            >
-
-                @csrf
-
-                <div class="modal-body">
-
-                    <p class="mb-3">
-
-                        Send this requisition back to the requester
-                        for correction?
-
-                    </p>
-
-
-                    <label
-                        for="sendBackComments"
-                        class="form-label fw-semibold"
-                    >
-                        Reason
-                    </label>
-
-
-                    <textarea
-                        name="comments"
-                        id="sendBackComments"
-                        class="form-control"
-                        rows="4"
-                        maxlength="2000"
-                        required
-                        placeholder="Explain what needs to be corrected..."
-                    ></textarea>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn stores-btn-light"
-                        data-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="stores-btn-primary"
-                    >
-
-                        <i class="fas fa-undo me-1"></i>
-
-                        Send Back
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-
-{{-- =========================================================
-     REJECT MODAL
-     ========================================================= --}}
-
-@if($showApprovalActions)
-
-<div
-    class="modal fade stores-modal"
-    id="rejectModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="rejectModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5
-                    class="modal-title"
-                    id="rejectModalLabel"
-                >
-
-                    <i class="fas fa-times me-2"></i>
-
-                    Reject Requisition
-
-                </h5>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.reject',
-                    $storeRequisition
-                ) }}"
-            >
-
-                @csrf
-
-                <div class="modal-body">
-
-                    <p class="mb-3">
-
-                        Reject this requisition?
-
-                    </p>
-
-
-                    <label
-                        for="rejectComments"
-                        class="form-label fw-semibold"
-                    >
-                        Reason
-                    </label>
-
-
-                    <textarea
-                        name="comments"
-                        id="rejectComments"
-                        class="form-control"
-                        rows="4"
-                        maxlength="2000"
-                        required
-                        placeholder="Enter the reason for rejection..."
-                    ></textarea>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn stores-btn-light"
-                        data-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="stores-btn-primary"
-                    >
-
-                        <i class="fas fa-times me-1"></i>
-
-                        Reject Requisition
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-
-{{-- =========================================================
-     FULFILLMENT HISTORY MODAL
-     ========================================================= --}}
-
-@if(
-    $isApproved
-    && $storeRequisition->fulfillments->count()
-)
-
-<div
-    class="modal fade stores-modal"
-    id="fulfillmentHistoryModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="fulfillmentHistoryModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-xl modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <h5
-                        class="modal-title"
-                        id="fulfillmentHistoryModalLabel"
-                    >
-
-                        <i class="fas fa-exchange-alt me-2"></i>
-
-                        Fulfillment History
-
-                    </h5>
-
-                    <div class="small opacity-75 mt-1">
-
-                        {{ $storeRequisition->requisition_number }}
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <div class="modal-body p-0">
-
-                <div class="stores-table-wrapper">
-
-                    <table class="stores-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Transaction
-                                </th>
-
-                                <th>
-                                    Type
-                                </th>
-
-                                <th>
-                                    Source
-                                </th>
-
-                                <th>
-                                    Destination
-                                </th>
-
-                                <th>
-                                    Processed By
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th class="text-end">
-                                    Items
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            @foreach(
-                                $storeRequisition->fulfillments
-                                as $fulfillment
-                            )
-
-                                <tr>
-
-                                    <td>
-
-                                        <span class="stores-code">
-
-                                            {{
-                                                $fulfillment
-                                                    ->transaction_number
-                                            }}
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        @if(
-                                            $fulfillment
-                                                ->transaction_type
-                                            === 'TRANSFER'
-                                        )
-
-                                            <span class="stores-badge stores-badge-info">
-
-                                                <i class="fas fa-exchange-alt"></i>
-
-                                                Transfer
-
-                                            </span>
-
-                                        @else
-
-                                            <span class="stores-badge stores-badge-primary">
-
-                                                <i class="fas fa-arrow-down"></i>
-
-                                                Issue
-
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    <td>
-
-                                        {{
-                                            optional(
-                                                $fulfillment
-                                                    ->sourceStore
-                                            )->name
-                                            ?? '—'
-                                        }}
-
-                                    </td>
-
-
-                                    <td>
-
-                                        @if(
-                                            $fulfillment
-                                                ->destinationStore
-                                        )
-
-                                            {{
-                                                $fulfillment
-                                                    ->destinationStore
-                                                    ->name
-                                            }}
-
-                                        @else
-
-                                            <span class="text-muted">
-                                                Consumption / Issue
-                                            </span>
-
-                                        @endif
-
-                                    </td>
-
-
-                                    <td>
-
-                                        {{
-                                            optional(
-                                                $fulfillment
-                                                    ->processor
-                                            )->name
-                                            ?? '—'
-                                        }}
-
-                                    </td>
-
-
-                                    <td>
-
-                                        {{
-                                            $fulfillment->created_at
-                                                ? $fulfillment
-                                                    ->created_at
-                                                    ->format(
-                                                        'd M Y, H:i'
-                                                    )
-                                                : '—'
-                                        }}
-
-                                    </td>
-
-
-                                    <td class="text-end">
-
-                                        {{
-                                            $fulfillment
-                                                ->items
-                                                ->count()
-                                        }}
-
-                                    </td>
-
-                                </tr>
-
-                            @endforeach
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn stores-btn-light"
-                    data-dismiss="modal"
-                >
-                    Close
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-
-{{-- =========================================================
-     PHYSICAL FULFILLMENT MODAL
-     ========================================================= --}}
-
-@if(
-    $isApproved
-    && $hasOutstanding
-)
-
-<div
-    class="modal fade stores-modal"
-    id="fulfillmentModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="fulfillmentModalLabel"
-    aria-hidden="true"
->
-
-    <div
-        class="modal-dialog modal-xl modal-dialog-centered"
-        role="document"
-    >
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <div>
-
-                    <h5
-                        class="modal-title"
-                        id="fulfillmentModalLabel"
-                    >
-
-                        <i class="fas fa-box-open me-2"></i>
-
-                        Physical Fulfillment
-
-                    </h5>
-
-
-                    <div class="small opacity-75 mt-1">
-
-                        {{ $storeRequisition->requisition_number }}
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.fulfill',
-                    $storeRequisition
-                ) }}"
-                id="fulfillmentForm"
-            >
-
-                @csrf
-
-
-                <div class="modal-body">
-
-                    <div class="requisition-info-banner mb-3">
-
-                        <div class="requisition-info-banner-icon">
-
-                            <i class="fas fa-info-circle"></i>
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-                                Outstanding quantities
-                            </strong>
-
-                            <div>
-
-                                <strong>Issue Now</strong>
-                                defaults to the full outstanding
-                                approved quantity. Reduce it when
-                                making a partial physical issue.
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="stores-table-wrapper">
-
-                        <table class="stores-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Item
-                                    </th>
-
-                                    <th>
-                                        Variant
-                                    </th>
-
-                                    <th>
-                                        Unit
-                                    </th>
-
-                                    <th class="text-end">
-                                        Approved
-                                    </th>
-
-                                    <th class="text-end">
-                                        Issued
-                                    </th>
-
-                                    <th class="text-end">
-                                        Outstanding
-                                    </th>
-
-                                    <th style="width:160px;">
-                                        Issue Now
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                @foreach(
-                                    $storeRequisition->items
-                                    as $item
-                                )
-
-                                    @php
-
-                                        $approved =
-                                            (float)
-                                            $item->approved_quantity;
-
-                                        $issued =
-                                            (float)
-                                            $item->issued_quantity;
-
-                                        $outstanding =
-                                            max(
-                                                0,
-                                                $approved - $issued
-                                            );
-
-                                    @endphp
-
-
-                                    @if(
-                                        $outstanding > 0
-                                    )
-
-                                        <tr>
-
-                                            {{-- ITEM --}}
-
-                                            <td>
-
-                                                <div class="stores-item-name">
-
-                                                    {{
-                                                        optional(
-                                                            $item->item
-                                                        )->name
-                                                        ??
-                                                        'Item #'
-                                                        .
-                                                        $item->store_item_id
-                                                    }}
-
-                                                </div>
-
-
-                                                @if(
-                                                    $item->item?->item_code
-                                                )
-
-                                                    <div class="stores-code">
-
-                                                        {{
-                                                            $item
-                                                                ->item
-                                                                ->item_code
-                                                        }}
-
-                                                    </div>
-
-                                                @endif
-
-                                            </td>
-
-
-                                            {{-- VARIANT --}}
-
-                                            <td>
-
-                                                @if(
-                                                    $item->variant
-                                                )
-
-                                                    <span class="stores-variant">
-
-                                                        {{
-                                                            $item
-                                                                ->variant
-                                                                ->name
-                                                        }}
-
-                                                    </span>
-
-                                                @else
-
-                                                    <span class="text-muted">
-                                                        —
-                                                    </span>
-
-                                                @endif
-
-                                            </td>
-
-
-                                            {{-- UNIT --}}
-
-                                            <td>
-
-                                                {{
-                                                    optional(
-                                                        $item->item?->unit
-                                                    )->name
-                                                    ?? '—'
-                                                }}
-
-                                            </td>
-
-
-                                            {{-- APPROVED --}}
-
-                                            <td class="text-end">
-
-                                                {{
-                                                    number_format(
-                                                        $approved,
-                                                        3
-                                                    )
-                                                }}
-
-                                            </td>
-
-
-                                            {{-- ISSUED --}}
-
-                                            <td class="text-end">
-
-                                                {{
-                                                    number_format(
-                                                        $issued,
-                                                        3
-                                                    )
-                                                }}
-
-                                            </td>
-
-
-                                            {{-- OUTSTANDING --}}
-
-                                            <td class="text-end">
-
-                                                <span class="stores-quantity outstanding">
-
-                                                    {{
-                                                        number_format(
-                                                            $outstanding,
-                                                            3
-                                                        )
-                                                    }}
-
-                                                </span>
-
-                                            </td>
-
-
-                                            {{-- ISSUE NOW --}}
-
-                                            <td>
-
-                                                <input
-                                                    type="hidden"
-                                                    name="items[{{ $loop->index }}][requisition_item_id]"
-                                                    value="{{ $item->id }}"
-                                                >
-
-
-                                                <input
-                                                    type="number"
-                                                    name="items[{{ $loop->index }}][quantity]"
-                                                    class="form-control fulfillment-quantity"
-                                                    value="{{
-                                                        number_format(
-                                                            $outstanding,
-                                                            3,
-                                                            '.',
-                                                            ''
-                                                        )
-                                                    }}"
-                                                    min="0.001"
-                                                    max="{{ $outstanding }}"
-                                                    step="0.001"
-                                                    data-outstanding="{{ $outstanding }}"
-                                                    required
-                                                >
-
-                                            </td>
-
-                                        </tr>
-
-                                    @endif
-
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    {{-- NOTES --}}
-
-                    <div class="mt-4">
-
-                        <label
-                            for="fulfillmentNotes"
-                            class="form-label fw-semibold"
-                        >
-                            Fulfillment Notes
-                        </label>
-
-
-                        <textarea
-                            name="notes"
-                            id="fulfillmentNotes"
-                            class="form-control"
-                            rows="3"
-                            maxlength="2000"
-                            placeholder="Optional notes about this physical issue or transfer..."
-                        ></textarea>
-
-                    </div>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn stores-btn-light"
-                        data-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="stores-btn-primary"
-                        id="fulfillmentSubmitButton"
-                    >
-
-                        <i class="fas fa-check me-1"></i>
-
-                        Process Fulfillment
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
-
-{{-- =========================================================
-     JAVASCRIPT
-     ========================================================= --}}
-
-@push('scripts')
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | FULFILLMENT FORM
+    | FULFILLMENT
     |--------------------------------------------------------------------------
     */
 
-    const fulfillmentForm =
-        document.getElementById(
-            'fulfillmentForm'
+    $fulfillmentStatus =
+        strtolower(
+            $storeRequisition->fulfillment_status ?? ''
         );
 
+    $fulfillmentLabel = match ($fulfillmentStatus) {
 
-    if (fulfillmentForm) {
+        'fully_issued' =>
+            'Fully Fulfilled',
 
-        fulfillmentForm.addEventListener(
-            'submit',
-            function (event) {
+        'partially_issued' =>
+            'Partially Fulfilled',
 
-                const quantities =
-                    fulfillmentForm.querySelectorAll(
-                        '.fulfillment-quantity'
-                    );
+        'closed' =>
+            'Closed',
 
+        default =>
+            'Not Issued',
+    };
 
-                let hasQuantity = false;
+    $fulfillmentBadge = match ($fulfillmentStatus) {
 
+        'fully_issued' =>
+            'stores-badge-success',
 
-                quantities.forEach(function (input) {
+        'partially_issued' =>
+            'stores-badge-warning',
 
-                    const value =
-                        parseFloat(
-                            input.value || 0
-                        );
+        'closed' =>
+            'stores-badge-closed',
 
-
-                    const max =
-                        parseFloat(
-                            input.dataset.outstanding || 0
-                        );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | VALIDATE CLIENT SIDE
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        isNaN(value)
-                        || value <= 0
-                    ) {
-
-                        input.disabled = true;
-
-                        const row =
-                            input.closest('tr');
-
-                        const hidden =
-                            row
-                                ? row.querySelector(
-                                    'input[name*="[requisition_item_id]"]'
-                                )
-                                : null;
-
-                        if (hidden) {
-                            hidden.disabled = true;
-                        }
-
-                        return;
-                    }
+        default =>
+            'stores-badge-muted',
+    };
 
 
-                    if (
-                        value > max
-                    ) {
+    /*
+    |--------------------------------------------------------------------------
+    | OUTSTANDING
+    |--------------------------------------------------------------------------
+    */
 
-                        event.preventDefault();
+    $hasOutstanding = false;
 
-                        input.disabled = false;
+    foreach ($storeRequisition->items as $item) {
 
-                        alert(
-                            'The issue quantity cannot exceed the outstanding approved quantity.'
-                        );
+        if (!$isApproved) {
+            continue;
+        }
 
-                        input.focus();
+        $approved =
+            (float) $item->approved_quantity;
 
-                        return false;
-                    }
+        $issued =
+            (float) $item->issued_quantity;
 
-
-                    hasQuantity = true;
-
-                });
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | REQUIRE AT LEAST ONE ITEM
-                |--------------------------------------------------------------------------
-                */
-
-                if (!hasQuantity) {
-
-                    event.preventDefault();
-
-
-                    quantities.forEach(
-                        function (input) {
-
-                            input.disabled = false;
-
-                        }
-                    );
-
-
-                    alert(
-                        'Enter at least one quantity to process.'
-                    );
-
-
-                    return false;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | CONFIRM
-                |--------------------------------------------------------------------------
-                */
-
-                if (
-                    !confirm(
-                        'Process this physical stock transaction now?'
-                    )
-                ) {
-
-                    event.preventDefault();
-
-
-                    quantities.forEach(
-                        function (input) {
-
-                            input.disabled = false;
-
-                        }
-                    );
-
-
-                    return false;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | PREVENT DOUBLE SUBMISSION
-                |--------------------------------------------------------------------------
-                */
-
-                const submitButton =
-                    document.getElementById(
-                        'fulfillmentSubmitButton'
-                    );
-
-
-                if (submitButton) {
-
-                    submitButton.disabled = true;
-
-                    submitButton.innerHTML =
-                        '<i class="fas fa-spinner fa-spin me-1"></i> Processing...';
-
-                }
-
-            }
-        );
-
+        if (
+            max(0, $approved - $issued) > 0
+        ) {
+            $hasOutstanding = true;
+            break;
+        }
     }
 
-});
 
-</script>
+    /*
+    |--------------------------------------------------------------------------
+    | LATEST FULFILLMENT
+    |--------------------------------------------------------------------------
+    */
 
-@endpush
+    $latestFulfillment = null;
 
+    if (
+        $storeRequisition->fulfillments &&
+        $storeRequisition->fulfillments->count()
+    ) {
+
+        $latestFulfillment =
+            $storeRequisition->fulfillments
+                ->sortByDesc(function ($fulfillment) {
+
+                    return $fulfillment->created_at
+                        ? $fulfillment->created_at->timestamp
+                        : $fulfillment->id;
+                })
+                ->first();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SOURCE STORE STOCK
+    |--------------------------------------------------------------------------
+    */
+
+    $sourceStockByKey = collect();
+
+    if (
+        $isApproved &&
+        $storeRequisition->source_store_id
+    ) {
+
+        $storeItemIds =
+            $storeRequisition->items
+                ->pluck('store_item_id')
+                ->filter()
+                ->unique()
+                ->values();
+
+        if ($storeItemIds->count()) {
+
+            $sourceStockByKey =
+                \App\Models\StoreStock::query()
+                    ->where(
+                        'store_id',
+                        $storeRequisition->source_store_id
+                    )
+                    ->whereIn(
+                        'store_item_id',
+                        $storeItemIds
+                    )
+                    ->get()
+                    ->keyBy(function ($stock) {
+
+                        return $stock->store_item_id
+                            . '|'
+                            . ($stock->variant_id ?? 'null');
+                    });
+        }
+    }
+@endphp
+
+
+<style>
+/* =========================================================
+   STORE REQUISITION - MINIMAL DETAIL PAGE
+   ========================================================= */
+
+.requisition-page {
+    max-width: 1450px;
+    margin: 0 auto;
+}
+
+.requisition-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 14px;
+}
+
+.requisition-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.requisition-page-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #00096A;
+}
+
+.requisition-number {
+    margin-top: 4px;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.requisition-page-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.requisition-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .25px;
+    white-space: nowrap;
+}
+
+.requisition-status-draft {
+    background: #f1f3f5;
+    color: #495057;
+}
+
+.requisition-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.requisition-status-approved {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.requisition-status-returned {
+    background: #cff4fc;
+    color: #055160;
+}
+
+.requisition-status-rejected {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.requisition-status-closed {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+
+/* =========================================================
+   WORKFLOW
+   ========================================================= */
+
+.requisition-workflow {
+    background: #fff;
+    border: 1px solid #e4e7ec;
+    border-radius: 9px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.03);
+}
+
+.requisition-workflow-track {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.workflow-step:last-child {
+    flex: 0 0 auto;
+}
+
+.workflow-node {
+    width: 27px;
+    height: 27px;
+    min-width: 27px;
+    border-radius: 50%;
+    border: 2px solid #dfe3e8;
+    background: #fff;
+    color: #8b949e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.workflow-step.active .workflow-node {
+    background: #00096A;
+    border-color: #00096A;
+    color: #fff;
+}
+
+.workflow-step.completed .workflow-node {
+    background: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+.workflow-label {
+    margin-left: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.workflow-step.active .workflow-label,
+.workflow-step.completed .workflow-label {
+    color: #212529;
+}
+
+.workflow-line {
+    height: 2px;
+    background: #e9ecef;
+    flex: 1;
+    margin: 0 8px;
+}
+
+.workflow-line.completed {
+    background: #198754;
+}
+
+
+/* =========================================================
+   ACTION / STATE PANEL
+   ========================================================= */
+
+.requisition-state-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 11px 14px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #e4e7ec;
+    background: #fff;
+}
+
+.requisition-state-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.requisition-state-icon {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f3f5;
+    color: #00096A;
+}
+
+.requisition-state-text strong {
+    display: block;
+    font-size: 13px;
+    color: #212529;
+}
+
+.requisition-state-text span {
+    display: block;
+    margin-top: 2px;
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.requisition-state-actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   ITEMS CARD
+   ========================================================= */
+
+.requisition-card {
+    border: 1px solid #e4e7ec;
+    border-radius: 9px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 1px 5px rgba(0,0,0,.03);
+    margin-bottom: 14px;
+}
+
+.requisition-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f8f9fb;
+    border-bottom: 1px solid #e4e7ec;
+}
+
+.requisition-card-title {
+    color: #00096A;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.requisition-card-subtitle {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.requisition-table {
+    width: 100%;
+    margin: 0;
+}
+
+.requisition-table th {
+    padding: 8px 10px;
+    background: #fff;
+    color: #6c757d;
+    border-bottom: 1px solid #e4e7ec;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .25px;
+    white-space: nowrap;
+}
+
+.requisition-table td {
+    padding: 9px 10px;
+    vertical-align: middle;
+    border-color: #edf0f3;
+    font-size: 12px;
+}
+
+.requisition-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.item-name {
+    display: block;
+    font-weight: 700;
+    color: #212529;
+}
+
+.item-variant {
+    display: block;
+    margin-top: 2px;
+    color: #6c757d;
+    font-size: 10px;
+}
+
+.quantity-value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.quantity-balance {
+    color: #856404;
+}
+
+.quantity-zero {
+    color: #198754;
+}
+
+.stock-available {
+    color: #198754;
+    font-weight: 700;
+}
+
+.stock-insufficient {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SUMMARY STRIP
+   ========================================================= */
+
+.requisition-summary-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid #e4e7ec;
+    background: #f8f9fb;
+}
+
+.requisition-summary-item {
+    padding: 9px 12px;
+    border-right: 1px solid #e4e7ec;
+}
+
+.requisition-summary-item:last-child {
+    border-right: 0;
+}
+
+.requisition-summary-label {
+    display: block;
+    color: #6c757d;
+    font-size: 9px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: .3px;
+}
+
+.requisition-summary-value {
+    display: block;
+    margin-top: 2px;
+    color: #212529;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+
+.requisition-history-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.requisition-history-card {
+    border: 1px solid #e4e7ec;
+    border-radius: 9px;
+    background: #fff;
+    padding: 12px 14px;
+}
+
+.requisition-history-card-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    color: #00096A;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.requisition-history-card-text {
+    margin-top: 5px;
+    color: #6c757d;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   NOTICES
+   ========================================================= */
+
+.requisition-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.requisition-notice i {
+    margin-top: 2px;
+}
+
+.requisition-notice-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.requisition-notice-warning {
+    background: #fffaf0;
+    border: 1px solid #f6e7c1;
+    color: #7c5a00;
+}
+
+.requisition-notice-info {
+    background: #ecfeff;
+    border: 1px solid #a5f3fc;
+    color: #155e75;
+}
+
+.requisition-notice-danger {
+    background: #fff5f5;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+}
+
+
+/* =========================================================
+   DETAILS MODAL
+   ========================================================= */
+
+.requisition-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.requisition-detail-item {
+    padding: 9px 10px;
+    background: #f8f9fb;
+    border: 1px solid #edf0f3;
+    border-radius: 7px;
+}
+
+.requisition-detail-label {
+    display: block;
+    margin-bottom: 2px;
+    color: #6c757d;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.requisition-detail-value {
+    color: #212529;
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   APPROVAL PANEL
+   ========================================================= */
+
+.requisition-approval-panel {
+    border: 1px solid #dbe4ff;
+    background: #f8faff;
+    border-radius: 8px;
+    padding: 11px 13px;
+    margin-bottom: 14px;
+}
+
+.requisition-approval-panel-title {
+    color: #00096A;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.requisition-approval-actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+.timeline {
+    position: relative;
+    padding-left: 22px;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 6px;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 16px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -22px;
+    top: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #00096A;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #dbe4ff;
+}
+
+.timeline-title {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.timeline-meta {
+    color: #6c757d;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+.timeline-comment {
+    margin-top: 5px;
+    padding: 7px 9px;
+    background: #f8f9fb;
+    border-radius: 6px;
+    color: #495057;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   FULFILLMENT
+   ========================================================= */
+
+.fulfillment-rules {
+    background: #f8f9fb;
+    border: 1px solid #e4e7ec;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #495057;
+    font-size: 11px;
+}
+
+.fulfillment-input {
+    min-width: 125px;
+}
+
+.fulfillment-input input {
+    text-align: right;
+}
+
+.fulfillment-stock-label {
+    margin-top: 3px;
+    font-size: 9px;
+}
+
+.fulfillment-unavailable-row {
+    background: #fffaf0;
+}
+
+
+/* =========================================================
+   BOTTOM
+   ========================================================= */
+
+.requisition-bottom-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.requisition-bottom-actions-left,
+.requisition-bottom-actions-right {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+    .requisition-details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .requisition-summary-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .requisition-summary-item:nth-child(2) {
+        border-right: 0;
+    }
+
+    .requisition-summary-item {
+        border-bottom: 1px solid #e4e7ec;
+    }
+
+    .requisition-history-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .requisition-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .requisition-page-actions {
+        justify-content: flex-start;
+    }
+
+    .requisition-workflow {
+        overflow-x: auto;
+    }
+
+    .requisition-workflow-track {
+        min-width: 650px;
+    }
+
+    .requisition-state-panel {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .requisition-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .requisition-summary-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .requisition-table {
+        min-width: 760px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+</style>
+
+
+<div class="container-fluid requisition-page">
+
+    {{-- =====================================================
+         HEADER
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.header'
+    )
+
+
+    {{-- =====================================================
+         WORKFLOW
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.workflow'
+    )
+
+
+    {{-- =====================================================
+         STATE / ACTIONS / NOTICES
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.state'
+    )
+
+
+    {{-- =====================================================
+         APPROVAL ACTIONS
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.approval'
+    )
+
+
+    {{-- =====================================================
+         ITEMS
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.items'
+    )
+
+
+    {{-- =====================================================
+         HISTORY
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.history'
+    )
+
+
+    {{-- =====================================================
+         BOTTOM ACTIONS
+    ====================================================== --}}
+
+    @include(
+        'admin.stores.store-requisitions.partials.bottom-actions'
+    )
+
+</div>
+
+
+{{-- =========================================================
+     MODALS
+========================================================= --}}
+
+@include(
+    'admin.stores.store-requisitions.partials.modals'
+)
 
 @endsection

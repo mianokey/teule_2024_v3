@@ -1,245 +1,220 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="container-fluid">
+<div class="store-requisition-page">
 
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
 
-{{-- PAGE HEADER --}}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h4 class="mb-1">Store Receipt</h4>
-        <div class="text-muted">
-            {{ $storeReceipt->receipt_number }}
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fas fa-receipt"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Receiving</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Receipt</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Store Receipt
+                </h1>
+
+                <div class="requisition-number">
+                    {{ $storeReceipt->receipt_number }}
+                </div>
+
+            </div>
+
         </div>
-    </div>
 
-    <div class="d-flex gap-2">
 
-        @if($storeReceipt->status === 'DRAFT')
+        {{-- ========================================================
+             PAGE ACTIONS
+             ======================================================== --}}
 
-    <a href="{{ route('admin.store-receipts.edit', $storeReceipt) }}"
-       class="btn btn-outline-primary">
-        Edit Receipt
-    </a>
+        <div class="requisition-page-actions">
 
-    @if($storeReceipt->items->count())
+            {{-- Receipt Details --}}
+            <button type="button"
+                    class="requisition-add-button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#receiptDetailsModal">
 
-        <form method="POST"
-              action="{{ route('admin.store-receipts.post', $storeReceipt) }}"
-              class="d-inline"
-              onsubmit="return confirm('Post this receipt? This will increase the store stock and cannot be undone from this screen.');">
+                <i class="fas fa-info-circle"></i>
 
-            @csrf
-
-            <button type="submit"
-                    class="btn btn-success">
-
-                <i class="fas fa-check"></i>
-                Post Receipt
+                <span>
+                    Receipt Details
+                </span>
 
             </button>
 
-        </form>
 
-    @endif
+            @if($storeReceipt->status === 'DRAFT')
 
-@endif
+                {{-- Edit Receipt --}}
+                <a href="{{ route(
+                    'admin.store-receipts.edit',
+                    $storeReceipt
+                ) }}"
+                   class="requisition-add-button">
 
+                    <i class="fas fa-edit"></i>
 
-        <a href="{{ route('admin.store-receipts.index') }}"
-           class="btn btn-outline-secondary">
-            Back to Receipts
-        </a>
-
-    </div>
-</div>
-
-
-{{-- MESSAGES --}}
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger">
-        <strong>Please correct the following:</strong>
-
-        <ul class="mb-0 mt-2">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-
-{{-- RECEIPT DETAILS --}}
-<div class="card mb-4">
-
-    <div class="card-header">
-        <h6 class="mb-0">Receipt Details</h6>
-    </div>
-
-    <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Receipt Number
-                </small>
-
-                <strong>
-                    {{ $storeReceipt->receipt_number }}
-                </strong>
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Store
-                </small>
-
-                <strong>
-                    {{ $storeReceipt->store->name ?? '—' }}
-                </strong>
-            </div>
-
-
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Source
-                </small>
-
-                @if($storeReceipt->source_type === 'PURCHASE')
-
-                    <span class="badge bg-primary">
-                        PURCHASE
+                    <span>
+                        Edit Receipt
                     </span>
 
-                @else
+                </a>
 
-                    <span class="badge bg-success">
-                        DONATION
-                    </span>
+
+                {{-- Post Receipt --}}
+                @if($storeReceipt->items->count())
+
+                    <form method="POST"
+                          action="{{ route(
+                              'admin.store-receipts.post',
+                              $storeReceipt
+                          ) }}"
+                          class="d-inline"
+                          onsubmit="return confirm(
+                              'Post this receipt? This will increase the store stock and cannot be undone from this screen.'
+                          );">
+
+                        @csrf
+
+                        <button type="submit"
+                                class="requisition-add-button">
+
+                            <i class="fas fa-check"></i>
+
+                            <span>
+                                Post Receipt
+                            </span>
+
+                        </button>
+
+                    </form>
 
                 @endif
-            </div>
+
+            @endif
 
 
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Status
-                </small>
+            {{-- Back --}}
+            <a href="{{ route('admin.store-receipts.index') }}"
+               class="requisition-cancel-button">
+
+                <i class="fas fa-arrow-left"></i>
+
+                <span>
+                    Back to Receipts
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         MESSAGES
+         ============================================================ --}}
+
+    <x-message></x-message>
+
+
+    {{-- ============================================================
+         RECEIPT STATE / STATUS
+         ============================================================ --}}
+
+    <div class="requisition-state-panel">
+
+        <div class="requisition-state-main">
+
+            <div class="requisition-state-icon">
 
                 @if($storeReceipt->status === 'DRAFT')
 
-                    <span class="badge bg-warning text-dark">
-                        DRAFT
-                    </span>
+                    <i class="fas fa-pencil-alt"></i>
 
                 @elseif($storeReceipt->status === 'POSTED')
 
-                    <span class="badge bg-success">
-                        POSTED
-                    </span>
+                    <i class="fas fa-check"></i>
 
                 @else
 
-                    <span class="badge bg-secondary">
-                        {{ $storeReceipt->status }}
-                    </span>
+                    <i class="fas fa-box"></i>
 
                 @endif
+
             </div>
 
 
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Received Date
-                </small>
+            <div class="requisition-state-text">
 
-                {{ optional($storeReceipt->received_date)->format('d M Y') }}
+                <strong>
+                    Receipt {{ $storeReceipt->receipt_number }}
+                </strong>
+
+                <span>
+
+                    {{ $storeReceipt->items->count() }}
+
+                    {{ $storeReceipt->items->count() === 1
+                        ? 'item'
+                        : 'items'
+                    }}
+
+                    recorded
+
+                </span>
+
             </div>
 
-
-            <div class="col-md-3 mb-3">
-                <small class="text-muted d-block">
-                    Received By
-                </small>
-
-                {{ $storeReceipt->receivedBy->name ?? '—' }}
-            </div>
+        </div>
 
 
-            @if($storeReceipt->source_type === 'PURCHASE')
+        <div class="requisition-state-actions">
 
-                <div class="col-md-3 mb-3">
+            @if($storeReceipt->status === 'DRAFT')
 
-                    <small class="text-muted d-block">
-                        Supplier
-                    </small>
+                <span class="requisition-status requisition-status-draft">
+                    DRAFT
+                </span>
 
-                    {{ $storeReceipt->supplier_name ?: '—' }}
+            @elseif($storeReceipt->status === 'POSTED')
 
-                </div>
+                <span class="requisition-status requisition-status-approved">
+                    POSTED
+                </span>
 
+            @elseif($storeReceipt->status === 'CANCELLED')
 
-                <div class="col-md-3 mb-3">
-
-                    <small class="text-muted d-block">
-                        Supplier Reference
-                    </small>
-
-                    {{ $storeReceipt->supplier_reference ?: '—' }}
-
-                </div>
+                <span class="requisition-status requisition-status-rejected">
+                    CANCELLED
+                </span>
 
             @else
 
-                <div class="col-md-3 mb-3">
-
-                    <small class="text-muted d-block">
-                        Donation
-                    </small>
-
-                    @if($storeReceipt->donation)
-
-                        Donation #{{ $storeReceipt->donation->id }}
-
-                    @else
-
-                        —
-
-                    @endif
-
-                </div>
-
-            @endif
-
-
-            @if($storeReceipt->notes)
-
-                <div class="col-12">
-
-                    <small class="text-muted d-block">
-                        Notes
-                    </small>
-
-                    <div>
-                        {{ $storeReceipt->notes }}
-                    </div>
-
-                </div>
+                <span class="requisition-status requisition-status-draft">
+                    {{ $storeReceipt->status }}
+                </span>
 
             @endif
 
@@ -247,47 +222,95 @@
 
     </div>
 
-</div>
+
+    {{-- ============================================================
+         GOODS RECEIVED
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Goods Received
+                    </h5>
+
+                    <p>
+                        Items physically received into this store.
+                    </p>
+
+                </div>
+
+            </div>
 
 
-{{-- GOODS RECEIVED --}}
-<div class="card">
+            <div class="d-flex align-items-center gap-2">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
+                @if($storeReceipt->items->count())
 
-        <h6 class="mb-0">
-            Goods Received
-        </h6>
+                    <span class="requisition-count-badge">
 
-        @if($storeReceipt->status === 'DRAFT')
+                        {{ $storeReceipt->items->count() }}
 
-            <button type="button"
-                    class="btn btn-sm btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addReceiptItemModal">
+                        {{ $storeReceipt->items->count() === 1
+                            ? 'Item'
+                            : 'Items'
+                        }}
 
-                <i class="fas fa-plus"></i>
+                    </span>
 
-                Add Item
-
-            </button>
-
-        @endif
-
-    </div>
+                @endif
 
 
-    <div class="card-body">
+                {{-- Editing is now handled entirely on edit.blade.php --}}
+                @if($storeReceipt->status === 'DRAFT')
+
+                    <a href="{{ route(
+                        'admin.store-receipts.edit',
+                        $storeReceipt
+                    ) }}"
+                       class="requisition-add-button">
+
+                        <i class="fas fa-edit"></i>
+
+                        <span>
+                            Edit Items
+                        </span>
+
+                    </a>
+
+                @endif
+
+            </div>
+
+        </div>
+
+
+        {{-- ========================================================
+             ITEMS TABLE
+             ======================================================== --}}
 
         @if($storeReceipt->items->count())
 
-            <div class="table-responsive">
+            <div class="requisition-list-table-wrapper">
 
-                <table class="table table-bordered table-hover align-middle">
+                <table class="requisition-list-table">
 
                     <thead>
 
                         <tr>
+
+                            <th>
+                                #
+                            </th>
 
                             <th>
                                 Item
@@ -309,14 +332,6 @@
                                 Notes
                             </th>
 
-                            @if($storeReceipt->status === 'DRAFT')
-
-                                <th>
-                                    Actions
-                                </th>
-
-                            @endif
-
                         </tr>
 
                     </thead>
@@ -328,22 +343,74 @@
 
                             <tr>
 
-                                <td>
-                                    <strong>
-                                        {{ $receiptItem->item->name ?? '—' }}
-                                    </strong>
+                                {{-- =================================================
+                                     NUMBER
+                                     ================================================= --}}
+
+                                <td class="requisition-list-row-number">
+
+                                    <span class="requisition-list-number">
+                                        {{ $loop->iteration }}
+                                    </span>
+
                                 </td>
 
+
+                                {{-- =================================================
+                                     ITEM
+                                     ================================================= --}}
+
+                                <td>
+
+                                    <div class="requisition-list-department">
+
+                                        {{ $receiptItem->item->name ?? '—' }}
+
+                                    </div>
+
+
+                                    @if($receiptItem->item->sku ?? null)
+
+                                        <div class="requisition-list-meta">
+
+                                            SKU:
+                                            {{ $receiptItem->item->sku }}
+
+                                        </div>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- =================================================
+                                     VARIANT
+                                     ================================================= --}}
 
                                 <td>
 
                                     @if($receiptItem->variant)
 
-                                        {{ $receiptItem->variant->name }}
+                                        <div class="requisition-list-department">
+
+                                            {{ $receiptItem->variant->name }}
+
+                                        </div>
+
+
+                                        @if($receiptItem->variant->code)
+
+                                            <div class="requisition-list-meta">
+
+                                                {{ $receiptItem->variant->code }}
+
+                                            </div>
+
+                                        @endif
 
                                     @else
 
-                                        <span class="text-muted">
+                                        <span class="requisition-list-meta">
                                             No Variant
                                         </span>
 
@@ -352,73 +419,63 @@
                                 </td>
 
 
+                                {{-- =================================================
+                                     UNIT
+                                     ================================================= --}}
+
                                 <td>
 
-                                    {{ $receiptItem->item->unit->code
-                                        ?? $receiptItem->item->unit->name
-                                        ?? '—' }}
+                                    <span class="requisition-list-meta">
+
+                                        {{ $receiptItem->item->unit->code
+                                            ?? $receiptItem->item->unit->name
+                                            ?? '—'
+                                        }}
+
+                                    </span>
 
                                 </td>
 
 
+                                {{-- =================================================
+                                     QUANTITY
+                                     ================================================= --}}
+
                                 <td>
 
-                                    {{ number_format(
-                                        (float) $receiptItem->quantity,
-                                        3
-                                    ) }}
+                                    <span class="requisition-list-number">
+
+                                        {{ number_format(
+                                            (float) $receiptItem->quantity,
+                                            3
+                                        ) }}
+
+                                    </span>
 
                                 </td>
 
 
+                                {{-- =================================================
+                                     NOTES
+                                     ================================================= --}}
+
                                 <td>
 
-                                    {{ $receiptItem->notes ?: '—' }}
+                                    @if($receiptItem->notes)
+
+                                        <span class="requisition-list-purpose">
+                                            {{ $receiptItem->notes }}
+                                        </span>
+
+                                    @else
+
+                                        <span class="requisition-list-meta">
+                                            —
+                                        </span>
+
+                                    @endif
 
                                 </td>
-
-
-                                @if($storeReceipt->status === 'DRAFT')
-
-                                    <td>
-
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editReceiptItemModal{{ $receiptItem->id }}">
-
-                                            Edit
-
-                                        </button>
-
-
-                                        <form method="POST"
-                                              action="{{ route(
-                                                  'admin.store-receipt-items.destroy',
-                                                  [
-                                                      'storeReceipt' => $storeReceipt,
-                                                      'storeReceiptItem' => $receiptItem
-                                                  ]
-                                              ) }}"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Remove this item from the receipt?');">
-
-                                            @csrf
-
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger">
-
-                                                Delete
-
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                @endif
 
                             </tr>
 
@@ -430,37 +487,122 @@
 
             </div>
 
-        @else
 
-            <div class="text-center py-5">
+            {{-- ========================================================
+                 HORIZONTAL SCROLL HINT
+                 ======================================================== --}}
 
-                <div class="mb-3 text-muted">
+            <div class="requisition-scroll-hint">
 
-                    <i class="fas fa-box-open fa-3x"></i>
+                <i class="fas fa-arrows-alt-h"></i>
+
+                <span>
+                    Scroll horizontally to view all receipt details.
+                </span>
+
+            </div>
+
+
+            {{-- ========================================================
+                 ITEMS SUMMARY
+                 ======================================================== --}}
+
+            <div class="requisition-summary-strip">
+
+                <div class="requisition-summary-item">
+
+                    <span class="requisition-summary-label">
+                        Total Lines
+                    </span>
+
+                    <span class="requisition-summary-value">
+                        {{ $storeReceipt->items->count() }}
+                    </span>
 
                 </div>
 
-                <h6>
-                    No Goods Added Yet
-                </h6>
 
-                <p class="text-muted mb-3">
-                    Add the items that were physically received into this store.
+                <div class="requisition-summary-item">
+
+                    <span class="requisition-summary-label">
+                        Receipt Status
+                    </span>
+
+                    <span class="requisition-summary-value">
+                        {{ $storeReceipt->status }}
+                    </span>
+
+                </div>
+
+
+                <div class="requisition-summary-item">
+
+                    <span class="requisition-summary-label">
+                        Source
+                    </span>
+
+                    <span class="requisition-summary-value">
+                        {{ $storeReceipt->source_type }}
+                    </span>
+
+                </div>
+
+
+                <div class="requisition-summary-item">
+
+                    <span class="requisition-summary-label">
+                        Received Date
+                    </span>
+
+                    <span class="requisition-summary-value">
+
+                        {{ optional(
+                            $storeReceipt->received_date
+                        )->format('d M Y') }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        @else
+
+            {{-- ========================================================
+                 EMPTY ITEMS STATE
+                 ======================================================== --}}
+
+            <div class="requisition-table-empty">
+
+                <div class="requisition-empty-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+
+                <h5>
+                    No Goods Added Yet
+                </h5>
+
+                <p>
+                    No items have been recorded for this receipt.
                 </p>
 
 
                 @if($storeReceipt->status === 'DRAFT')
 
-                    <button type="button"
-                            class="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#addReceiptItemModal">
+                    <a href="{{ route(
+                        'admin.store-receipts.edit',
+                        $storeReceipt
+                    ) }}"
+                       class="requisition-add-button">
 
                         <i class="fas fa-plus"></i>
 
-                        Add First Item
+                        <span>
+                            Add Items
+                        </span>
 
-                    </button>
+                    </a>
 
                 @endif
 
@@ -470,240 +612,124 @@
 
     </div>
 
+
+    {{-- ============================================================
+         BOTTOM ACTIONS
+         ============================================================ --}}
+
+    <div class="requisition-bottom-actions">
+
+        <div class="requisition-bottom-actions-left">
+
+            <a href="{{ route('admin.store-receipts.index') }}"
+               class="requisition-cancel-button">
+
+                <i class="fas fa-arrow-left"></i>
+
+                <span>
+                    Back to Receipts
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <div class="requisition-bottom-actions-right">
+
+            @if($storeReceipt->status === 'DRAFT')
+
+                {{-- Edit --}}
+                <a href="{{ route(
+                    'admin.store-receipts.edit',
+                    $storeReceipt
+                ) }}"
+                   class="requisition-add-button">
+
+                    <i class="fas fa-edit"></i>
+
+                    <span>
+                        Edit Receipt
+                    </span>
+
+                </a>
+
+
+                {{-- Post --}}
+                @if($storeReceipt->items->count())
+
+                    <form method="POST"
+                          action="{{ route(
+                              'admin.store-receipts.post',
+                              $storeReceipt
+                          ) }}"
+                          class="d-inline"
+                          onsubmit="return confirm(
+                              'Post this receipt? This will increase the store stock and cannot be undone from this screen.'
+                          );">
+
+                        @csrf
+
+                        <button type="submit"
+                                class="requisition-add-button">
+
+                            <i class="fas fa-check"></i>
+
+                            <span>
+                                Post Receipt
+                            </span>
+
+                        </button>
+
+                    </form>
+
+                @endif
+
+            @endif
+
+        </div>
+
+    </div>
+
 </div>
 
 
-
-</div>
-
-{{-- ADD RECEIPT ITEM MODAL --}}
-
-@if($storeReceipt->status === 'DRAFT')
+{{-- ================================================================
+     RECEIPT DETAILS MODAL
+     ================================================================= --}}
 
 <div class="modal fade"
-     id="addReceiptItemModal"
+     id="receiptDetailsModal"
      tabindex="-1"
      aria-hidden="true">
 
+    <div class="modal-dialog modal-lg modal-dialog-centered">
 
-<div class="modal-dialog">
-
-    <div class="modal-content">
-
-        <form method="POST"
-              action="{{ route(
-                  'admin.store-receipt-items.store',
-                  $storeReceipt
-              ) }}">
-
-            @csrf
-
+        <div class="modal-content">
 
             <div class="modal-header">
 
-                <h5 class="modal-title">
-                    Add Received Item
-                </h5>
+                <div>
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                </button>
+                    <h5 class="modal-title mb-1">
 
-            </div>
+                        <i class="fas fa-info-circle me-2"></i>
 
+                        Receipt Details
 
-            <div class="modal-body">
-
-
-                {{-- ITEM --}}
-
-                <div class="mb-3">
-
-                    <label for="store_item_id"
-                           class="form-label">
-
-                        Item
-                        <span class="text-danger">*</span>
-
-                    </label>
-
-
-                    <select name="store_item_id"
-                            id="store_item_id"
-                            class="form-select"
-                            required>
-
-                        <option value="">
-                            Select Item
-                        </option>
-
-
-                        @foreach($items as $item)
-
-                            <option value="{{ $item->id }}">
-
-                                {{ $item->name }}
-
-                                @if($item->sku)
-                                    — {{ $item->sku }}
-                                @endif
-
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-
-
-                {{-- VARIANT --}}
-
-                <div class="mb-3">
-
-                    <label for="variant_id"
-                           class="form-label">
-
-                        Variant
-
-                    </label>
-
-
-                    <select name="variant_id"
-                            id="variant_id"
-                            class="form-select">
-
-                        <option value="">
-                            No Variant
-                        </option>
-
-                    </select>
-
+                    </h5>
 
                     <small class="text-muted">
-                        Select a variant only when the item has one.
+                        Information about this store receipt.
                     </small>
 
                 </div>
 
 
-
-                {{-- QUANTITY --}}
-
-                <div class="mb-3">
-
-                    <label for="quantity"
-                           class="form-label">
-
-                        Quantity
-                        <span class="text-danger">*</span>
-
-                    </label>
-
-
-                    <input type="number"
-                           name="quantity"
-                           id="quantity"
-                           class="form-control"
-                           min="0.001"
-                           step="0.001"
-                           required>
-
-                </div>
-
-
-
-                {{-- NOTES --}}
-
-                <div class="mb-3">
-
-                    <label for="notes"
-                           class="form-label">
-
-                        Notes
-
-                    </label>
-
-
-                    <textarea name="notes"
-                              id="notes"
-                              class="form-control"
-                              rows="3"
-                              maxlength="2000"></textarea>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="modal-footer">
-
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-
-                    Cancel
-
-                </button>
-
-
-                <button type="submit"
-                        class="btn btn-primary">
-
-                    Add Item
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-</div>
-
-{{-- EDIT RECEIPT ITEM MODALS --}}
-
-@foreach($storeReceipt->items as $receiptItem)
-
-<div class="modal fade"
-     id="editReceiptItemModal{{ $receiptItem->id }}"
-     tabindex="-1"
-     aria-hidden="true">
-
-<div class="modal-dialog">
-
-    <div class="modal-content">
-
-        <form method="POST"
-              action="{{ route(
-                  'admin.store-receipt-items.update',
-                  [
-                      'storeReceipt' => $storeReceipt,
-                      'storeReceiptItem' => $receiptItem
-                  ]
-              ) }}">
-
-            @csrf
-
-            @method('PUT')
-
-
-            <div class="modal-header">
-
-                <h5 class="modal-title">
-                    Edit Received Item
-                </h5>
-
-
                 <button type="button"
                         class="btn-close"
-                        data-bs-dismiss="modal">
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
                 </button>
 
             </div>
@@ -711,307 +737,246 @@
 
             <div class="modal-body">
 
-
-                {{-- ITEM --}}
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-
-                        Item
-                        <span class="text-danger">*</span>
-
-                    </label>
+                <div class="requisition-details-grid">
 
 
-                    <select name="store_item_id"
-                            class="form-select edit-item-select"
-                            data-variant-target="editVariant{{ $receiptItem->id }}"
-                            required>
+                    {{-- Receipt Number --}}
 
-                        @foreach($items as $item)
+                    <div class="requisition-detail-item">
 
-                            <option value="{{ $item->id }}"
-                                @if($receiptItem->store_item_id == $item->id)
-                                    selected
-                                @endif>
+                        <span class="requisition-detail-label">
+                            Receipt Number
+                        </span>
 
-                                {{ $item->name }}
+                        <span class="requisition-detail-value">
+                            {{ $storeReceipt->receipt_number }}
+                        </span>
 
-                                @if($item->sku)
-                                    — {{ $item->sku }}
+                    </div>
+
+
+                    {{-- Store --}}
+
+                    <div class="requisition-detail-item">
+
+                        <span class="requisition-detail-label">
+                            Store
+                        </span>
+
+                        <span class="requisition-detail-value">
+                            {{ $storeReceipt->store->name ?? '—' }}
+                        </span>
+
+                    </div>
+
+
+                    {{-- Source --}}
+
+                    <div class="requisition-detail-item">
+
+                        <span class="requisition-detail-label">
+                            Source
+                        </span>
+
+                        <span class="requisition-detail-value">
+
+                            @if($storeReceipt->source_type === 'PURCHASE')
+
+                                <span class="requisition-status requisition-status-pending">
+                                    PURCHASE
+                                </span>
+
+                            @else
+
+                                <span class="requisition-status requisition-status-approved">
+                                    DONATION
+                                </span>
+
+                            @endif
+
+                        </span>
+
+                    </div>
+
+
+                    {{-- Status --}}
+
+                    <div class="requisition-detail-item">
+
+                        <span class="requisition-detail-label">
+                            Status
+                        </span>
+
+                        <span class="requisition-detail-value">
+
+                            @if($storeReceipt->status === 'DRAFT')
+
+                                <span class="requisition-status requisition-status-draft">
+                                    DRAFT
+                                </span>
+
+                            @elseif($storeReceipt->status === 'POSTED')
+
+                                <span class="requisition-status requisition-status-approved">
+                                    POSTED
+                                </span>
+
+                            @elseif($storeReceipt->status === 'CANCELLED')
+
+                                <span class="requisition-status requisition-status-rejected">
+                                    CANCELLED
+                                </span>
+
+                            @else
+
+                                <span class="requisition-status requisition-status-draft">
+                                    {{ $storeReceipt->status }}
+                                </span>
+
+                            @endif
+
+                        </span>
+
+                    </div>
+
+
+                    {{-- Received Date --}}
+
+                    <div class="requisition-detail-item">
+
+                        <span class="requisition-detail-label">
+                            Received Date
+                        </span>
+
+                        <span class="requisition-detail-value">
+
+                            {{ optional(
+                                $storeReceipt->received_date
+                            )->format('d M Y') }}
+
+                        </span>
+
+                    </div>
+
+
+                    {{-- Received By --}}
+
+                    <div class="requisition-detail-item">
+
+                        <span class="requisition-detail-label">
+                            Received By
+                        </span>
+
+                        <span class="requisition-detail-value">
+                            {{ $storeReceipt->receivedBy->name ?? '—' }}
+                        </span>
+
+                    </div>
+
+
+                    {{-- Purchase Details --}}
+
+                    @if($storeReceipt->source_type === 'PURCHASE')
+
+                        <div class="requisition-detail-item">
+
+                            <span class="requisition-detail-label">
+                                Supplier
+                            </span>
+
+                            <span class="requisition-detail-value">
+                                {{ $storeReceipt->supplier_name ?: '—' }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="requisition-detail-item">
+
+                            <span class="requisition-detail-label">
+                                Supplier Reference
+                            </span>
+
+                            <span class="requisition-detail-value">
+                                {{ $storeReceipt->supplier_reference ?: '—' }}
+                            </span>
+
+                        </div>
+
+                    @else
+
+                        {{-- Donation --}}
+
+                        <div class="requisition-detail-item">
+
+                            <span class="requisition-detail-label">
+                                Donation
+                            </span>
+
+                            <span class="requisition-detail-value">
+
+                                @if($storeReceipt->donation)
+
+                                    Donation #{{ $storeReceipt->donation->id }}
+
+                                @else
+
+                                    —
+
                                 @endif
 
-                            </option>
+                            </span>
 
-                        @endforeach
+                        </div>
 
-                    </select>
-
-                </div>
-
-
-
-                {{-- VARIANT --}}
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Variant
-                    </label>
-
-
-                    <select name="variant_id"
-                            id="editVariant{{ $receiptItem->id }}"
-                            class="form-select"
-                            data-current-variant="{{ $receiptItem->variant_id }}">
-
-                        <option value="">
-                            No Variant
-                        </option>
-
-                    </select>
+                    @endif
 
                 </div>
 
 
+                {{-- Notes --}}
 
-                {{-- QUANTITY --}}
+                @if($storeReceipt->notes)
 
-                <div class="mb-3">
+                    <div class="mt-3">
 
-                    <label class="form-label">
+                        <span class="requisition-detail-label">
+                            Notes
+                        </span>
 
-                        Quantity
-                        <span class="text-danger">*</span>
+                        <div class="p-2 bg-light border rounded small">
 
-                    </label>
+                            {!! nl2br(e($storeReceipt->notes)) !!}
 
+                        </div>
 
-                    <input type="number"
-                           name="quantity"
-                           class="form-control"
-                           min="0.001"
-                           step="0.001"
-                           value="{{ $receiptItem->quantity }}"
-                           required>
+                    </div>
 
-                </div>
-
-
-
-                {{-- NOTES --}}
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Notes
-                    </label>
-
-
-                    <textarea name="notes"
-                              class="form-control"
-                              rows="3"
-                              maxlength="2000">{{ $receiptItem->notes }}</textarea>
-
-                </div>
+                @endif
 
             </div>
-
 
 
             <div class="modal-footer">
 
                 <button type="button"
-                        class="btn btn-secondary"
+                        class="requisition-cancel-button"
                         data-bs-dismiss="modal">
 
-                    Cancel
+                    <i class="fas fa-times"></i>
 
-                </button>
-
-
-                <button type="submit"
-                        class="btn btn-primary">
-
-                    Save Changes
+                    <span>
+                        Close
+                    </span>
 
                 </button>
 
             </div>
 
-        </form>
+        </div>
 
     </div>
 
 </div>
-
-</div>
-
-@endforeach
-
-@endif
-
-{{-- VARIANT JAVASCRIPT --}}
-
-@if($storeReceipt->status === 'DRAFT')
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const itemVariants = {!! json_encode($itemVariants) !!};
-
-
-    function populateVariants(
-        itemSelect,
-        variantSelect,
-        selectedVariantId = null
-    ) {
-
-        variantSelect.innerHTML = '';
-
-
-        const noVariant = document.createElement('option');
-
-        noVariant.value = '';
-
-        noVariant.textContent = 'No Variant';
-
-        variantSelect.appendChild(noVariant);
-
-
-        const itemId = itemSelect.value;
-
-
-        if (!itemId) {
-            return;
-        }
-
-
-        const variants = itemVariants[itemId] || [];
-
-
-        variants.forEach(function (variant) {
-
-            const option =
-                document.createElement('option');
-
-
-            option.value = variant.id;
-
-
-            option.textContent =
-                variant.name +
-                (variant.code
-                    ? ' — ' + variant.code
-                    : '');
-
-
-            if (
-                selectedVariantId !== null &&
-                String(selectedVariantId) ===
-                String(variant.id)
-            ) {
-
-                option.selected = true;
-
-            }
-
-
-            variantSelect.appendChild(option);
-
-        });
-
-    }
-
-
-
-    /*
-     * ADD ITEM
-     */
-
-    const addItemSelect =
-        document.getElementById('store_item_id');
-
-
-    const addVariantSelect =
-        document.getElementById('variant_id');
-
-
-    if (
-        addItemSelect &&
-        addVariantSelect
-    ) {
-
-        addItemSelect.addEventListener(
-            'change',
-            function () {
-
-                populateVariants(
-                    addItemSelect,
-                    addVariantSelect
-                );
-
-            }
-        );
-
-    }
-
-
-
-    /*
-     * EDIT ITEMS
-     */
-
-    document
-        .querySelectorAll('.edit-item-select')
-        .forEach(function (itemSelect) {
-
-            const variantTarget =
-                itemSelect.dataset.variantTarget;
-
-
-            const variantSelect =
-                document.getElementById(
-                    variantTarget
-                );
-
-
-            if (!variantSelect) {
-                return;
-            }
-
-
-            const currentVariantId =
-                variantSelect.dataset.currentVariant;
-
-
-            populateVariants(
-                itemSelect,
-                variantSelect,
-                currentVariantId
-            );
-
-
-            itemSelect.addEventListener(
-                'change',
-                function () {
-
-                    populateVariants(
-                        itemSelect,
-                        variantSelect
-                    );
-
-                }
-            );
-
-        });
-
-});
-
-</script>
-
-@endif
 
 @endsection

@@ -1,24 +1,56 @@
 @extends('layouts.admin')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="container-fluid px-0">
+<div class="store-requisition-page">
 
-    {{-- Page Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    {{-- =========================================================
+         PAGE HEADER
+         ========================================================= --}}
 
-        <div>
-            <h4 class="mb-1">Record Donation</h4>
-            <small class="text-muted">
-                Record a cash or in-kind contribution.
-            </small>
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-hand-holding-heart"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Donations</span>
+                    <span>/</span>
+                    <span>New Donation</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Record Donation
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Record cash or in-kind support received by Teule Kenya.
+                </p>
+
+            </div>
+
         </div>
 
-        <a href="{{ route('admin.donations.index') }}"
-           class="btn btn-light border">
-            <i class="fas fa-arrow-left me-1"></i>
-            Back
-        </a>
+        <div class="requisition-header-right">
+
+            <a
+                href="{{ route('admin.donations.index') }}"
+                class="stores-btn-light"
+            >
+                <i class="fa fa-arrow-left"></i>
+                Back
+            </a>
+
+        </div>
 
     </div>
 
@@ -26,59 +58,131 @@
 
 
     {{-- =========================================================
-         CASH FORM
-    ========================================================== --}}
-    <div id="cash-form" style="display:none;">
+         INITIAL CONTINUE SCREEN
+         ========================================================= --}}
 
-        <div class="card border-0 shadow-sm">
+    <div id="donationStartScreen">
 
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="requisition-section">
 
-                <div>
-                    <h6 class="mb-1">
-                        <i class="fas fa-money-bill-wave text-success me-2"></i>
-                        Cash Donation
-                    </h6>
+            <div class="requisition-section-body">
 
-                    <small class="text-muted">
-                        Record money received from a donor.
-                    </small>
+                <div class="text-center py-5">
+
+                    <div class="requisition-header-icon mx-auto mb-3">
+                        <i class="fa fa-hand-holding-heart"></i>
+                    </div>
+
+                    <h4 class="mb-2">
+                        Record a New Donation
+                    </h4>
+
+                    <p class="text-muted mb-4">
+                        Start by choosing whether you are receiving cash
+                        or an in-kind donation.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="continueDonationButton"
+                        class="requisition-save-button"
+                    >
+                        Continue
+                        <i class="fa fa-arrow-right ms-1"></i>
+                    </button>
+
                 </div>
-
-                <button type="button"
-                        class="btn btn-light btn-sm change-type">
-                    Change Type
-                </button>
 
             </div>
 
+        </div>
 
-            <form action="{{ route('admin.donations.store') }}"
-                  method="POST">
+    </div>
 
-                @csrf
 
-                <input type="hidden"
-                       name="type"
-                       value="cash">
+    {{-- =========================================================
+         CASH FORM
+         ========================================================= --}}
 
-                <input type="hidden"
-                       name="currency"
-                       value="KES">
+    <div id="cash-form" style="display:none;">
 
-                <div class="card-body p-4">
+        <form
+            action="{{ route('admin.donations.store') }}"
+            method="POST"
+        >
+
+            @csrf
+
+            <input
+                type="hidden"
+                name="type"
+                value="cash"
+            >
+
+            <input
+                type="hidden"
+                name="currency"
+                value="KES"
+            >
+
+
+            {{-- =================================================
+                 CASH DONATION DETAILS
+                 ================================================= --}}
+
+            <div class="requisition-section">
+
+                <div class="requisition-section-header">
+
+                    <div class="requisition-section-heading">
+
+                        <div class="requisition-section-icon">
+                            <i class="fa fa-money-bill-wave"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Cash Donation
+                            </h5>
+
+                            <p>
+                                Record money received from a donor.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="requisition-cancel-button change-type"
+                    >
+                        <i class="fa fa-exchange-alt"></i>
+                        Change Type
+                    </button>
+
+                </div>
+
+
+                {{-- USE THE SAME BODY SPACING AS STORES --}}
+
+                <div class="requisition-details-body">
 
                     <div class="row g-3">
 
-                        {{-- Donor --}}
+                        {{-- DONOR --}}
+
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Donor
                             </label>
 
-                            <select name="donor_id"
-                                    class="form-control">
+                            <select
+                                name="donor_id"
+                                class="form-select requisition-input"
+                            >
 
                                 <option value="">
                                     Anonymous / Not Specified
@@ -86,12 +190,12 @@
 
                                 @foreach($donors as $donor)
 
-                                    <option value="{{ $donor->id }}"
-                                        {{ old('donor_id') == $donor->id ? 'selected' : '' }}>
-
+                                    <option
+                                        value="{{ $donor->id }}"
+                                        {{ old('donor_id') == $donor->id ? 'selected' : '' }}
+                                    >
                                         {{ $donor->donor_number }}
                                         - {{ $donor->name }}
-
                                     </option>
 
                                 @endforeach
@@ -101,49 +205,66 @@
                         </div>
 
 
-                        {{-- Date --}}
+                        {{-- DATE --}}
+
                         <div class="col-md-3">
 
-                            <label class="form-label">
-                                Date <span class="text-danger">*</span>
+                            <label class="requisition-field-label">
+                                Date
+                                <span class="required-mark">*</span>
                             </label>
 
-                            <input type="date"
-                                   name="donation_date"
-                                   class="form-control"
-                                   value="{{ old('donation_date', now()->format('Y-m-d')) }}"
-                                   required>
+                            <input
+                                type="date"
+                                name="donation_date"
+                                class="form-control requisition-input"
+                                value="{{ old('donation_date', now()->format('Y-m-d')) }}"
+                                required
+                            >
 
                         </div>
 
 
-                        {{-- Source --}}
+                        {{-- SOURCE --}}
+
                         <div class="col-md-3">
 
-                            <label class="form-label">
-                                Source <span class="text-danger">*</span>
+                            <label class="requisition-field-label">
+                                Source
+                                <span class="required-mark">*</span>
                             </label>
 
-                            <select name="source"
-                                    class="form-control"
-                                    required>
+                            <select
+                                name="source"
+                                class="form-select requisition-input"
+                                required
+                            >
 
-                                <option value="manual">
+                                <option
+                                    value="manual"
+                                    {{ old('source', 'manual') === 'manual' ? 'selected' : '' }}
+                                >
                                     Cash / Manual
                                 </option>
 
-                                <option value="bank"
-                                    {{ old('source') === 'bank' ? 'selected' : '' }}>
+                                <option
+                                    value="bank"
+                                    {{ old('source') === 'bank' ? 'selected' : '' }}
+                                >
                                     Bank
                                 </option>
 
-                                <option value="mpesa"
-                                    {{ old('source') === 'mpesa' ? 'selected' : '' }}>
+                                <option
+                                    value="mpesa"
+                                    {{ old('source') === 'mpesa' ? 'selected' : '' }}
+                                >
                                     M-Pesa
                                 </option>
 
-                                <option value="other"
-                                    {{ old('source') === 'other' ? 'selected' : '' }}>
+                                <option
+                                    value="other"
+                                    {{ old('source') === 'other' ? 'selected' : '' }}
+                                >
                                     Other
                                 </option>
 
@@ -152,11 +273,13 @@
                         </div>
 
 
-                        {{-- Amount --}}
+                        {{-- AMOUNT --}}
+
                         <div class="col-md-4">
 
-                            <label class="form-label">
-                                Amount <span class="text-danger">*</span>
+                            <label class="requisition-field-label">
+                                Amount
+                                <span class="required-mark">*</span>
                             </label>
 
                             <div class="input-group">
@@ -165,47 +288,67 @@
                                     KES
                                 </span>
 
-                                <input type="number"
-                                       name="amount"
-                                       class="form-control"
-                                       value="{{ old('amount') }}"
-                                       step="0.01"
-                                       min="0"
-                                       required>
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    class="form-control requisition-input"
+                                    value="{{ old('amount') }}"
+                                    step="0.01"
+                                    min="0"
+                                    required
+                                >
 
                             </div>
 
                         </div>
 
 
-                        {{-- Classification --}}
+                        {{-- CLASSIFICATION --}}
+
                         <div class="col-md-4">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Classification
                             </label>
 
-                            <select name="classification"
-                                    class="form-control"
-                                    required>
+                            <select
+                                name="classification"
+                                class="form-select requisition-input"
+                                required
+                            >
 
-                                <option value="donation">
+                                <option
+                                    value="donation"
+                                    {{ old('classification', 'donation') === 'donation' ? 'selected' : '' }}
+                                >
                                     Donation
                                 </option>
 
-                                <option value="payment">
+                                <option
+                                    value="payment"
+                                    {{ old('classification') === 'payment' ? 'selected' : '' }}
+                                >
                                     Payment
                                 </option>
 
-                                <option value="refund">
+                                <option
+                                    value="refund"
+                                    {{ old('classification') === 'refund' ? 'selected' : '' }}
+                                >
                                     Refund
                                 </option>
 
-                                <option value="other">
+                                <option
+                                    value="other"
+                                    {{ old('classification') === 'other' ? 'selected' : '' }}
+                                >
                                     Other
                                 </option>
 
-                                <option value="unclassified">
+                                <option
+                                    value="unclassified"
+                                    {{ old('classification') === 'unclassified' ? 'selected' : '' }}
+                                >
                                     Unclassified
                                 </option>
 
@@ -214,15 +357,18 @@
                         </div>
 
 
-                        {{-- Purpose --}}
+                        {{-- PURPOSE --}}
+
                         <div class="col-md-4">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Purpose
                             </label>
 
-                            <select name="purpose"
-                                    class="form-control">
+                            <select
+                                name="purpose"
+                                class="form-select requisition-input"
+                            >
 
                                 <option value="">
                                     Select purpose
@@ -245,61 +391,76 @@
                         </div>
 
 
-                        {{-- Reference --}}
+                        {{-- REFERENCE --}}
+
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Reference
                             </label>
 
-                            <input type="text"
-                                   name="reference"
-                                   class="form-control"
-                                   placeholder="Receipt / cheque reference">
+                            <input
+                                type="text"
+                                name="reference"
+                                class="form-control requisition-input"
+                                value="{{ old('reference') }}"
+                                placeholder="Receipt / cheque reference"
+                            >
 
                         </div>
 
 
-                        {{-- Payment Reference --}}
+                        {{-- PAYMENT REFERENCE --}}
+
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Payment Reference
                             </label>
 
-                            <input type="text"
-                                   name="payment_reference"
-                                   class="form-control"
-                                   placeholder="M-Pesa / bank transaction reference">
+                            <input
+                                type="text"
+                                name="payment_reference"
+                                class="form-control requisition-input"
+                                value="{{ old('payment_reference') }}"
+                                placeholder="M-Pesa / bank transaction reference"
+                            >
 
                         </div>
 
 
-                        {{-- Description --}}
+                        {{-- DESCRIPTION --}}
+
                         <div class="col-md-12">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Description
                             </label>
 
-                            <input type="text"
-                                   name="description"
-                                   class="form-control"
-                                   placeholder="Brief description">
+                            <input
+                                type="text"
+                                name="description"
+                                class="form-control requisition-input"
+                                value="{{ old('description') }}"
+                                placeholder="Brief description"
+                            >
 
                         </div>
 
 
-                        {{-- Notes --}}
+                        {{-- NOTES --}}
+
                         <div class="col-md-12">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Notes
                             </label>
 
-                            <textarea name="notes"
-                                      class="form-control"
-                                      rows="3"></textarea>
+                            <textarea
+                                name="notes"
+                                class="form-control requisition-input requisition-textarea"
+                                rows="3"
+                            >{{ old('notes') }}</textarea>
 
                         </div>
 
@@ -307,84 +468,132 @@
 
                 </div>
 
+            </div>
 
-                <div class="card-footer bg-white text-end">
 
-                    <button type="submit"
-                            class="btn btn-primary px-4">
+            {{-- CASH ACTION BAR --}}
 
-                        <i class="fas fa-save me-1"></i>
+            <div class="requisition-action-bar">
+
+                <div class="requisition-action-hint">
+                    Review the donation details before recording it.
+                </div>
+
+                <div class="requisition-action-right">
+
+                    <button
+                        type="button"
+                        class="requisition-cancel-button change-type"
+                    >
+                        <i class="fa fa-exchange-alt"></i>
+                        Change Type
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="requisition-save-button"
+                    >
+                        <i class="fa fa-save"></i>
                         Save Donation
-
                     </button>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+        </form>
 
     </div>
 
 
     {{-- =========================================================
          IN-KIND FORM
-    ========================================================== --}}
+         ========================================================= --}}
+
     <div id="inkind-form" style="display:none;">
 
-        <div class="card border-0 shadow-sm">
+        <form
+            action="{{ route('admin.donations.store') }}"
+            method="POST"
+            id="inkindDonationForm"
+        >
 
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            @csrf
 
-                <div>
-                    <h6 class="mb-1">
-                        <i class="fas fa-box-open text-primary me-2"></i>
-                        In-Kind Donation
-                    </h6>
+            <input
+                type="hidden"
+                name="type"
+                value="in_kind"
+            >
 
-                    <small class="text-muted">
-                        Record goods, supplies or equipment received.
-                    </small>
+            <input
+                type="hidden"
+                name="source"
+                value="manual"
+            >
+
+            <input
+                type="hidden"
+                name="currency"
+                value="KES"
+            >
+
+
+            {{-- =================================================
+                 DONATION DETAILS
+                 ================================================= --}}
+
+            <div class="requisition-section">
+
+                <div class="requisition-section-header">
+
+                    <div class="requisition-section-heading">
+
+                        <div class="requisition-section-icon requisition-items-icon">
+                            <i class="fa fa-box-open"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                In-kind Donation
+                            </h5>
+
+                            <p>
+                                Record goods, supplies or equipment received.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="requisition-cancel-button change-type"
+                    >
+                        <i class="fa fa-exchange-alt"></i>
+                        Change Type
+                    </button>
+
                 </div>
 
-                <button type="button"
-                        class="btn btn-light btn-sm change-type">
-                    Change Type
-                </button>
 
-            </div>
-
-
-            <form action="{{ route('admin.donations.store') }}"
-                  method="POST">
-
-                @csrf
-
-                <input type="hidden"
-                       name="type"
-                       value="in_kind">
-
-                <input type="hidden"
-                       name="source"
-                       value="manual">
-
-                <input type="hidden"
-                       name="currency"
-                       value="KES">
-
-                <div class="card-body p-4">
+                <div class="requisition-details-body">
 
                     <div class="row g-3">
 
-                        {{-- Donor --}}
+                        {{-- DONOR --}}
+
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Donor
                             </label>
 
-                            <select name="donor_id"
-                                    class="form-control">
+                            <select
+                                name="donor_id"
+                                class="form-select requisition-input"
+                            >
 
                                 <option value="">
                                     Anonymous / Not Specified
@@ -392,11 +601,12 @@
 
                                 @foreach($donors as $donor)
 
-                                    <option value="{{ $donor->id }}">
-
+                                    <option
+                                        value="{{ $donor->id }}"
+                                        {{ old('donor_id') == $donor->id ? 'selected' : '' }}
+                                    >
                                         {{ $donor->donor_number }}
                                         - {{ $donor->name }}
-
                                     </option>
 
                                 @endforeach
@@ -406,38 +616,51 @@
                         </div>
 
 
-                        {{-- Date --}}
+                        {{-- DATE --}}
+
                         <div class="col-md-3">
 
-                            <label class="form-label">
-                                Date <span class="text-danger">*</span>
+                            <label class="requisition-field-label">
+                                Date
+                                <span class="required-mark">*</span>
                             </label>
 
-                            <input type="date"
-                                   name="donation_date"
-                                   class="form-control"
-                                   value="{{ now()->format('Y-m-d') }}"
-                                   required>
+                            <input
+                                type="date"
+                                name="donation_date"
+                                class="form-control requisition-input"
+                                value="{{ old('donation_date', now()->format('Y-m-d')) }}"
+                                required
+                            >
 
                         </div>
 
 
-                        {{-- Classification --}}
+                        {{-- CLASSIFICATION --}}
+
                         <div class="col-md-3">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Classification
                             </label>
 
-                            <select name="classification"
-                                    class="form-control"
-                                    required>
+                            <select
+                                name="classification"
+                                class="form-select requisition-input"
+                                required
+                            >
 
-                                <option value="donation">
+                                <option
+                                    value="donation"
+                                    {{ old('classification', 'donation') === 'donation' ? 'selected' : '' }}
+                                >
                                     Donation
                                 </option>
 
-                                <option value="other">
+                                <option
+                                    value="other"
+                                    {{ old('classification') === 'other' ? 'selected' : '' }}
+                                >
                                     Other
                                 </option>
 
@@ -447,157 +670,222 @@
 
                     </div>
 
+                </div>
 
-                    <hr class="my-4">
+            </div>
 
 
-                    {{-- Items --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+            {{-- =================================================
+                 ITEMS RECEIVED
+                 ================================================= --}}
 
-                        <div>
-                            <h6 class="mb-1">
-                                Items Received
-                            </h6>
+            <div class="requisition-section">
 
-                            <small class="text-muted">
-                                Add each item and its estimated value.
-                            </small>
+                <div class="requisition-section-header">
+
+                    <div class="requisition-section-heading">
+
+                        <div class="requisition-section-icon requisition-items-icon">
+                            <i class="fa fa-box-open"></i>
                         </div>
 
-                        <button type="button"
-                                id="add-item"
-                                class="btn btn-primary btn-sm">
+                        <div>
 
-                            <i class="fas fa-plus me-1"></i>
+                            <h5>
+                                Items Received
+                            </h5>
+
+                            <p>
+                                Add each item received as part of this in-kind donation.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="requisition-header-right">
+
+                        <span
+                            class="requisition-count-badge"
+                            id="item-count"
+                        >
+                            0 items
+                        </span>
+
+                        <button
+                            type="button"
+                            id="add-item"
+                            class="requisition-save-button"
+                        >
+                            <i class="fa fa-plus"></i>
                             Add Item
+                        </button>
 
+                    </div>
+
+                </div>
+
+
+                {{-- SAME INNER SPACING AS THE STORES PAGE --}}
+
+                <div class="requisition-details-body">
+
+                    <div class="requisition-list-table-wrapper">
+
+                        <table class="requisition-list-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th style="width:45px;">
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Item
+                                    </th>
+
+                                    <th>
+                                        Variant
+                                    </th>
+
+                                    <th>
+                                        Quantity
+                                    </th>
+
+                                    <th>
+                                        Unit
+                                    </th>
+
+                                    <th>
+                                        Estimated Value
+                                    </th>
+
+                                    <th style="width:70px;">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="items-container">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    {{-- EMPTY STATE --}}
+
+                    <div
+                        id="items-empty-state"
+                        class="text-center py-5"
+                    >
+
+                        <div class="requisition-header-icon mx-auto mb-3">
+                            <i class="fa fa-box-open"></i>
+                        </div>
+
+                        <h6 class="mb-1">
+                            No items added
+                        </h6>
+
+                        <p class="text-muted mb-3">
+                            Add the goods or supplies received from the donor.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="requisition-save-button add-item-trigger"
+                        >
+                            <i class="fa fa-plus"></i>
+                            Add Item
                         </button>
 
                     </div>
 
 
-                    <div id="items-container">
+                    {{-- TOTAL --}}
 
-                        <div class="item-row border rounded p-3 mb-3">
-
-                            <div class="row g-3">
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">
-                                        Item
-                                    </label>
-
-                                    <input type="text"
-                                           name="items[0][item]"
-                                           class="form-control"
-                                           placeholder="e.g. Maize Flour"
-                                           required>
-
-                                </div>
-
-                                <div class="col-md-2">
-
-                                    <label class="form-label">
-                                        Quantity
-                                    </label>
-
-                                    <input type="number"
-                                           name="items[0][quantity]"
-                                           class="form-control"
-                                           value="1"
-                                           step="0.01"
-                                           min="0">
-
-                                </div>
-
-                                <div class="col-md-2">
-
-                                    <label class="form-label">
-                                        Unit
-                                    </label>
-
-                                    <input type="text"
-                                           name="items[0][unit]"
-                                           class="form-control"
-                                           placeholder="bags">
-
-                                </div>
-
-                                <div class="col-md-3">
-
-                                    <label class="form-label">
-                                        Estimated Value
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <span class="input-group-text">
-                                            KES
-                                        </span>
-
-                                        <input type="number"
-                                               name="items[0][estimated_value]"
-                                               class="form-control estimated-value"
-                                               value="0"
-                                               step="0.01"
-                                               min="0">
-
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-1 d-flex align-items-end">
-
-                                    <button type="button"
-                                            class="btn btn-outline-danger remove-item"
-                                            style="display:none;">
-
-                                        <i class="fas fa-trash"></i>
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- Total --}}
-                    <div class="d-flex justify-content-end mb-4">
+                    <div class="d-flex justify-content-end mt-4">
 
                         <div class="text-end">
 
-                            <small class="text-muted">
+                            <span class="stores-detail-label">
                                 Total Estimated Value
-                            </small>
+                            </span>
 
-                            <h4 class="mb-0">
+                            <strong
+                                class="stores-detail-value d-block"
+                                style="font-size:18px;"
+                            >
                                 KES
+
                                 <span id="estimated-total">
                                     0.00
                                 </span>
-                            </h4>
+
+                            </strong>
 
                         </div>
 
                     </div>
 
+                </div>
 
-                    {{-- Purpose --}}
+            </div>
+
+
+            {{-- =================================================
+                 OTHER DETAILS
+                 ================================================= --}}
+
+            <div class="requisition-section">
+
+                <div class="requisition-section-header">
+
+                    <div class="requisition-section-heading">
+
+                        <div class="requisition-section-icon">
+                            <i class="fa fa-file-alt"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Donation Details
+                            </h5>
+
+                            <p>
+                                Add any additional information about the donation.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="requisition-details-body">
+
                     <div class="row g-3">
+
+                        {{-- PURPOSE --}}
 
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Purpose
                             </label>
 
-                            <select name="purpose"
-                                    class="form-control">
+                            <select
+                                name="purpose"
+                                class="form-select requisition-input"
+                            >
 
                                 <option value="">
                                     Select purpose
@@ -620,28 +908,267 @@
                         </div>
 
 
+                        {{-- DESCRIPTION --}}
+
                         <div class="col-md-6">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Description
                             </label>
 
-                            <input type="text"
-                                   name="description"
-                                   class="form-control">
+                            <input
+                                type="text"
+                                name="description"
+                                class="form-control requisition-input"
+                                value="{{ old('description') }}"
+                                placeholder="Brief description"
+                            >
 
                         </div>
 
 
+                        {{-- NOTES --}}
+
                         <div class="col-md-12">
 
-                            <label class="form-label">
+                            <label class="requisition-field-label">
                                 Notes
                             </label>
 
-                            <textarea name="notes"
-                                      class="form-control"
-                                      rows="3"></textarea>
+                            <textarea
+                                name="notes"
+                                class="form-control requisition-input requisition-textarea"
+                                rows="3"
+                            >{{ old('notes') }}</textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 IN-KIND ACTION BAR
+                 ================================================= --}}
+
+            <div class="requisition-action-bar">
+
+                <div class="requisition-action-hint">
+                    Add all items received and enter their estimated values.
+                </div>
+
+                <div class="requisition-action-right">
+
+                    <button
+                        type="button"
+                        class="requisition-cancel-button change-type"
+                    >
+                        <i class="fa fa-exchange-alt"></i>
+                        Change Type
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="requisition-save-button"
+                    >
+                        <i class="fa fa-save"></i>
+                        Save Donation
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{{-- =============================================================
+     DONATION TYPE MODAL
+     ============================================================= --}}
+
+<div
+    class="modal fade"
+    id="donationTypeModal"
+    tabindex="-1"
+    aria-labelledby="donationTypeModalLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5
+                        class="modal-title mb-1"
+                        id="donationTypeModalLabel"
+                    >
+                        New Donation
+                    </h5>
+
+                    <div class="requisition-modal-subtitle">
+                        First, tell us what kind of donation you want to record.
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    id="closeDonationType"
+                    aria-label="Close"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div
+                    id="donationTypeVisual"
+                    class="text-center mb-4"
+                >
+
+                    <div id="defaultDonationVisual">
+
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+
+                            <div class="requisition-header-icon">
+                                <i class="fa fa-hand-holding-heart"></i>
+                            </div>
+
+                            <i
+                                class="fa fa-arrow-right fa-2x"
+                                aria-hidden="true"
+                            ></i>
+
+                            <div class="requisition-header-icon">
+                                <i class="fa fa-question"></i>
+                            </div>
+
+                        </div>
+
+                        <div class="requisition-modal-subtitle mt-3">
+                            Choose a donation type to see how the support will be recorded.
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="cashDonationVisual"
+                        style="display:none;"
+                    >
+
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+
+                            <div class="text-center">
+
+                                <div class="requisition-header-icon mx-auto mb-2">
+                                    <i class="fa fa-user"></i>
+                                </div>
+
+                                <div class="small fw-semibold">
+                                    Donor
+                                </div>
+
+                            </div>
+
+                            <div class="px-2">
+
+                                <i
+                                    class="fa fa-arrow-right fa-beat-fade fa-2x"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+                            <div class="text-center">
+
+                                <div class="requisition-header-icon mx-auto mb-2">
+                                    <i class="fa fa-money-bill-wave"></i>
+                                </div>
+
+                                <div class="small fw-semibold">
+                                    Cash
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="requisition-modal-subtitle mt-3">
+
+                            Money received from the donor
+
+                            <strong>
+                                will be recorded as a cash donation.
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="inkindDonationVisual"
+                        style="display:none;"
+                    >
+
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+
+                            <div class="text-center">
+
+                                <div class="requisition-header-icon mx-auto mb-2">
+                                    <i class="fa fa-user"></i>
+                                </div>
+
+                                <div class="small fw-semibold">
+                                    Donor
+                                </div>
+
+                            </div>
+
+                            <div class="px-2">
+
+                                <i
+                                    class="fa fa-arrow-right fa-beat-fade fa-2x"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+                            <div class="text-center">
+
+                                <div class="requisition-header-icon mx-auto mb-2">
+                                    <i class="fa fa-box-open"></i>
+                                </div>
+
+                                <div class="small fw-semibold">
+                                    In-kind
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="requisition-modal-subtitle mt-3">
+
+                            Goods, supplies or equipment received from the donor
+
+                            <strong>
+                                will be recorded as an in-kind donation.
+                            </strong>
 
                         </div>
 
@@ -650,19 +1177,68 @@
                 </div>
 
 
-                <div class="card-footer bg-white text-end">
+                <div class="mb-3">
 
-                    <button type="submit"
-                            class="btn btn-primary px-4">
+                    <label
+                        for="setup_donation_type"
+                        class="requisition-field-label"
+                    >
+                        Donation Type
+                        <span class="required-mark">*</span>
+                    </label>
 
-                        <i class="fas fa-save me-1"></i>
-                        Save Donation
+                    <select
+                        id="setup_donation_type"
+                        class="form-select requisition-input"
+                    >
 
-                    </button>
+                        <option value="">
+                            Select donation type
+                        </option>
+
+                        <option value="cash">
+                            Cash Donation
+                        </option>
+
+                        <option value="in_kind">
+                            In-kind Donation
+                        </option>
+
+                    </select>
 
                 </div>
 
-            </form>
+
+                <div
+                    id="donationTypeMessage"
+                    class="requisition-modal-subtitle"
+                >
+                    Select a donation type to continue.
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    id="cancelDonationType"
+                    class="requisition-cancel-button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="continueDonationType"
+                    class="requisition-save-button"
+                >
+                    Continue
+                    <i class="fa fa-arrow-right ms-1"></i>
+                </button>
+
+            </div>
 
         </div>
 
@@ -672,81 +1248,224 @@
 
 
 {{-- =============================================================
-     TYPE SELECTION MODAL
-============================================================== --}}
+     IN-KIND ITEM SELECTION MODAL
+     ============================================================= --}}
 
-<div class="modal fade"
-     id="donationTypeModal"
-     tabindex="-1"
-     aria-hidden="true">
+<div
+    class="modal fade"
+    id="storeItemSelectionModal"
+    tabindex="-1"
+    aria-labelledby="storeItemSelectionModalLabel"
+    aria-hidden="true"
+>
 
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
 
         <div class="modal-content border-0 shadow">
 
-            <div class="modal-header border-0">
+            <div class="modal-header">
 
                 <div>
-                    <h5 class="modal-title mb-1">
-                        What are you receiving?
+
+                    <h5
+                        class="modal-title mb-1"
+                        id="storeItemSelectionModalLabel"
+                    >
+                        Select Item
                     </h5>
 
-                    <small class="text-muted">
-                        Choose the type of contribution.
-                    </small>
+                    <div class="requisition-modal-subtitle">
+                        Double-click an item row to select it.
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div class="requisition-child-search mb-3">
+
+                    <i class="fa fa-search"></i>
+
+                    <input
+                        type="text"
+                        id="storeItemSearch"
+                        class="form-control requisition-input"
+                        placeholder="Search items..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="requisition-list-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Item
+                                </th>
+
+                                <th>
+                                    Code
+                                </th>
+
+                                <th>
+                                    Unit
+                                </th>
+
+                                <th>
+                                    Variants
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="storeItemSelectionBody">
+
+                            @forelse($storeItems as $storeItem)
+
+                                @php
+
+                                    $unitName =
+                                        $storeItem->unit->code
+                                        ?? $storeItem->unit->name
+                                        ?? '';
+
+                                @endphp
+
+
+                                <tr
+                                    class="store-item-option"
+                                    tabindex="0"
+                                    title="Double-click to select this item"
+                                    data-search="{{ strtolower(
+                                        $storeItem->name
+                                        . ' '
+                                        . ($storeItem->sku ?? '')
+                                        . ' '
+                                        . $unitName
+                                    ) }}"
+                                    data-store-item-id="{{ $storeItem->id }}"
+                                    data-store-item-name="{{ $storeItem->name }}"
+                                    data-store-item-unit="{{ $unitName }}"
+                                >
+
+                                    <td>
+
+                                        <div class="stores-item-name">
+                                            {{ $storeItem->name }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if($storeItem->sku)
+
+                                            <div class="stores-code">
+                                                {{ $storeItem->sku }}
+                                            </div>
+
+                                        @else
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ $unitName ?: '—' }}
+                                    </td>
+
+
+                                    <td>
+
+                                        @if($storeItem->variants->count())
+
+                                            <span class="stores-variant">
+                                                {{ $storeItem->variants->count() }}
+                                                available
+                                            </span>
+
+                                        @else
+
+                                            <span class="text-muted">
+                                                None
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td
+                                        colspan="4"
+                                        class="text-center py-4"
+                                    >
+
+                                        <span class="text-muted">
+                                            No active items are available.
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div
+                    id="storeItemNoResults"
+                    class="requisition-no-children-found"
+                    style="display:none;"
+                >
+                    No items match your search.
                 </div>
 
             </div>
 
-            <div class="modal-body p-4">
 
-                <div class="row g-3">
+            <div class="modal-footer">
 
-                    <div class="col-6">
-
-                        <button type="button"
-                                class="type-choice"
-                                data-type="cash">
-
-                            <div class="choice-icon text-success">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-
-                            <strong>
-                                Cash
-                            </strong>
-
-                            <small>
-                                Money received
-                            </small>
-
-                        </button>
-
-                    </div>
-
-                    <div class="col-6">
-
-                        <button type="button"
-                                class="type-choice"
-                                data-type="in_kind">
-
-                            <div class="choice-icon text-primary">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-
-                            <strong>
-                                In-Kind
-                            </strong>
-
-                            <small>
-                                Goods or items
-                            </small>
-
-                        </button>
-
-                    </div>
-
-                </div>
+                <button
+                    type="button"
+                    class="requisition-cancel-button"
+                    data-bs-dismiss="modal"
+                >
+                    Cancel
+                </button>
 
             </div>
 
@@ -756,60 +1475,53 @@
 
 </div>
 
-
-<style>
-
-.type-choice {
-    width: 100%;
-    min-height: 150px;
-    border: 1px solid #dee2e6;
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    transition: .2s;
-}
-
-.type-choice:hover {
-    border-color: #0d6efd;
-    background: #f8fbff;
-    transform: translateY(-2px);
-}
-
-.choice-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-}
-
-.type-choice strong,
-.type-choice small {
-    display: block;
-}
-
-.type-choice small {
-    color: #6c757d;
-    margin-top: 5px;
-}
-
-.item-row {
-    background: #fafafa;
-}
-
-</style>
-
+@push('scripts')
 
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const modalElement =
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODALS
+    |--------------------------------------------------------------------------
+    */
+
+    const donationTypeModalElement =
         document.getElementById('donationTypeModal');
 
-    const modal =
-        new bootstrap.Modal(modalElement, {
-            backdrop: 'static',
-            keyboard: false
-        });
+    const donationTypeModal =
+        donationTypeModalElement
+            ? new bootstrap.Modal(
+                donationTypeModalElement,
+                {
+                    backdrop: 'static',
+                    keyboard: false
+                }
+            )
+            : null;
+
+
+    const storeItemSelectionModalElement =
+        document.getElementById('storeItemSelectionModal');
+
+    const storeItemSelectionModal =
+        storeItemSelectionModalElement
+            ? new bootstrap.Modal(
+                storeItemSelectionModalElement
+            )
+            : null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAIN ELEMENTS
+    |--------------------------------------------------------------------------
+    */
+
+    const startScreen =
+        document.getElementById('donationStartScreen');
 
     const cashForm =
         document.getElementById('cash-form');
@@ -817,58 +1529,353 @@ document.addEventListener('DOMContentLoaded', function () {
     const inkindForm =
         document.getElementById('inkind-form');
 
-    const choices =
-        document.querySelectorAll('.type-choice');
+    const continueButton =
+        document.getElementById('continueDonationButton');
 
-    const changeButtons =
+    const changeTypeButtons =
         document.querySelectorAll('.change-type');
 
     const itemsContainer =
         document.getElementById('items-container');
 
+    const emptyState =
+        document.getElementById('items-empty-state');
+
+    const itemCount =
+        document.getElementById('item-count');
+
     const estimatedTotal =
         document.getElementById('estimated-total');
 
-    let itemIndex = 1;
+    const storeItemSearch =
+        document.getElementById('storeItemSearch');
+
+    const storeItemNoResults =
+        document.getElementById('storeItemNoResults');
 
 
     /*
-     * Open the type selector when the page loads.
-     */
-    modal.show();
+    |--------------------------------------------------------------------------
+    | DONATION TYPE MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    const donationTypeSelect =
+        document.getElementById('setup_donation_type');
+
+    const donationTypeMessage =
+        document.getElementById('donationTypeMessage');
+
+    const defaultDonationVisual =
+        document.getElementById('defaultDonationVisual');
+
+    const cashDonationVisual =
+        document.getElementById('cashDonationVisual');
+
+    const inkindDonationVisual =
+        document.getElementById('inkindDonationVisual');
+
+    const continueDonationType =
+        document.getElementById('continueDonationType');
+
+    const closeDonationType =
+        document.getElementById('closeDonationType');
+
+    const cancelDonationType =
+        document.getElementById('cancelDonationType');
 
 
     /*
-     * Select donation type.
-     */
-    choices.forEach(function (choice) {
+    |--------------------------------------------------------------------------
+    | STORE ITEM / VARIANT DATA
+    |--------------------------------------------------------------------------
+    */
 
-        choice.addEventListener('click', function () {
+    const variantData = {
 
-            const type =
-                this.dataset.type;
+        @foreach($storeItems as $storeItem)
 
-            cashForm.style.display =
-                type === 'cash' ? 'block' : 'none';
+            "{{ $storeItem->id }}": [
 
-            inkindForm.style.display =
-                type === 'in_kind' ? 'block' : 'none';
+                @foreach($storeItem->variants as $variant)
 
-            modal.hide();
+                    {
+                        id: {{ $variant->id }},
+                        name: @json($variant->name),
+                        code: @json($variant->code)
+                    },
+
+                @endforeach
+
+            ],
+
+        @endforeach
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
+
+    let itemIndex = 0;
+
+    let activeItemRow = null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESET DONATION TYPE MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    function resetDonationTypeModal() {
+
+        if (donationTypeSelect) {
+            donationTypeSelect.value = '';
+        }
+
+        if (defaultDonationVisual) {
+            defaultDonationVisual.style.display = 'block';
+        }
+
+        if (cashDonationVisual) {
+            cashDonationVisual.style.display = 'none';
+        }
+
+        if (inkindDonationVisual) {
+            inkindDonationVisual.style.display = 'none';
+        }
+
+        if (donationTypeMessage) {
+            donationTypeMessage.textContent =
+                'Select a donation type to continue.';
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | OPEN DONATION TYPE MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    if (continueButton && donationTypeModal) {
+
+        continueButton.addEventListener('click', function () {
+
+            resetDonationTypeModal();
+
+            donationTypeModal.show();
 
         });
 
-    });
+    }
 
 
     /*
-     * Allow user to change type.
-     */
-    changeButtons.forEach(function (button) {
+    |--------------------------------------------------------------------------
+    | CLOSE DONATION TYPE MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    if (closeDonationType && donationTypeModal) {
+
+        closeDonationType.addEventListener('click', function () {
+
+            donationTypeModal.hide();
+
+        });
+
+    }
+
+
+    if (cancelDonationType && donationTypeModal) {
+
+        cancelDonationType.addEventListener('click', function () {
+
+            donationTypeModal.hide();
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DONATION TYPE SELECTION
+    |--------------------------------------------------------------------------
+    */
+
+    if (donationTypeSelect) {
+
+        donationTypeSelect.addEventListener('change', function () {
+
+            const selectedType =
+                this.value;
+
+
+            if (defaultDonationVisual) {
+                defaultDonationVisual.style.display = 'none';
+            }
+
+            if (cashDonationVisual) {
+                cashDonationVisual.style.display = 'none';
+            }
+
+            if (inkindDonationVisual) {
+                inkindDonationVisual.style.display = 'none';
+            }
+
+
+            if (!selectedType) {
+
+                if (defaultDonationVisual) {
+                    defaultDonationVisual.style.display = 'block';
+                }
+
+                if (donationTypeMessage) {
+                    donationTypeMessage.textContent =
+                        'Select a donation type to continue.';
+                }
+
+                return;
+
+            }
+
+
+            if (selectedType === 'cash') {
+
+                if (cashDonationVisual) {
+                    cashDonationVisual.style.display = 'block';
+                }
+
+                if (donationTypeMessage) {
+                    donationTypeMessage.innerHTML =
+                        'You are recording <strong>money received</strong> from a donor.';
+                }
+
+                return;
+
+            }
+
+
+            if (selectedType === 'in_kind') {
+
+                if (inkindDonationVisual) {
+                    inkindDonationVisual.style.display = 'block';
+                }
+
+                if (donationTypeMessage) {
+                    donationTypeMessage.innerHTML =
+                        'You are recording <strong>goods, supplies or equipment</strong> received from a donor.';
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONTINUE FROM DONATION TYPE MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    if (continueDonationType) {
+
+        continueDonationType.addEventListener('click', function () {
+
+            const selectedType =
+                donationTypeSelect
+                    ? donationTypeSelect.value
+                    : '';
+
+
+            if (!selectedType) {
+
+                if (donationTypeSelect) {
+                    donationTypeSelect.focus();
+                }
+
+                if (donationTypeMessage) {
+                    donationTypeMessage.textContent =
+                        'Please select a donation type before continuing.';
+                }
+
+                return;
+
+            }
+
+
+            if (donationTypeModal) {
+                donationTypeModal.hide();
+            }
+
+
+            if (startScreen) {
+                startScreen.style.display = 'none';
+            }
+
+            if (cashForm) {
+                cashForm.style.display = 'none';
+            }
+
+            if (inkindForm) {
+                inkindForm.style.display = 'none';
+            }
+
+
+            if (selectedType === 'cash') {
+
+                if (cashForm) {
+                    cashForm.style.display = 'block';
+                }
+
+            }
+
+
+            if (selectedType === 'in_kind') {
+
+                if (inkindForm) {
+                    inkindForm.style.display = 'block';
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHANGE TYPE
+    |--------------------------------------------------------------------------
+    */
+
+    changeTypeButtons.forEach(function (button) {
 
         button.addEventListener('click', function () {
 
-            modal.show();
+            if (cashForm) {
+                cashForm.style.display = 'none';
+            }
+
+            if (inkindForm) {
+                inkindForm.style.display = 'none';
+            }
+
+            resetDonationTypeModal();
+
+            if (donationTypeModal) {
+                donationTypeModal.show();
+            }
 
         });
 
@@ -876,13 +1883,641 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * Calculate total estimated value.
-     */
+    |--------------------------------------------------------------------------
+    | ADD ITEM BUTTON
+    |--------------------------------------------------------------------------
+    */
+
+    const addItemButton =
+        document.getElementById('add-item');
+
+    if (addItemButton) {
+
+        addItemButton.addEventListener('click', function () {
+
+            addItemRow();
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADD ITEM EMPTY STATE BUTTON
+    |--------------------------------------------------------------------------
+    */
+
+    const addItemTrigger =
+        document.querySelector('.add-item-trigger');
+
+    if (addItemTrigger) {
+
+        addItemTrigger.addEventListener('click', function () {
+
+            addItemRow();
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADD ITEM ROW
+    |--------------------------------------------------------------------------
+    */
+
+    function addItemRow() {
+
+        if (!itemsContainer) {
+            return;
+        }
+
+
+        const index =
+            itemIndex++;
+
+
+        const row =
+            document.createElement('tr');
+
+
+        row.className =
+            'donation-item-row';
+
+
+        row.dataset.index =
+            index;
+
+
+        row.innerHTML = `
+
+            <td>
+
+                <span class="requisition-row-number">
+                    ${document.querySelectorAll('.donation-item-row').length + 1}
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <button
+                    type="button"
+                    class="requisition-lpo-picker store-item-picker"
+                >
+
+                    <span class="requisition-lpo-picker-icon">
+                        <i class="fas fa-box-open"></i>
+                    </span>
+
+                    <span class="requisition-lpo-picker-text store-item-picker-text">
+
+                        <span class="text-muted">
+                            Select Item
+                        </span>
+
+                    </span>
+
+                    <span class="requisition-lpo-picker-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+
+                </button>
+
+
+                <input
+                    type="hidden"
+                    name="items[${index}][store_item_id]"
+                    class="store-item-id"
+                >
+
+
+                <input
+                    type="hidden"
+                    name="items[${index}][item]"
+                    class="legacy-item"
+                >
+
+            </td>
+
+
+            <td>
+
+                <select
+                    name="items[${index}][variant_id]"
+                    class="form-select requisition-input item-variant"
+                    disabled
+                >
+
+                    <option value="">
+                        No variant
+                    </option>
+
+                </select>
+
+            </td>
+
+
+            <td>
+
+                <input
+                    type="number"
+                    name="items[${index}][quantity]"
+                    class="form-control requisition-input item-quantity"
+                    value="1"
+                    step="0.001"
+                    min="0.001"
+                    required
+                >
+
+            </td>
+
+
+            <td>
+
+                <input
+                    type="hidden"
+                    name="items[${index}][unit]"
+                    class="item-unit"
+                >
+
+                <input
+                    type="text"
+                    class="form-control requisition-input item-unit-display"
+                    value="—"
+                    readonly
+                >
+
+            </td>
+
+
+            <td>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        KES
+                    </span>
+
+                    <input
+                        type="number"
+                        name="items[${index}][estimated_value]"
+                        class="form-control requisition-input estimated-value"
+                        value="0"
+                        step="0.01"
+                        min="0"
+                    >
+
+                </div>
+
+            </td>
+
+
+            <td class="text-center">
+
+                <button
+                    type="button"
+                    class="requisition-list-action remove-item"
+                    title="Remove item"
+                >
+
+                    <i class="fa fa-trash"></i>
+
+                </button>
+
+            </td>
+
+        `;
+
+
+        itemsContainer.appendChild(row);
+
+
+        updateItemState();
+
+        calculateTotal();
+
+
+        activeItemRow =
+            row;
+
+
+        if (storeItemSearch) {
+            storeItemSearch.value = '';
+        }
+
+
+        filterStoreItems('');
+
+
+        if (storeItemSelectionModal) {
+            storeItemSelectionModal.show();
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ITEM PICKER
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener('click', function (event) {
+
+        const picker =
+            event.target.closest('.store-item-picker');
+
+
+        if (!picker) {
+            return;
+        }
+
+
+        activeItemRow =
+            picker.closest('.donation-item-row');
+
+
+        if (storeItemSearch) {
+            storeItemSearch.value = '';
+        }
+
+
+        filterStoreItems('');
+
+
+        if (storeItemSelectionModal) {
+            storeItemSelectionModal.show();
+        }
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOUBLE-CLICK ITEM ROW TO SELECT
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener('dblclick', function (event) {
+
+        const itemRow =
+            event.target.closest('.store-item-option');
+
+
+        if (!itemRow || !activeItemRow) {
+            return;
+        }
+
+
+        selectStoreItem(itemRow);
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT STORE ITEM
+    |--------------------------------------------------------------------------
+    */
+
+    function selectStoreItem(itemRow) {
+
+        if (!activeItemRow) {
+            return;
+        }
+
+
+        const itemId =
+            itemRow.dataset.storeItemId || '';
+
+        const itemName =
+            itemRow.dataset.storeItemName || '';
+
+        const itemUnit =
+            itemRow.dataset.storeItemUnit || '';
+
+
+        if (!itemId) {
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hidden Values
+        |--------------------------------------------------------------------------
+        */
+
+        const storeItemIdInput =
+            activeItemRow.querySelector('.store-item-id');
+
+        const legacyItemInput =
+            activeItemRow.querySelector('.legacy-item');
+
+        const unitInput =
+            activeItemRow.querySelector('.item-unit');
+
+        const unitDisplay =
+            activeItemRow.querySelector('.item-unit-display');
+
+
+        if (storeItemIdInput) {
+            storeItemIdInput.value = itemId;
+        }
+
+
+        if (legacyItemInput) {
+            legacyItemInput.value = itemName;
+        }
+
+
+        if (unitInput) {
+            unitInput.value = itemUnit;
+        }
+
+
+        if (unitDisplay) {
+            unitDisplay.value = itemUnit || '—';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Picker Display
+        |--------------------------------------------------------------------------
+        */
+
+        const pickerText =
+            activeItemRow.querySelector(
+                '.store-item-picker-text'
+            );
+
+
+        if (pickerText) {
+
+            pickerText.innerHTML = `
+
+                <strong>
+                    ${escapeHtml(itemName)}
+                </strong>
+
+                ${
+                    itemUnit
+                        ? `<small>${escapeHtml(itemUnit)}</small>`
+                        : ''
+                }
+
+            `;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Variants
+        |--------------------------------------------------------------------------
+        */
+
+        const variantSelect =
+            activeItemRow.querySelector('.item-variant');
+
+
+        if (variantSelect) {
+
+            variantSelect.innerHTML = `
+
+                <option value="">
+                    No variant
+                </option>
+
+            `;
+
+
+            const variants =
+                variantData[itemId] || [];
+
+
+            variants.forEach(function (variant) {
+
+                const option =
+                    document.createElement('option');
+
+
+                option.value =
+                    variant.id;
+
+
+                option.textContent =
+                    variant.name +
+                    (
+                        variant.code
+                            ? ' (' + variant.code + ')'
+                            : ''
+                    );
+
+
+                variantSelect.appendChild(option);
+
+            });
+
+
+            variantSelect.disabled =
+                variants.length === 0;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Close Modal
+        |--------------------------------------------------------------------------
+        */
+
+        if (storeItemSelectionModal) {
+            storeItemSelectionModal.hide();
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REMOVE ITEM
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener('click', function (event) {
+
+        const removeButton =
+            event.target.closest('.remove-item');
+
+
+        if (!removeButton) {
+            return;
+        }
+
+
+        const row =
+            removeButton.closest('.donation-item-row');
+
+
+        if (!row) {
+            return;
+        }
+
+
+        row.remove();
+
+
+        updateItemState();
+
+        calculateTotal();
+
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH ITEMS
+    |--------------------------------------------------------------------------
+    */
+
+    if (storeItemSearch) {
+
+        storeItemSearch.addEventListener(
+            'input',
+            function () {
+
+                filterStoreItems(this.value);
+
+            }
+        );
+
+    }
+
+
+    function filterStoreItems(value) {
+
+        const search =
+            String(value || '')
+                .trim()
+                .toLowerCase();
+
+
+        let visibleCount =
+            0;
+
+
+        document
+            .querySelectorAll('.store-item-option')
+            .forEach(function (row) {
+
+                const haystack =
+                    row.dataset.search || '';
+
+
+                const matches =
+                    haystack.includes(search);
+
+
+                row.style.display =
+                    matches
+                        ? ''
+                        : 'none';
+
+
+                if (matches) {
+                    visibleCount++;
+                }
+
+            });
+
+
+        if (storeItemNoResults) {
+
+            storeItemNoResults.style.display =
+                visibleCount === 0
+                    ? 'block'
+                    : 'none';
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE ITEM COUNT / EMPTY STATE
+    |--------------------------------------------------------------------------
+    */
+
+    function updateItemState() {
+
+        const rows =
+            document.querySelectorAll(
+                '.donation-item-row'
+            );
+
+
+        const count =
+            rows.length;
+
+
+        if (itemCount) {
+
+            itemCount.textContent =
+                count === 1
+                    ? '1 item'
+                    : count + ' items';
+
+        }
+
+
+        if (emptyState) {
+
+            emptyState.style.display =
+                count === 0
+                    ? 'block'
+                    : 'none';
+
+        }
+
+
+        rows.forEach(function (row, index) {
+
+            const number =
+                row.querySelector(
+                    '.requisition-row-number'
+                );
+
+
+            if (number) {
+                number.textContent = index + 1;
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CALCULATE TOTAL
+    |--------------------------------------------------------------------------
+    */
+
     function calculateTotal() {
 
-        let total = 0;
+        let total =
+            0;
 
-        document.querySelectorAll('.estimated-value')
+
+        document
+            .querySelectorAll('.estimated-value')
             .forEach(function (input) {
 
                 total +=
@@ -890,154 +2525,133 @@ document.addEventListener('DOMContentLoaded', function () {
 
             });
 
-        estimatedTotal.textContent =
-            total.toLocaleString('en-KE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+
+        if (estimatedTotal) {
+
+            estimatedTotal.textContent =
+                total.toLocaleString(
+                    'en-KE',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+        }
 
     }
 
 
     /*
-     * Recalculate when values change.
-     */
-    itemsContainer.addEventListener('input', function (event) {
+    |--------------------------------------------------------------------------
+    | ESTIMATED VALUE CHANGES
+    |--------------------------------------------------------------------------
+    */
 
-        if (
-            event.target.classList.contains('estimated-value')
-        ) {
-            calculateTotal();
+    document.addEventListener(
+        'input',
+        function (event) {
+
+            if (
+                event.target.classList.contains(
+                    'estimated-value'
+                )
+            ) {
+
+                calculateTotal();
+
+            }
+
         }
-
-    });
+    );
 
 
     /*
-     * Add item.
-     */
-    document.getElementById('add-item')
-        .addEventListener('click', function () {
+    |--------------------------------------------------------------------------
+    | ESCAPE HTML
+    |--------------------------------------------------------------------------
+    */
 
-            const row =
-                document.createElement('div');
+    function escapeHtml(value) {
 
-            row.className =
-                'item-row border rounded p-3 mb-3';
+        const element =
+            document.createElement('div');
 
-            row.innerHTML = `
 
-                <div class="row g-3">
+        element.textContent =
+            value ?? '';
 
-                    <div class="col-md-4">
 
-                        <label class="form-label">
-                            Item
-                        </label>
+        return element.innerHTML;
 
-                        <input type="text"
-                               name="items[${itemIndex}][item]"
-                               class="form-control"
-                               placeholder="e.g. Maize Flour"
-                               required>
-
-                    </div>
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Quantity
-                        </label>
-
-                        <input type="number"
-                               name="items[${itemIndex}][quantity]"
-                               class="form-control"
-                               value="1"
-                               step="0.01"
-                               min="0">
-
-                    </div>
-
-                    <div class="col-md-2">
-
-                        <label class="form-label">
-                            Unit
-                        </label>
-
-                        <input type="text"
-                               name="items[${itemIndex}][unit]"
-                               class="form-control"
-                               placeholder="bags">
-
-                    </div>
-
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Estimated Value
-                        </label>
-
-                        <div class="input-group">
-
-                            <span class="input-group-text">
-                                KES
-                            </span>
-
-                            <input type="number"
-                                   name="items[${itemIndex}][estimated_value]"
-                                   class="form-control estimated-value"
-                                   value="0"
-                                   step="0.01"
-                                   min="0">
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-md-1 d-flex align-items-end">
-
-                        <button type="button"
-                                class="btn btn-outline-danger remove-item">
-
-                            <i class="fas fa-trash"></i>
-
-                        </button>
-
-                    </div>
-
-                </div>
-            `;
-
-            itemsContainer.appendChild(row);
-
-            itemIndex++;
-
-        });
+    }
 
 
     /*
-     * Remove item.
-     */
-    itemsContainer.addEventListener('click', function (event) {
+    |--------------------------------------------------------------------------
+    | INITIAL STATE
+    |--------------------------------------------------------------------------
+    */
 
-        const button =
-            event.target.closest('.remove-item');
+    if (startScreen) {
+        startScreen.style.display = 'block';
+    }
 
-        if (!button) {
-            return;
-        }
 
-        button.closest('.item-row').remove();
+    if (cashForm) {
+        cashForm.style.display = 'none';
+    }
 
-        calculateTotal();
 
-    });
+    if (inkindForm) {
+        inkindForm.style.display = 'none';
+    }
 
+
+    updateItemState();
 
     calculateTotal();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESTORE FORM AFTER VALIDATION ERROR
+    |--------------------------------------------------------------------------
+    */
+
+    const oldDonationType =
+        @json(old('type'));
+
+
+    if (oldDonationType === 'cash') {
+
+        if (startScreen) {
+            startScreen.style.display = 'none';
+        }
+
+        if (cashForm) {
+            cashForm.style.display = 'block';
+        }
+
+    }
+
+
+    if (oldDonationType === 'in_kind') {
+
+        if (startScreen) {
+            startScreen.style.display = 'none';
+        }
+
+        if (inkindForm) {
+            inkindForm.style.display = 'block';
+        }
+
+    }
 
 });
 
 </script>
+
+@endpush
 
 @endsection

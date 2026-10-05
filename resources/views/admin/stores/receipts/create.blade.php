@@ -1,347 +1,272 @@
+
 @extends('layouts.admin')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
 
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header">
-        <h6 class="card-title mb-0">
-            New Store Receipt
-        </h6>
+    {{-- =========================================================
+    PAGE HEADER
+    ========================================================= --}}
+    <div class="requisition-page-header">
 
-        <small class="text-muted">
-            Record goods received into a physical Store.
-        </small>
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fas fa-truck-loading"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    Stores
+                    <span>/</span>
+                    Receiving
+                    <span>/</span>
+                    New Receipt
+                </div>
+
+                <h1 class="requisition-page-title">
+                    New Store Receipt
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Start a new goods receiving transaction.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-receipts.index') }}"
+               class="requisition-add-button">
+
+                <i class="fas fa-arrow-left me-1"></i>
+                Back
+
+            </a>
+
+        </div>
+
     </div>
 
+
+    {{-- =========================================================
+    MESSAGES
+    ========================================================= --}}
     <x-message></x-message>
 
-    <div class="card-body">
 
-        <form action="{{ route('admin.store-receipts.store') }}"
-              method="POST">
+    @if($errors->any())
 
-            @csrf
+        <div class="requisition-notice requisition-notice-danger mb-3">
 
-            <div class="row">
+            <div>
 
-                {{-- STORE --}}
-                <div class="col-md-6 mb-3">
+                <strong>
+                    Please correct the following:
+                </strong>
 
-                    <label for="store_id" class="form-label">
-                        Store <span class="text-danger">*</span>
-                    </label>
+                <ul class="mb-0 mt-2">
 
-                    <select
-                        name="store_id"
-                        id="store_id"
-                        class="form-select @error('store_id') is-invalid @enderror"
-                        required
-                    >
+                    @foreach($errors->all() as $error)
 
-                        <option value="">
-                            Select Store
-                        </option>
+                        <li>
+                            {{ $error }}
+                        </li>
 
-                        @foreach($stores as $store)
+                    @endforeach
 
-                            <option
-                                value="{{ $store->id }}"
-                                {{ old('store_id') == $store->id ? 'selected' : '' }}
-                            >
-                                {{ $store->name }}
-                                @if($store->code)
-                                    ({{ $store->code }})
-                                @endif
-                            </option>
+                </ul>
 
-                        @endforeach
+            </div>
 
-                    </select>
+        </div>
 
-                    @error('store_id')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
+    @endif
 
 
-                {{-- SOURCE TYPE --}}
-                <div class="col-md-6 mb-3">
+    {{-- =========================================================
+    CREATE FORM
+    ========================================================= --}}
+    <form method="POST"
+          action="{{ route('admin.store-receipts.store') }}">
 
-                    <label for="source_type" class="form-label">
-                        Source <span class="text-danger">*</span>
-                    </label>
-
-                    <select
-                        name="source_type"
-                        id="source_type"
-                        class="form-select @error('source_type') is-invalid @enderror"
-                        required
-                    >
-
-                        <option value="">
-                            Select Source
-                        </option>
-
-                        <option
-                            value="PURCHASE"
-                            {{ old('source_type') === 'PURCHASE' ? 'selected' : '' }}
-                        >
-                            Purchase
-                        </option>
-
-                        <option
-                            value="DONATION"
-                            {{ old('source_type') === 'DONATION' ? 'selected' : '' }}
-                        >
-                            Donation
-                        </option>
-
-                    </select>
-
-                    @error('source_type')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
+        @csrf
 
 
-                {{-- SUPPLIER --}}
-                <div
-                    class="col-md-6 mb-3"
-                    id="supplier_fields"
-                >
+        {{-- =====================================================
+        RECEIPT INFORMATION
+        ===================================================== --}}
+        <div class="requisition-section">
 
-                    <label for="supplier_name" class="form-label">
-                        Supplier Name
-                    </label>
+            <div class="requisition-section-header">
 
-                    <input
-                        type="text"
-                        name="supplier_name"
-                        id="supplier_name"
-                        value="{{ old('supplier_name') }}"
-                        class="form-control @error('supplier_name') is-invalid @enderror"
-                        maxlength="255"
-                        placeholder="Enter supplier name"
-                    >
+                <div class="requisition-section-heading">
 
-                    @error('supplier_name')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                    <div class="requisition-section-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
 
-                </div>
+                    <div>
 
+                        <h5>
+                            Receipt Information
+                        </h5>
 
-                {{-- SUPPLIER REFERENCE --}}
-                <div
-                    class="col-md-6 mb-3"
-                    id="supplier_reference_field"
-                >
+                        <p>
+                            Start the receiving transaction before adding
+                            supplier, donation or item details.
+                        </p>
 
-                    <label for="supplier_reference" class="form-label">
-                        Supplier / Delivery Reference
-                    </label>
-
-                    <input
-                        type="text"
-                        name="supplier_reference"
-                        id="supplier_reference"
-                        value="{{ old('supplier_reference') }}"
-                        class="form-control @error('supplier_reference') is-invalid @enderror"
-                        maxlength="255"
-                        placeholder="Invoice, delivery note, etc."
-                    >
-
-                    @error('supplier_reference')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-
-                {{-- DONATION --}}
-                <div
-                    class="col-md-6 mb-3"
-                    id="donation_field"
-                >
-
-                    <label for="donation_id" class="form-label">
-                        Donation
-                    </label>
-
-                    <input
-                        type="number"
-                        name="donation_id"
-                        id="donation_id"
-                        value="{{ old('donation_id') }}"
-                        class="form-control @error('donation_id') is-invalid @enderror"
-                        min="1"
-                        placeholder="Enter existing Donation ID"
-                    >
-
-                    <small class="text-muted">
-                        Link this receipt to an existing donation record.
-                    </small>
-
-                    @error('donation_id')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-
-                {{-- RECEIVED DATE --}}
-                <div class="col-md-6 mb-3">
-
-                    <label for="received_date" class="form-label">
-                        Received Date <span class="text-danger">*</span>
-                    </label>
-
-                    <input
-                        type="date"
-                        name="received_date"
-                        id="received_date"
-                        value="{{ old(
-                            'received_date',
-                            now()->format('Y-m-d')
-                        ) }}"
-                        class="form-control @error('received_date') is-invalid @enderror"
-                        required
-                    >
-
-                    @error('received_date')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-
-                {{-- NOTES --}}
-                <div class="col-12 mb-3">
-
-                    <label for="notes" class="form-label">
-                        Notes
-                    </label>
-
-                    <textarea
-                        name="notes"
-                        id="notes"
-                        rows="4"
-                        class="form-control @error('notes') is-invalid @enderror"
-                        maxlength="5000"
-                        placeholder="Any additional receiving information..."
-                    >{{ old('notes') }}</textarea>
-
-                    @error('notes')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                    </div>
 
                 </div>
 
             </div>
 
 
-            <div class="d-flex justify-content-between mt-3">
+            <div class="p-3">
 
-                <a
-                    href="{{ route('admin.store-receipts.index') }}"
-                    class="btn btn-secondary"
-                >
-                    <i class="fas fa-arrow-left me-1"></i>
+                <div class="row g-3">
+
+                    {{-- =================================================
+                    RECEIPT NUMBER
+                    ================================================= --}}
+                    <div class="col-md-4">
+
+                        <label class="requisition-field-label">
+                            Receipt Number
+                        </label>
+
+                        <input type="text"
+                               class="form-control requisition-input"
+                               value="{{ $receiptNumber ?? 'Will be generated automatically' }}"
+                               readonly>
+
+                    </div>
+
+
+                    {{-- =================================================
+                    RECEIVING STORE
+                    ================================================= --}}
+                    <div class="col-md-4">
+
+                        <label class="requisition-field-label">
+                            Receiving Store <span class="text-danger">*</span>
+                        </label>
+
+                        <select name="store_id"
+                                id="store_id"
+                                class="form-select requisition-input"
+                                required>
+
+                            <option value="">
+                                Select Store
+                            </option>
+
+                            @foreach($stores as $store)
+
+                                <option value="{{ $store->id }}"
+                                    {{ old('store_id') == $store->id ? 'selected' : '' }}>
+
+                                    {{ $store->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- =================================================
+                    RECEIVED DATE
+                    ================================================= --}}
+                    <div class="col-md-4">
+
+                        <label class="requisition-field-label">
+                            Received Date <span class="text-danger">*</span>
+                        </label>
+
+                        <input type="date"
+                               name="received_date"
+                               id="received_date"
+                               class="form-control requisition-input"
+                               value="{{ old('received_date', now()->format('Y-m-d')) }}"
+                               required>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+        INFORMATION NOTICE
+        ===================================================== --}}
+        <div class="requisition-notice requisition-notice-info mt-3">
+
+            <i class="fas fa-info-circle me-2"></i>
+
+            <div>
+
+                <strong>Next step</strong>
+
+                <div class="mt-1">
+                    After creating this receipt, you will be taken to the
+                    receiving screen where you can select the source,
+                    supplier or donation, add the received items and
+                    complete the receipt.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+        BOTTOM ACTIONS
+        ===================================================== --}}
+        <div class="requisition-bottom-actions mt-3">
+
+            <div class="requisition-bottom-actions-left">
+            </div>
+
+            <div class="requisition-bottom-actions-right">
+
+                <a href="{{ route('admin.store-receipts.index') }}"
+                   class="requisition-cancel-button">
+
+                    <i class="fas fa-times"></i>
                     Cancel
+
                 </a>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    <i class="fas fa-save me-1"></i>
-                    Create Receipt
+                <button type="submit"
+                        class="requisition-add-button">
+
+                    <i class="fas fa-arrow-right me-1"></i>
+                    Create & Continue
+
                 </button>
 
             </div>
 
-        </form>
+        </div>
 
-    </div>
+    </form>
 
 </div>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const sourceType = document.getElementById('source_type');
-
-    const supplierFields =
-        document.getElementById('supplier_fields');
-
-    const supplierReferenceField =
-        document.getElementById('supplier_reference_field');
-
-    const donationField =
-        document.getElementById('donation_field');
-
-    const supplierName =
-        document.getElementById('supplier_name');
-
-    const supplierReference =
-        document.getElementById('supplier_reference');
-
-    const donationId =
-        document.getElementById('donation_id');
-
-
-    function updateSourceFields() {
-
-        const source = sourceType.value;
-
-        if (source === 'DONATION') {
-
-            supplierFields.style.display = 'none';
-            supplierReferenceField.style.display = 'none';
-
-            donationField.style.display = '';
-
-            supplierName.value = '';
-            supplierReference.value = '';
-
-        } else {
-
-            supplierFields.style.display = '';
-            supplierReferenceField.style.display = '';
-
-            donationField.style.display = 'none';
-
-            donationId.value = '';
-        }
-    }
-
-
-    sourceType.addEventListener(
-        'change',
-        updateSourceFields
-    );
-
-    updateSourceFields();
-
-});
-</script>
 
 @endsection

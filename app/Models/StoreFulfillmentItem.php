@@ -53,4 +53,15 @@ class StoreFulfillmentItem extends Model
             'variant_id'
         );
     }
+
+   
+    public function storeItem()
+    {
+        return $this->belongsTo(
+            StoreItem::class,
+            'store_item_id'
+        );
+    }
+
+   
 }

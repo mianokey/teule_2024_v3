@@ -1,116 +1,285 @@
 @extends('layouts.admin')
 
+@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header">
 
-        <h6 class="card-title mb-0">
-            Add Store
-        </h6>
+{{-- ============================================================
+     PAGE HEADER
+     ============================================================ --}}
+<div class="requisition-page-header">
+
+    <div class="requisition-header-content">
+
+        <div class="requisition-header-icon">
+            <i class="fas fa-warehouse"></i>
+        </div>
+
+        <div>
+
+            <div class="requisition-breadcrumb">
+                <span>Stores</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Store Management</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Add Store</span>
+            </div>
+
+            <h1 class="requisition-page-title">
+                Add Store
+            </h1>
+
+            <p class="requisition-page-subtitle">
+                Create a new store for managing stock and inventory.
+            </p>
+
+        </div>
 
     </div>
 
-    <div class="card-body">
+    <div class="requisition-page-actions">
 
-        @if($errors->any())
+        <a href="{{ route('admin.stores.index') }}"
+           class="requisition-cancel-button">
 
-            <div class="alert alert-danger">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Stores</span>
 
-                <strong>Please correct the following:</strong>
+        </a>
 
-                <ul class="mb-0 mt-2">
+    </div>
+
+</div>
+
+
+{{-- ============================================================
+     MESSAGES
+     ============================================================ --}}
+<x-message></x-message>
+
+
+{{-- ============================================================
+     VALIDATION ERRORS
+     ============================================================ --}}
+@if($errors->any())
+
+    <div class="requisition-state-panel">
+
+        <div class="requisition-state-main">
+
+            <div class="requisition-state-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+
+            <div class="requisition-state-text">
+
+                <strong>
+                    Please correct the following errors
+                </strong>
+
+                <ul class="mb-0">
 
                     @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
+
+                        <li>
+                            {{ $error }}
+                        </li>
+
                     @endforeach
 
                 </ul>
 
             </div>
 
-        @endif
-
-        <form action="{{ route('admin.stores.store') }}"
-              method="POST">
-
-            @csrf
-
-            <div class="form-group">
-
-                <label for="name">
-                    Store Name <span class="text-danger">*</span>
-                </label>
-
-                <input type="text"
-                       name="name"
-                       id="name"
-                       class="form-control"
-                       value="{{ old('name') }}"
-                       placeholder="e.g. Main Store"
-                       required
-                       maxlength="255">
-
-            </div>
-
-            <div class="form-group">
-
-                <label for="code">
-                    Store Code <span class="text-danger">*</span>
-                </label>
-
-                <input type="text"
-                       name="code"
-                       id="code"
-                       class="form-control"
-                       value="{{ old('code') }}"
-                       placeholder="e.g. MAIN"
-                       required
-                       maxlength="50">
-
-                <small class="text-muted">
-                    Use a short unique code for the store.
-                </small>
-
-            </div>
-
-            <div class="form-group">
-
-                <label for="description">
-                    Description
-                </label>
-
-                <textarea name="description"
-                          id="description"
-                          class="form-control"
-                          rows="4"
-                          maxlength="2000">{{ old('description') }}</textarea>
-
-            </div>
-
-            <div class="mt-4">
-
-                <button type="submit"
-                        class="btn btn-primary">
-
-                    <i class="fa fa-save"></i>
-                    Save Store
-
-                </button>
-
-                <a href="{{ route('admin.stores.index') }}"
-                   class="btn btn-secondary">
-
-                    Cancel
-
-                </a>
-
-            </div>
-
-        </form>
+        </div>
 
     </div>
+
+@endif
+
+
+<form method="POST"
+      action="{{ route('admin.stores.store') }}">
+
+    @csrf
+
+
+    {{-- ========================================================
+         STORE INFORMATION
+         ======================================================== --}}
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Store Information
+                    </h5>
+
+                    <p>
+                        Enter the basic details for this store.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+            {{-- STORE NAME --}}
+            <div class="col-md-6">
+
+                <div class="requisition-detail-item">
+
+                    <label for="name"
+                           class="requisition-detail-label">
+
+                        Store Name
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value="{{ old('name') }}"
+                           class="form-control requisition-input @error('name') is-invalid @enderror"
+                           placeholder="e.g. Main Store"
+                           maxlength="255"
+                           required>
+
+                    @error('name')
+
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+
+                    @enderror
+
+                </div>
+
+            </div>
+
+
+            {{-- STORE CODE --}}
+            <div class="col-md-6">
+
+                <div class="requisition-detail-item">
+
+                    <label for="code"
+                           class="requisition-detail-label">
+
+                        Store Code
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input type="text"
+                           id="code"
+                           name="code"
+                           value="{{ old('code') }}"
+                           class="form-control requisition-input @error('code') is-invalid @enderror"
+                           placeholder="e.g. MAIN"
+                           maxlength="50"
+                           required>
+
+                    @error('code')
+
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+
+                    @enderror
+
+                </div>
+
+            </div>
+
+
+            {{-- DESCRIPTION --}}
+            <div class="col-md-12">
+
+                <div class="requisition-detail-item">
+
+                    <label for="description"
+                           class="requisition-detail-label">
+
+                        Description
+
+                    </label>
+
+                    <textarea id="description"
+                              name="description"
+                              rows="4"
+                              maxlength="2000"
+                              class="form-control requisition-input @error('description') is-invalid @enderror"
+                              placeholder="Describe the purpose or function of this store">{{ old('description') }}</textarea>
+
+                    @error('description')
+
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+
+                    @enderror
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ========================================================
+         BOTTOM ACTIONS
+         ======================================================== --}}
+    <div class="requisition-bottom-actions">
+
+        <div class="requisition-bottom-actions-left">
+
+            <a href="{{ route('admin.stores.index') }}"
+               class="requisition-cancel-button">
+
+                <i class="fas fa-times"></i>
+                <span>Cancel</span>
+
+            </a>
+
+        </div>
+
+
+        <div class="requisition-bottom-actions-right">
+
+            <button type="submit"
+                    class="requisition-add-button">
+
+                <i class="fas fa-save"></i>
+                <span>Save Store</span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
 
 </div>
 

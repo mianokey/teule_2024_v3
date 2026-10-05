@@ -111,11 +111,24 @@ class StoreRequisitionController extends Controller
      */
 public function edit(StoreRequisition $storeRequisition)
 {
-    if ($storeRequisition->requested_by !== auth()->id()) {
+    /*
+    |--------------------------------------------------------------------------
+    | ONLY THE REQUESTER CAN EDIT
+    |--------------------------------------------------------------------------
+    */
+
+    if ((int) $storeRequisition->requested_by !== (int) auth()->id()) {
         abort(403);
     }
 
-    if ($storeRequisition->status !== 'draft') {
+
+    /*
+    |--------------------------------------------------------------------------
+    | DRAFT AND RETURNED REQUISITIONS CAN BE EDITED
+    |--------------------------------------------------------------------------
+    */
+
+    if (!in_array($storeRequisition->status, ['draft', 'returned'], true)) {
         return redirect()
             ->route(
                 'admin.stores.store-requisitions.show',
@@ -123,9 +136,16 @@ public function edit(StoreRequisition $storeRequisition)
             )
             ->with(
                 'error',
-                'Only draft requisitions can be edited.'
+                'Only draft or returned requisitions can be edited.'
             );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AVAILABLE STORE ITEMS
+    |--------------------------------------------------------------------------
+    */
 
     $items = StoreItem::with([
         'unit',
@@ -135,17 +155,45 @@ public function edit(StoreRequisition $storeRequisition)
         ->orderBy('name')
         ->get();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHILDREN
+    |--------------------------------------------------------------------------
+    */
+
     $children = Child::orderBy('name')->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORES
+    |--------------------------------------------------------------------------
+    */
 
     $stores = Store::where('is_active', true)
         ->orderBy('name')
         ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD EXISTING REQUISITION DATA
+    |--------------------------------------------------------------------------
+    */
 
     $storeRequisition->load([
         'items.item',
         'items.variant',
         'items.children',
     ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT VIEW
+    |--------------------------------------------------------------------------
+    */
 
     return view(
         'admin.stores.store-requisitions.edit',
@@ -157,6 +205,7 @@ public function edit(StoreRequisition $storeRequisition)
         )
     );
 }
+
 
 
     /**
@@ -1445,5 +1494,32 @@ public function edit(StoreRequisition $storeRequisition)
                 "Draft requisition {$requisitionNumber} was deleted successfully."
             );
     }
+
+    public function cancel(Request $request, StoreRequisition $storeRequisition)
+{
+    $request->validate([
+        'cancellation_reason' => ['required', 'string', 'max:1000'],
+    ]);
+
+    if (
+        in_array($storeRequisition->status, ['cancelled', 'closed', 'completed'], true)
+    ) {
+        return back()->with('error', 'This requisition can no longer be cancelled.');
+    }
+
+    $storeRequisition->update([
+        'status' => 'cancelled',
+        'submission_notes' => trim(
+            ($storeRequisition->submission_notes ? $storeRequisition->submission_notes . "\n\n" : '') .
+            'Cancellation reason: ' . $request->cancellation_reason
+        ),
+    ]);
+
+    return redirect()
+        ->route('admin.stores.store-requisitions.show', $storeRequisition)
+        ->with('success', 'Store requisition cancelled successfully.');
+}
+
+
 }
 

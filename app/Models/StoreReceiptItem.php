@@ -14,6 +14,7 @@ class StoreReceiptItem extends Model
         'store_receipt_id',
         'store_item_id',
         'variant_id',
+        'store_lpo_item_id',
         'quantity',
         'notes',
     ];
@@ -36,4 +37,13 @@ class StoreReceiptItem extends Model
     {
         return $this->belongsTo(StoreItemVariant::class, 'variant_id');
     }
+
+public function lpoItem(): BelongsTo
+{
+    return $this->belongsTo(
+        StoreLpoItem::class,
+        'store_lpo_item_id'
+    );
+}
+
 }

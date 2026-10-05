@@ -1,179 +1,392 @@
 @extends('layouts.admin')
 
+@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-            <h6 class="card-title mb-0">
-                Store Receiving
-            </h6>
-            <small class="text-muted">
-                Record and manage goods received into Stores.
-            </small>
+
+{{-- ============================================================
+     PAGE HEADER
+     ============================================================ --}}
+<div class="requisition-page-header">
+
+    <div class="requisition-header-content">
+
+        <div class="requisition-header-icon">
+            <i class="fas fa-box-open"></i>
         </div>
 
-        <a href="{{ route('admin.store-receipts.create') }}"
-           class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i>
-            New Store Receipt
-        </a>
+        <div>
+
+            <div class="requisition-breadcrumb">
+                <span>Stores</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Receiving</span>
+            </div>
+
+            <h1 class="requisition-page-title">
+                Store Receiving
+            </h1>
+
+            <p class="requisition-page-subtitle">
+                Record and manage goods received into Stores.
+            </p>
+
+        </div>
+
     </div>
 
-    <x-message></x-message>
+    <div class="requisition-header-right">
 
-    <div class="card-body">
+        <a href="{{ route('admin.store-receipts.create') }}"
+           class="requisition-add-button">
+
+            <i class="fas fa-plus"></i>
+
+            <span>
+                New Store Receipt
+            </span>
+
+        </a>
+
+    </div>
+
+</div>
+
+
+{{-- ============================================================
+     FLASH / SYSTEM MESSAGES
+     ============================================================ --}}
+<x-message></x-message>
+
+
+{{-- ============================================================
+     RECEIPTS SECTION
+     ============================================================ --}}
+<div class="requisition-section">
+
+    {{-- Section Header --}}
+    <div class="requisition-section-header">
+
+        <div class="requisition-section-heading">
+
+            <div class="requisition-section-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+
+            <div>
+
+                <h5>
+                    Store Receipts
+                </h5>
+
+                <p>
+                    Goods received into Stores and their current status.
+                </p>
+
+            </div>
+
+        </div>
 
         @if($receipts->count())
 
-            <div class="table-responsive">
+            <span class="requisition-count-badge">
+                {{ $receipts->count() }}
+                {{ $receipts->count() === 1 ? 'Receipt' : 'Receipts' }}
+            </span>
 
-                <table class="table table-hover align-middle">
+        @endif
 
-                    <thead>
+    </div>
+
+
+    {{-- ========================================================
+         RECEIPTS TABLE
+         ======================================================== --}}
+    @if($receipts->count())
+
+        <div class="requisition-list-table-wrapper">
+
+            <table class="requisition-list-table">
+
+                <thead>
+
+                    <tr>
+                        <th>#</th>
+                        <th>Receipt No.</th>
+                        <th>Store</th>
+                        <th>Source</th>
+                        <th>Supplier / Reference</th>
+                        <th>Received Date</th>
+                        <th>Status</th>
+                        <th>Received By</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach($receipts as $receipt)
+
                         <tr>
-                            <th>#</th>
-                            <th>Receipt No.</th>
-                            <th>Store</th>
-                            <th>Source</th>
-                            <th>Supplier / Reference</th>
-                            <th>Received Date</th>
-                            <th>Status</th>
-                            <th>Received By</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
+                            {{-- =================================================
+                                 ROW NUMBER
+                                 ================================================= --}}
+                            <td>
 
-                        @foreach($receipts as $receipt)
-
-                            <tr>
-
-                                <td>
+                                <span class="requisition-list-row-number">
                                     {{ $loop->iteration }}
-                                </td>
+                                </span>
 
-                                <td>
-                                    <strong>
+                            </td>
+
+
+                            {{-- =================================================
+                                 RECEIPT NUMBER
+                                 ================================================= --}}
+                            <td>
+
+                                <div class="requisition-list-number">
+
+                                    <a href="{{ route(
+                                        'admin.store-receipts.show',
+                                        $receipt
+                                    ) }}">
                                         {{ $receipt->receipt_number }}
-                                    </strong>
-                                </td>
+                                    </a>
 
-                                <td>
+                                    <div class="requisition-list-meta">
+                                        Store Receipt
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 STORE
+                                 ================================================= --}}
+                            <td>
+
+                                <span class="requisition-list-department">
                                     {{ $receipt->store->name ?? '—' }}
-                                </td>
+                                </span>
 
-                                <td>
+                            </td>
 
-                                    @if($receipt->source_type === 'DONATION')
 
-                                        <span class="badge bg-info">
-                                            Donation
-                                        </span>
+                            {{-- =================================================
+                                 SOURCE
+                                 ================================================= --}}
+                            <td>
 
-                                    @else
+                                @if($receipt->source_type === 'DONATION')
 
-                                        <span class="badge bg-secondary">
-                                            Purchase
-                                        </span>
+                                    <span class="requisition-list-status requisition-list-status-approved">
 
-                                    @endif
+                                        <span class="requisition-list-status-dot"></span>
 
-                                </td>
+                                        Donation
 
-                                <td>
+                                    </span>
 
-                                    @if($receipt->source_type === 'DONATION')
+                                @else
+
+                                    <span class="requisition-list-status requisition-list-status-draft">
+
+                                        <span class="requisition-list-status-dot"></span>
+
+                                        Purchase
+
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 SUPPLIER / REFERENCE
+                                 ================================================= --}}
+                            <td>
+
+                                @if($receipt->source_type === 'DONATION')
+
+                                    <div class="requisition-list-purpose">
 
                                         {{ $receipt->donation
                                             ? 'Donation #' . $receipt->donation->id
                                             : '—' }}
 
-                                    @else
+                                    </div>
 
+                                @else
+
+                                    <div class="requisition-list-purpose">
                                         {{ $receipt->supplier_name ?: '—' }}
+                                    </div>
 
-                                        @if($receipt->supplier_reference)
-                                            <br>
-                                            <small class="text-muted">
-                                                Ref:
-                                                {{ $receipt->supplier_reference }}
-                                            </small>
-                                        @endif
+                                    @if($receipt->supplier_reference)
+
+                                        <div class="requisition-list-time">
+
+                                            Ref:
+                                            {{ $receipt->supplier_reference }}
+
+                                        </div>
 
                                     @endif
 
-                                </td>
+                                @endif
 
-                                <td>
+                            </td>
+
+
+                            {{-- =================================================
+                                 RECEIVED DATE
+                                 ================================================= --}}
+                            <td>
+
+                                <div class="requisition-list-date">
+
                                     {{ $receipt->received_date
                                         ? $receipt->received_date->format('d/m/Y')
                                         : '—' }}
-                                </td>
 
-                                <td>
+                                </div>
 
-                                    @switch($receipt->status)
+                                @if($receipt->created_at)
 
-                                        @case('DRAFT')
-                                            <span class="badge bg-warning text-dark">
-                                                Draft
-                                            </span>
-                                            @break
+                                    <div class="requisition-list-time">
 
-                                        @case('POSTED')
-                                            <span class="badge bg-success">
-                                                Posted
-                                            </span>
-                                            @break
+                                        {{ $receipt->created_at->format('H:i') }}
 
-                                        @case('CANCELLED')
-                                            <span class="badge bg-danger">
-                                                Cancelled
-                                            </span>
-                                            @break
+                                    </div>
 
-                                        @default
-                                            <span class="badge bg-secondary">
-                                                {{ $receipt->status }}
-                                            </span>
+                                @endif
 
-                                    @endswitch
+                            </td>
 
-                                </td>
 
-                                <td>
+                            {{-- =================================================
+                                 STATUS
+                                 ================================================= --}}
+                            <td>
+
+                                @switch($receipt->status)
+
+                                    @case('DRAFT')
+
+                                        <span class="requisition-list-status requisition-list-status-draft">
+
+                                            <span class="requisition-list-status-dot"></span>
+
+                                            Draft
+
+                                        </span>
+
+                                        @break
+
+
+                                    @case('POSTED')
+
+                                        <span class="requisition-list-status requisition-list-status-completed">
+
+                                            <span class="requisition-list-status-dot"></span>
+
+                                            Posted
+
+                                        </span>
+
+                                        @break
+
+
+                                    @case('CANCELLED')
+
+                                        <span class="requisition-list-status requisition-list-status-cancelled">
+
+                                            <span class="requisition-list-status-dot"></span>
+
+                                            Cancelled
+
+                                        </span>
+
+                                        @break
+
+
+                                    @default
+
+                                        <span class="requisition-list-status requisition-list-status-draft">
+
+                                            <span class="requisition-list-status-dot"></span>
+
+                                            {{ $receipt->status }}
+
+                                        </span>
+
+                                @endswitch
+
+                            </td>
+
+
+                            {{-- =================================================
+                                 RECEIVED BY
+                                 ================================================= --}}
+                            <td>
+
+                                <span class="requisition-list-department">
+
                                     {{ $receipt->receivedBy->name ?? '—' }}
-                                </td>
 
-                                <td class="text-end">
+                                </span>
 
+                            </td>
+
+
+                            {{-- =================================================
+                                 ACTIONS
+                                 ================================================= --}}
+                            <td>
+
+                                <div class="requisition-list-actions">
+
+                                    {{-- View --}}
                                     <a href="{{ route(
                                         'admin.store-receipts.show',
                                         $receipt
                                     ) }}"
-                                       class="btn btn-sm btn-outline-primary"
-                                       title="View">
+                                       class="requisition-list-action primary"
+                                       title="View Receipt"
+                                       aria-label="View Receipt">
 
                                         <i class="fas fa-eye"></i>
 
                                     </a>
 
+
                                     @if($receipt->status === 'DRAFT')
 
+                                        {{-- Edit --}}
                                         <a href="{{ route(
                                             'admin.store-receipts.edit',
                                             $receipt
                                         ) }}"
-                                           class="btn btn-sm btn-outline-secondary"
-                                           title="Edit">
+                                           class="requisition-list-action"
+                                           title="Edit Receipt"
+                                           aria-label="Edit Receipt">
 
                                             <i class="fas fa-edit"></i>
 
                                         </a>
 
+
+                                        {{-- Delete --}}
                                         <form
                                             action="{{ route(
                                                 'admin.store-receipts.destroy',
@@ -191,55 +404,97 @@
 
                                             <button
                                                 type="submit"
-                                                class="btn btn-sm btn-outline-danger"
-                                                title="Delete"
+                                                class="requisition-list-action danger"
+                                                title="Delete Receipt"
+                                                aria-label="Delete Receipt"
                                             >
+
                                                 <i class="fas fa-trash"></i>
+
                                             </button>
 
                                         </form>
 
                                     @endif
 
-                                </td>
+                                </div>
 
-                            </tr>
+                            </td>
 
-                        @endforeach
+                        </tr>
 
-                    </tbody>
+                    @endforeach
 
-                </table>
+                </tbody>
 
-            </div>
+            </table>
 
-        @else
+        </div>
 
-            <div class="text-center py-5">
 
-                <div class="mb-3">
-                    <i class="fas fa-box-open fa-3x text-muted"></i>
-                </div>
+        {{-- ========================================================
+             HORIZONTAL SCROLL HINT
+             ======================================================== --}}
+        <div class="requisition-scroll-hint">
 
-                <h5>No Store Receipts Yet</h5>
+            <i class="fas fa-arrows-alt-h"></i>
 
-                <p class="text-muted mb-4">
-                    No goods have been recorded as received into Stores yet.
-                </p>
+            <span>
+                Scroll horizontally to view all receipt details.
+            </span>
 
-                <a href="{{ route('admin.store-receipts.create') }}"
-                   class="btn btn-primary">
+        </div>
 
-                    <i class="fas fa-plus me-1"></i>
-                    Create First Store Receipt
 
-                </a>
+        {{-- ========================================================
+             PAGINATION
+             ======================================================== --}}
+        @if(method_exists($receipts, 'links'))
 
+            <div class="requisition-pagination">
+                {{ $receipts->links() }}
             </div>
 
         @endif
 
-    </div>
+
+    @else
+
+
+        {{-- ========================================================
+             EMPTY STATE
+             ======================================================== --}}
+        <div class="requisition-table-empty">
+
+            <div class="requisition-empty-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+
+            <h5>
+                No Store Receipts Yet
+            </h5>
+
+            <p>
+                No goods have been recorded as received into Stores yet.
+            </p>
+
+            <a href="{{ route('admin.store-receipts.create') }}"
+               class="requisition-add-button">
+
+                <i class="fas fa-plus"></i>
+
+                <span>
+                    Create First Store Receipt
+                </span>
+
+            </a>
+
+        </div>
+
+    @endif
+
+</div>
+
 
 </div>
 

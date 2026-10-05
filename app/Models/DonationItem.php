@@ -9,15 +9,17 @@ class DonationItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'donation_id',
-        'item',
-        'quantity',
-        'unit',
-        'estimated_value',
-        'condition',
-        'notes',
-    ];
+protected $fillable = [
+    'donation_id',
+    'store_item_id',
+    'variant_id',
+    'item',
+    'quantity',
+    'unit',
+    'condition',
+    'estimated_value',
+    'notes',
+];
 
     protected $casts = [
         'quantity' => 'decimal:2',
@@ -28,6 +30,23 @@ class DonationItem extends Model
     {
         return $this->belongsTo(Donation::class);
     }
+
+    public function storeItem()
+{
+    return $this->belongsTo(
+       StoreItem::class,
+        'store_item_id'
+    );
+}
+
+public function variant()
+{
+    return $this->belongsTo(
+       StoreItemVariant::class,
+        'variant_id'
+    );
+}
+
 }
 
 

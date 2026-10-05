@@ -51,6 +51,9 @@ public function communications()
     return $this->hasMany(DonationCommunication::class);
 }
 
-
+public function storeReceipts()
+{
+    return $this->hasMany(StoreReceipt::class, 'donation_id');
+}
 
 }

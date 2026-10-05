@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\StoreReceiptItemController;
 use App\Http\Controllers\Admin\StoreStockController;
 use App\Http\Controllers\Admin\StoreRequisitionController;
 use App\Http\Controllers\Admin\StoreFulfillmentController;
+use App\Http\Controllers\Admin\StoreLpoController;
+use App\Http\Controllers\Admin\SupplierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,6 +161,11 @@ Route::post('stores/store-requisitions/{storeRequisition}/reject', [StoreRequisi
 Route::post('stores/store-requisitions/{storeRequisition}/send-back', [StoreRequisitionController::class, 'sendBack'])->name('admin.stores.store-requisitions.send-back');
 Route::get('stores/store-requisitions/{storeRequisition}', [StoreRequisitionController::class, 'show'])->name('admin.stores.store-requisitions.show');
 Route::delete( '/stores/store-requisitions/{storeRequisition}',[StoreRequisitionController::class, 'destroy'])->name('admin.stores.store-requisitions.destroy');
+// Stores - Fulfillments
+Route::post('/stores/store-requisitions/{storeRequisition}/fulfill', [StoreFulfillmentController::class, 'store'])->name('admin.stores.store-requisitions.fulfill');
+Route::get( '/stores/store-requisitions/fulfillments/{fulfillment}/receipt',[StoreFulfillmentController::class, 'receipt'])->name('admin.stores.store-requisitions.fulfillments.receipt');
+Route::post('/stores/store-requisitions/{storeRequisition}/cancel',[StoreRequisitionController::class, 'cancel'])->name('admin.stores.store-requisitions.cancel');
+
 
 
 Route::resource('stores', StoreController::class)->parameters(['stores' => 'store'])->names('admin.stores');
@@ -200,8 +207,20 @@ Route::get('store-stock', [StoreStockController::class, 'index'])->name('admin.s
 Route::get('store-stock/{storeStock}/ledger', [StoreStockController::class, 'ledger'])->name('admin.store-stock.ledger');
 
 
-// Stores - Fulfillments
-Route::post('/stores/store-requisitions/{storeRequisition}/fulfill', [StoreFulfillmentController::class, 'store'])->name('admin.stores.store-requisitions.fulfill');
+//supplier routes
+
+Route::resource('suppliers', SupplierController::class) ->names('admin.suppliers');
+
+Route::patch( 'suppliers/{supplier}/activate', [SupplierController::class, 'activate'])->name('admin.suppliers.activate');
+
+Route::patch('suppliers/{supplier}/deactivate',[SupplierController::class, 'deactivate'])->name('admin.suppliers.deactivate');
+
+
+Route::resource('store-lpos', StoreLpoController::class)->names('admin.store-lpos');
+Route::post('store-lpos/{storeLpo}/submit',[StoreLpoController::class, 'submit'])->name('admin.store-lpos.submit');
+Route::post('store-lpos/{storeLpo}/approval',[StoreLpoController::class, 'approval'])->name('admin.store-lpos.approval');
+Route::get('store-lpos/{storeLpo}/pdf',[StoreLpoController::class, 'pdf'])->name('admin.store-lpos.pdf');
+
 
 /*
 | M-Pesa transaction review routes

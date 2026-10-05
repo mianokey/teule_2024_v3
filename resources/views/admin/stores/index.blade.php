@@ -1,150 +1,238 @@
 @extends('layouts.admin')
 
+@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
 
-        <h6 class="card-title mb-0">
-            Stores
-        </h6>
+{{-- ============================================================
+     PAGE HEADER
+     ============================================================ --}}
+<div class="requisition-page-header">
+
+    <div class="requisition-header-content">
+
+        <div class="requisition-header-icon">
+            <i class="fas fa-warehouse"></i>
+        </div>
+
+        <div>
+            <div class="requisition-breadcrumb">
+                <span>Stores</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Store Management</span>
+            </div>
+
+            <h1 class="requisition-page-title">
+                Stores
+            </h1>
+
+            <p class="requisition-page-subtitle">
+                Manage stores, stock records and store status.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="requisition-header-right">
 
         <a href="{{ route('admin.stores.create') }}"
-           class="btn btn-primary">
-
-            <i class="fa fa-plus"></i>
-            Add Store
-
+           class="requisition-add-button">
+            <i class="fas fa-plus"></i>
+            <span>Add Store</span>
         </a>
 
     </div>
 
-    <div class="card-body">
+</div>
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
+<x-message></x-message>
+
+
+{{-- ============================================================
+     STORE LIST
+     ============================================================ --}}
+<div class="requisition-section">
+
+    <div class="requisition-section-header">
+
+        <div class="requisition-section-heading">
+
+            <div class="requisition-section-icon">
+                <i class="fas fa-warehouse"></i>
             </div>
-        @endif
+
+            <div>
+                <h5>
+                    Store List
+                </h5>
+
+                <p>
+                    Stores currently configured in the system.
+                </p>
+            </div>
+
+        </div>
 
         @if($stores->count())
+            <span class="requisition-count-badge">
+                {{ $stores->count() }}
+                {{ $stores->count() === 1 ? 'Store' : 'Stores' }}
+            </span>
+        @endif
 
-            <div class="table-responsive">
+    </div>
 
-                <table class="table table-striped table-bordered">
 
-                    <thead>
+    @if($stores->count())
+
+        <div class="requisition-list-table-wrapper">
+
+            <table class="requisition-list-table">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Store</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Stock Records</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach($stores as $store)
+
                         <tr>
-                            <th>#</th>
-                            <th>Store</th>
-                            <th>Code</th>
-                            <th>Description</th>
-                            <th>Stock Records</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-
-                        @foreach($stores as $store)
-
-                            <tr>
-
-                                <td>
+                            {{-- NUMBER --}}
+                            <td>
+                                <span class="requisition-list-row-number">
                                     {{ $loop->iteration }}
-                                </td>
+                                </span>
+                            </td>
 
-                                <td>
-                                    <strong>{{ $store->name }}</strong>
-                                </td>
 
-                                <td>
-                                    <span class="badge badge-info">
-                                        {{ $store->code }}
-                                    </span>
-                                </td>
+                            {{-- STORE --}}
+                            <td>
+                                <div class="requisition-list-number">
+                                    {{ $store->name }}
+                                </div>
+                            </td>
 
-                                <td>
+
+                            {{-- CODE --}}
+                            <td>
+                                <div class="requisition-list-meta">
+                                    {{ $store->code }}
+                                </div>
+                            </td>
+
+
+                            {{-- DESCRIPTION --}}
+                            <td>
+                                <div class="requisition-list-purpose">
                                     {{ $store->description ?: '—' }}
-                                </td>
+                                </div>
+                            </td>
 
-                                <td>
+
+                            {{-- STOCK RECORDS --}}
+                            <td>
+                                <div class="requisition-list-number">
                                     {{ $store->stocks_count }}
-                                </td>
+                                </div>
+                            </td>
 
-                                <td>
 
-                                    @if($store->is_active)
+                            {{-- STATUS --}}
+                            <td>
 
-                                        <span class="badge badge-success">
-                                            Active
-                                        </span>
+                                @if($store->is_active)
 
-                                    @else
+                                    <span class="requisition-list-status requisition-list-status-completed">
+                                        <span class="requisition-list-status-dot"></span>
+                                        Active
+                                    </span>
 
-                                        <span class="badge badge-secondary">
-                                            Inactive
-                                        </span>
+                                @else
 
-                                    @endif
+                                    <span class="requisition-list-status requisition-list-status-cancelled">
+                                        <span class="requisition-list-status-dot"></span>
+                                        Inactive
+                                    </span>
 
-                                </td>
+                                @endif
 
-                                <td>
+                            </td>
 
+
+                            {{-- ACTIONS --}}
+                            <td>
+
+                                <div class="requisition-list-actions">
+
+                                    {{-- VIEW --}}
                                     <a href="{{ route('admin.stores.show', $store) }}"
-                                       class="btn btn-sm btn-info">
+                                       class="requisition-list-action primary"
+                                       title="View Store">
 
-                                        <i class="fa fa-eye"></i>
+                                        <i class="fas fa-eye"></i>
 
                                     </a>
 
+
+                                    {{-- EDIT --}}
                                     <a href="{{ route('admin.stores.edit', $store) }}"
-                                       class="btn btn-sm btn-warning">
+                                       class="requisition-list-action"
+                                       title="Edit Store">
 
-                                        <i class="fa fa-edit"></i>
+                                        <i class="fas fa-edit"></i>
 
                                     </a>
 
+
+                                    {{-- TOGGLE STATUS --}}
                                     <form action="{{ route('admin.stores.toggle-status', $store) }}"
-                                          method="POST"
-                                          class="d-inline">
+                                          method="POST">
 
                                         @csrf
                                         @method('PATCH')
 
                                         <button type="submit"
-                                                class="btn btn-sm {{ $store->is_active ? 'btn-secondary' : 'btn-success' }}"
+                                                class="requisition-list-action"
+                                                title="{{ $store->is_active ? 'Deactivate Store' : 'Activate Store' }}"
                                                 onclick="return confirm('{{ $store->is_active ? 'Deactivate this store?' : 'Activate this store?' }}')">
 
-                                            <i class="fa {{ $store->is_active ? 'fa-ban' : 'fa-check' }}"></i>
+                                            <i class="fas {{ $store->is_active ? 'fa-ban' : 'fa-check' }}"></i>
 
                                         </button>
 
                                     </form>
 
+
+                                    {{-- DELETE --}}
                                     @if($store->stocks_count == 0)
 
                                         <form action="{{ route('admin.stores.destroy', $store) }}"
-                                              method="POST"
-                                              class="d-inline">
+                                              method="POST">
 
                                             @csrf
                                             @method('DELETE')
 
                                             <button type="submit"
-                                                    class="btn btn-sm btn-danger"
+                                                    class="requisition-list-action"
+                                                    title="Delete Store"
                                                     onclick="return confirm('Delete this store?')">
 
-                                                <i class="fa fa-trash"></i>
+                                                <i class="fas fa-trash"></i>
 
                                             </button>
 
@@ -152,43 +240,66 @@
 
                                     @endif
 
-                                </td>
+                                </div>
 
-                            </tr>
+                            </td>
 
-                        @endforeach
+                        </tr>
 
-                    </tbody>
+                    @endforeach
 
-                </table>
+                </tbody>
 
+            </table>
+
+        </div>
+
+        <div class="requisition-scroll-hint">
+            <i class="fas fa-arrows-alt-h"></i>
+            <span>
+                Scroll horizontally to view all store details.
+            </span>
+        </div>
+
+
+        {{-- PAGINATION --}}
+        @if(method_exists($stores, 'links'))
+            <div class="requisition-pagination">
+                {{ $stores->links() }}
             </div>
-
-        @else
-
-            <div class="text-center py-5">
-
-                <i class="fa fa-archive fa-3x text-muted mb-3"></i>
-
-                <h5>No Stores</h5>
-
-                <p class="text-muted">
-                    Create your first store.
-                </p>
-
-                <a href="{{ route('admin.stores.create') }}"
-                   class="btn btn-primary">
-
-                    <i class="fa fa-plus"></i>
-                    Add Store
-
-                </a>
-
-            </div>
-
         @endif
 
-    </div>
+
+    @else
+
+        <div class="requisition-table-empty">
+
+            <div class="requisition-empty-icon">
+                <i class="fas fa-warehouse"></i>
+            </div>
+
+            <h5>
+                No Stores Yet
+            </h5>
+
+            <p>
+                No stores have been configured in the system yet.
+            </p>
+
+            <a href="{{ route('admin.stores.create') }}"
+               class="requisition-add-button">
+
+                <i class="fas fa-plus"></i>
+                <span>Add First Store</span>
+
+            </a>
+
+        </div>
+
+    @endif
+
+</div>
+
 
 </div>
 

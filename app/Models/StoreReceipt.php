@@ -18,6 +18,8 @@ class StoreReceipt extends Model
         'supplier_name',
         'supplier_reference',
         'donation_id',
+        'supplier_id',
+        'store_lpo_id',
         'received_date',
         'received_by',
         'status',
@@ -47,4 +49,23 @@ class StoreReceipt extends Model
     {
         return $this->hasMany(StoreReceiptItem::class);
     }
+
+public function supplier(): BelongsTo
+{
+    return $this->belongsTo(
+        Supplier::class,
+        'supplier_id'
+    );
+}
+
+public function lpo(): BelongsTo
+{
+    return $this->belongsTo(
+        StoreLpo::class,
+        'store_lpo_id'
+    );
+}
+
+
+
 }
