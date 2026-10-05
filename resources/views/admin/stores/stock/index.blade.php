@@ -1,570 +1,69 @@
 @extends('layouts.admin')
 
-@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
 @endpush
 
 @section('content')
 
-<div class="stores-page">
+<div class="store-requisition-page">
 
+    {{-- =========================================================
+         PAGE HEADER
+    ========================================================== --}}
+    <div class="requisition-page-header">
 
-{{-- PAGE HEADER --}}
-<div class="stores-header">
+        <div class="requisition-header-content">
 
-    <div class="stores-header-content">
-
-        <div>
-            <h5 class="stores-header-title">
-                <i class="fas fa-boxes me-2"></i>
-                Current Stock
-            </h5>
-
-            <p class="stores-header-subtitle">
-                Monitor stock balances across all stores and view movement history.
-            </p>
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- FILTERS --}}
-<div class="stores-filter-card">
-
-    <form method="GET"
-          action="{{ route('admin.store-stock.index') }}"
-          class="row g-3 align-items-end">
-
-        <div class="col-md-3">
-
-            <label class="stores-filter-label">
-                Store
-            </label>
-
-            <select name="store_id"
-                    class="form-select">
-
-                <option value="">
-                    All Stores
-                </option>
-
-                @foreach($stores as $store)
-
-                    <option value="{{ $store->id }}"
-                        {{ request('store_id') == $store->id ? 'selected' : '' }}>
-
-                        {{ $store->name }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
-
-        </div>
-
-
-        <div class="col-md-3">
-
-            <label class="stores-filter-label">
-                Item
-            </label>
-
-            <select name="item_id"
-                    class="form-select">
-
-                <option value="">
-                    All Items
-                </option>
-
-                @foreach($items as $item)
-
-                    <option value="{{ $item->id }}"
-                        {{ request('item_id') == $item->id ? 'selected' : '' }}>
-
-                        {{ $item->name }}
-
-                    </option>
-
-                @endforeach
-
-            </select>
-
-        </div>
-
-
-        <div class="col-md-4">
-
-            <label class="stores-filter-label">
-                Search
-            </label>
-
-            <div class="stores-search">
-
-                <i class="fas fa-search stores-search-icon"></i>
-
-                <input type="text"
-                       name="search"
-                       value="{{ request('search') }}"
-                       class="form-control"
-                       placeholder="Search item name...">
-
+            <div class="requisition-header-icon">
+                <i class="fa fa-boxes"></i>
             </div>
-
-        </div>
-
-
-        <div class="col-md-2 d-flex gap-2">
-
-            <button type="submit"
-                    class="btn stores-btn-primary flex-grow-1">
-
-                <i class="fas fa-search me-1"></i>
-                Filter
-
-            </button>
-
-            <a href="{{ route('admin.store-stock.index') }}"
-               class="btn stores-btn-light">
-
-                <i class="fas fa-redo"></i>
-
-            </a>
-
-        </div>
-
-    </form>
-
-</div>
-
-
-{{-- STOCK TABLE --}}
-<div class="stores-table-card">
-
-    <div class="stores-table-wrapper">
-
-        <table class="stores-table align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Store</th>
-
-                    <th>Item</th>
-
-                    <th>Variant</th>
-
-                    <th>Unit</th>
-
-                    <th class="text-end">
-                        Current Stock
-                    </th>
-
-                    <th class="text-end">
-                        Reorder Level
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    <th>
-                        Last Movement
-                    </th>
-
-                    <th class="text-center">
-                        Action
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                @forelse($stocks as $stock)
-
-                    @php
-
-                        $quantity = (float) $stock->quantity;
-
-                        $reorderLevel =
-                            (float) $stock->item->reorder_level;
-
-                        if ($quantity <= 0) {
-
-                            $status = 'out';
-                            $statusLabel = 'Out of Stock';
-
-                        } elseif (
-                            $reorderLevel > 0 &&
-                            $quantity <= $reorderLevel
-                        ) {
-
-                            $status = 'low';
-                            $statusLabel = 'Low Stock';
-
-                        } else {
-
-                            $status = 'normal';
-                            $statusLabel = 'In Stock';
-
-                        }
-
-                    @endphp
-
-
-                    <tr>
-
-                        {{-- STORE --}}
-                        <td>
-
-                            <div class="stores-item-name">
-                                {{ $stock->store->name }}
-                            </div>
-
-                        </td>
-
-
-                        {{-- ITEM --}}
-                        <td>
-
-                            <div class="stores-item-name">
-                                {{ $stock->item->name }}
-                            </div>
-
-                        </td>
-
-
-                        {{-- VARIANT --}}
-                        <td>
-
-                            @if($stock->variant)
-
-                                <span class="stores-variant">
-
-                                    {{ $stock->variant->name }}
-
-                                </span>
-
-                            @else
-
-                                <span class="text-muted">
-                                    —
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- UNIT --}}
-                        <td>
-
-                            <span class="fw-semibold">
-
-                                {{ $stock->item->unit->code }}
-
-                            </span>
-
-                        </td>
-
-
-                        {{-- CURRENT STOCK --}}
-                        <td class="text-end">
-
-                            <span class="
-                                stock-balance
-                                @if($status === 'out')
-                                    stock-empty
-                                @elseif($status === 'low')
-                                    stock-low
-                                @else
-                                    stock-positive
-                                @endif
-                            ">
-
-                                {{ number_format($quantity, 3) }}
-
-                            </span>
-
-                            <span class="stock-unit">
-
-                                {{ $stock->item->unit->code }}
-
-                            </span>
-
-                        </td>
-
-
-                        {{-- REORDER --}}
-                        <td class="text-end">
-
-                            {{ number_format($reorderLevel, 3) }}
-
-                        </td>
-
-
-                        {{-- STATUS --}}
-                        <td>
-
-                            @if($status === 'out')
-
-                                <span class="stores-badge stores-badge-danger">
-
-                                    <i class="fas fa-times-circle"></i>
-
-                                    {{ $statusLabel }}
-
-                                </span>
-
-                            @elseif($status === 'low')
-
-                                <span class="stores-badge stores-badge-warning">
-
-                                    <i class="fas fa-exclamation-circle"></i>
-
-                                    {{ $statusLabel }}
-
-                                </span>
-
-                            @else
-
-                                <span class="stores-badge stores-badge-success">
-
-                                    <i class="fas fa-check-circle"></i>
-
-                                    {{ $statusLabel }}
-
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- LAST MOVEMENT --}}
-                        <td>
-
-                            @if($stock->last_movement_at)
-
-                                <div class="stores-item-name">
-
-                                    {{ $stock->last_movement_at->format('d M Y') }}
-
-                                </div>
-
-                                <div class="stores-muted">
-
-                                    {{ $stock->last_movement_at->format('H\:i') }}
-
-                                </div>
-
-                            @else
-
-                                <span class="text-muted">
-                                    Never
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- ACTION --}}
-                        <td class="text-center">
-
-                            <button type="button"
-                                    class="btn stores-btn-light"
-                                    onclick="openLedger({{ $stock->id }})">
-
-                                <i class="fas fa-history me-1"></i>
-
-                                Ledger
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="9">
-
-                            <div class="stores-empty">
-
-                                <div class="stores-empty-icon">
-
-                                    <i class="fas fa-box-open"></i>
-
-                                </div>
-
-                                <div class="stores-empty-title">
-
-                                    No stock records found
-
-                                </div>
-
-                                <p class="stores-empty-text">
-
-                                    Try changing your filters.
-
-                                </p>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    {{-- PAGINATION --}}
-    @if($stocks->hasPages())
-
-        <div class="stores-pagination">
-
-            {{ $stocks->links() }}
-
-        </div>
-
-    @endif
-
-</div>
-
-
-</div>
-
-{{-- =========================================================
-LEDGER MODAL
-========================================================= --}}
-
-<div class="modal fade stores-modal"
-     id="ledgerModal"
-     tabindex="-1"
-     aria-labelledby="ledgerModalLabel"
-     aria-hidden="true">
-
-
-<div class="modal-dialog modal-xl modal-dialog-scrollable">
-
-    <div class="modal-content">
-
-
-        {{-- MODAL HEADER --}}
-        <div class="modal-header">
 
             <div>
 
-                <h5 class="modal-title"
-                    id="ledgerModalLabel">
-
-                    <i class="fas fa-history me-2"></i>
-
-                    Stock Ledger
-
-                </h5>
-
-                <div id="ledgerSummary"
-                     class="small mt-1">
-
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Inventory</span>
                 </div>
+
+                <h1 class="requisition-page-title">
+                    Current Stock
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Monitor stock balances across all stores and view movement history.
+                </p>
 
             </div>
 
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close">
-            </button>
-
         </div>
 
-
-        {{-- MODAL BODY --}}
-        <div class="modal-body">
+    </div>
 
 
-            {{-- LOADING --}}
-            <div id="ledgerLoading"
-                 class="stores-loading">
+    {{-- =========================================================
+         FILTERS
+    ========================================================== --}}
+    <div class="requisition-section">
 
-                <div class="stores-spinner"></div>
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-filter"></i>
+                </div>
 
                 <div>
-                    Loading stock movement history...
-                </div>
 
-            </div>
+                    <h5>
+                        Stock Filters
+                    </h5>
 
-
-            {{-- ERROR --}}
-            <div id="ledgerError"
-                 class="alert alert-danger d-none">
-            </div>
-
-
-            {{-- CONTENT --}}
-            <div id="ledgerContent"
-                 class="d-none">
-
-                <div class="stores-table-wrapper">
-
-                    <table class="stores-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>Date</th>
-
-                                <th>Movement</th>
-
-                                <th class="text-end">
-                                    Quantity
-                                </th>
-
-                                <th class="text-end">
-                                    Balance
-                                </th>
-
-                                <th>
-                                    Reference
-                                </th>
-
-                                <th>
-                                    Created By
-                                </th>
-
-                                <th>
-                                    Notes
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="ledgerRows">
-
-                        </tbody>
-
-                    </table>
+                    <p>
+                        Filter stock balances by store, item or search term.
+                    </p>
 
                 </div>
 
@@ -573,16 +72,661 @@ LEDGER MODAL
         </div>
 
 
-        {{-- MODAL FOOTER --}}
-        <div class="modal-footer">
+        <div class="requisition-details-body">
 
-            <button type="button"
-                    class="btn stores-btn-light"
-                    data-bs-dismiss="modal">
+            <form method="GET"
+                  action="{{ route('admin.store-stock.index') }}">
 
-                Close
+                <div class="row g-3 align-items-end">
 
-            </button>
+                    {{-- STORE --}}
+                    <div class="col-lg-3">
+
+                        <label class="requisition-field-label">
+                            Store
+                        </label>
+
+                        <select name="store_id"
+                                class="requisition-input">
+
+                            <option value="">
+                                All Stores
+                            </option>
+
+                            @foreach($stores as $store)
+
+                                <option value="{{ $store->id }}"
+                                    @selected(request('store_id') == $store->id)>
+
+                                    {{ $store->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- ITEM --}}
+                    <div class="col-lg-3">
+
+                        <label class="requisition-field-label">
+                            Item
+                        </label>
+
+                        <select name="item_id"
+                                class="requisition-input">
+
+                            <option value="">
+                                All Items
+                            </option>
+
+                            @foreach($items as $item)
+
+                                <option value="{{ $item->id }}"
+                                    @selected(request('item_id') == $item->id)>
+
+                                    {{ $item->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+
+                    {{-- SEARCH --}}
+                    <div class="col-lg-4">
+
+                        <label class="requisition-field-label">
+                            Search
+                        </label>
+
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            class="requisition-input"
+                            placeholder="Search item name..."
+                        >
+
+                    </div>
+
+
+                    {{-- FILTER BUTTONS --}}
+                    <div class="col-lg-2">
+
+                        <div class="d-flex gap-2">
+
+                            <button
+                                type="submit"
+                                class="requisition-save-button"
+                            >
+
+                                <i class="fa fa-search"></i>
+                                Filter
+
+                            </button>
+
+                            <a
+                                href="{{ route('admin.store-stock.index') }}"
+                                class="requisition-cancel-button"
+                            >
+                                Clear
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {{-- =========================================================
+         STOCK LIST
+    ========================================================== --}}
+    <div class="requisition-section">
+
+        {{-- SECTION HEADER --}}
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-boxes"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Current Stock
+                    </h5>
+
+                    <p>
+                        Current stock balances and reorder levels.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="requisition-count-badge">
+
+                {{ $stocks->total() }}
+
+                {{ $stocks->total() === 1 ? 'Stock Record' : 'Stock Records' }}
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             TABLE
+        ====================================================== --}}
+        <div class="requisition-list-table-wrapper">
+
+            <table class="requisition-list-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width: 55px;">
+                            #
+                        </th>
+
+                        <th style="min-width: 150px;">
+                            Store
+                        </th>
+
+                        <th style="min-width: 170px;">
+                            Item
+                        </th>
+
+                        <th style="min-width: 120px;">
+                            Variant
+                        </th>
+
+                        <th style="width: 90px;">
+                            Unit
+                        </th>
+
+                        <th style="width: 125px;">
+                            Current Stock
+                        </th>
+
+                        <th style="width: 125px;">
+                            Reorder Level
+                        </th>
+
+                        <th style="width: 135px;">
+                            Status
+                        </th>
+
+                        <th style="width: 145px;">
+                            Last Movement
+                        </th>
+
+                        <th style="width: 100px;">
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @forelse($stocks as $stock)
+
+                        @php
+
+                            $quantity =
+                                (float) $stock->quantity;
+
+                            $reorderLevel =
+                                (float) $stock->item->reorder_level;
+
+
+                            if ($quantity <= 0) {
+
+                                $status = 'out';
+                                $statusLabel = 'Out of Stock';
+
+                            } elseif (
+                                $reorderLevel > 0 &&
+                                $quantity <= $reorderLevel
+                            ) {
+
+                                $status = 'low';
+                                $statusLabel = 'Low Stock';
+
+                            } else {
+
+                                $status = 'normal';
+                                $statusLabel = 'In Stock';
+
+                            }
+
+                        @endphp
+
+
+                        <tr>
+
+                            {{-- NUMBER --}}
+                            <td>
+
+                                <span class="requisition-list-row-number">
+
+                                    {{ $stocks->firstItem() + $loop->index }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- STORE --}}
+                            <td>
+
+                                <div class="requisition-list-number">
+
+                                    {{ $stock->store->name }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- ITEM --}}
+                            <td>
+
+                                <div class="requisition-list-number">
+
+                                    {{ $stock->item->name }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- VARIANT --}}
+                            <td>
+
+                                @if($stock->variant)
+
+                                    <span class="requisition-list-department">
+
+                                        {{ $stock->variant->name }}
+
+                                    </span>
+
+                                @else
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- UNIT --}}
+                            <td>
+
+                                <span class="requisition-list-item-count">
+
+                                    {{ $stock->item->unit->code }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- CURRENT STOCK --}}
+                            <td>
+
+                                <div class="requisition-list-item-count">
+
+                                    {{ number_format($quantity, 3) }}
+
+                                </div>
+
+                                <div class="requisition-list-meta">
+
+                                    {{ $stock->item->unit->code }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- REORDER LEVEL --}}
+                            <td>
+
+                                <div class="requisition-list-item-count">
+
+                                    {{ number_format($reorderLevel, 3) }}
+
+                                </div>
+
+                                <div class="requisition-list-meta">
+
+                                    {{ $stock->item->unit->code }}
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- STATUS --}}
+                            <td>
+
+                                <span
+                                    class="
+                                        requisition-list-status
+                                        requisition-list-status-{{ $status }}
+                                    "
+                                >
+
+                                    <span class="requisition-list-status-dot"></span>
+
+                                    {{ $statusLabel }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- LAST MOVEMENT --}}
+                            <td>
+
+                                @if($stock->last_movement_at)
+
+                                    <div class="requisition-list-date">
+
+                                        {{ $stock->last_movement_at->format('d M Y') }}
+
+                                    </div>
+
+                                    <div class="requisition-list-time">
+
+                                        {{ $stock->last_movement_at->format('H:i') }}
+
+                                    </div>
+
+                                @else
+
+                                    <span class="text-muted">
+                                        Never
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- ACTION --}}
+                            <td>
+
+                                <div class="requisition-list-actions">
+
+                                    <button
+                                        type="button"
+                                        class="requisition-list-action primary"
+                                        onclick="openLedger({{ $stock->id }})"
+                                        title="View stock ledger"
+                                    >
+
+                                        <i class="fa fa-history"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="10">
+
+                                <div class="requisition-table-empty">
+
+                                    <div class="requisition-empty-icon">
+
+                                        <i class="fa fa-box-open"></i>
+
+                                    </div>
+
+                                    <h5>
+                                        No stock records found
+                                    </h5>
+
+                                    <p>
+                                        Try changing your filters.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {{-- =====================================================
+             SCROLL INDICATOR
+        ====================================================== --}}
+        @if($stocks->count() > 8)
+
+            <div class="requisition-scroll-hint">
+
+                <i class="fa fa-arrows-alt-v"></i>
+
+                Scroll to view more stock records
+
+            </div>
+
+        @endif
+
+
+        {{-- =====================================================
+             PAGINATION
+        ====================================================== --}}
+        @if($stocks->hasPages())
+
+            <div class="requisition-pagination">
+
+                {{ $stocks->appends(
+                    request()->except('page')
+                )->links() }}
+
+            </div>
+
+        @endif
+
+    </div>
+
+</div>
+
+
+{{-- =========================================================
+     LEDGER MODAL
+========================================================== --}}
+<div
+    class="modal fade"
+    id="ledgerModal"
+    tabindex="-1"
+    aria-labelledby="ledgerModalLabel"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            {{-- MODAL HEADER --}}
+            <div class="modal-header">
+
+                <div>
+
+                    <h5
+                        class="modal-title"
+                        id="ledgerModalLabel"
+                    >
+
+                        <i class="fa fa-history me-2"></i>
+
+                        Stock Ledger
+
+                    </h5>
+
+                    <div
+                        id="ledgerSummary"
+                        class="small mt-1"
+                    ></div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+
+            </div>
+
+
+            {{-- MODAL BODY --}}
+            <div class="modal-body">
+
+                {{-- LOADING --}}
+                <div
+                    id="ledgerLoading"
+                    class="text-center py-5"
+                >
+
+                    <div class="spinner-border"
+                         role="status">
+
+                        <span class="visually-hidden">
+                            Loading...
+                        </span>
+
+                    </div>
+
+                    <div class="mt-3">
+                        Loading stock movement history...
+                    </div>
+
+                </div>
+
+
+                {{-- ERROR --}}
+                <div
+                    id="ledgerError"
+                    class="alert alert-danger d-none"
+                ></div>
+
+
+                {{-- CONTENT --}}
+                <div
+                    id="ledgerContent"
+                    class="d-none"
+                >
+
+                    <div class="requisition-list-table-wrapper">
+
+                        <table class="requisition-list-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th>
+                                        Movement
+                                    </th>
+
+                                    <th>
+                                        Quantity
+                                    </th>
+
+                                    <th>
+                                        Balance
+                                    </th>
+
+                                    <th>
+                                        Reference
+                                    </th>
+
+                                    <th>
+                                        Created By
+                                    </th>
+
+                                    <th>
+                                        Notes
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="ledgerRows">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- MODAL FOOTER --}}
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="requisition-cancel-button"
+                    data-bs-dismiss="modal"
+                >
+                    Close
+                </button>
+
+            </div>
 
         </div>
 
@@ -590,8 +734,6 @@ LEDGER MODAL
 
 </div>
 
-
-</div>
 
 <script>
 
@@ -690,22 +832,35 @@ function openLedger(stockId)
         if (!data.movements.length) {
 
             rows.innerHTML =
+
                 '<tr>' +
+
                 '<td colspan="7">' +
 
-                '<div class="stores-empty">' +
+                '<div class="requisition-table-empty">' +
 
-                '<div class="stores-empty-icon">' +
-                '<i class="fas fa-history"></i>' +
+                '<div class="requisition-empty-icon">' +
+
+                '<i class="fa fa-history"></i>' +
+
                 '</div>' +
 
-                '<div class="stores-empty-title">' +
+                '<h5>' +
+
                 'No stock movements found' +
-                '</div>' +
+
+                '</h5>' +
+
+                '<p>' +
+
+                'There are no recorded movements for this stock item.' +
+
+                '</p>' +
 
                 '</div>' +
 
                 '</td>' +
+
                 '</tr>';
 
         } else {
@@ -715,9 +870,6 @@ function openLedger(stockId)
                 const quantity =
                     Number(movement.quantity);
 
-
-                let movementClass =
-                    'stores-movement-neutral';
 
                 let sign = '';
 
@@ -730,9 +882,6 @@ function openLedger(stockId)
                     ].includes(movement.type)
                 ) {
 
-                    movementClass =
-                        'stores-movement-in';
-
                     sign = '+';
 
                 } else if (
@@ -742,9 +891,6 @@ function openLedger(stockId)
                         'TRANSFER_OUT'
                     ].includes(movement.type)
                 ) {
-
-                    movementClass =
-                        'stores-movement-out';
 
                     sign = '-';
 
@@ -785,9 +931,9 @@ function openLedger(stockId)
 
                     '<td>' +
 
-                    '<span class="stores-movement ' +
-                    movementClass +
-                    '">' +
+                    '<span class="requisition-list-status">' +
+
+                    '<span class="requisition-list-status-dot"></span>' +
 
                     escapeHtml(movement.type) +
 
@@ -795,42 +941,31 @@ function openLedger(stockId)
 
                     '</td>' +
 
-                    '<td class="text-end">' +
-
+                    '<td>' +
                     sign +
-
                     Number(quantity).toFixed(3) +
-
                     '</td>' +
 
-                    '<td class="text-end stores-ledger-balance">' +
-
+                    '<td>' +
                     Number(
                         movement.balance_after
                     ).toFixed(3) +
-
                     '</td>' +
 
                     '<td>' +
-
                     reference +
-
                     '</td>' +
 
                     '<td>' +
-
                     escapeHtml(
                         movement.created_by ?? '—'
                     ) +
-
                     '</td>' +
 
                     '<td>' +
-
                     escapeHtml(
                         movement.notes ?? '—'
                     ) +
-
                     '</td>' +
 
                     '</tr>';
@@ -880,3 +1015,4 @@ function escapeHtml(value)
 </script>
 
 @endsection
+
