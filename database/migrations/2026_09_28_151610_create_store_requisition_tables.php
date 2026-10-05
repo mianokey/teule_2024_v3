@@ -86,48 +86,87 @@ return new class extends Migration
          * ============================================================
          */
 
-        Schema::create('store_requisition_items', function (Blueprint $table) {
-            $table->id();
 
-            $table->foreignId('store_requisition_id')
-                ->constrained('store_requisitions')
-                ->cascadeOnDelete();
+/*
+ * ============================================================
+ * REQUISITION ITEMS
+ * ============================================================
+ */
 
-            $table->foreignId('store_item_id')
-                ->constrained('store_items')
-                ->restrictOnDelete();
+Schema::create('store_requisition_items', function (Blueprint $table) {
+    $table->id();
 
-            $table->foreignId('variant_id')
-                ->nullable()
-                ->constrained('store_item_variants')
-                ->nullOnDelete();
+    $table->unsignedBigInteger('store_requisition_id');
 
-            $table->decimal('requested_quantity', 12, 2)
-                ->default(0);
+    $table->unsignedBigInteger('store_item_id');
 
-            $table->decimal('approved_quantity', 12, 2)
-                ->default(0);
+    $table->unsignedBigInteger('variant_id')
+        ->nullable();
 
-            $table->decimal('issued_quantity', 12, 2)
-                ->default(0);
+    $table->decimal('requested_quantity', 15, 3);
 
-            $table->decimal('outstanding_quantity', 12, 2)
-                ->default(0);
+    $table->decimal('approved_quantity', 15, 3)
+        ->default(0);
 
-            $table->text('notes')->nullable();
+    $table->decimal('issued_quantity', 15, 3)
+        ->default(0);
 
-            $table->timestamps();
+    $table->decimal('outstanding_quantity', 15, 3)
+        ->default(0);
 
-            $table->index(
-                ['store_requisition_id', 'store_item_id'],
-                'requisition_items_lookup_idx'
-            );
+    $table->text('notes')->nullable();
 
-            $table->index(
-                ['store_item_id', 'variant_id'],
-                'requisition_items_stock_lookup_idx'
-            );
-        });
+    $table->timestamps();
+
+    /*
+     * Indexes
+     */
+    $table->index(
+        'store_item_id',
+        'store_requisition_items_store_item_id_foreign'
+    );
+
+    $table->index(
+        'variant_id',
+        'store_requisition_items_variant_id_foreign'
+    );
+
+    $table->index(
+        ['store_requisition_id', 'store_item_id', 'variant_id'],
+        'requisition_items_lookup_idx'
+    );
+
+    /*
+     * Foreign keys
+     */
+    $table->foreign(
+        'store_requisition_id',
+        'store_requisition_items_store_requisition_id_foreign'
+    )
+        ->references('id')
+        ->on('store_requisitions')
+        ->cascadeOnDelete()
+        ->restrictOnUpdate();
+
+    $table->foreign(
+        'store_item_id',
+        'store_requisition_items_store_item_id_foreign'
+    )
+        ->references('id')
+        ->on('store_items')
+        ->restrictOnDelete()
+        ->restrictOnUpdate();
+
+    $table->foreign(
+        'variant_id',
+        'store_requisition_items_variant_id_foreign'
+    )
+        ->references('id')
+        ->on('store_item_variants')
+        ->restrictOnDelete()
+        ->restrictOnUpdate();
+});
+
 
 
         /*
