@@ -246,6 +246,7 @@ Route::middleware(['auth'])->prefix('admin/system')->group(function () {
 
 
 Route::get('/admin/merchandise', function () { return 'Merchandise module route is working.';})->name('admin.merchandise.index');
+Route::get('/admin/merchandise/create', function () { return 'Merchandise module route is working.';})->name('admin.merchandise.create');
 
 
 
@@ -268,10 +269,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('/pettycash', PettycashController::class);
     Route::post('pettycash/addPayee', [PettyCashController::class, 'addPayee'])->name('pettycash.addPayee');
 
-});
-
-Route::middleware(['auth'])->group(function() {
-    Route::get('/merch/create', [MerchandiseController::class,'index'])->name('merch.create');
 });
 
 
