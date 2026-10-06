@@ -359,6 +359,27 @@
 
             @endif
 
+
+            @if(
+    auth()->user()->can('MAKE REQUISITION') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+)
+
+    <li>
+
+        <a href="{{ route('admin.lpos.index') }}"
+           class="svg-icon">
+
+            <i class="fa fa-file-text-o"></i>
+            <span>Local Purchase Orders</span>
+
+        </a>
+
+    </li>
+
+@endif
+
+
             @if(
     auth()->user()->can('MAKE REQUISITION') ||
     auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
