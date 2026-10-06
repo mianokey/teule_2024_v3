@@ -245,6 +245,11 @@ Route::middleware(['auth'])->prefix('admin/system')->group(function () {
 
 
 
+Route::get('/admin/merchandise', function () { return 'Merchandise module route is working.';})->name('admin.merchandise.index');
+
+
+
+
 Route::prefix('admin')->name('admin.')->group(function () {
     // Roles
     Route::resource('/roles', RoleController::class);
