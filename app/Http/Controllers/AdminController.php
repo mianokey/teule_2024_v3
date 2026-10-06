@@ -445,172 +445,173 @@ public function user_index()
     }
 
 
-public function user_store(Request $request)
+public function user_update(Request $request, $id)
 {
-    // Validate basic inputs
+    $user = User::findOrFail($id);
+
+    $emailRule = [
+        'required',
+        'string',
+        'email',
+        'max:255',
+    ];
+
+    if ($request->input('email') !== $user->email) {
+        $emailRule[] = Rule::unique('users')->ignore($user->id);
+    }
+
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed',
+        'email' => $emailRule,
+
+        'current_password' => [
+            'nullable',
+            function ($attribute, $value, $fail) use ($user) {
+                if (!Hash::check($value, $user->password)) {
+                    $fail('The current password is incorrect.');
+                }
+            },
+        ],
+
+        'password' => 'nullable|string|min:8|confirmed',
+
         'position' => 'required|string|max:255',
-        'role' => 'required|exists:roles,name',
-        'image' => 'required', // manual validation below
+
+        'role' => 'nullable|exists:roles,name',
+
+        'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
     ]);
 
-    DB::beginTransaction(); // Start DB transaction
-
     try {
-        // 1️⃣ Create the user
-        $user = User::create([
+
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Update basic user information
+        |--------------------------------------------------------------------------
+        */
+
+        $user->update([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
+            'password' => $request->filled('password')
+                ? Hash::make($request->input('password'))
+                : $user->password,
         ]);
 
-        // 2️⃣ Assign role
-        $user->assignRole($request->input('role'));
 
-        // 3️⃣ Handle image upload (shared-hosting-safe)
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Update role
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('role')) {
+            $user->syncRoles([
+                $request->input('role')
+            ]);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Handle image
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->hasFile('image')) {
+
             $file = $request->file('image');
 
-            // Validate extension
-            $allowedExtensions = ['jpg', 'jpeg', 'png'];
-            $ext = strtolower($file->getClientOriginalExtension());
+            $allowedExtensions = [
+                'jpg',
+                'jpeg',
+                'png'
+            ];
+
+            $ext = strtolower(
+                $file->getClientOriginalExtension()
+            );
+
             if (!in_array($ext, $allowedExtensions)) {
-                throw new \Exception('Invalid image type. Allowed: jpg, jpeg, png.');
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Invalid image type. Allowed: jpg, jpeg, png.'
+                    );
             }
 
-            // Validate size (max 2MB)
-            $maxSize = 2 * 1024 * 1024; // 2MB
+            $maxSize = 2 * 1024 * 1024;
+
             if ($file->getSize() > $maxSize) {
-                throw new \Exception('Image size exceeds 2 MB.');
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Image size exceeds 2 MB.'
+                    );
             }
 
-            // Generate a unique filename
             $filename = uniqid() . '.' . $ext;
 
-            // Move file to public/uploads
-            $file->move(public_path('uploads'), $filename);
+            $file->move(
+                public_path('uploads'),
+                $filename
+            );
 
-            // Save path in user details
             $user->details()->updateOrCreate(
                 ['key' => 'img_url'],
                 ['value' => 'uploads/' . $filename]
             );
         }
 
-        // 4️⃣ Save position in user details
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Update position
+        |--------------------------------------------------------------------------
+        */
+
         $user->details()->updateOrCreate(
             ['key' => 'position'],
             ['value' => $request->input('position')]
         );
 
-        // ✅ Commit transaction if all steps succeed
-        DB::commit();
 
-        return redirect()->back()->with('success', 'User registered successfully with role: ' . $request->input('role'));
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Finish
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'User updated successfully!'
+            );
 
     } catch (\Exception $e) {
-        // Rollback everything if any step fails
-        DB::rollBack();
 
-        // Delete uploaded image if it exists
-        if (isset($filename) && file_exists(public_path('uploads/' . $filename))) {
-            unlink(public_path('uploads/' . $filename));
-        }
+        Log::error(
+            'User update failed: ' . $e->getMessage(),
+            [
+                'user_id' => $id,
+                'trace' => $e->getTraceAsString(),
+            ]
+        );
 
-        // Log the error for debugging
-        \Log::error('User registration failed: ' . $e->getMessage(), [
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return redirect()->back()->withInput()->with('error', 'Failed to register user: ' . $e->getMessage());
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with(
+                'error',
+                'Failed to update user: ' . $e->getMessage()
+            );
     }
 }
-
-
-
-
-    public function user_update(Request $request, $id)
-    {
-        // Find the user by ID
-        $user = User::findOrFail($id);
-
-        // Determine the unique rule for the email field
-        $emailRule = ['required', 'string', 'email', 'max:255'];
-
-        // Check if the email has changed and if it's unique
-        if ($request->input('email') !== $user->email) {
-            // Add a rule to ensure uniqueness, except for the current user's email
-            $emailRule[] = Rule::unique('users')->ignore($user->id);
-        }
-
-        // Validate the incoming request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => $emailRule,
-            'current_password' => [
-                'nullable',
-                function ($attribute, $value, $fail) use ($request, $user) {
-                    if (!Hash::check($value, $user->password)) {
-                        $fail('The current password is incorrect.');
-                    }
-                },
-            ],
-            'password' => 'nullable|string|min:8|confirmed',
-            'position' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-        ]);
-
-        try {
-            // Update the user record with the provided data
-            $user->update([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => $request->filled('password') ? Hash::make($request->input('password')) : $user->password,
-            ]);
-
-if ($request->hasFile('image')) {
-    $file = $request->file('image');
-
-    // Manual validation
-    $allowedExtensions = ['jpg', 'jpeg', 'png'];
-    $ext = strtolower($file->getClientOriginalExtension());
-    if (!in_array($ext, $allowedExtensions)) {
-        return redirect()->back()->withInput()->with('error', 'Invalid image type. Allowed: jpg, jpeg, png.');
-    }
-
-    $maxSize = 2 * 1024 * 1024; // 2 MB
-    if ($file->getSize() > $maxSize) {
-        return redirect()->back()->withInput()->with('error', 'Image size exceeds 2 MB.');
-    }
-
-    // Generate a unique filename
-    $filename = uniqid() . '.' . $ext;
-
-    // Move file manually to public/uploads
-    $file->move(public_path('uploads'), $filename);
-
-    // Save path in user details
-    $user->details()->updateOrCreate(
-        ['key' => 'img_url'],
-        ['value' => 'uploads/' . $filename]
-    );
-}
-
-            // Create or update other user details (e.g., position)
-            $user->details()->updateOrCreate(['key' => 'position'], ['value' => $request->input('position')]);
-
-            // Redirect to an appropriate page after successful update
-            return redirect()->back()->with('success', 'User updated successfully!');
-        } catch (\Exception $e) {
-            // If an error occurs during user update, redirect back with error message
-            return redirect()->back()->withInput()->with('error', 'Failed to update user: ' . $e->getMessage());
-        }
-    }
-
-
 
     public function user_delete($id)
     {
@@ -633,42 +634,54 @@ if ($request->hasFile('image')) {
     }
 
 
-    public function updateRoles(Request $request, $userId)
-    {
-        // Validate the incoming request to ensure role_id is valid
-        $request->validate([
-            'role_id' => 'required|exists:roles,id',  // Validate the role ID
+public function updateRoles(Request $request, $userId)
+{
+    $request->validate([
+        'role_id' => 'required|exists:roles,id',
+    ]);
+
+    try {
+
+        $user = User::findOrFail($userId);
+
+        $role = Role::findOrFail($request->role_id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Assign role to user
+        |--------------------------------------------------------------------------
+        */
+
+        $user->syncRoles([
+            $role->name
         ]);
 
-        try {
-            // Find the user and the role by their IDs
-            $user = User::findOrFail($userId);
-            $role = Role::findOrFail($request->role_id);
+        return response()->json([
+            'success' => true,
+            'message' => 'User role updated successfully.',
+        ]);
 
-            // Sync the role to the user (this removes old roles and assigns the new one)
-            $user->syncRoles([$role->name]);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
-            // Sync the permissions related to the role to the user
-            $permissions = $role->permissions;  // Get the permissions related to the role
-            $user->permissions()->sync($permissions->pluck('id')->toArray());  // Sync the permissions
+        return response()->json([
+            'success' => false,
+            'message' => 'User or role not found.',
+        ], 404);
 
-            // Return a success response
-            return response()->json([
-                'success' => true,
-                'message' => 'Role and permissions updated successfully'
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Handle cases where user or role is not found
-            return response()->json([
-                'success' => false,
-                'message' => 'User or Role not found'
-            ]);
-        } catch (\Exception $e) {
-            // Catch any other errors and return the error message
-            return response()->json([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
-        }
+    } catch (\Exception $e) {
+
+        Log::error(
+            'User role update failed: ' . $e->getMessage(),
+            [
+                'user_id' => $userId,
+                'trace' => $e->getTraceAsString(),
+            ]
+        );
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+        ], 500);
     }
+}
 }
