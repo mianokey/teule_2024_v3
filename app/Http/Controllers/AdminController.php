@@ -73,7 +73,7 @@ class AdminController extends Controller
                 unlink(public_path($imagePath));
             }
 
-            \Log::error('Failed storing child record: ' . $e->getMessage());
+            Log::error('Failed storing child record: ' . $e->getMessage());
 
             return redirect()->back()
                 ->withInput($request->except('image'))
@@ -711,7 +711,7 @@ public function updateRoles(Request $request, $userId)
 
     } catch (\Exception $e) {
 
-        \Log::error(
+        Log::error(
             'User role and permission update failed: ' . $e->getMessage(),
             [
                 'user_id' => $userId,
@@ -728,5 +728,148 @@ public function updateRoles(Request $request, $userId)
             );
     }
 }
+
+
+public function user_store(Request $request)
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'position' => ['nullable', 'string', 'max:255'],
+        'role' => ['nullable', 'exists:roles,name'],
+        'image' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+        ],
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE USER
+        |--------------------------------------------------------------------------
+        */
+
+        $user = new User();
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+
+        $user->save();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ASSIGN ROLE
+        |--------------------------------------------------------------------------
+        |
+        | If no role is selected, use normal_user as the baseline role.
+        |
+        */
+
+        $roleName = $request->input('role', 'normal_user');
+
+        $role = Role::where('name', $roleName)
+            ->where('guard_name', 'web')
+            ->first();
+
+        if (!$role) {
+
+            $role = Role::firstOrCreate([
+                'name' => 'normal_user',
+                'guard_name' => 'web',
+            ]);
+
+        }
+
+        $user->assignRole($role);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE POSITION
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('position')) {
+
+            $user->details()->create([
+                'key' => 'position',
+                'value' => $request->position,
+            ]);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE PROFILE IMAGE
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->hasFile('image')) {
+
+            $path = $request->file('image')->store(
+                'users',
+                'public'
+            );
+
+            $user->details()->create([
+                'key' => 'img_url',
+                'value' => 'storage/' . $path,
+            ]);
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLEAR SPATIE PERMISSION CACHE
+        |--------------------------------------------------------------------------
+        */
+
+        app(
+            \Spatie\Permission\PermissionRegistrar::class
+        )->forgetCachedPermissions();
+
+
+        DB::commit();
+
+        return redirect()
+            ->route('admin.user.index')
+            ->with(
+                'success',
+                'User created successfully.'
+            );
+
+    } catch (\Throwable $e) {
+
+        DB::rollBack();
+
+        Log::error(
+            'User creation failed: ' . $e->getMessage(),
+            [
+                'email' => $request->email,
+                'trace' => $e->getTraceAsString(),
+            ]
+        );
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with(
+                'error',
+                'Failed to create user: ' . $e->getMessage()
+            );
+    }
+}
+
 
 }
