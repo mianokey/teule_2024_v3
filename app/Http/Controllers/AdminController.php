@@ -15,8 +15,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-
-
+use Spatie\Permission\Models\Permission;
 
 class AdminController extends Controller
 {
@@ -633,6 +632,33 @@ public function user_update(Request $request, $id)
         }
     }
 
+public function editRoles($userId)
+{
+    $user = User::findOrFail($userId);
+
+    // All available roles
+    $roles = Role::where('guard_name', 'web')
+        ->orderBy('name')
+        ->get();
+
+    // All available permissions
+    $permissions = Permission::where('guard_name', 'web')
+        ->orderBy('name')
+        ->get();
+
+    // Get ONLY permissions directly assigned to this user.
+    // Role permissions are intentionally excluded here.
+    $directPermissionIds = $user->getDirectPermissions()
+        ->pluck('id')
+        ->toArray();
+
+    return view('admin.user.roles', compact(
+        'user',
+        'roles',
+        'permissions',
+        'directPermissionIds'
+    ));
+}
 
 public function updateRoles(Request $request, $userId)
 {

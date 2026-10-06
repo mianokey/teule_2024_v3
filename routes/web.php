@@ -259,7 +259,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Permissions
     Route::resource('/permissions', PermissionController::class);
     
-
+Route::get('/users/{id}/roles', [AdminController::class, 'editRoles'])->name('users.roles.edit');
     // Assign Role to User
     Route::put('/users/{user}/roles', [AdminController::class, 'updateRoles'])->name('users.roles.update');
 });
