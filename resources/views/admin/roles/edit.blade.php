@@ -6,51 +6,105 @@
 
 @section('content')
 
-<div class="card">
+<div class="requisition-page">
 
-    {{-- HEADER --}}
-    <div class="card-header">
-        <h6 class="card-title mb-0">
-            Edit Role: {{ $role->name }}
-        </h6>
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-shield"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Administration</span>
+                    <i class="fa fa-angle-right"></i>
+                    <span>Roles</span>
+                    <i class="fa fa-angle-right"></i>
+                    <span>Edit</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Edit Role
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Manage the role and the permissions inherited by its users.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-page-actions">
+
+            <a href="{{ route('admin.roles.index') }}"
+               class="requisition-cancel-button">
+                <i class="fa fa-arrow-left"></i>
+                Back to Roles
+            </a>
+
+        </div>
+
     </div>
 
     <x-message></x-message>
 
-    <div class="card-body">
+    <form method="POST"
+          action="{{ route('admin.roles.update', $role->id) }}">
 
-        <form
-            action="{{ route('admin.roles.update', $role->id) }}"
-            method="POST"
-            id="rolePermissionsForm"
-        >
+        @csrf
+        @method('PUT')
 
-            @csrf
-            @method('PUT')
+        {{-- ========================================================
+             ROLE DETAILS
+             ======================================================== --}}
+        <div class="requisition-card">
 
+            <div class="requisition-card-header">
 
-            {{-- =====================================================
-                 ROLE NAME
-                 ===================================================== --}}
-            <div class="row">
+                <div>
+                    <div class="requisition-card-title">
+                        Role Details
+                    </div>
 
-                <div class="col-md-12">
+                    <div class="requisition-card-subtitle">
+                        Basic information about this role.
+                    </div>
+                </div>
 
-                    <div class="form-floating mb-4">
+                @if($role->name === 'normal_user')
 
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            class="form-control"
-                            value="{{ old('name', $role->name) }}"
-                            placeholder="Role Name"
-                            required
-                        >
+                    <span class="requisition-list-status requisition-status-approved">
+                        Default User Role
+                    </span>
 
-                        <label for="name">
+                @endif
+
+            </div>
+
+            <div class="requisition-details-body">
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <label class="requisition-field-label"
+                               for="name">
                             Role Name
                         </label>
+
+                        <input type="text"
+                               name="name"
+                               id="name"
+                               class="requisition-input disabled"
+                               value="{{ old('name', $role->name) }}"
+                               required disabled>
 
                     </div>
 
@@ -58,273 +112,275 @@
 
             </div>
 
+        </div>
 
-            {{-- =====================================================
-                 PERMISSIONS TOOLBAR
-                 ===================================================== --}}
-            <div class="app-toolbar">
 
-                <div class="app-toolbar-left">
+        {{-- ========================================================
+             PERMISSIONS
+             ======================================================== --}}
+        <div class="requisition-card">
 
-                    <span class="app-toolbar-title">
-                        Permissions
-                    </span>
+            <div class="requisition-card-header">
 
-                    <span
-                        class="app-selection-count"
-                        id="selectedPermissionCount"
-                    >
-                        0 selected
-                    </span>
+                <div>
+
+                    <div class="requisition-card-title">
+                        Role Permissions
+                    </div>
+
+                    <div class="requisition-card-subtitle">
+                        Users assigned this role inherit these permissions.
+                    </div>
 
                 </div>
 
-                <div class="app-toolbar-actions">
+                <div class="requisition-page-actions">
 
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary"
-                        id="selectAllPermissions"
-                    >
+                    <button type="button"
+                            class="requisition-cancel-button"
+                            id="selectAllPermissions">
                         <i class="fa fa-check-square-o"></i>
                         Select All
                     </button>
 
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-secondary"
-                        id="deselectAllPermissions"
-                    >
+                    <button type="button"
+                            class="requisition-cancel-button"
+                            id="deselectAllPermissions">
                         <i class="fa fa-square-o"></i>
-                        Deselect All
+                        Clear All
                     </button>
 
                 </div>
 
             </div>
 
+            <div class="requisition-list-table-wrapper">
 
-            {{-- =====================================================
-                 PERMISSIONS LIST
-                 ===================================================== --}}
-            <div class="app-list">
+                <table class="requisition-list-table">
 
-                @forelse ($permissions as $permission)
+                    <thead>
 
-                    @php
-                        $hasPermission = $role->hasPermissionTo($permission->name);
-                    @endphp
+                        <tr>
+                            <th style="width:50px;">Select</th>
+                            <th>Permission</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
 
-                    <label
-                        class="app-list-item {{ $hasPermission ? 'is-selected' : '' }}"
-                        for="permission_{{ $permission->id }}"
-                    >
+                    </thead>
 
-                        {{-- CHECKBOX --}}
-                        <input
-                            type="checkbox"
-                            class="permission-checkbox permission-input"
-                            name="permissions[]"
-                            id="permission_{{ $permission->id }}"
-                            value="{{ $permission->id }}"
-                            {{ $hasPermission ? 'checked' : '' }}
-                        >
+                    <tbody>
 
+                    @forelse($permissions as $permission)
 
-                        {{-- PERMISSION DETAILS --}}
-                        <span class="app-list-item-content">
+                        @php
+                            $hasPermission = $role->hasPermissionTo($permission->name);
+                        @endphp
 
-                            <span class="app-list-item-title">
-                                {{ $permission->name }}
-                            </span>
+                        <tr class="permission-row">
 
-                            <span class="app-list-item-meta">
-                                Users assigned to this role will have this permission.
-                            </span>
+                            <td>
 
-                        </span>
+                                <input type="checkbox"
+                                       class="permission-checkbox"
+                                       name="permissions[]"
+                                       value="{{ $permission->id }}"
+                                       {{ $hasPermission ? 'checked' : '' }}>
 
+                            </td>
 
-                        {{-- STATUS --}}
-                        <span
-                            class="app-list-item-status
-                                {{ $hasPermission ? 'is-active' : 'is-inactive' }}"
-                        >
-                            {{ $hasPermission ? 'Enabled' : 'Disabled' }}
-                        </span>
+                            <td>
 
-                    </label>
+                                <strong>
+                                    {{ $permission->name }}
+                                </strong>
 
-                @empty
+                            </td>
 
-                    <div class="alert alert-warning">
+                            <td>
 
-                        <i class="fa fa-exclamation-triangle"></i>
+                                <span class="requisition-list-meta">
+                                    {{ $permission->description ?? 'System permission' }}
+                                </span>
 
-                        No permissions have been created yet.
+                            </td>
 
-                    </div>
+                            <td>
 
-                @endforelse
+                                <span class="requisition-list-status
+                                    {{ $hasPermission
+                                        ? 'requisition-status-approved'
+                                        : 'requisition-status-draft' }}">
+
+                                    {{ $hasPermission ? 'Enabled' : 'Disabled' }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="4">
+
+                                <div class="requisition-table-empty">
+
+                                    <div class="requisition-empty-icon">
+                                        <i class="fa fa-key"></i>
+                                    </div>
+
+                                    <h5>No permissions found</h5>
+
+                                    <p>
+                                        Create permissions before assigning them to roles.
+                                    </p>
+
+                                    <a href="{{ route('admin.permissions.create') }}"
+                                       class="requisition-add-button">
+                                        <i class="fa fa-plus"></i>
+                                        Create Permission
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
 
             </div>
 
+        </div>
 
-            {{-- =====================================================
-                 FORM ACTIONS
-                 ===================================================== --}}
-            <div class="permissions-footer">
 
-                <div class="permissions-footer-inner">
+        {{-- ========================================================
+             SAVE
+             ======================================================== --}}
+        <div class="requisition-bottom-actions">
 
-                    <a
-                        href="{{ route('admin.roles.index') }}"
-                        class="btn btn-secondary"
-                    >
-                        <i class="fa fa-arrow-left"></i>
-                        Back to Roles
-                    </a>
+            <div class="requisition-bottom-actions-left">
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        <i class="fa fa-save"></i>
-                        Update Role
-                    </button>
-
-                </div>
+                <a href="{{ route('admin.roles.index') }}"
+                   class="requisition-cancel-button">
+                    <i class="fa fa-arrow-left"></i>
+                    Cancel
+                </a>
 
             </div>
 
-        </form>
+            <div class="requisition-bottom-actions-right">
 
-    </div>
+                <button type="submit"
+                        class="requisition-add-button">
+                    <i class="fa fa-save"></i>
+                    Update Role & Permissions
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
 
 </div>
 
 
-{{-- =============================================================
-     PERMISSION SELECTION JAVASCRIPT
-     ============================================================= --}}
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
-    const checkboxes =
-        document.querySelectorAll('.permission-input');
+    const checkboxes = document.querySelectorAll('.permission-checkbox');
 
-    const selectedCount =
-        document.getElementById('selectedPermissionCount');
+    const selectAll = document.getElementById('selectAllPermissions');
 
-    const selectAllButton =
-        document.getElementById('selectAllPermissions');
-
-    const deselectAllButton =
-        document.getElementById('deselectAllPermissions');
+    const deselectAll = document.getElementById('deselectAllPermissions');
 
 
-    /*
-     * Update selected count and visual state.
-     */
-    function updatePermissionUI() {
+    selectAll?.addEventListener('click', function () {
 
-        let selected = 0;
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = true;
+        });
+
+        updatePermissionRows();
+
+    });
+
+
+    deselectAll?.addEventListener('click', function () {
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = false;
+        });
+
+        updatePermissionRows();
+
+    });
+
+
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener('change', function () {
+            updatePermissionRows();
+        });
+
+    });
+
+
+    function updatePermissionRows() {
 
         checkboxes.forEach(function (checkbox) {
 
-            const row =
-                checkbox.closest('.app-list-item');
+            const row = checkbox.closest('.permission-row');
 
-            const status =
-                row.querySelector('.app-list-item-status');
+            if (!row) {
+                return;
+            }
 
+            const status = row.querySelector('.requisition-list-status');
+
+            if (!status) {
+                return;
+            }
 
             if (checkbox.checked) {
 
-                selected++;
-
-                row.classList.add('is-selected');
-
                 status.textContent = 'Enabled';
 
-                status.classList.remove('is-inactive');
+                status.classList.remove(
+                    'requisition-status-draft'
+                );
 
-                status.classList.add('is-active');
+                status.classList.add(
+                    'requisition-status-approved'
+                );
 
             } else {
 
-                row.classList.remove('is-selected');
-
                 status.textContent = 'Disabled';
 
-                status.classList.remove('is-active');
+                status.classList.remove(
+                    'requisition-status-approved'
+                );
 
-                status.classList.add('is-inactive');
+                status.classList.add(
+                    'requisition-status-draft'
+                );
 
             }
 
         });
 
-
-        selectedCount.textContent =
-            selected + (selected === 1 ? ' selected' : ' selected');
     }
 
-
-    /*
-     * Individual permission selection.
-     */
-    checkboxes.forEach(function (checkbox) {
-
-        checkbox.addEventListener('change', function () {
-
-            updatePermissionUI();
-
-        });
-
-    });
-
-
-    /*
-     * Select all.
-     */
-    selectAllButton.addEventListener('click', function () {
-
-        checkboxes.forEach(function (checkbox) {
-
-            checkbox.checked = true;
-
-        });
-
-        updatePermissionUI();
-
-    });
-
-
-    /*
-     * Deselect all.
-     */
-    deselectAllButton.addEventListener('click', function () {
-
-        checkboxes.forEach(function (checkbox) {
-
-            checkbox.checked = false;
-
-        });
-
-        updatePermissionUI();
-
-    });
-
-
-    /*
-     * Initialise.
-     */
-    updatePermissionUI();
-
 });
-
 </script>
 
 @endsection

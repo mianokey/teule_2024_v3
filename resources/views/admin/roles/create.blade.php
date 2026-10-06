@@ -1,21 +1,122 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h6 class="card-title">Create Role</h6>
-    </div>
-    <x-message></x-message>
-    <div class="card-body">
-        <form method="POST" action="{{ route('admin.roles.store') }}">
-            @csrf
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="role_name" name="name" value="{{ old('name') }}"
-                    placeholder="Role Name">
-                <label for="role_name">Role Name</label>
+
+<div class="requisition-page">
+
+    {{-- PAGE HEADER --}}
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-shield"></i>
             </div>
-            <button type="submit" class="btn btn-primary">Create Role</button>
-        </form>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Administration</span>
+                    <i class="fa fa-angle-right"></i>
+                    <span>Roles</span>
+                    <i class="fa fa-angle-right"></i>
+                    <span>Create</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Create Role
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Create a role, then assign permissions to it.
+                </p>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <x-message></x-message>
+
+    <div class="requisition-card">
+
+        <div class="requisition-card-header">
+
+            <div>
+                <div class="requisition-card-title">
+                    Role Details
+                </div>
+
+                <div class="requisition-card-subtitle">
+                    Enter the name of the new role.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="requisition-details-body">
+
+            <form method="POST"
+                  action="{{ route('admin.roles.store') }}">
+
+                @csrf
+
+                <div class="row">
+
+                    <div class="col-md-12">
+
+                        <label class="requisition-field-label"
+                               for="name">
+                            Role Name
+                        </label>
+
+                        <input type="text"
+                               name="name"
+                               id="name"
+                               class="requisition-input"
+                               value="{{ old('name') }}"
+                               placeholder="e.g. stores_officer"
+                               required>
+
+                    </div>
+
+                </div>
+
+                <div class="requisition-bottom-actions">
+
+                    <div class="requisition-bottom-actions-left">
+
+                        <a href="{{ route('admin.roles.index') }}"
+                           class="requisition-cancel-button">
+                            <i class="fa fa-arrow-left"></i>
+                            Cancel
+                        </a>
+
+                    </div>
+
+                    <div class="requisition-bottom-actions-right">
+
+                        <button type="submit"
+                                class="requisition-add-button">
+                            <i class="fa fa-save"></i>
+                            Create Role
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
 </div>
+
 @endsection

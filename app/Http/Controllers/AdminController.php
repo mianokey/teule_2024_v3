@@ -637,51 +637,70 @@ public function user_update(Request $request, $id)
 public function updateRoles(Request $request, $userId)
 {
     $request->validate([
-        'role_id' => 'required|exists:roles,id',
+        'role' => 'required|exists:roles,name',
+        'permissions' => 'nullable|array',
+        'permissions.*' => 'exists:permissions,id',
     ]);
 
     try {
-
         $user = User::findOrFail($userId);
-
-        $role = Role::findOrFail($request->role_id);
 
         /*
         |--------------------------------------------------------------------------
-        | Assign role to user
+        | Update user's role
         |--------------------------------------------------------------------------
         */
-
         $user->syncRoles([
-            $role->name
+            $request->input('role')
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User role updated successfully.',
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | Update user's DIRECT permissions
+        |--------------------------------------------------------------------------
+        |
+        | This does NOT modify the permissions belonging to the role.
+        | It only modifies permissions directly assigned to this user.
+        |
+        */
+        $permissionIds = $request->input('permissions', []);
 
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $permissions = Permission::whereIn('id', $permissionIds)->get();
 
-        return response()->json([
-            'success' => false,
-            'message' => 'User or role not found.',
-        ], 404);
+        $user->syncPermissions($permissions);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clear permission cache
+        |--------------------------------------------------------------------------
+        */
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'User role and direct permissions updated successfully.'
+            );
 
     } catch (\Exception $e) {
 
-        Log::error(
-            'User role update failed: ' . $e->getMessage(),
+        \Log::error(
+            'User role and permission update failed: ' . $e->getMessage(),
             [
                 'user_id' => $userId,
                 'trace' => $e->getTraceAsString(),
             ]
         );
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage(),
-        ], 500);
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with(
+                'error',
+                'Failed to update role and permissions: ' . $e->getMessage()
+            );
     }
 }
+
 }
