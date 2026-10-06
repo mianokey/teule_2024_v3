@@ -1,114 +1,252 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header">
-        <h6 class="card-title mb-0">
-            Add Store Unit
-        </h6>
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
+
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-balance-scale"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Store Units</span>
+                    <span>/</span>
+                    <span>Add</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Add Store Unit
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Create a new measurement unit for store items.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-units.index') }}"
+               class="requisition-list-action primary">
+
+                <i class="fa fa-list"></i>
+                Store Units
+
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="card-body">
 
-        @if($errors->any())
+    {{-- ============================================================
+         VALIDATION ERRORS
+         ============================================================ --}}
 
-            <div class="alert alert-danger">
+    @if($errors->any())
 
-                <strong>Please correct the following:</strong>
+        <div class="requisition-section">
 
-                <ul class="mb-0 mt-2">
+            <div class="requisition-details-body">
 
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
+                <div class="alert alert-danger">
 
-                </ul>
+                    <strong>Please correct the following:</strong>
 
-            </div>
+                    <ul class="mb-0 mt-2">
 
-        @endif
+                        @foreach($errors->all() as $error)
 
-        <form action="{{ route('admin.store-units.store') }}"
-              method="POST">
+                            <li>
+                                {{ $error }}
+                            </li>
 
-            @csrf
+                        @endforeach
 
-            <div class="form-group">
+                    </ul>
 
-                <label for="name">
-                    Unit Name <span class="text-danger">*</span>
-                </label>
-
-                <input type="text"
-                       name="name"
-                       id="name"
-                       class="form-control"
-                       value="{{ old('name') }}"
-                       placeholder="e.g. Piece"
-                       required
-                       maxlength="255">
+                </div>
 
             </div>
 
-            <div class="form-group">
+        </div>
 
-                <label for="code">
-                    Unit Code <span class="text-danger">*</span>
-                </label>
+    @endif
 
-                <input type="text"
-                       name="code"
-                       id="code"
-                       class="form-control"
-                       value="{{ old('code') }}"
-                       placeholder="e.g. PCS"
-                       required
-                       maxlength="20">
 
-                <small class="text-muted">
-                    Use a short unique code such as PCS, KG, LTR or BOX.
-                </small>
+    {{-- ============================================================
+         STORE UNIT FORM
+         ============================================================ --}}
 
-            </div>
+    <form action="{{ route('admin.store-units.store') }}"
+          method="POST">
 
-            <div class="form-group">
+        @csrf
 
-                <label for="description">
-                    Description
-                </label>
 
-                <textarea name="description"
-                          id="description"
-                          class="form-control"
-                          rows="4"
-                          maxlength="2000">{{ old('description') }}</textarea>
+        <div class="requisition-section">
 
-            </div>
+            <div class="requisition-section-header">
 
-            <div class="mt-4">
+                <div class="requisition-section-heading">
 
-                <button type="submit"
-                        class="btn btn-primary">
+                    <div class="requisition-section-icon">
+                        <i class="fa fa-balance-scale"></i>
+                    </div>
 
-                    <i class="fa fa-save"></i>
-                    Save Unit
+                    <div>
 
-                </button>
+                        <h5>Unit Details</h5>
 
-                <a href="{{ route('admin.store-units.index') }}"
-                   class="btn btn-secondary">
+                        <p>
+                            Enter the measurement unit information below.
+                        </p>
 
-                    Cancel
+                    </div>
 
-                </a>
+                </div>
 
             </div>
 
-        </form>
 
-    </div>
+            <div class="requisition-details-body">
+
+                <div class="row">
+
+                    {{-- UNIT NAME --}}
+
+                    <div class="col-lg-6 col-md-6 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="name"
+                                   class="requisition-field-label">
+
+                                Unit Name
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   name="name"
+                                   id="name"
+                                   class="requisition-input"
+                                   value="{{ old('name') }}"
+                                   placeholder="e.g. Piece"
+                                   required
+                                   maxlength="255">
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- UNIT CODE --}}
+
+                    <div class="col-lg-6 col-md-6 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="code"
+                                   class="requisition-field-label">
+
+                                Unit Code
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   name="code"
+                                   id="code"
+                                   class="requisition-input"
+                                   value="{{ old('code') }}"
+                                   placeholder="e.g. PCS"
+                                   required
+                                   maxlength="20">
+
+                            <div class="requisition-field-help">
+                                Use a short unique code such as PCS, KG, LTR or BOX.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- DESCRIPTION --}}
+
+                    <div class="col-12 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="description"
+                                   class="requisition-field-label">
+
+                                Description
+
+                            </label>
+
+                            <textarea name="description"
+                                      id="description"
+                                      class="requisition-input"
+                                      rows="4"
+                                      maxlength="2000"
+                                      placeholder="Optional description of this unit...">{{ old('description') }}</textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ========================================================
+             FORM ACTIONS
+             ======================================================== --}}
+
+        <div class="requisition-bottom-actions">
+
+            <a href="{{ route('admin.store-units.index') }}"
+               class="requisition-cancel-button">
+
+                <i class="fa fa-arrow-left"></i>
+                Cancel
+
+            </a>
+
+            <button type="submit"
+                    class="requisition-save-button">
+
+                <i class="fa fa-save"></i>
+                Save Unit
+
+            </button>
+
+        </div>
+
+    </form>
 
 </div>
 

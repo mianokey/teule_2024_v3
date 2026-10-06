@@ -1,192 +1,348 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
 
-        <h6 class="card-title mb-0">
-            Store Units
-        </h6>
+    <div class="requisition-page-header">
 
-        <a href="{{ route('admin.store-units.create') }}"
-           class="btn btn-primary">
+        <div class="requisition-header-content">
 
-            <i class="fa fa-plus"></i>
-            Add Unit
+            <div class="requisition-header-icon">
+                <i class="fa fa-balance-scale"></i>
+            </div>
 
-        </a>
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Store Units</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Store Units
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Manage measurement units used by store items.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-units.create') }}"
+               class="requisition-add-button">
+
+                <i class="fa fa-plus"></i>
+                Add Unit
+
+            </a>
+
+        </div>
 
     </div>
 
-    <div class="card-body">
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+    {{-- ============================================================
+         MESSAGES
+         ============================================================ --}}
+
+    <x-message></x-message>
+
+
+    {{-- ============================================================
+         STORE UNITS
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-balance-scale"></i>
+                </div>
+
+                <div>
+
+                    <h5>Store Units</h5>
+
+                    <p>
+                        Measurement units available for store items.
+                    </p>
+
+                </div>
+
             </div>
-        @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
+            @if($units->count())
 
-        @if($units->count())
+                <div class="requisition-count-badge">
+                    {{ $units->count() }}
+                </div>
 
-            <div class="table-responsive">
+            @endif
 
-                <table class="table table-striped table-bordered">
+        </div>
 
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Unit</th>
-                            <th>Code</th>
-                            <th>Description</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
+        <div class="requisition-details-body">
 
-                        @foreach($units as $unit)
+            @if($units->count())
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="requisition-list-table">
+
+                        <thead>
 
                             <tr>
-
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
-
-                                <td>
-                                    <strong>{{ $unit->name }}</strong>
-                                </td>
-
-                                <td>
-                                    <span class="badge badge-info">
-                                        {{ $unit->code }}
-                                    </span>
-                                </td>
-
-                                <td>
-                                    {{ $unit->description ?: '—' }}
-                                </td>
-
-                                <td>
-                                    {{ $unit->items_count }}
-                                </td>
-
-                                <td>
-
-                                    @if($unit->is_active)
-
-                                        <span class="badge badge-success">
-                                            Active
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge badge-secondary">
-                                            Inactive
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                                <td>
-
-                                    <a href="{{ route('admin.store-units.show', $unit) }}"
-                                       class="btn btn-sm btn-info">
-
-                                        <i class="fa fa-eye"></i>
-
-                                    </a>
-
-                                    <a href="{{ route('admin.store-units.edit', $unit) }}"
-                                       class="btn btn-sm btn-warning">
-
-                                        <i class="fa fa-edit"></i>
-
-                                    </a>
-
-                                    <form action="{{ route('admin.store-units.toggle-status', $unit) }}"
-                                          method="POST"
-                                          class="d-inline">
-
-                                        @csrf
-                                        @method('PATCH')
-
-                                        <button type="submit"
-                                                class="btn btn-sm {{ $unit->is_active ? 'btn-secondary' : 'btn-success' }}"
-                                                onclick="return confirm('{{ $unit->is_active ? 'Deactivate this unit?' : 'Activate this unit?' }}')">
-
-                                            <i class="fa {{ $unit->is_active ? 'fa-ban' : 'fa-check' }}"></i>
-
-                                        </button>
-
-                                    </form>
-
-                                    @if($unit->items_count == 0)
-
-                                        <form action="{{ route('admin.store-units.destroy', $unit) }}"
-                                              method="POST"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Delete this unit?')">
-
-                                                <i class="fa fa-trash"></i>
-
-                                            </button>
-
-                                        </form>
-
-                                    @endif
-
-                                </td>
-
+                                <th>#</th>
+                                <th>Unit</th>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Items</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
 
-                        @endforeach
+                        </thead>
 
-                    </tbody>
+                        <tbody>
 
-                </table>
+                            @foreach($units as $unit)
 
-            </div>
+                                <tr>
 
-        @else
+                                    {{-- NUMBER --}}
 
-            <div class="text-center py-5">
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
 
-                <i class="fa fa-balance-scale fa-3x text-muted mb-3"></i>
 
-                <h5>No Store Units</h5>
+                                    {{-- UNIT --}}
 
-                <p class="text-muted">
-                    Create your first store unit.
-                </p>
+                                    <td>
 
-                <a href="{{ route('admin.store-units.create') }}"
-                   class="btn btn-primary">
+                                        <strong>
+                                            {{ $unit->name }}
+                                        </strong>
 
-                    <i class="fa fa-plus"></i>
-                    Add Unit
+                                    </td>
 
-                </a>
 
-            </div>
+                                    {{-- CODE --}}
 
-        @endif
+                                    <td>
+
+                                        <strong>
+                                            {{ $unit->code }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    {{-- DESCRIPTION --}}
+
+                                    <td>
+
+                                        {{ $unit->description ?: '—' }}
+
+                                    </td>
+
+
+                                    {{-- ITEMS --}}
+
+                                    <td>
+
+                                        {{ $unit->items_count }}
+
+                                    </td>
+
+
+                                    {{-- STATUS --}}
+
+                                    <td>
+
+                                        @if($unit->is_active)
+
+                                            <span class="requisition-list-status requisition-list-status-approved">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Active
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="requisition-list-status requisition-list-status-cancelled">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Inactive
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- ACTIONS --}}
+
+                                    <td>
+
+                                        <div class="requisition-list-actions">
+
+                                            {{-- VIEW --}}
+
+                                            <a href="{{ route('admin.store-units.show', $unit) }}"
+                                               class="requisition-add-button primary"
+                                               title="View Unit">
+
+                                                <i class="fa fa-eye"></i>
+                                                View
+
+                                            </a>
+
+
+                                            {{-- EDIT --}}
+
+                                            <a href="{{ route('admin.store-units.edit', $unit) }}"
+                                               class="requisition-add-button warning"
+                                               title="Edit Unit">
+
+                                                <i class="fa fa-pencil"></i>
+                                                Edit
+
+                                            </a>
+
+
+                                            {{-- ACTIVATE / DEACTIVATE --}}
+
+                                            <form action="{{ route('admin.store-units.toggle-status', $unit) }}"
+                                                  method="POST"
+                                                  style="display:inline;">
+
+                                                @csrf
+                                                @method('PATCH')
+
+                                                @if($unit->is_active)
+
+                                                    <button type="submit"
+                                                            class="requisition-add-button danger"
+                                                            title="Deactivate Unit"
+                                                            onclick="return confirm('Deactivate this unit?')">
+
+                                                        <i class="fa fa-ban"></i>
+                                                        Deactivate
+
+                                                    </button>
+
+                                                @else
+
+                                                    <button type="submit"
+                                                            class="requisition-list-action success"
+                                                            title="Activate Unit"
+                                                            onclick="return confirm('Activate this unit?')">
+
+                                                        <i class="fa fa-check"></i>
+                                                        Activate
+
+                                                    </button>
+
+                                                @endif
+
+                                            </form>
+
+
+                                            {{-- DELETE --}}
+
+                                            @if($unit->items_count == 0)
+
+                                                <form action="{{ route('admin.store-units.destroy', $unit) }}"
+                                                      method="POST"
+                                                      style="display:inline;">
+
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="submit"
+                                                            class="requisition-list-action danger"
+                                                            title="Delete Unit"
+                                                            onclick="return confirm('Delete this unit?')">
+
+                                                        <i class="fa fa-trash"></i>
+                                                        Delete
+
+                                                    </button>
+
+                                                </form>
+
+                                            @endif
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            @else
+
+                {{-- ====================================================
+                     EMPTY STATE
+                     ==================================================== --}}
+
+                <div class="requisition-table-empty">
+
+                    <div class="requisition-empty-icon">
+                        <i class="fa fa-balance-scale"></i>
+                    </div>
+
+                    <h5>
+                        No Store Units
+                    </h5>
+
+                    <p>
+                        Create your first store unit.
+                    </p>
+
+                    <a href="{{ route('admin.store-units.create') }}"
+                       class="requisition-add-button">
+
+                        <i class="fa fa-plus"></i>
+                        Add Unit
+
+                    </a>
+
+                </div>
+
+            @endif
+
+        </div>
 
     </div>
 

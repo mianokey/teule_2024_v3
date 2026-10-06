@@ -227,229 +227,268 @@
 
                     @endif
 
+{{-- =========================================================
+     STORES & INVENTORY
+     ========================================================== --}}
 
-                    {{-- =========================================================
-                         STORES & INVENTORY
-                    ========================================================== --}}
-                    @if(
-                        auth()->user()->can('MAKE REQUISITION') ||
-                        auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                        auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                        auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                        auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                    )
+@if(
+    auth()->user()->can('MAKE REQUISITION') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+)
 
-                        <li class="nav-item">
+    <li class="nav-item">
 
-                            <a href="#stores_inventory"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+        <a href="#stores_inventory"
+           class="collapsed svg-icon"
+           data-toggle="collapse"
+           aria-expanded="false">
 
-                                <i>
+            <i>
+                <svg class="svg-icon"
+                     width="20"
+                     xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
 
-                                    <svg class="svg-icon"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 0L4 7m8 4v10" />
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 0L4 7m8 4v10" />
+                </svg>
+            </i>
 
-                                    </svg>
+            <span class="ml-2">
+                Stores & Inventory
+            </span>
 
-                                </i>
+            <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+            <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
 
-                                <span class="ml-2">Stores & Inventory</span>
+        </a>
 
-                                <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
-                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
 
-                            </a>
+        <ul id="stores_inventory"
+            class="submenu collapse"
+            data-parent="#mm-sidebar-toggle">
 
-                            <ul id="stores_inventory"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
 
+            {{-- =================================================
+                 REQUISITIONS
+                 ================================================= --}}
 
-                                {{-- STORE REQUISITIONS --}}
-                                @if(
-                                    auth()->user()->can('MAKE REQUISITION') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                                )
+            @if(
+                auth()->user()->can('MAKE REQUISITION') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                    <li>
+                <li>
+                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                       class="svg-icon">
 
-                                        <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                                           class="svg-icon">
+                        <i class="fa fa-list-alt"></i>
+                        <span>Store Requisitions</span>
 
-                                            <i class="fa fa-list-alt"></i>
+                    </a>
+                </li>
 
-                                            <span>Store Requisitions</span>
+            @endif
 
-                                        </a>
 
-                                    </li>
+            {{-- NEW REQUISITION --}}
 
-                                @endif
+            @can('MAKE REQUISITION')
 
+                <li>
+                    <a href="{{ route('admin.stores.store-requisitions.create') }}"
+                       class="svg-icon">
 
-                                {{-- NEW REQUISITION --}}
-                                @can('MAKE REQUISITION')
+                        <i class="fa fa-plus-circle"></i>
+                        <span>New Requisition</span>
 
-                                    <li>
+                    </a>
+                </li>
 
-                                        <a href="{{ route('admin.stores.store-requisitions.create') }}"
-                                           class="svg-icon">
+            @endcan
 
-                                            <i class="fa fa-plus-circle"></i>
 
-                                            <span>New Requisition</span>
+            {{-- MY REQUISITIONS --}}
 
-                                        </a>
+            @can('MAKE REQUISITION')
 
-                                    </li>
+                <li>
+                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                       class="svg-icon">
 
-                                @endcan
+                        <i class="fa fa-file-text-o"></i>
+                        <span>My Requisitions</span>
 
+                    </a>
+                </li>
 
-                                {{-- MY REQUISITIONS --}}
-                                @can('MAKE REQUISITION')
+            @endcan
 
-                                    <li>
 
-                                        <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                                           class="svg-icon">
+            {{-- REQUISITION APPROVALS --}}
 
-                                            <i class="fa fa-file-text-o"></i>
+            @if(
+                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                            <span>My Requisitions</span>
+                <li>
+                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
+                       class="svg-icon">
 
-                                        </a>
+                        <i class="fa fa-check-square-o"></i>
+                        <span>Requisition Approvals</span>
 
-                                    </li>
+                    </a>
+                </li>
 
-                                @endcan
+            @endif
 
 
-                                {{-- REQUISITION APPROVALS --}}
-                                @if(
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                                )
+            {{-- =================================================
+                 STORES
+                 ================================================= --}}
 
-                                    <li>
+            @if(
+                auth()->user()->can('MAKE REQUISITION') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                        <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                                           class="svg-icon">
+                <li>
+                    <a href="{{ route('admin.stores.index') }}"
+                       class="svg-icon">
 
-                                            <i class="fa fa-check-square-o"></i>
+                        <i class="fa fa-building-o"></i>
+                        <span>Stores</span>
 
-                                            <span>Requisition Approvals</span>
+                    </a>
+                </li>
 
-                                        </a>
+            @endif
 
-                                    </li>
 
-                                @endif
+            {{-- =================================================
+                 STORE ITEMS
+                 ================================================= --}}
 
+            @if(
+                auth()->user()->can('MAKE REQUISITION') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                {{-- STORES --}}
-                                @if(
-                                    auth()->user()->can('MAKE REQUISITION') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                                )
+                <li>
+                    <a href="{{ route('admin.store-items.index') }}"
+                       class="svg-icon">
 
-                                    <li>
+                        <i class="fa fa-cubes"></i>
+                        <span>Store Items</span>
 
-                                        <a href="{{ route('admin.stores.index') }}"
-                                           class="svg-icon">
+                    </a>
+                </li>
 
-                                            <i class="fa fa-building-o"></i>
+            @endif
 
-                                            <span>Stores</span>
 
-                                        </a>
+            {{-- =================================================
+                 ITEM CATEGORIES
+                 ================================================= --}}
 
-                                    </li>
+            @if(
+                auth()->user()->can('MAKE REQUISITION') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                @endif
+                <li>
+                    <a href="{{ route('admin.store-categories.index') }}"
+                       class="svg-icon">
 
+                        <i class="fa fa-tags"></i>
+                        <span>Item Categories</span>
 
-                                {{-- STORE ITEMS --}}
-                                @if(
-                                    auth()->user()->can('MAKE REQUISITION') ||
-                                    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                                )
+                    </a>
+                </li>
 
-                                    <li>
+            @endif
 
-                                        <a href="{{ route('admin.store-items.index') }}"
-                                           class="svg-icon">
 
-                                            <i class="fa fa-cubes"></i>
+            {{-- =================================================
+                 UNITS
+                 ================================================= --}}
 
-                                            <span>Store Items</span>
+            @if(
+                auth()->user()->can('MAKE REQUISITION') ||
+                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+            )
 
-                                        </a>
+                <li>
+                    <a href="{{ route('admin.store-units.index') }}"
+                       class="svg-icon">
 
-                                    </li>
+                        <i class="fa fa-balance-scale"></i>
+                        <span>Units</span>
 
-                                @endif
+                    </a>
+                </li>
 
+            @endif
 
-                                {{-- STOCK RECEIPTS --}}
-                                @can('APPROVE STORE REQUISITIONS - STORES')
 
-                                    <li>
+            {{-- =================================================
+                 STOCK RECEIPTS / GOODS INWARDS
+                 ================================================= --}}
 
-                                        <a href="{{ route('admin.store-receipts.index') }}"
-                                           class="svg-icon">
+            @can('APPROVE STORE REQUISITIONS - STORES')
 
-                                            <i class="fa fa-download"></i>
+                <li>
+                    <a href="{{ route('admin.store-receipts.index') }}"
+                       class="svg-icon">
 
-                                            <span>Stock Receipts</span>
+                        <i class="fa fa-download"></i>
+                        <span>Stock Receipts</span>
 
-                                        </a>
+                    </a>
+                </li>
 
-                                    </li>
+            @endcan
 
-                                @endcan
 
+            {{-- =================================================
+                 STOCK BALANCES
+                 ================================================= --}}
 
-                                {{-- STOCK BALANCES --}}
-                                @can('APPROVE STORE REQUISITIONS - STORES')
+            @can('APPROVE STORE REQUISITIONS - STORES')
 
-                                    <li>
+                <li>
+                    <a href="{{ route('admin.store-stock.index') }}"
+                       class="svg-icon">
 
-                                        <a href="{{ route('admin.store-stock.index') }}"
-                                           class="svg-icon">
+                        <i class="fa fa-database"></i>
+                        <span>Stock Balances</span>
 
-                                            <i class="fa fa-database"></i>
+                    </a>
+                </li>
 
-                                            <span>Stock Balances</span>
+            @endcan
 
-                                        </a>
 
-                                    </li>
+        </ul>
 
-                                @endcan
+    </li>
 
-                            </ul>
-
-                        </li>
-
-                    @endif
-
+@endif
 
                     {{-- =========================================================
                          GIVING & PAYMENTS

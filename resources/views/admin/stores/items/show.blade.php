@@ -1,376 +1,567 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="row">
+<div class="store-requisition-page">
 
-    {{-- Item Details --}}
-    <div class="col-lg-5 mb-4">
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
 
-        <div class="card">
+    <div class="requisition-page-header">
 
-            <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="requisition-header-content">
 
-                <h6 class="card-title mb-0">
-                    Store Item Details
-                </h6>
+            <div class="requisition-header-icon">
+                <i class="fa fa-cube"></i>
+            </div>
 
-                <a href="{{ route('admin.store-items.edit', $storeItem) }}"
-                   class="btn btn-sm btn-warning">
-                    Edit
-                </a>
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Store Items</span>
+                    <span>/</span>
+                    <span>View</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    {{ $storeItem->name }}
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Store item details and stock information.
+                </p>
 
             </div>
 
-            <div class="card-body">
+        </div>
 
-                <table class="table table-borderless">
+        <div class="requisition-header-right">
 
-                    <tr>
-                        <th width="40%">Item</th>
-                        <td>{{ $storeItem->name }}</td>
-                    </tr>
+            <a href="{{ route('admin.store-items.edit', $storeItem) }}"
+               class="requisition-add-button warning">
 
-                    <tr>
-                        <th>Category</th>
-                        <td>{{ $storeItem->category->name ?? '—' }}</td>
-                    </tr>
+                <i class="fa fa-edit"></i>
+                Edit
 
-                    <tr>
-                        <th>Unit</th>
-                        <td>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <x-message></x-message>
+
+
+    {{-- ============================================================
+         ITEM DETAILS
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-info"></i>
+                </div>
+
+                <div>
+                    <h5>Item Details</h5>
+                    <p>Basic information about this item.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="requisition-details-body">
+
+            <div class="row">
+
+                {{-- ITEM --}}
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Item:
+                        </label>
+
+                        <div class="requisition-input flex-grow-1">
+                            {{ $storeItem->name }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- CATEGORY --}}
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Category:
+                        </label>
+
+                        <div class="requisition-input flex-grow-1">
+                            {{ $storeItem->category->name ?? '—' }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- UNIT --}}
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Unit:
+                        </label>
+
+                        <div class="requisition-input flex-grow-1">
+
                             {{ $storeItem->unit->name ?? '—' }}
 
                             @if($storeItem->unit)
                                 ({{ $storeItem->unit->code }})
                             @endif
-                        </td>
-                    </tr>
 
-                    <tr>
-                        <th>SKU</th>
-                        <td>{{ $storeItem->sku ?: '—' }}</td>
-                    </tr>
+                        </div>
 
-                    <tr>
-                        <th>Item Type</th>
-                        <td>
+                    </div>
 
-                            @if($storeItem->item_type === 'CONSUMABLE')
+                </div>
 
-                                <span class="badge bg-primary">
-                                    Consumable
-                                </span>
 
-                            @elseif($storeItem->item_type === 'RETURNABLE')
+                {{-- SKU --}}
 
-                                <span class="badge bg-info">
-                                    Returnable
-                                </span>
+                <div class="col-lg-3 col-md-6 mb-3">
 
-                            @else
+                    <div class="d-flex align-items-center">
 
-                                <span class="badge bg-warning text-dark">
-                                    Asset
-                                </span>
+                        <label class="requisition-field-label mb-0 mr-2">
+                            SKU:
+                        </label>
 
-                            @endif
+                        <div class="requisition-input flex-grow-1">
+                            {{ $storeItem->sku ?: '—' }}
+                        </div>
 
-                        </td>
-                    </tr>
+                    </div>
 
-                    <tr>
-                        <th>Reorder Level</th>
-                        <td>
+                </div>
+
+
+                {{-- ITEM TYPE --}}
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Type:
+                        </label>
+
+                        <div class="requisition-input flex-grow-1">
+                            {{ ucfirst(strtolower($storeItem->item_type)) }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- REORDER LEVEL --}}
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="d-flex align-items-center">
+
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Reorder:
+                        </label>
+
+                        <div class="requisition-input flex-grow-1">
                             {{ number_format((float) $storeItem->reorder_level, 3) }}
-                        </td>
-                    </tr>
+                        </div>
 
-                    <tr>
-                        <th>Status</th>
-                        <td>
+                    </div>
 
-                            @if($storeItem->is_active)
+                </div>
 
-                                <span class="badge bg-success">
-                                    Active
-                                </span>
 
-                            @else
+                {{-- STATUS --}}
 
-                                <span class="badge bg-secondary">
-                                    Inactive
-                                </span>
+                <div class="col-lg-3 col-md-6 mb-3">
 
-                            @endif
+                    <div class="d-flex align-items-center">
 
-                        </td>
-                    </tr>
+                        <label class="requisition-field-label mb-0 mr-2">
+                            Status:
+                        </label>
 
-                </table>
+                        <div class="requisition-input flex-grow-1">
+                            {{ $storeItem->is_active ? 'Active' : 'Inactive' }}
+                        </div>
 
-                @if($storeItem->description)
+                    </div>
 
-                    <hr>
+                </div>
 
-                    <strong>Description</strong>
+            </div>
 
-                    <p class="text-muted mt-2 mb-0">
+
+            {{-- DESCRIPTION --}}
+
+            @if($storeItem->description)
+
+                <div class="mt-2">
+
+                    <label class="requisition-field-label">
+                        Description
+                    </label>
+
+                    <div class="requisition-input">
                         {{ $storeItem->description }}
+                    </div>
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         CURRENT STOCK
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-database"></i>
+                </div>
+
+                <div>
+
+                    <h5>Current Stock</h5>
+
+                    <p>
+                        Stock balance by store.
                     </p>
 
-                @endif
+                </div>
 
             </div>
 
         </div>
 
-    </div>
 
+        <div class="requisition-details-body">
 
-    {{-- Stock by Store --}}
-    <div class="col-lg-7 mb-4">
+            @if($storeItem->stocks->count())
 
-        <div class="card">
+                <div class="requisition-list-table-wrapper">
 
-            <div class="card-header">
+                    <table class="requisition-list-table">
 
-                <h6 class="card-title mb-0">
-                    Current Stock by Store
-                </h6>
-
-            </div>
-
-            <div class="card-body">
-
-                @if($storeItem->stocks->count())
-
-                    <div class="table-responsive">
-
-                        <table class="table table-bordered">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Store</th>
-                                    <th>Code</th>
-                                    <th class="text-end">Quantity</th>
-                                    <th>Last Movement</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @foreach($storeItem->stocks as $stock)
-
-                                    <tr>
-
-                                        <td>
-                                            {{ $stock->store->name ?? '—' }}
-                                        </td>
-
-                                        <td>
-                                            {{ $stock->store->code ?? '—' }}
-                                        </td>
-
-                                        <td class="text-end">
-                                            <strong>
-                                                {{ number_format((float) $stock->quantity, 3) }}
-                                            </strong>
-                                        </td>
-
-                                        <td>
-                                            {{ $stock->last_movement_at
-                                                ? $stock->last_movement_at->format('d M Y H:i')
-                                                : '—' }}
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                @else
-
-                    <div class="text-center py-4">
-
-                        <p class="text-muted mb-0">
-                            No stock has been received for this item yet.
-                        </p>
-
-                    </div>
-
-                @endif
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-<div class="card mb-4">
-
-    <div class="card-header d-flex justify-content-between align-items-center">
-
-        <div>
-            <h6 class="card-title mb-0">
-                Item Variants
-            </h6>
-
-            <small class="text-muted">
-                Optional variations for {{ $storeItem->name }}
-            </small>
-        </div>
-
-        <a href="{{ route('admin.store-item-variants.create', $storeItem) }}"
-           class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i>
-            Add Variant
-        </a>
-
-    </div>
-
-    <div class="card-body">
-
-        @if($storeItem->variants->count())
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-hover mb-0">
-
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Variant</th>
-                            <th>Code</th>
-                            <th>Status</th>
-                            <th width="180">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        @foreach($storeItem->variants as $variant)
+                        <thead>
 
                             <tr>
-
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        {{ $variant->name }}
-                                    </strong>
-
-                                    @if($variant->description)
-                                        <br>
-                                        <small class="text-muted">
-                                            {{ Str::limit($variant->description, 60) }}
-                                        </small>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    {{ $variant->code ?: '—' }}
-                                </td>
-
-                                <td>
-
-                                    @if($variant->is_active)
-
-                                        <span class="badge bg-success">
-                                            Active
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-secondary">
-                                            Inactive
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex gap-1">
-
-                                        <a href="{{ route('admin.store-item-variants.show', [$storeItem, $variant]) }}"
-                                           class="btn btn-sm btn-info">
-                                            View
-                                        </a>
-
-                                        <a href="{{ route('admin.store-item-variants.edit', [$storeItem, $variant]) }}"
-                                           class="btn btn-sm btn-warning">
-                                            Edit
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
+                                <th>Store</th>
+                                <th>Code</th>
+                                <th>Quantity</th>
+                                <th>Last Movement</th>
                             </tr>
 
-                        @endforeach
+                        </thead>
 
-                    </tbody>
+                        <tbody>
 
-                </table>
+                            @foreach($storeItem->stocks as $stock)
+
+                                <tr>
+
+                                    <td>
+                                        {{ $stock->store->name ?? '—' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $stock->store->code ?? '—' }}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            {{ number_format((float) $stock->quantity, 3) }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ $stock->last_movement_at
+                                            ? $stock->last_movement_at->format('d M Y H:i')
+                                            : '—'
+                                        }}
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            @else
+
+                <div class="requisition-table-empty">
+
+                    <div class="requisition-empty-icon">
+                        <i class="fa fa-database"></i>
+                    </div>
+
+                    <p>
+                        No stock has been received for this item yet.
+                    </p>
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         ITEM VARIANTS
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-code-fork"></i>
+                </div>
+
+                <div>
+
+                    <h5>Item Variants</h5>
+
+                    <p>
+                        Optional variations of this item.
+                    </p>
+
+                </div>
 
             </div>
 
-        @else
-
-            <div class="text-center py-4">
-
-                <p class="text-muted mb-3">
-                    This item does not have any variants.
-                </p>
+            <div class="requisition-header-right">
 
                 <a href="{{ route('admin.store-item-variants.create', $storeItem) }}"
-                   class="btn btn-outline-primary">
-                    Add First Variant
+                   class="requisition-add-button">
+
+                    <i class="fa fa-plus"></i>
+                    Add Variant
+
                 </a>
 
             </div>
 
-        @endif
+        </div>
+
+
+        <div class="requisition-details-body">
+
+            @if($storeItem->variants->count())
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="requisition-list-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>#</th>
+                                <th>Variant</th>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach($storeItem->variants as $variant)
+
+                                <tr>
+
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ $variant->name }}
+                                        </strong>
+
+                                        @if($variant->description)
+
+                                            <div class="requisition-field-help">
+                                                {{ Str::limit($variant->description, 60) }}
+                                            </div>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+                                        {{ $variant->code ?: '—' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $variant->is_active ? 'Active' : 'Inactive' }}
+                                    </td>
+
+                                    <td>
+
+                                        <div class="requisition-list-actions">
+
+                                            <a href="{{ route('admin.store-item-variants.show', [$storeItem, $variant]) }}"
+                                               class="requisition-list-action primary">
+
+                                                <i class="fa fa-eye"></i>
+                                                View
+
+                                            </a>
+
+                                            <a href="{{ route('admin.store-item-variants.edit', [$storeItem, $variant]) }}"
+                                               class="requisition-list-action warning">
+
+                                                <i class="fa fa-pencil"></i>
+                                                Edit
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            @else
+
+                <div class="requisition-table-empty">
+
+                    <div class="requisition-empty-icon">
+                        <i class="fa fa-code-fork"></i>
+                    </div>
+
+                    <p>
+                        No variants have been added.
+                    </p>
+
+                    <a href="{{ route('admin.store-item-variants.create', $storeItem) }}"
+                       class="requisition-add-button">
+
+                        <i class="fa fa-plus"></i>
+                        Add Variant
+
+                    </a>
+
+                </div>
+
+            @endif
+
+        </div>
 
     </div>
 
-</div>
+
+    {{-- ============================================================
+         BOTTOM ACTIONS
+         ============================================================ --}}
+
+    <div class="requisition-bottom-actions">
+
+        <a href="{{ route('admin.store-items.index') }}"
+           class="requisition-cancel-button">
+
+            <i class="fa fa-arrow-left"></i>
+            Back to Store Items
+
+        </a>
 
 
-<div class="d-flex justify-content-between">
+        <form method="POST"
+              action="{{ route('admin.store-items.toggle-status', $storeItem) }}">
 
-    <a href="{{ route('admin.store-items.index') }}"
-       class="btn btn-secondary">
-        Back to Store Items
-    </a>
+            @csrf
+            @method('PATCH')
 
-    <form method="POST"
-          action="{{ route('admin.store-items.toggle-status', $storeItem) }}">
+            @if($storeItem->is_active)
 
-        @csrf
-        @method('PATCH')
+                <button type="submit"
+                        class="requisition-add-button danger">
 
-        <button type="submit"
-                class="btn {{ $storeItem->is_active ? 'btn-secondary' : 'btn-success' }}">
+                    <i class="fa fa-ban"></i>
+                    Deactivate
 
-            {{ $storeItem->is_active ? 'Deactivate Item' : 'Activate Item' }}
+                </button>
 
-        </button>
+            @else
 
-    </form>
+                <button type="submit"
+                        class="requisition-list-action success">
+
+                    <i class="fa fa-check"></i>
+                    Activate
+
+                </button>
+
+            @endif
+
+        </form>
+
+    </div>
 
 </div>
 

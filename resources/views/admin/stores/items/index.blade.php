@@ -1,200 +1,417 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-            <h6 class="card-title mb-0">
-                Store Items
-            </h6>
-            <small class="text-muted">
-                Manage items held in Teule Stores
-            </small>
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
+
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-cubes"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Store Items</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Store Items
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Manage items held in Teule Stores.
+                </p>
+
+            </div>
+
         </div>
 
-        <a href="{{ route('admin.store-items.create') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus"></i>
-            Add Store Item
-        </a>
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-items.create') }}"
+               class="requisition-add-button">
+
+                <i class="fa fa-plus"></i>
+                Add Store Item
+
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="card-body">
 
-        <x-message></x-message>
+    {{-- ============================================================
+         MESSAGES
+         ============================================================ --}}
 
-        @if($items->count())
+    <x-message></x-message>
 
-            <div class="table-responsive">
 
-                <table class="table table-bordered table-hover align-middle">
+    {{-- ============================================================
+         STORE ITEMS
+         ============================================================ --}}
 
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Item</th>
-                            <th>Category</th>
-                            <th>Unit</th>
-                            <th>Type</th>
-                            <th>SKU</th>
-                            <th>Stock</th>
-                            <th>Reorder Level</th>
-                            <th>Status</th>
-                            <th width="180">Actions</th>
-                        </tr>
-                    </thead>
+    <div class="requisition-section">
 
-                    <tbody>
+        <div class="requisition-section-header">
 
-                        @foreach($items as $item)
+            <div class="requisition-section-heading">
 
-                            @php
-                                $totalStock = $item->stocks->sum(function ($stock) {
-                                    return (float) $stock->quantity;
-                                });
-                            @endphp
+                <div class="requisition-section-icon">
+                    <i class="fa fa-cubes"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Store Items
+                    </h5>
+
+                    <p>
+                        Master list of items available for store management and requisitions.
+                    </p>
+
+                </div>
+
+            </div>
+
+            @if($items->count())
+
+                <div class="requisition-count-badge">
+                    {{ $items->count() }}
+                    {{ Str::plural('item', $items->count()) }}
+                </div>
+
+            @endif
+
+        </div>
+
+
+        <div class="requisition-details-body">
+
+            @if($items->count())
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="requisition-list-table">
+
+                        <thead>
 
                             <tr>
 
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
+                                <th>#</th>
 
-                                <td>
-                                    <strong>{{ $item->name }}</strong>
+                                <th>Item</th>
 
-                                    @if($item->description)
-                                        <br>
-                                        <small class="text-muted">
-                                            {{ Str::limit($item->description, 60) }}
-                                        </small>
-                                    @endif
-                                </td>
+                                <th>Category</th>
 
-                                <td>
-                                    {{ $item->category->name ?? '—' }}
-                                </td>
+                                <th>Unit</th>
 
-                                <td>
-                                    {{ $item->unit->code ?? $item->unit->name ?? '—' }}
-                                </td>
+                                <th>Type</th>
 
-                                <td>
+                                <th>SKU</th>
 
-                                    @if($item->item_type === 'CONSUMABLE')
+                                <th>Stock</th>
 
-                                        <span class="badge bg-primary">
-                                            Consumable
-                                        </span>
+                                <th>Reorder Level</th>
 
-                                    @elseif($item->item_type === 'RETURNABLE')
+                                <th>Status</th>
 
-                                        <span class="badge bg-info">
-                                            Returnable
-                                        </span>
-
-                                    @elseif($item->item_type === 'ASSET')
-
-                                        <span class="badge bg-warning text-dark">
-                                            Asset
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                                <td>
-                                    {{ $item->sku ?: '—' }}
-                                </td>
-
-                                <td>
-                                    <strong>
-                                        {{ number_format($totalStock, 3) }}
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    {{ number_format((float) $item->reorder_level, 3) }}
-                                </td>
-
-                                <td>
-
-                                    @if($item->is_active)
-
-                                        <span class="badge bg-success">
-                                            Active
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-secondary">
-                                            Inactive
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex gap-1">
-
-                                        <a href="{{ route('admin.store-items.show', $item) }}"
-                                           class="btn btn-sm btn-info">
-                                            View
-                                        </a>
-
-                                        <a href="{{ route('admin.store-items.edit', $item) }}"
-                                           class="btn btn-sm btn-warning">
-                                            Edit
-                                        </a>
-
-                                        <form method="POST"
-                                              action="{{ route('admin.store-items.toggle-status', $item) }}">
-
-                                            @csrf
-                                            @method('PATCH')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm {{ $item->is_active ? 'btn-secondary' : 'btn-success' }}">
-                                                {{ $item->is_active ? 'Disable' : 'Enable' }}
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
+                                <th>Actions</th>
 
                             </tr>
 
-                        @endforeach
+                        </thead>
 
-                    </tbody>
+                        <tbody>
 
-                </table>
+                            @foreach($items as $item)
 
-            </div>
+                                @php
 
-        @else
+                                    $totalStock = $item->stocks->sum(function ($stock) {
+                                        return (float) $stock->quantity;
+                                    });
 
-            <div class="text-center py-5">
+                                @endphp
 
-                <h5>No Store Items Yet</h5>
+                                <tr>
 
-                <p class="text-muted">
-                    Start by adding the first item to your Store Items master list.
-                </p>
+                                    {{-- NUMBER --}}
 
-                <a href="{{ route('admin.store-items.create') }}"
-                   class="btn btn-primary">
-                    Add Store Item
-                </a>
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
 
-            </div>
 
-        @endif
+                                    {{-- ITEM --}}
+
+                                    <td>
+
+                                        <strong>
+                                            {{ $item->name }}
+                                        </strong>
+
+                                        @if($item->description)
+
+                                            <div class="requisition-field-help">
+                                                {{ Str::limit($item->description, 60) }}
+                                            </div>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- CATEGORY --}}
+
+                                    <td>
+
+                                        {{ $item->category->name ?? '—' }}
+
+                                    </td>
+
+
+                                    {{-- UNIT --}}
+
+                                    <td>
+
+                                        {{ $item->unit->code ?? $item->unit->name ?? '—' }}
+
+                                    </td>
+
+
+                                    {{-- TYPE --}}
+
+                                    <td>
+
+                                        @if($item->item_type === 'CONSUMABLE')
+
+                                            <span class="requisition-list-status requisition-list-status-info">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Consumable
+
+                                            </span>
+
+                                        @elseif($item->item_type === 'RETURNABLE')
+
+                                            <span class="requisition-list-status requisition-list-status-warning">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Returnable
+
+                                            </span>
+
+                                        @elseif($item->item_type === 'ASSET')
+
+                                            <span class="requisition-list-status requisition-list-status-primary">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Asset
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="requisition-list-status">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                {{ $item->item_type ?? '—' }}
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- SKU --}}
+
+                                    <td>
+
+                                        {{ $item->sku ?: '—' }}
+
+                                    </td>
+
+
+                                    {{-- STOCK --}}
+
+                                    <td>
+
+                                        <strong>
+                                            {{ number_format($totalStock, 3) }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    {{-- REORDER LEVEL --}}
+
+                                    <td>
+
+                                        {{ number_format((float) $item->reorder_level, 3) }}
+
+                                    </td>
+
+
+                                    {{-- STATUS --}}
+
+                                    <td>
+
+                                        @if($item->is_active)
+
+                                            <span class="requisition-list-status requisition-list-status-success">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Active
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="requisition-list-status requisition-list-status-danger">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Inactive
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- ACTIONS --}}
+
+                                    <td>
+
+                                        <div class="requisition-list-actions">
+
+                                            {{-- VIEW --}}
+
+                                            <a href="{{ route('admin.store-items.show', $item) }}"
+                                               class="requisition-add-button primary">
+
+                                                <i class="fa fa-eye"></i>
+                                                View
+
+                                            </a>
+
+
+                                            {{-- EDIT --}}
+
+                                            <a href="{{ route('admin.store-items.edit', $item) }}"
+                                               class="requisition-add-button warning">
+
+                                                <i class="fa fa-pencil"></i>
+                                                Edit
+
+                                            </a>
+
+
+                                            {{-- ENABLE / DISABLE --}}
+
+                                            <form method="POST"
+                                                  action="{{ route('admin.store-items.toggle-status', $item) }}"
+                                                  style="display:inline;">
+
+                                                @csrf
+                                                @method('PATCH')
+
+                                                @if($item->is_active)
+
+                                                    <button type="submit"
+                                                            class="requisition-add-button danger">
+
+                                                        <i class="fa fa-ban"></i>
+                                                        Disable
+
+                                                    </button>
+
+                                                @else
+
+                                                    <button type="submit"
+                                                            class="requisition-add-button success">
+
+                                                        <i class="fa fa-check"></i>
+                                                        Enable
+
+                                                    </button>
+
+                                                @endif
+
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            @else
+
+                {{-- =================================================
+                     EMPTY STATE
+                     ================================================= --}}
+
+                <div class="requisition-table-empty">
+
+                    <div class="requisition-empty-icon">
+                        <i class="fa fa-cubes"></i>
+                    </div>
+
+                    <h5>
+                        No Store Items Yet
+                    </h5>
+
+                    <p>
+                        Start by adding the first item to your Store Items
+                        master list.
+                    </p>
+
+                    <a href="{{ route('admin.store-items.create') }}"
+                       class="requisition-add-button">
+
+                        <i class="fa fa-plus"></i>
+                        Add Store Item
+
+                    </a>
+
+                </div>
+
+            @endif
+
+        </div>
 
     </div>
 
