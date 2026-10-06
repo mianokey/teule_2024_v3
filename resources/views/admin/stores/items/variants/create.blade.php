@@ -1,109 +1,249 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header">
-        <h6 class="card-title mb-0">
-            Add Variant — {{ $storeItem->name }}
-        </h6>
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
+
+    <div class="requisition-page-header">
+
+        <div class="requisition-header-content">
+
+            <div class="requisition-header-icon">
+                <i class="fa fa-code-fork"></i>
+            </div>
+
+            <div>
+
+                <div class="requisition-breadcrumb">
+
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Store Items</span>
+                    <span>/</span>
+                    <span>{{ $storeItem->name }}</span>
+                    <span>/</span>
+                    <span>Variants</span>
+                    <span>/</span>
+                    <span>Add</span>
+
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Add Item Variant
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Add a variant for {{ $storeItem->name }}.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-item-variants.index', $storeItem) }}"
+               class="requisition-list-action primary">
+
+                <i class="fa fa-list"></i>
+                Variants
+
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="card-body">
 
-        <x-message></x-message>
+    {{-- ============================================================
+         MESSAGES
+         ============================================================ --}}
 
-        <form method="POST"
-              action="{{ route('admin.store-item-variants.store', $storeItem) }}">
+    <x-message></x-message>
 
-            @csrf
 
-            <div class="row">
+    {{-- ============================================================
+         VARIANT FORM
+         ============================================================ --}}
 
-                <div class="col-md-8 mb-3">
+    <form method="POST"
+          action="{{ route('admin.store-item-variants.store', $storeItem) }}">
 
-                    <label class="form-label">
-                        Variant Name <span class="text-danger">*</span>
-                    </label>
+        @csrf
 
-                    <input type="text"
-                           name="name"
-                           value="{{ old('name') }}"
-                           class="form-control @error('name') is-invalid @enderror"
-                           placeholder="e.g. Rosecoco"
-                           required>
 
-                    @error('name')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
+        <div class="requisition-section">
 
-                </div>
+            <div class="requisition-section-header">
 
-                <div class="col-md-4 mb-3">
+                <div class="requisition-section-heading">
 
-                    <label class="form-label">
-                        Variant Code
-                    </label>
+                    <div class="requisition-section-icon">
+                        <i class="fa fa-code-fork"></i>
+                    </div>
 
-                    <input type="text"
-                           name="code"
-                           value="{{ old('code') }}"
-                           class="form-control @error('code') is-invalid @enderror"
-                           placeholder="e.g. ROSECOCO">
+                    <div>
 
-                    <small class="text-muted">
-                        Optional internal code.
-                    </small>
+                        <h5>Variant Details</h5>
 
-                    @error('code')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                        <p>
+                            Enter the details for this item variant.
+                        </p>
 
-                </div>
-
-                <div class="col-12 mb-3">
-
-                    <label class="form-label">
-                        Description
-                    </label>
-
-                    <textarea name="description"
-                              rows="4"
-                              class="form-control @error('description') is-invalid @enderror"
-                              placeholder="Optional description">{{ old('description') }}</textarea>
-
-                    @error('description')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                    </div>
 
                 </div>
 
             </div>
 
-            <div class="d-flex justify-content-between">
 
-                <a href="{{ route('admin.store-item-variants.index', $storeItem) }}"
-                   class="btn btn-secondary">
-                    Cancel
-                </a>
+            <div class="requisition-details-body">
 
-                <button type="submit"
-                        class="btn btn-primary">
-                    Save Variant
-                </button>
+                <div class="row">
+
+                    {{-- VARIANT NAME --}}
+
+                    <div class="col-lg-8 col-md-7 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="name"
+                                   class="requisition-field-label">
+
+                                Variant Name
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input type="text"
+                                   name="name"
+                                   id="name"
+                                   value="{{ old('name') }}"
+                                   class="requisition-input @error('name') is-invalid @enderror"
+                                   placeholder="e.g. Rosecoco"
+                                   required>
+
+                            @error('name')
+
+                                <div class="requisition-field-help text-danger">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- VARIANT CODE --}}
+
+                    <div class="col-lg-4 col-md-5 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="code"
+                                   class="requisition-field-label">
+
+                                Variant Code
+
+                            </label>
+
+                            <input type="text"
+                                   name="code"
+                                   id="code"
+                                   value="{{ old('code') }}"
+                                   class="requisition-input @error('code') is-invalid @enderror"
+                                   placeholder="e.g. ROSECOCO">
+
+                            <div class="requisition-field-help">
+                                Optional internal code.
+                            </div>
+
+                            @error('code')
+
+                                <div class="requisition-field-help text-danger">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- DESCRIPTION --}}
+
+                    <div class="col-12 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="description"
+                                   class="requisition-field-label">
+
+                                Description
+
+                            </label>
+
+                            <textarea name="description"
+                                      id="description"
+                                      rows="4"
+                                      class="requisition-input @error('description') is-invalid @enderror"
+                                      placeholder="Optional description">{{ old('description') }}</textarea>
+
+                            @error('description')
+
+                                <div class="requisition-field-help text-danger">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </form>
+        </div>
 
-    </div>
+
+        {{-- ========================================================
+             FORM ACTIONS
+             ======================================================== --}}
+
+        <div class="requisition-bottom-actions">
+
+            <a href="{{ route('admin.store-item-variants.index', $storeItem) }}"
+               class="requisition-cancel-button">
+
+                <i class="fa fa-arrow-left"></i>
+                Cancel
+
+            </a>
+
+            <button type="submit"
+                    class="requisition-save-button">
+
+                <i class="fa fa-save"></i>
+                Save Variant
+
+            </button>
+
+        </div>
+
+    </form>
 
 </div>
 
