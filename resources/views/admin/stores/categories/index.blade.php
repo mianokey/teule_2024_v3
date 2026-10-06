@@ -1,175 +1,332 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="card">
+<div class="store-requisition-page">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="card-title mb-0">
-            Store Item Categories
-        </h6>
+    {{-- ============================================================
+         PAGE HEADER
+         ============================================================ --}}
 
-        <a href="{{ route('admin.store-categories.create') }}"
-           class="btn btn-primary">
-            <i class="fa fa-plus"></i>
-            Add Category
-        </a>
-    </div>
+    <div class="requisition-page-header">
 
-    <div class="card-body">
+        <div class="requisition-header-content">
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if($categories->count())
-
-            <div class="table-responsive">
-
-                <table class="table table-striped table-bordered">
-
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Category</th>
-                            <th>Description</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        @foreach($categories as $category)
-
-                            <tr>
-
-                                <td>
-                                    {{ $loop->iteration }}
-                                </td>
-
-                                <td>
-                                    <strong>{{ $category->name }}</strong>
-                                </td>
-
-                                <td>
-                                    {{ $category->description ?: '—' }}
-                                </td>
-
-                                <td>
-                                    <span class="badge badge-info">
-                                        {{ $category->items_count }}
-                                    </span>
-                                </td>
-
-                                <td>
-
-                                    @if($category->is_active)
-                                        <span class="badge badge-success">
-                                            Active
-                                        </span>
-                                    @else
-                                        <span class="badge badge-secondary">
-                                            Inactive
-                                        </span>
-                                    @endif
-
-                                </td>
-
-                                <td>
-
-                                    <a href="{{ route('admin.store-categories.show', $category) }}"
-                                       class="btn btn-sm btn-info">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-
-                                    <a href="{{ route('admin.store-categories.edit', $category) }}"
-                                       class="btn btn-sm btn-warning">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-
-                                    <form action="{{ route('admin.store-categories.toggle-status', $category) }}"
-                                          method="POST"
-                                          class="d-inline">
-
-                                        @csrf
-                                        @method('PATCH')
-
-                                        <button type="submit"
-                                                class="btn btn-sm {{ $category->is_active ? 'btn-secondary' : 'btn-success' }}"
-                                                onclick="return confirm('{{ $category->is_active ? 'Deactivate this category?' : 'Activate this category?' }}')">
-
-                                            <i class="fa {{ $category->is_active ? 'fa-ban' : 'fa-check' }}"></i>
-
-                                        </button>
-
-                                    </form>
-
-                                    @if($category->items_count == 0)
-
-                                        <form action="{{ route('admin.store-categories.destroy', $category) }}"
-                                              method="POST"
-                                              class="d-inline">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="return confirm('Delete this category?')">
-
-                                                <i class="fa fa-trash"></i>
-
-                                            </button>
-
-                                        </form>
-
-                                    @endif
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
-
-                    </tbody>
-
-                </table>
-
+            <div class="requisition-header-icon">
+                <i class="fa fa-folder"></i>
             </div>
 
-        @else
+            <div>
 
-            <div class="text-center py-5">
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <span>/</span>
+                    <span>Item Categories</span>
+                </div>
 
-                <i class="fa fa-folder-open fa-3x text-muted mb-3"></i>
+                <h1 class="requisition-page-title">
+                    Store Item Categories
+                </h1>
 
-                <h5>No Store Item Categories</h5>
-
-                <p class="text-muted">
-                    Create your first store item category.
+                <p class="requisition-page-subtitle">
+                    Manage categories used to organize store items.
                 </p>
 
-                <a href="{{ route('admin.store-categories.create') }}"
-                   class="btn btn-primary">
+            </div>
 
-                    <i class="fa fa-plus"></i>
-                    Add Category
+        </div>
 
-                </a>
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-categories.create') }}"
+               class="requisition-add-button">
+
+                <i class="fa fa-plus"></i>
+                Add Category
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         MESSAGES
+         ============================================================ --}}
+
+    <x-message></x-message>
+
+
+    {{-- ============================================================
+         CATEGORIES
+         ============================================================ --}}
+
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-folder"></i>
+                </div>
+
+                <div>
+
+                    <h5>Item Categories</h5>
+
+                    <p>
+                        Categories available for store items.
+                    </p>
+
+                </div>
 
             </div>
 
-        @endif
+            @if($categories->count())
+
+                <div class="requisition-count-badge">
+                    {{ $categories->count() }}
+                </div>
+
+            @endif
+
+        </div>
+
+
+        <div class="requisition-details-body">
+
+            @if($categories->count())
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="requisition-list-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>#</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Items</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach($categories as $category)
+
+                                <tr>
+
+                                    {{-- NUMBER --}}
+
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
+
+
+                                    {{-- CATEGORY --}}
+
+                                    <td>
+
+                                        <strong>
+                                            {{ $category->name }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    {{-- DESCRIPTION --}}
+
+                                    <td>
+                                        {{ $category->description ?: '—' }}
+                                    </td>
+
+
+                                    {{-- ITEMS --}}
+
+                                    <td>
+                                        {{ $category->items_count }}
+                                    </td>
+
+
+                                    {{-- STATUS --}}
+
+                                    <td>
+
+                                        @if($category->is_active)
+
+                                            <span class="requisition-list-status requisition-list-status-approved">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Active
+
+                                            </span>
+
+                                        @else
+
+                                            <span class="requisition-list-status requisition-list-status-cancelled">
+
+                                                <span class="requisition-list-status-dot"></span>
+
+                                                Inactive
+
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- ACTIONS --}}
+
+                                    <td>
+
+                                        <div class="requisition-list-actions">
+
+                                            {{-- VIEW --}}
+
+                                            <a href="{{ route('admin.store-categories.show', $category) }}"
+                                               class="requisition-list-action primary"
+                                               title="View Category">
+
+                                                <i class="fa fa-eye"></i>
+                                                View
+
+                                            </a>
+
+
+                                            {{-- EDIT --}}
+
+                                            <a href="{{ route('admin.store-categories.edit', $category) }}"
+                                               class="requisition-list-action warning"
+                                               title="Edit Category">
+
+                                                <i class="fa fa-pencil"></i>
+                                                Edit
+
+                                            </a>
+
+
+                                            {{-- ACTIVATE / DEACTIVATE --}}
+
+                                            <form action="{{ route('admin.store-categories.toggle-status', $category) }}"
+                                                  method="POST"
+                                                  style="display:inline;">
+
+                                                @csrf
+                                                @method('PATCH')
+
+                                                @if($category->is_active)
+
+                                                    <button type="submit"
+                                                            class="requisition-list-action danger"
+                                                            title="Deactivate Category"
+                                                            onclick="return confirm('Deactivate this category?')">
+
+                                                        <i class="fa fa-ban"></i>
+                                                        Deactivate
+
+                                                    </button>
+
+                                                @else
+
+                                                    <button type="submit"
+                                                            class="requisition-list-action success"
+                                                            title="Activate Category"
+                                                            onclick="return confirm('Activate this category?')">
+
+                                                        <i class="fa fa-check"></i>
+                                                        Activate
+
+                                                    </button>
+
+                                                @endif
+
+                                            </form>
+
+
+                                            {{-- DELETE --}}
+
+                                            @if($category->items_count == 0)
+
+                                                <form action="{{ route('admin.store-categories.destroy', $category) }}"
+                                                      method="POST"
+                                                      style="display:inline;">
+
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="submit"
+                                                            class="requisition-list-action danger"
+                                                            title="Delete Category"
+                                                            onclick="return confirm('Delete this category?')">
+
+                                                        <i class="fa fa-trash"></i>
+                                                        Delete
+
+                                                    </button>
+
+                                                </form>
+
+                                            @endif
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            @else
+
+                {{-- ====================================================
+                     EMPTY STATE
+                     ==================================================== --}}
+
+                <div class="requisition-table-empty">
+
+                    <div class="requisition-empty-icon">
+                        <i class="fa fa-folder-open"></i>
+                    </div>
+
+                    <h5>
+                        No Store Item Categories
+                    </h5>
+
+                    <p>
+                        Create your first store item category.
+                    </p>
+
+                    <a href="{{ route('admin.store-categories.create') }}"
+                       class="requisition-add-button">
+
+                        <i class="fa fa-plus"></i>
+                        Add Category
+
+                    </a>
+
+                </div>
+
+            @endif
+
+        </div>
 
     </div>
 
