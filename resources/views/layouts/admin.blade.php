@@ -359,26 +359,29 @@
 
             @endif
 
+            {{-- =================================================
+     LOCAL PURCHASE ORDERS (LPOs)
+     ================================================= --}}
 
-            @if(
+@if(
     auth()->user()->can('MAKE REQUISITION') ||
     auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
 )
 
-    <li>
+   <li>
 
-        <a href="{{ route('admin.lpos.index') }}"
-           class="svg-icon">
+    <a href="{{ route('admin.store-lpos.index') }}"
+       class="svg-icon">
 
-            <i class="fa fa-file-text-o"></i>
-            <span>Local Purchase Orders</span>
+        <i class="fa fa-file-text-o"></i>
+        <span>Local Purchase Orders</span>
 
-        </a>
+    </a>
 
-    </li>
+</li>
+
 
 @endif
-
 
             @if(
     auth()->user()->can('MAKE REQUISITION') ||
