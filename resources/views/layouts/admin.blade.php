@@ -717,7 +717,7 @@
                     {{-- =========================================================
                          ROLES & PERMISSIONS
                     ========================================================== --}}
-                    {{-- @if(
+                    @if(
                         auth()->user()->can('VIEW USERS') ||
                         auth()->user()->can('CREATE USERS') ||
                         auth()->user()->can('MANAGE USERS') ||
@@ -727,7 +727,7 @@
                         auth()->user()->can('VIEW PERMISSIONS') ||
                         auth()->user()->can('CREATE PERMISSIONS') ||
                         auth()->user()->can('MANAGE PERMISSIONS')
-                    ) --}}
+                    )
 
                         <li class="nav-item">
 
@@ -751,11 +751,11 @@
 
 
                                 {{-- ALL USERS --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('VIEW USERS') ||
                                     auth()->user()->can('CREATE USERS') ||
                                     auth()->user()->can('MANAGE USERS')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -770,14 +770,14 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
 
                                 {{-- NEW USER --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('CREATE USERS') ||
                                     auth()->user()->can('MANAGE USERS')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -792,14 +792,14 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
 
                                 {{-- MANAGE ROLES --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('VIEW ROLES') ||
                                     auth()->user()->can('MANAGE ROLES')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -814,14 +814,14 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
 
                                 {{-- CREATE ROLE --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('CREATE ROLES') ||
                                     auth()->user()->can('MANAGE ROLES')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -836,14 +836,14 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
 
                                 {{-- MANAGE PERMISSIONS --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('VIEW PERMISSIONS') ||
                                     auth()->user()->can('MANAGE PERMISSIONS')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -858,14 +858,14 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
 
                                 {{-- CREATE PERMISSION --}}
-                                {{-- @if(
+                                @if(
                                     auth()->user()->can('CREATE PERMISSIONS') ||
                                     auth()->user()->can('MANAGE PERMISSIONS')
-                                ) --}}
+                                )
 
                                     <li>
 
@@ -880,13 +880,13 @@
 
                                     </li>
 
-                                {{-- @endif --}}
+                                @endif
 
                             </ul>
 
                         </li>
 
-                    {{-- @endif --}}
+                    @endif
 
 
                     {{-- =========================================================
