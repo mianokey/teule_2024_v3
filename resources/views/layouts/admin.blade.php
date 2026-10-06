@@ -319,6 +319,8 @@
             @endcan
 
 
+
+
             {{-- MY REQUISITIONS --}}
 
             @can('MAKE REQUISITION')
@@ -356,6 +358,27 @@
                 </li>
 
             @endif
+
+            @if(
+    auth()->user()->can('MAKE REQUISITION') ||
+    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+)
+
+    <li>
+
+        <a href="{{ route('admin.suppliers.index') }}"
+           class="svg-icon">
+
+            <i class="fa fa-truck"></i>
+
+            <span>Suppliers</span>
+
+        </a>
+
+    </li>
+
+@endif
+
 
 
             {{-- =================================================
