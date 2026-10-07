@@ -9,8 +9,8 @@
 <div class="store-requisition-page">
 
     {{-- =========================================================
-         PAGE HEADER
-         ========================================================= --}}
+    PAGE HEADER
+    ========================================================= --}}
 
     <div class="requisition-page-header">
 
@@ -42,10 +42,7 @@
 
         <div class="requisition-header-right">
 
-            <a
-                href="{{ route('admin.donations.index') }}"
-                class="stores-btn-light"
-            >
+            <a href="{{ route('admin.donations.index') }}" class="stores-btn-light">
                 <i class="fa fa-arrow-left"></i>
                 Back
             </a>
@@ -58,8 +55,8 @@
 
 
     {{-- =========================================================
-         INITIAL CONTINUE SCREEN
-         ========================================================= --}}
+    INITIAL CONTINUE SCREEN
+    ========================================================= --}}
 
     <div id="donationStartScreen">
 
@@ -82,11 +79,7 @@
                         or an in-kind donation.
                     </p>
 
-                    <button
-                        type="button"
-                        id="continueDonationButton"
-                        class="requisition-save-button"
-                    >
+                    <button type="button" id="continueDonationButton" class="requisition-save-button">
                         Continue
                         <i class="fa fa-arrow-right ms-1"></i>
                     </button>
@@ -101,34 +94,23 @@
 
 
     {{-- =========================================================
-         CASH FORM
-         ========================================================= --}}
+    CASH FORM
+    ========================================================= --}}
 
     <div id="cash-form" style="display:none;">
 
-        <form
-            action="{{ route('admin.donations.store') }}"
-            method="POST"
-        >
+        <form action="{{ route('admin.donations.store') }}" method="POST">
 
             @csrf
 
-            <input
-                type="hidden"
-                name="type"
-                value="cash"
-            >
+            <input type="hidden" name="type" value="cash">
 
-            <input
-                type="hidden"
-                name="currency"
-                value="KES"
-            >
+            <input type="hidden" name="currency" value="KES">
 
 
             {{-- =================================================
-                 CASH DONATION DETAILS
-                 ================================================= --}}
+            CASH DONATION DETAILS
+            ================================================= --}}
 
             <div class="requisition-section">
 
@@ -154,10 +136,7 @@
 
                     </div>
 
-                    <button
-                        type="button"
-                        class="requisition-cancel-button change-type"
-                    >
+                    <button type="button" class="requisition-cancel-button change-type">
                         <i class="fa fa-exchange-alt"></i>
                         Change Type
                     </button>
@@ -179,10 +158,7 @@
                                 Donor
                             </label>
 
-                            <select
-                                name="donor_id"
-                                class="form-select requisition-input"
-                            >
+                            <select name="donor_id" class="form-select requisition-input">
 
                                 <option value="">
                                     Anonymous / Not Specified
@@ -190,13 +166,11 @@
 
                                 @foreach($donors as $donor)
 
-                                    <option
-                                        value="{{ $donor->id }}"
-                                        {{ old('donor_id') == $donor->id ? 'selected' : '' }}
+                                <option value="{{ $donor->id }}" {{ old('donor_id')==$donor->id ? 'selected' : '' }}
                                     >
-                                        {{ $donor->donor_number }}
-                                        - {{ $donor->name }}
-                                    </option>
+                                    {{ $donor->donor_number }}
+                                    - {{ $donor->name }}
+                                </option>
 
                                 @endforeach
 
@@ -214,13 +188,8 @@
                                 <span class="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                name="donation_date"
-                                class="form-control requisition-input"
-                                value="{{ old('donation_date', now()->format('Y-m-d')) }}"
-                                required
-                            >
+                            <input type="date" name="donation_date" class="form-control requisition-input"
+                                value="{{ old('donation_date', now()->format('Y-m-d')) }}" required>
 
                         </div>
 
@@ -234,37 +203,23 @@
                                 <span class="required-mark">*</span>
                             </label>
 
-                            <select
-                                name="source"
-                                class="form-select requisition-input"
-                                required
-                            >
+                            <select name="source" class="form-select requisition-input" required>
 
-                                <option
-                                    value="manual"
-                                    {{ old('source', 'manual') === 'manual' ? 'selected' : '' }}
-                                >
+                                <option value="manual" {{ old('source', 'manual' )==='manual' ? 'selected' : '' }}>
                                     Cash / Manual
                                 </option>
 
-                                <option
-                                    value="bank"
-                                    {{ old('source') === 'bank' ? 'selected' : '' }}
-                                >
+                                <option value="bank" {{ old('source')==='bank' ? 'selected' : '' }}>
                                     Bank
                                 </option>
 
-                                <option
-                                    value="mpesa"
-                                    {{ old('source') === 'mpesa' ? 'selected' : '' }}
-                                >
+                                <option value="mpesa" {{ old('source')==='mpesa' ? 'selected' : '' }}>
                                     M-Pesa
                                 </option>
 
-                                <option
-                                    value="other"
-                                    {{ old('source') === 'other' ? 'selected' : '' }}
-                                >
+                                <option value="paypal" {{ old('source')==='paypal' ? 'selected' : '' }}> Paypal</option>
+
+                                <option value="other" {{ old('source')==='other' ? 'selected' : '' }}>
                                     Other
                                 </option>
 
@@ -275,30 +230,99 @@
 
                         {{-- AMOUNT --}}
 
-                        <div class="col-md-4">
+
+
+                        <div class="col-md-2">
+
+                            <label class="requisition-field-label">
+                                Classification
+                            </label>
+                            <select name="currency" class="form-select requisition-input" required>
+                                <option value="KES" {{ old('currency', 'KES' )==='KES' ? 'selected' : '' }}>
+                                    KES
+                                </option>
+
+                                <option value="USD" {{ old('currency')==='USD' ? 'selected' : '' }}>
+                                    USD
+                                </option>
+
+                                <option value="EUR" {{ old('currency')==='EUR' ? 'selected' : '' }}>
+                                    EUR
+                                </option>
+
+                                <option value="GBP" {{ old('currency')==='GBP' ? 'selected' : '' }}>
+                                    GBP
+                                </option>
+
+                                <option value="CAD" {{ old('currency')==='CAD' ? 'selected' : '' }}>
+                                    CAD
+                                </option>
+
+                                <option value="AUD" {{ old('currency')==='AUD' ? 'selected' : '' }}>
+                                    AUD
+                                </option>
+
+                                <option value="CHF" {{ old('currency')==='CHF' ? 'selected' : '' }}>
+                                    CHF
+                                </option>
+
+                                <option value="ZAR" {{ old('currency')==='ZAR' ? 'selected' : '' }}>
+                                    ZAR
+                                </option>
+
+                                <option value="UGX" {{ old('currency')==='UGX' ? 'selected' : '' }}>
+                                    UGX
+                                </option>
+
+                                <option value="TZS" {{ old('currency')==='TZS' ? 'selected' : '' }}>
+                                    TZS
+                                </option>
+
+                                <option value="RWF" {{ old('currency')==='RWF' ? 'selected' : '' }}>
+                                    RWF
+                                </option>
+
+                                <option value="NGN" {{ old('currency')==='NGN' ? 'selected' : '' }}>
+                                    NGN
+                                </option>
+
+                                <option value="GHS" {{ old('currency')==='GHS' ? 'selected' : '' }}>
+                                    GHS
+                                </option>
+
+                                <option value="AED" {{ old('currency')==='AED' ? 'selected' : '' }}>
+                                    AED
+                                </option>
+
+                                <option value="SAR" {{ old('currency')==='SAR' ? 'selected' : '' }}>
+                                    SAR
+                                </option>
+
+                                <option value="JPY" {{ old('currency')==='JPY' ? 'selected' : '' }}>
+                                    JPY
+                                </option>
+
+                                <option value="CNY" {{ old('currency')==='CNY' ? 'selected' : '' }}>
+                                    CNY
+                                </option>
+
+                                <option value="INR" {{ old('currency')==='INR' ? 'selected' : '' }}>
+                                    INR
+                                </option>
+
+                            </select>
+
+
+                        </div>
+                        <div class="col-md-3">
 
                             <label class="requisition-field-label">
                                 Amount
-                                <span class="required-mark">*</span>
                             </label>
 
-                            <div class="input-group">
-
-                                <span class="input-group-text">
-                                    KES
-                                </span>
-
-                                <input
-                                    type="number"
-                                    name="amount"
-                                    class="form-control requisition-input"
-                                    value="{{ old('amount') }}"
-                                    step="0.01"
-                                    min="0"
-                                    required
-                                >
-
-                            </div>
+                            <input type="number" name="amount"
+                                class="form-control form-control-sm requisition-input" step="0.01" min="0"
+                                value="{{ old('amount') }}">
 
                         </div>
 
@@ -311,44 +335,27 @@
                                 Classification
                             </label>
 
-                            <select
-                                name="classification"
-                                class="form-select requisition-input"
-                                required
-                            >
+                            <select name="classification" class="form-select requisition-input" required>
 
-                                <option
-                                    value="donation"
-                                    {{ old('classification', 'donation') === 'donation' ? 'selected' : '' }}
-                                >
+                                <option value="donation" {{ old('classification', 'donation' )==='donation' ? 'selected'
+                                    : '' }}>
                                     Donation
                                 </option>
 
-                                <option
-                                    value="payment"
-                                    {{ old('classification') === 'payment' ? 'selected' : '' }}
-                                >
+                                <option value="payment" {{ old('classification')==='payment' ? 'selected' : '' }}>
                                     Payment
                                 </option>
 
-                                <option
-                                    value="refund"
-                                    {{ old('classification') === 'refund' ? 'selected' : '' }}
-                                >
+                                <option value="refund" {{ old('classification')==='refund' ? 'selected' : '' }}>
                                     Refund
                                 </option>
 
-                                <option
-                                    value="other"
-                                    {{ old('classification') === 'other' ? 'selected' : '' }}
-                                >
+                                <option value="other" {{ old('classification')==='other' ? 'selected' : '' }}>
                                     Other
                                 </option>
 
-                                <option
-                                    value="unclassified"
-                                    {{ old('classification') === 'unclassified' ? 'selected' : '' }}
-                                >
+                                <option value="unclassified" {{ old('classification')==='unclassified' ? 'selected' : ''
+                                    }}>
                                     Unclassified
                                 </option>
 
@@ -359,16 +366,13 @@
 
                         {{-- PURPOSE --}}
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
 
                             <label class="requisition-field-label">
                                 Purpose
                             </label>
 
-                            <select
-                                name="purpose"
-                                class="form-select requisition-input"
-                            >
+                            <select name="purpose" class="form-select requisition-input">
 
                                 <option value="">
                                     Select purpose
@@ -399,13 +403,8 @@
                                 Reference
                             </label>
 
-                            <input
-                                type="text"
-                                name="reference"
-                                class="form-control requisition-input"
-                                value="{{ old('reference') }}"
-                                placeholder="Receipt / cheque reference"
-                            >
+                            <input type="text" name="reference" class="form-control requisition-input"
+                                value="{{ old('reference') }}" placeholder="Receipt / cheque reference">
 
                         </div>
 
@@ -418,13 +417,9 @@
                                 Payment Reference
                             </label>
 
-                            <input
-                                type="text"
-                                name="payment_reference"
-                                class="form-control requisition-input"
+                            <input type="text" name="payment_reference" class="form-control requisition-input"
                                 value="{{ old('payment_reference') }}"
-                                placeholder="M-Pesa / bank transaction reference"
-                            >
+                                placeholder="M-Pesa / bank transaction reference">
 
                         </div>
 
@@ -437,13 +432,8 @@
                                 Description
                             </label>
 
-                            <input
-                                type="text"
-                                name="description"
-                                class="form-control requisition-input"
-                                value="{{ old('description') }}"
-                                placeholder="Brief description"
-                            >
+                            <input type="text" name="description" class="form-control requisition-input"
+                                value="{{ old('description') }}" placeholder="Brief description">
 
                         </div>
 
@@ -456,11 +446,8 @@
                                 Notes
                             </label>
 
-                            <textarea
-                                name="notes"
-                                class="form-control requisition-input requisition-textarea"
-                                rows="3"
-                            >{{ old('notes') }}</textarea>
+                            <textarea name="notes" class="form-control requisition-input requisition-textarea"
+                                rows="3">{{ old('notes') }}</textarea>
 
                         </div>
 
@@ -481,18 +468,12 @@
 
                 <div class="requisition-action-right">
 
-                    <button
-                        type="button"
-                        class="requisition-cancel-button change-type"
-                    >
+                    <button type="button" class="requisition-cancel-button change-type">
                         <i class="fa fa-exchange-alt"></i>
                         Change Type
                     </button>
 
-                    <button
-                        type="submit"
-                        class="requisition-save-button"
-                    >
+                    <button type="submit" class="requisition-save-button">
                         <i class="fa fa-save"></i>
                         Save Donation
                     </button>
@@ -507,41 +488,25 @@
 
 
     {{-- =========================================================
-         IN-KIND FORM
-         ========================================================= --}}
+    IN-KIND FORM
+    ========================================================= --}}
 
     <div id="inkind-form" style="display:none;">
 
-        <form
-            action="{{ route('admin.donations.store') }}"
-            method="POST"
-            id="inkindDonationForm"
-        >
+        <form action="{{ route('admin.donations.store') }}" method="POST" id="inkindDonationForm">
 
             @csrf
 
-            <input
-                type="hidden"
-                name="type"
-                value="in_kind"
-            >
+            <input type="hidden" name="type" value="in_kind">
 
-            <input
-                type="hidden"
-                name="source"
-                value="manual"
-            >
+            <input type="hidden" name="source" value="manual">
 
-            <input
-                type="hidden"
-                name="currency"
-                value="KES"
-            >
+            <input type="hidden" name="currency" value="KES">
 
 
             {{-- =================================================
-                 DONATION DETAILS
-                 ================================================= --}}
+            DONATION DETAILS
+            ================================================= --}}
 
             <div class="requisition-section">
 
@@ -567,10 +532,7 @@
 
                     </div>
 
-                    <button
-                        type="button"
-                        class="requisition-cancel-button change-type"
-                    >
+                    <button type="button" class="requisition-cancel-button change-type">
                         <i class="fa fa-exchange-alt"></i>
                         Change Type
                     </button>
@@ -590,10 +552,7 @@
                                 Donor
                             </label>
 
-                            <select
-                                name="donor_id"
-                                class="form-select requisition-input"
-                            >
+                            <select name="donor_id" class="form-select requisition-input">
 
                                 <option value="">
                                     Anonymous / Not Specified
@@ -601,13 +560,11 @@
 
                                 @foreach($donors as $donor)
 
-                                    <option
-                                        value="{{ $donor->id }}"
-                                        {{ old('donor_id') == $donor->id ? 'selected' : '' }}
+                                <option value="{{ $donor->id }}" {{ old('donor_id')==$donor->id ? 'selected' : '' }}
                                     >
-                                        {{ $donor->donor_number }}
-                                        - {{ $donor->name }}
-                                    </option>
+                                    {{ $donor->donor_number }}
+                                    - {{ $donor->name }}
+                                </option>
 
                                 @endforeach
 
@@ -625,13 +582,8 @@
                                 <span class="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                name="donation_date"
-                                class="form-control requisition-input"
-                                value="{{ old('donation_date', now()->format('Y-m-d')) }}"
-                                required
-                            >
+                            <input type="date" name="donation_date" class="form-control form-control-sm requisition-input"
+                                value="{{ old('donation_date', now()->format('Y-m-d')) }}" required>
 
                         </div>
 
@@ -644,23 +596,14 @@
                                 Classification
                             </label>
 
-                            <select
-                                name="classification"
-                                class="form-select requisition-input"
-                                required
-                            >
+                            <select name="classification" class="form-select requisition-input" required>
 
-                                <option
-                                    value="donation"
-                                    {{ old('classification', 'donation') === 'donation' ? 'selected' : '' }}
-                                >
+                                <option value="donation" {{ old('classification', 'donation' )==='donation' ? 'selected'
+                                    : '' }}>
                                     Donation
                                 </option>
 
-                                <option
-                                    value="other"
-                                    {{ old('classification') === 'other' ? 'selected' : '' }}
-                                >
+                                <option value="other" {{ old('classification')==='other' ? 'selected' : '' }}>
                                     Other
                                 </option>
 
@@ -676,8 +619,8 @@
 
 
             {{-- =================================================
-                 ITEMS RECEIVED
-                 ================================================= --}}
+            ITEMS RECEIVED
+            ================================================= --}}
 
             <div class="requisition-section">
 
@@ -705,18 +648,11 @@
 
                     <div class="requisition-header-right">
 
-                        <span
-                            class="requisition-count-badge"
-                            id="item-count"
-                        >
+                        <span class="requisition-count-badge" id="item-count">
                             0 items
                         </span>
 
-                        <button
-                            type="button"
-                            id="add-item"
-                            class="requisition-save-button"
-                        >
+                        <button type="button" id="add-item" class="requisition-save-button">
                             <i class="fa fa-plus"></i>
                             Add Item
                         </button>
@@ -780,10 +716,7 @@
 
                     {{-- EMPTY STATE --}}
 
-                    <div
-                        id="items-empty-state"
-                        class="text-center py-5"
-                    >
+                    <div id="items-empty-state" class="text-center py-5">
 
                         <div class="requisition-header-icon mx-auto mb-3">
                             <i class="fa fa-box-open"></i>
@@ -797,10 +730,7 @@
                             Add the goods or supplies received from the donor.
                         </p>
 
-                        <button
-                            type="button"
-                            class="requisition-save-button add-item-trigger"
-                        >
+                        <button type="button" class="requisition-save-button add-item-trigger">
                             <i class="fa fa-plus"></i>
                             Add Item
                         </button>
@@ -818,11 +748,8 @@
                                 Total Estimated Value
                             </span>
 
-                            <strong
-                                class="stores-detail-value d-block"
-                                style="font-size:18px;"
-                            >
-                                KES
+                            <strong class="stores-detail-value d-block" style="font-size:18px;">
+                                KES44
 
                                 <span id="estimated-total">
                                     0.00
@@ -840,8 +767,8 @@
 
 
             {{-- =================================================
-                 OTHER DETAILS
-                 ================================================= --}}
+            OTHER DETAILS
+            ================================================= --}}
 
             <div class="requisition-section">
 
@@ -882,10 +809,7 @@
                                 Purpose
                             </label>
 
-                            <select
-                                name="purpose"
-                                class="form-select requisition-input"
-                            >
+                            <select name="purpose" class="form-select requisition-input">
 
                                 <option value="">
                                     Select purpose
@@ -916,13 +840,8 @@
                                 Description
                             </label>
 
-                            <input
-                                type="text"
-                                name="description"
-                                class="form-control requisition-input"
-                                value="{{ old('description') }}"
-                                placeholder="Brief description"
-                            >
+                            <input type="text" name="description" class="form-control requisition-input"
+                                value="{{ old('description') }}" placeholder="Brief description">
 
                         </div>
 
@@ -935,11 +854,8 @@
                                 Notes
                             </label>
 
-                            <textarea
-                                name="notes"
-                                class="form-control requisition-input requisition-textarea"
-                                rows="3"
-                            >{{ old('notes') }}</textarea>
+                            <textarea name="notes" class="form-control requisition-input requisition-textarea"
+                                rows="3">{{ old('notes') }}</textarea>
 
                         </div>
 
@@ -951,8 +867,8 @@
 
 
             {{-- =================================================
-                 IN-KIND ACTION BAR
-                 ================================================= --}}
+            IN-KIND ACTION BAR
+            ================================================= --}}
 
             <div class="requisition-action-bar">
 
@@ -962,18 +878,12 @@
 
                 <div class="requisition-action-right">
 
-                    <button
-                        type="button"
-                        class="requisition-cancel-button change-type"
-                    >
+                    <button type="button" class="requisition-cancel-button change-type">
                         <i class="fa fa-exchange-alt"></i>
                         Change Type
                     </button>
 
-                    <button
-                        type="submit"
-                        class="requisition-save-button"
-                    >
+                    <button type="submit" class="requisition-save-button">
                         <i class="fa fa-save"></i>
                         Save Donation
                     </button>
@@ -990,16 +900,11 @@
 
 
 {{-- =============================================================
-     DONATION TYPE MODAL
-     ============================================================= --}}
+DONATION TYPE MODAL
+============================================================= --}}
 
-<div
-    class="modal fade"
-    id="donationTypeModal"
-    tabindex="-1"
-    aria-labelledby="donationTypeModalLabel"
-    aria-hidden="true"
->
+<div class="modal fade" id="donationTypeModal" tabindex="-1" aria-labelledby="donationTypeModalLabel"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered">
 
@@ -1009,10 +914,7 @@
 
                 <div>
 
-                    <h5
-                        class="modal-title mb-1"
-                        id="donationTypeModalLabel"
-                    >
+                    <h5 class="modal-title mb-1" id="donationTypeModalLabel">
                         New Donation
                     </h5>
 
@@ -1022,22 +924,14 @@
 
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    id="closeDonationType"
-                    aria-label="Close"
-                ></button>
+                <button type="button" class="btn-close" id="closeDonationType" aria-label="Close"></button>
 
             </div>
 
 
             <div class="modal-body">
 
-                <div
-                    id="donationTypeVisual"
-                    class="text-center mb-4"
-                >
+                <div id="donationTypeVisual" class="text-center mb-4">
 
                     <div id="defaultDonationVisual">
 
@@ -1047,10 +941,7 @@
                                 <i class="fa fa-hand-holding-heart"></i>
                             </div>
 
-                            <i
-                                class="fa fa-arrow-right fa-2x"
-                                aria-hidden="true"
-                            ></i>
+                            <i class="fa fa-arrow-right fa-2x" aria-hidden="true"></i>
 
                             <div class="requisition-header-icon">
                                 <i class="fa fa-question"></i>
@@ -1065,10 +956,7 @@
                     </div>
 
 
-                    <div
-                        id="cashDonationVisual"
-                        style="display:none;"
-                    >
+                    <div id="cashDonationVisual" style="display:none;">
 
                         <div class="d-flex align-items-center justify-content-center gap-3">
 
@@ -1086,10 +974,7 @@
 
                             <div class="px-2">
 
-                                <i
-                                    class="fa fa-arrow-right fa-beat-fade fa-2x"
-                                    aria-hidden="true"
-                                ></i>
+                                <i class="fa fa-arrow-right fa-beat-fade fa-2x" aria-hidden="true"></i>
 
                             </div>
 
@@ -1120,10 +1005,7 @@
                     </div>
 
 
-                    <div
-                        id="inkindDonationVisual"
-                        style="display:none;"
-                    >
+                    <div id="inkindDonationVisual" style="display:none;">
 
                         <div class="d-flex align-items-center justify-content-center gap-3">
 
@@ -1141,10 +1023,7 @@
 
                             <div class="px-2">
 
-                                <i
-                                    class="fa fa-arrow-right fa-beat-fade fa-2x"
-                                    aria-hidden="true"
-                                ></i>
+                                <i class="fa fa-arrow-right fa-beat-fade fa-2x" aria-hidden="true"></i>
 
                             </div>
 
@@ -1179,18 +1058,12 @@
 
                 <div class="mb-3">
 
-                    <label
-                        for="setup_donation_type"
-                        class="requisition-field-label"
-                    >
+                    <label for="setup_donation_type" class="requisition-field-label">
                         Donation Type
                         <span class="required-mark">*</span>
                     </label>
 
-                    <select
-                        id="setup_donation_type"
-                        class="form-select requisition-input"
-                    >
+                    <select id="setup_donation_type" class="form-select requisition-input">
 
                         <option value="">
                             Select donation type
@@ -1209,10 +1082,7 @@
                 </div>
 
 
-                <div
-                    id="donationTypeMessage"
-                    class="requisition-modal-subtitle"
-                >
+                <div id="donationTypeMessage" class="requisition-modal-subtitle">
                     Select a donation type to continue.
                 </div>
 
@@ -1221,19 +1091,11 @@
 
             <div class="modal-footer">
 
-                <button
-                    type="button"
-                    id="cancelDonationType"
-                    class="requisition-cancel-button"
-                >
+                <button type="button" id="cancelDonationType" class="requisition-cancel-button">
                     Cancel
                 </button>
 
-                <button
-                    type="button"
-                    id="continueDonationType"
-                    class="requisition-save-button"
-                >
+                <button type="button" id="continueDonationType" class="requisition-save-button">
                     Continue
                     <i class="fa fa-arrow-right ms-1"></i>
                 </button>
@@ -1248,16 +1110,11 @@
 
 
 {{-- =============================================================
-     IN-KIND ITEM SELECTION MODAL
-     ============================================================= --}}
+IN-KIND ITEM SELECTION MODAL
+============================================================= --}}
 
-<div
-    class="modal fade"
-    id="storeItemSelectionModal"
-    tabindex="-1"
-    aria-labelledby="storeItemSelectionModalLabel"
-    aria-hidden="true"
->
+<div class="modal fade" id="storeItemSelectionModal" tabindex="-1" aria-labelledby="storeItemSelectionModalLabel"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-lg">
 
@@ -1267,10 +1124,7 @@
 
                 <div>
 
-                    <h5
-                        class="modal-title mb-1"
-                        id="storeItemSelectionModalLabel"
-                    >
+                    <h5 class="modal-title mb-1" id="storeItemSelectionModalLabel">
                         Select Item
                     </h5>
 
@@ -1280,12 +1134,7 @@
 
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
             </div>
 
@@ -1296,13 +1145,8 @@
 
                     <i class="fa fa-search"></i>
 
-                    <input
-                        type="text"
-                        id="storeItemSearch"
-                        class="form-control requisition-input"
-                        placeholder="Search items..."
-                        autocomplete="off"
-                    >
+                    <input type="text" id="storeItemSearch" class="form-control requisition-input"
+                        placeholder="Search items..." autocomplete="off">
 
                 </div>
 
@@ -1340,102 +1184,93 @@
 
                             @forelse($storeItems as $storeItem)
 
-                                @php
+                            @php
 
-                                    $unitName =
-                                        $storeItem->unit->code
-                                        ?? $storeItem->unit->name
-                                        ?? '';
+                            $unitName =
+                            $storeItem->unit->code
+                            ?? $storeItem->unit->name
+                            ?? '';
 
-                                @endphp
+                            @endphp
 
 
-                                <tr
-                                    class="store-item-option"
-                                    tabindex="0"
-                                    title="Double-click to select this item"
-                                    data-search="{{ strtolower(
+                            <tr class="store-item-option" tabindex="0" title="Double-click to select this item"
+                                data-search="{{ strtolower(
                                         $storeItem->name
                                         . ' '
                                         . ($storeItem->sku ?? '')
                                         . ' '
                                         . $unitName
-                                    ) }}"
-                                    data-store-item-id="{{ $storeItem->id }}"
-                                    data-store-item-name="{{ $storeItem->name }}"
-                                    data-store-item-unit="{{ $unitName }}"
-                                >
+                                    ) }}" data-store-item-id="{{ $storeItem->id }}"
+                                data-store-item-name="{{ $storeItem->name }}" data-store-item-unit="{{ $unitName }}">
 
-                                    <td>
+                                <td>
 
-                                        <div class="stores-item-name">
-                                            {{ $storeItem->name }}
-                                        </div>
+                                    <div class="stores-item-name">
+                                        {{ $storeItem->name }}
+                                    </div>
 
-                                    </td>
+                                </td>
 
 
-                                    <td>
+                                <td>
 
-                                        @if($storeItem->sku)
+                                    @if($storeItem->sku)
 
-                                            <div class="stores-code">
-                                                {{ $storeItem->sku }}
-                                            </div>
+                                    <div class="stores-code">
+                                        {{ $storeItem->sku }}
+                                    </div>
 
-                                        @else
+                                    @else
 
-                                            <span class="text-muted">
-                                                —
-                                            </span>
+                                    <span class="text-muted">
+                                        —
+                                    </span>
 
-                                        @endif
+                                    @endif
 
-                                    </td>
-
-
-                                    <td>
-                                        {{ $unitName ?: '—' }}
-                                    </td>
+                                </td>
 
 
-                                    <td>
+                                <td>
+                                    {{ $unitName ?: '—' }}
+                                </td>
 
-                                        @if($storeItem->variants->count())
 
-                                            <span class="stores-variant">
-                                                {{ $storeItem->variants->count() }}
-                                                available
-                                            </span>
+                                <td>
 
-                                        @else
+                                    @if($storeItem->variants->count())
 
-                                            <span class="text-muted">
-                                                None
-                                            </span>
+                                    <span class="stores-variant">
+                                        {{ $storeItem->variants->count() }}
+                                        available
+                                    </span>
 
-                                        @endif
+                                    @else
 
-                                    </td>
+                                    <span class="text-muted">
+                                        None
+                                    </span>
 
-                                </tr>
+                                    @endif
+
+                                </td>
+
+                            </tr>
 
                             @empty
 
-                                <tr>
+                            <tr>
 
-                                    <td
-                                        colspan="4"
-                                        class="text-center py-4"
-                                    >
+                                <td colspan="4" class="text-center py-4">
 
-                                        <span class="text-muted">
-                                            No active items are available.
-                                        </span>
+                                    <span class="text-muted">
+                                        No active items are available.
+                                    </span>
 
-                                    </td>
+                                </td>
 
-                                </tr>
+                            </tr>
 
                             @endforelse
 
@@ -1446,11 +1281,7 @@
                 </div>
 
 
-                <div
-                    id="storeItemNoResults"
-                    class="requisition-no-children-found"
-                    style="display:none;"
-                >
+                <div id="storeItemNoResults" class="requisition-no-children-found" style="display:none;">
                     No items match your search.
                 </div>
 
@@ -1459,11 +1290,7 @@
 
             <div class="modal-footer">
 
-                <button
-                    type="button"
-                    class="requisition-cancel-button"
-                    data-bs-dismiss="modal"
-                >
+                <button type="button" class="requisition-cancel-button" data-bs-dismiss="modal">
                     Cancel
                 </button>
 
@@ -1478,8 +1305,7 @@
 @push('scripts')
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
 
     /*

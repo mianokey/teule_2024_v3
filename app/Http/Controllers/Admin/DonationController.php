@@ -71,7 +71,7 @@ class DonationController extends Controller
             'donor_id'          => 'nullable|exists:donors,id',
             'type'              => 'required|in:cash,in_kind',
             'classification'    => 'required|in:donation,payment,refund,other,unclassified',
-            'source'            => 'nullable|in:manual,mpesa,bank,other',
+            'source'            => 'nullable|in:manual,mpesa,bank,paypal,other',
             'amount'            => 'nullable|numeric|min:0',
             'currency'          => 'required|string|size:3',
             'donation_date'     => 'required|date',
