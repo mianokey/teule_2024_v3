@@ -11,6 +11,7 @@
     {{-- ============================================================
          PAGE HEADER
          ============================================================ --}}
+
     <div class="requisition-page-header">
 
         <div class="requisition-header-content">
@@ -20,6 +21,7 @@
             </div>
 
             <div>
+
                 <div class="requisition-breadcrumb">
                     <span>Stores</span>
                     <span>/</span>
@@ -35,6 +37,7 @@
                 <p class="requisition-page-subtitle">
                     Create a new item for the store inventory.
                 </p>
+
             </div>
 
         </div>
@@ -57,6 +60,7 @@
     {{-- ============================================================
          MESSAGES
          ============================================================ --}}
+
     <x-message></x-message>
 
     @if($errors->any())
@@ -66,9 +70,11 @@
             <strong>Please correct the following:</strong>
 
             <ul class="mb-0 mt-2">
+
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
+
             </ul>
 
         </div>
@@ -87,6 +93,7 @@
         {{-- ========================================================
              ITEM CLASSIFICATION
              ======================================================== --}}
+
         <div class="requisition-section">
 
             <div class="requisition-section-header">
@@ -98,11 +105,13 @@
                     </div>
 
                     <div>
+
                         <h5>Item Classification</h5>
 
                         <p>
                             Select the category and measurement unit for this item.
                         </p>
+
                     </div>
 
                 </div>
@@ -112,95 +121,110 @@
 
             <div class="requisition-details-body">
 
-                <div class="requisition-form-row">
-
+                <div class="row g-2">
 
                     {{-- CATEGORY --}}
-                    <div class="requisition-form-group requisition-form-group-half">
 
-                        <label
-                            for="category_id"
-                            class="requisition-field-label"
-                        >
-                            Category
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="col-md-6">
 
-                        <select
-                            name="category_id"
-                            id="category_id"
-                            class="requisition-input"
-                            required
-                        >
-                            <option value="">
-                                Select Category
-                            </option>
+                        <div class="requisition-form-group">
 
-                            @foreach($categories as $category)
+                            <label
+                                for="category_id"
+                                class="requisition-field-label"
+                            >
+                                Category
+                                <span class="text-danger">*</span>
+                            </label>
 
-                                <option
-                                    value="{{ $category->id }}"
-                                    @selected(
-                                        old('category_id') == $category->id
-                                    )
-                                >
-                                    {{ $category->name }}
+                            <select
+                                name="category_id"
+                                id="category_id"
+                                class="requisition-input form-select-sm"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Category
                                 </option>
 
-                            @endforeach
+                                @foreach($categories as $category)
 
-                        </select>
+                                    <option
+                                        value="{{ $category->id }}"
+                                        @selected(
+                                            old('category_id') == $category->id
+                                        )
+                                    >
+                                        {{ $category->name }}
+                                    </option>
 
-                        @error('category_id')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                                @endforeach
+
+                            </select>
+
+                            @error('category_id')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
 
                     {{-- UNIT --}}
-                    <div class="requisition-form-group requisition-form-group-half">
 
-                        <label
-                            for="unit_id"
-                            class="requisition-field-label"
-                        >
-                            Unit
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="col-md-6">
 
-                        <select
-                            name="unit_id"
-                            id="unit_id"
-                            class="requisition-input"
-                            required
-                        >
-                            <option value="">
-                                Select Unit
-                            </option>
+                        <div class="requisition-form-group">
 
-                            @foreach($units as $unit)
+                            <label
+                                for="unit_id"
+                                class="requisition-field-label"
+                            >
+                                Unit
+                                <span class="text-danger">*</span>
+                            </label>
 
-                                <option
-                                    value="{{ $unit->id }}"
-                                    @selected(
-                                        old('unit_id') == $unit->id
-                                    )
-                                >
-                                    {{ $unit->name }} ({{ $unit->code }})
+                            <select
+                                name="unit_id"
+                                id="unit_id"
+                                class="requisition-input form-select-sm"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Unit
                                 </option>
 
-                            @endforeach
+                                @foreach($units as $unit)
 
-                        </select>
+                                    <option
+                                        value="{{ $unit->id }}"
+                                        @selected(
+                                            old('unit_id') == $unit->id
+                                        )
+                                    >
+                                        {{ $unit->name }} ({{ $unit->code }})
+                                    </option>
 
-                        @error('unit_id')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                                @endforeach
+
+                            </select>
+
+                            @error('unit_id')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
@@ -214,6 +238,7 @@
         {{-- ========================================================
              ITEM INFORMATION
              ======================================================== --}}
+
         <div class="requisition-section">
 
             <div class="requisition-section-header">
@@ -225,11 +250,13 @@
                     </div>
 
                     <div>
+
                         <h5>Item Information</h5>
 
                         <p>
-                            Enter the name and identification details of the store item.
+                            Enter the item name, identification details and opening stock.
                         </p>
+
                     </div>
 
                 </div>
@@ -239,69 +266,116 @@
 
             <div class="requisition-details-body">
 
-                <div class="requisition-form-row">
-
+                <div class="row g-2">
 
                     {{-- ITEM NAME --}}
-                    <div class="requisition-form-group requisition-form-group-wide">
 
-                        <label
-                            for="name"
-                            class="requisition-field-label"
-                        >
-                            Item Name
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="col-md-4">
 
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            class="requisition-input"
-                            value="{{ old('name') }}"
-                            placeholder="e.g. A4 Printing Paper"
-                            maxlength="255"
-                            required
-                        >
+                        <div class="requisition-form-group">
 
-                        @error('name')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                            <label
+                                for="name"
+                                class="requisition-field-label"
+                            >
+                                Item Name
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                class="requisition-input form-control-sm"
+                                value="{{ old('name') }}"
+                                placeholder="e.g. A4 Printing Paper"
+                                maxlength="255"
+                                required
+                            >
+
+                            @error('name')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
 
                     {{-- SKU --}}
-                    <div class="requisition-form-group requisition-form-group-narrow">
 
-                        <label
-                            for="sku"
-                            class="requisition-field-label"
-                        >
-                            SKU
-                        </label>
+                    <div class="col-md-4">
 
-                        <input
-                            type="text"
-                            name="sku"
-                            id="sku"
-                            class="requisition-input"
-                            value="{{ old('sku') }}"
-                            placeholder="e.g. PAP-A4-001"
-                            maxlength="255"
-                        >
+                        <div class="requisition-form-group">
 
-                        <div class="requisition-field-help">
-                            Optional internal item code.
+                            <label
+                                for="sku"
+                                class="requisition-field-label"
+                            >
+                                SKU
+                            </label>
+
+                            <input
+                                type="text"
+                                name="sku"
+                                id="sku"
+                                class="requisition-input form-control-sm"
+                                value="{{ old('sku') }}"
+                                placeholder="e.g. PAP-A4-001"
+                                maxlength="255"
+                            >
+
+                            @error('sku')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
                         </div>
 
-                        @error('sku')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                    </div>
+
+
+                    {{-- OPENING STOCK --}}
+
+                    <div class="col-md-4">
+
+                        <div class="requisition-form-group">
+
+                            <label
+                                for="opening_stock"
+                                class="requisition-field-label"
+                            >
+                                Opening Stock
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input
+                                type="number"
+                                name="opening_stock"
+                                id="opening_stock"
+                                class="requisition-input form-control-sm"
+                                value="{{ old('opening_stock', 0) }}"
+                                min="0"
+                                step="0.001"
+                                required
+                            >
+
+                            @error('opening_stock')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
@@ -315,6 +389,7 @@
         {{-- ========================================================
              STOCK SETTINGS
              ======================================================== --}}
+
         <div class="requisition-section">
 
             <div class="requisition-section-header">
@@ -326,11 +401,13 @@
                     </div>
 
                     <div>
+
                         <h5>Stock Settings</h5>
 
                         <p>
                             Define how this item should be handled and monitored in stock.
                         </p>
+
                     </div>
 
                 </div>
@@ -340,100 +417,109 @@
 
             <div class="requisition-details-body">
 
-                <div class="requisition-form-row">
-
+                <div class="row g-2">
 
                     {{-- ITEM TYPE --}}
-                    <div class="requisition-form-group requisition-form-group-half">
 
-                        <label
-                            for="item_type"
-                            class="requisition-field-label"
-                        >
-                            Item Type
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="col-md-6">
 
-                        <select
-                            name="item_type"
-                            id="item_type"
-                            class="requisition-input"
-                            required
-                        >
+                        <div class="requisition-form-group">
 
-                            <option value="">
-                                Select Type
-                            </option>
-
-                            <option
-                                value="CONSUMABLE"
-                                @selected(
-                                    old('item_type', 'CONSUMABLE') === 'CONSUMABLE'
-                                )
+                            <label
+                                for="item_type"
+                                class="requisition-field-label"
                             >
-                                Consumable
-                            </option>
+                                Item Type
+                                <span class="text-danger">*</span>
+                            </label>
 
-                            <option
-                                value="RETURNABLE"
-                                @selected(
-                                    old('item_type') === 'RETURNABLE'
-                                )
+                            <select
+                                name="item_type"
+                                id="item_type"
+                                class="requisition-input form-select-sm"
+                                required
                             >
-                                Returnable
-                            </option>
 
-                            <option
-                                value="ASSET"
-                                @selected(
-                                    old('item_type') === 'ASSET'
-                                )
-                            >
-                                Asset
-                            </option>
+                                <option value="">
+                                    Select Type
+                                </option>
 
-                        </select>
+                                <option
+                                    value="CONSUMABLE"
+                                    @selected(
+                                        old('item_type', 'CONSUMABLE') === 'CONSUMABLE'
+                                    )
+                                >
+                                    Consumable
+                                </option>
 
-                        @error('item_type')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                                <option
+                                    value="RETURNABLE"
+                                    @selected(
+                                        old('item_type') === 'RETURNABLE'
+                                    )
+                                >
+                                    Returnable
+                                </option>
+
+                                <option
+                                    value="ASSET"
+                                    @selected(
+                                        old('item_type') === 'ASSET'
+                                    )
+                                >
+                                    Asset
+                                </option>
+
+                            </select>
+
+                            @error('item_type')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
+                        </div>
 
                     </div>
 
 
                     {{-- REORDER LEVEL --}}
-                    <div class="requisition-form-group requisition-form-group-half">
 
-                        <label
-                            for="reorder_level"
-                            class="requisition-field-label"
-                        >
-                            Reorder Level
-                            <span class="text-danger">*</span>
-                        </label>
+                    <div class="col-md-6">
 
-                        <input
-                            type="number"
-                            name="reorder_level"
-                            id="reorder_level"
-                            class="requisition-input"
-                            value="{{ old('reorder_level', 0) }}"
-                            min="0"
-                            step="0.001"
-                            required
-                        >
+                        <div class="requisition-form-group">
 
-                        <div class="requisition-field-help">
-                            Alert level for future stock monitoring.
+                            <label
+                                for="reorder_level"
+                                class="requisition-field-label"
+                            >
+                                Reorder Level
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input
+                                type="number"
+                                name="reorder_level"
+                                id="reorder_level"
+                                class="requisition-input form-control-sm"
+                                value="{{ old('reorder_level', 0) }}"
+                                min="0"
+                                step="0.001"
+                                required
+                            >
+
+                            @error('reorder_level')
+
+                                <div class="text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+
+                            @enderror
+
                         </div>
-
-                        @error('reorder_level')
-                            <div class="text-danger mt-1">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
                     </div>
 
@@ -447,6 +533,7 @@
         {{-- ========================================================
              DESCRIPTION
              ======================================================== --}}
+
         <div class="requisition-section">
 
             <div class="requisition-section-header">
@@ -458,11 +545,13 @@
                     </div>
 
                     <div>
+
                         <h5>Description</h5>
 
                         <p>
                             Add any additional information about this store item.
                         </p>
+
                     </div>
 
                 </div>
@@ -484,16 +573,18 @@
                     <textarea
                         name="description"
                         id="description"
-                        class="requisition-input"
-                        rows="5"
+                        class="requisition-input form-control-sm"
+                        rows="3"
                         maxlength="2000"
                         placeholder="Optional description of this item"
                     >{{ old('description') }}</textarea>
 
                     @error('description')
+
                         <div class="text-danger mt-1">
                             {{ $message }}
                         </div>
+
                     @enderror
 
                 </div>
@@ -506,6 +597,7 @@
         {{-- ========================================================
              ACTIONS
              ======================================================== --}}
+
         <div class="requisition-bottom-actions">
 
             <a

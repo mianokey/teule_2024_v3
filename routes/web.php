@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\StoreStockController;
 use App\Http\Controllers\Admin\StoreRequisitionController;
 use App\Http\Controllers\Admin\StoreFulfillmentController;
 use App\Http\Controllers\Admin\StoreLpoController;
+use App\Http\Controllers\Admin\StoreStockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
 
 /*
@@ -184,7 +185,9 @@ Route::patch('store-items/{storeItem}/toggle-status', [StoreItemController::clas
 
 Route::resource('store-items.variants', StoreItemVariantController::class)->parameters(['store-items' => 'storeItem', 'variants' => 'variant'])->names('admin.store-item-variants');
 
-Route::patch('store-items/{storeItem}/variants/{variant}/toggle-status', [StoreItemVariantController::class, 'toggleStatus'])->name('admin.store-item-variants.toggle-status');
+
+Route::get( 'store-stock-adjustments/create',  [StoreStockAdjustmentController::class, 'create'])->middleware('permission:ADJUST STORE STOCK')->name('admin.store-stock-adjustments.create');
+Route::post('store-stock-adjustments',[StoreStockAdjustmentController::class, 'store'])->middleware('permission:ADJUST STORE STOCK')->name('admin.store-stock-adjustments.store');
 
 
 // Stores - Receipts

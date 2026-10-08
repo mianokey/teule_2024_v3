@@ -1,7 +1,9 @@
 @extends('layouts.admin')
 
 @push('styles')
+
     <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+
 @endpush
 
 @section('content')
@@ -23,19 +25,29 @@
             <div>
 
                 <div class="requisition-breadcrumb">
+
                     <span>Stores</span>
+
                     <span>/</span>
+
                     <span>Store Items</span>
+
                     <span>/</span>
+
                     <span>View</span>
+
                 </div>
 
                 <h1 class="requisition-page-title">
+
                     {{ $storeItem->name }}
+
                 </h1>
 
                 <p class="requisition-page-subtitle">
+
                     Store item details and stock information.
+
                 </p>
 
             </div>
@@ -44,10 +56,13 @@
 
         <div class="requisition-header-right">
 
-            <a href="{{ route('admin.store-items.edit', $storeItem) }}"
-               class="requisition-add-button warning">
+            <a
+                href="{{ route('admin.store-items.edit', $storeItem) }}"
+                class="requisition-add-button warning"
+            >
 
                 <i class="fa fa-edit"></i>
+
                 Edit
 
             </a>
@@ -71,12 +86,19 @@
             <div class="requisition-section-heading">
 
                 <div class="requisition-section-icon">
+
                     <i class="fa fa-info"></i>
+
                 </div>
 
                 <div>
+
                     <h5>Item Details</h5>
-                    <p>Basic information about this item.</p>
+
+                    <p>
+                        Basic information about this item.
+                    </p>
+
                 </div>
 
             </div>
@@ -95,11 +117,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Item:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ $storeItem->name }}
+
                         </div>
 
                     </div>
@@ -114,11 +140,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Category:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ $storeItem->category->name ?? '—' }}
+
                         </div>
 
                     </div>
@@ -133,7 +163,9 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Unit:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
@@ -141,7 +173,9 @@
                             {{ $storeItem->unit->name ?? '—' }}
 
                             @if($storeItem->unit)
+
                                 ({{ $storeItem->unit->code }})
+
                             @endif
 
                         </div>
@@ -158,11 +192,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             SKU:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ $storeItem->sku ?: '—' }}
+
                         </div>
 
                     </div>
@@ -177,11 +215,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Type:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ ucfirst(strtolower($storeItem->item_type)) }}
+
                         </div>
 
                     </div>
@@ -196,11 +238,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Reorder:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ number_format((float) $storeItem->reorder_level, 3) }}
+
                         </div>
 
                     </div>
@@ -215,11 +261,15 @@
                     <div class="d-flex align-items-center">
 
                         <label class="requisition-field-label mb-0 mr-2">
+
                             Status:
+
                         </label>
 
                         <div class="requisition-input flex-grow-1">
+
                             {{ $storeItem->is_active ? 'Active' : 'Inactive' }}
+
                         </div>
 
                     </div>
@@ -236,11 +286,15 @@
                 <div class="mt-2">
 
                     <label class="requisition-field-label">
+
                         Description
+
                     </label>
 
                     <div class="requisition-input">
+
                         {{ $storeItem->description }}
+
                     </div>
 
                 </div>
@@ -263,7 +317,9 @@
             <div class="requisition-section-heading">
 
                 <div class="requisition-section-icon">
+
                     <i class="fa fa-database"></i>
+
                 </div>
 
                 <div>
@@ -292,13 +348,25 @@
                         <thead>
 
                             <tr>
+
                                 <th>Store</th>
+
                                 <th>Code</th>
+
                                 <th>Quantity</th>
+
                                 <th>Last Movement</th>
+
+                                @can('ADJUST STORE STOCK')
+
+                                    <th>Actions</th>
+
+                                @endcan
+
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -306,26 +374,74 @@
 
                                 <tr>
 
+                                    {{-- STORE --}}
+
                                     <td>
+
                                         {{ $stock->store->name ?? '—' }}
+
                                     </td>
 
+
+                                    {{-- CODE --}}
+
                                     <td>
+
                                         {{ $stock->store->code ?? '—' }}
+
                                     </td>
 
+
+                                    {{-- QUANTITY --}}
+
                                     <td>
+
                                         <strong>
-                                            {{ number_format((float) $stock->quantity, 3) }}
+
+                                            {{ number_format(
+                                                (float) $stock->quantity,
+                                                3
+                                            ) }}
+
                                         </strong>
+
                                     </td>
 
+
+                                    {{-- LAST MOVEMENT --}}
+
                                     <td>
+
                                         {{ $stock->last_movement_at
-                                            ? $stock->last_movement_at->format('d M Y H:i')
+                                            ? $stock->last_movement_at->format('d M Y H\:i')
                                             : '—'
                                         }}
+
                                     </td>
+
+
+                                    {{-- STOCK ADJUSTMENT --}}
+
+                                    @can('ADJUST STORE STOCK')
+
+                                        <td>
+
+                                            <div class="requisition-list-actions">
+
+                                               <a
+    href="{{ route('admin.store-stock-adjustments.create') }}"
+    class="requisition-add-button warning"
+>
+    <i class="fa fa-adjust"></i>
+    Adjust Stock
+</a>
+                                                   
+
+                                            </div>
+
+                                        </td>
+
+                                    @endcan
 
                                 </tr>
 
@@ -342,11 +458,15 @@
                 <div class="requisition-table-empty">
 
                     <div class="requisition-empty-icon">
+
                         <i class="fa fa-database"></i>
+
                     </div>
 
                     <p>
+
                         No stock has been received for this item yet.
+
                     </p>
 
                 </div>
@@ -369,7 +489,9 @@
             <div class="requisition-section-heading">
 
                 <div class="requisition-section-icon">
+
                     <i class="fa fa-code-fork"></i>
+
                 </div>
 
                 <div>
@@ -384,12 +506,19 @@
 
             </div>
 
+
             <div class="requisition-header-right">
 
-                <a href="{{ route('admin.store-item-variants.create', $storeItem) }}"
-                   class="requisition-add-button">
+                <a
+                    href="{{ route(
+                        'admin.store-item-variants.create',
+                        $storeItem
+                    ) }}"
+                    class="requisition-add-button"
+                >
 
                     <i class="fa fa-plus"></i>
+
                     Add Variant
 
                 </a>
@@ -410,14 +539,21 @@
                         <thead>
 
                             <tr>
+
                                 <th>#</th>
+
                                 <th>Variant</th>
+
                                 <th>Code</th>
+
                                 <th>Status</th>
+
                                 <th>Actions</th>
+
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -425,50 +561,99 @@
 
                                 <tr>
 
+                                    {{-- NUMBER --}}
+
                                     <td>
+
                                         {{ $loop->iteration }}
+
                                     </td>
+
+
+                                    {{-- VARIANT --}}
 
                                     <td>
 
                                         <strong>
+
                                             {{ $variant->name }}
+
                                         </strong>
 
                                         @if($variant->description)
 
                                             <div class="requisition-field-help">
-                                                {{ Str::limit($variant->description, 60) }}
+
+                                                {{ Str::limit(
+                                                    $variant->description,
+                                                    60
+                                                ) }}
+
                                             </div>
 
                                         @endif
 
                                     </td>
 
-                                    <td>
-                                        {{ $variant->code ?: '—' }}
-                                    </td>
+
+                                    {{-- CODE --}}
 
                                     <td>
-                                        {{ $variant->is_active ? 'Active' : 'Inactive' }}
+
+                                        {{ $variant->code ?: '—' }}
+
                                     </td>
+
+
+                                    {{-- STATUS --}}
+
+                                    <td>
+
+                                        {{ $variant->is_active
+                                            ? 'Active'
+                                            : 'Inactive'
+                                        }}
+
+                                    </td>
+
+
+                                    {{-- ACTIONS --}}
 
                                     <td>
 
                                         <div class="requisition-list-actions">
 
-                                            <a href="{{ route('admin.store-item-variants.show', [$storeItem, $variant]) }}"
-                                               class="requisition-list-action primary">
+                                            <a
+                                                href="{{ route(
+                                                    'admin.store-item-variants.show',
+                                                    [
+                                                        $storeItem,
+                                                        $variant
+                                                    ]
+                                                ) }}"
+                                                class="requisition-list-action primary"
+                                            >
 
                                                 <i class="fa fa-eye"></i>
+
                                                 View
 
                                             </a>
 
-                                            <a href="{{ route('admin.store-item-variants.edit', [$storeItem, $variant]) }}"
-                                               class="requisition-list-action warning">
+
+                                            <a
+                                                href="{{ route(
+                                                    'admin.store-item-variants.edit',
+                                                    [
+                                                        $storeItem,
+                                                        $variant
+                                                    ]
+                                                ) }}"
+                                                class="requisition-list-action warning"
+                                            >
 
                                                 <i class="fa fa-pencil"></i>
+
                                                 Edit
 
                                             </a>
@@ -492,17 +677,27 @@
                 <div class="requisition-table-empty">
 
                     <div class="requisition-empty-icon">
+
                         <i class="fa fa-code-fork"></i>
+
                     </div>
 
                     <p>
+
                         No variants have been added.
+
                     </p>
 
-                    <a href="{{ route('admin.store-item-variants.create', $storeItem) }}"
-                       class="requisition-add-button">
+                    <a
+                        href="{{ route(
+                            'admin.store-item-variants.create',
+                            $storeItem
+                        ) }}"
+                        class="requisition-add-button"
+                    >
 
                         <i class="fa fa-plus"></i>
+
                         Add Variant
 
                     </a>
@@ -522,37 +717,52 @@
 
     <div class="requisition-bottom-actions">
 
-        <a href="{{ route('admin.store-items.index') }}"
-           class="requisition-cancel-button">
+        <a
+            href="{{ route('admin.store-items.index') }}"
+            class="requisition-cancel-button"
+        >
 
             <i class="fa fa-arrow-left"></i>
+
             Back to Store Items
 
         </a>
 
 
-        <form method="POST"
-              action="{{ route('admin.store-items.toggle-status', $storeItem) }}">
+        <form
+            method="POST"
+            action="{{ route(
+                'admin.store-items.toggle-status',
+                $storeItem
+            ) }}"
+        >
 
             @csrf
+
             @method('PATCH')
 
             @if($storeItem->is_active)
 
-                <button type="submit"
-                        class="requisition-add-button danger">
+                <button
+                    type="submit"
+                    class="requisition-add-button danger"
+                >
 
                     <i class="fa fa-ban"></i>
+
                     Deactivate
 
                 </button>
 
             @else
 
-                <button type="submit"
-                        class="requisition-list-action success">
+                <button
+                    type="submit"
+                    class="requisition-list-action success"
+                >
 
                     <i class="fa fa-check"></i>
+
                     Activate
 
                 </button>

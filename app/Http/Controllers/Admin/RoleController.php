@@ -66,36 +66,32 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      */
     
-    public function update(Request $request, $id)
-    {
-        $role = Role::findOrFail($id);
-    
-        // Validate the request
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id', // Ensure all IDs exist in the permissions table
-        ]);
-    
-        // Update the role name
-        $role->name = $request->name;
-        $role->save();
-    
-        // If no permissions are selected, set it to an empty array
-        $permissions = $request->permissions ?? [];
-    
-        if (!empty($permissions)) {
-            // Fetch permission names using the IDs
-            $permissionNames = Permission::whereIn('id', $permissions)->pluck('name')->toArray();
-            $role->syncPermissions($permissionNames);
-        } else {
-            // If no permissions are selected, remove all permissions from the role
-            $role->syncPermissions([]);
-        }
-    
-        return redirect()->route('admin.roles.index')->with('success', 'Role updated successfully.');
-    }
-    
+public function update(Request $request, $id)
+{
+    $role = Role::findOrFail($id);
+
+    $request->validate([
+        'permissions' => 'nullable|array',
+        'permissions.*' => 'exists:permissions,id',
+    ]);
+
+    $permissionIds = $request->input('permissions', []);
+
+    $permissionNames = Permission::whereIn('id', $permissionIds)
+        ->pluck('name')
+        ->toArray();
+
+    $role->syncPermissions($permissionNames);
+
+    app(\Spatie\Permission\PermissionRegistrar::class)
+        ->forgetCachedPermissions();
+
+    return redirect()
+        ->route('admin.roles.index')
+        ->with('success', 'Role permissions updated successfully.');
+}
+
+
     
 
     /**
@@ -111,9 +107,27 @@ class RoleController extends Controller
     /**
      * Update Role Permissions.
      */
-    public function updatePermissions(Request $request, Role $role)
-    {
-        $role->syncPermissions($request->permissions); // Sync permissions with the role
-        return redirect()->back()->with('success', 'Permissions updated successfully.');
-    }
+public function updatePermissions(Request $request, Role $role)
+{
+    $request->validate([
+        'permissions' => 'nullable|array',
+        'permissions.*' => 'exists:permissions,id',
+    ]);
+
+    $permissionIds = $request->input('permissions', []);
+
+    $permissionNames = Permission::whereIn('id', $permissionIds)
+        ->pluck('name')
+        ->toArray();
+
+    $role->syncPermissions($permissionNames);
+
+    app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
+    return redirect()
+        ->back()
+        ->with('success', 'Permissions updated successfully.');
+}
+
+
 }

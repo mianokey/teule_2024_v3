@@ -1,4 +1,4 @@
-@if($showApprovalActions)
+@if($showApprovalActions && $canApproveCurrentStage)
 
     <div class="requisition-approval-panel">
 
@@ -14,7 +14,9 @@
 
         <div class="requisition-approval-actions">
 
-            {{-- APPROVE --}}
+            {{-- =====================================================
+                 APPROVE
+                 ===================================================== --}}
 
             <form
                 method="POST"
@@ -30,18 +32,21 @@
                 <button
                     type="submit"
                     class="btn btn-sm btn-success"
-                    onclick="return confirm(
-                        'Approve this requisition?'
-                    )"
+                    onclick="return confirm('Approve this requisition?')"
                 >
+
                     <i class="fas fa-check me-1"></i>
+
                     Approve
+
                 </button>
 
             </form>
 
 
-            {{-- SEND BACK --}}
+            {{-- =====================================================
+                 SEND BACK
+                 ===================================================== --}}
 
             <button
                 type="button"
@@ -49,12 +54,17 @@
                 data-bs-toggle="modal"
                 data-bs-target="#sendBackModal"
             >
+
                 <i class="fas fa-undo me-1"></i>
+
                 Send Back
+
             </button>
 
 
-            {{-- REJECT --}}
+            {{-- =====================================================
+                 REJECT
+                 ===================================================== --}}
 
             <button
                 type="button"
@@ -62,8 +72,11 @@
                 data-bs-toggle="modal"
                 data-bs-target="#rejectModal"
             >
+
                 <i class="fas fa-times me-1"></i>
+
                 Reject
+
             </button>
 
         </div>

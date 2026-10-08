@@ -103,7 +103,7 @@ class DonationThankYouService
             );
 
             return "Dear {$donorName}, thank you for your generous gift of "
-                . "{$donation->currency} {$amount} to Teule Kenya. "
+                . "{$donation->currency} {$amount} to Teule Kenya received on {$donation->donation_date}. "
                 . "Your support helps us care for and empower vulnerable "
                 . "children and families. God bless you.";
         }

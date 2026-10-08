@@ -22,23 +22,99 @@ class StoreController extends Controller
         return view('admin.stores.create');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:stores,name',
-            'code' => 'required|string|max:50|unique:stores,code',
-            'description' => 'nullable|string|max:2000',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-        $validated['code'] = strtoupper(trim($validated['code']));
-        $validated['is_active'] = true;
+        'code' => [
+            'required',
+            'string',
+            'max:100',
+        ],
 
-        Store::create($validated);
+        // KEEP YOUR OTHER EXISTING VALIDATION RULES HERE
+    ]);
 
-        return redirect()
-            ->route('admin.stores.index')
-            ->with('success', 'Store added successfully.');
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZE VALUES
+    |--------------------------------------------------------------------------
+    */
+
+    $validated['name'] = trim($validated['name']);
+    $validated['code'] = strtoupper(trim($validated['code']));
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAIN STORE PROTECTION
+    |--------------------------------------------------------------------------
+    |
+    | A store is considered a MAIN STORE if "main" appears anywhere
+    | in either its name OR its code.
+    |
+    | Examples:
+    |
+    | TLA- MAIN STORE
+    | MAIN STORE
+    | TLA-MAIN
+    | MAIN
+    |
+    */
+
+    $isMainStore = str_contains(
+        strtolower($validated['name']),
+        'main'
+    ) || str_contains(
+        strtolower($validated['code']),
+        'main'
+    );
+
+    if ($isMainStore) {
+
+        $mainStoreExists = Store::query()
+            ->where(function ($query) {
+                $query->whereRaw(
+                    'LOWER(name) LIKE ?',
+                    ['%main%']
+                )
+                ->orWhereRaw(
+                    'LOWER(code) LIKE ?',
+                    ['%main%']
+                );
+            })
+            ->exists();
+
+        if ($mainStoreExists) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'name' =>
+                        'A Main Store already exists. Only one store may contain "MAIN" in its name or code.',
+                ]);
+        }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE STORE
+    |--------------------------------------------------------------------------
+    */
+
+    Store::create($validated);
+
+    return redirect()
+        ->route('admin.stores.index')
+        ->with(
+            'success',
+            'Store created successfully.'
+        );
+}
+
 
     public function show(Store $store)
     {
@@ -52,22 +128,88 @@ class StoreController extends Controller
         return view('admin.stores.edit', compact('store'));
     }
 
-    public function update(Request $request, Store $store)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:stores,name,' . $store->id,
-            'code' => 'required|string|max:50|unique:stores,code,' . $store->id,
-            'description' => 'nullable|string|max:2000',
-        ]);
+public function update(Request $request, Store $store)
+{
+    $validated = $request->validate([
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-        $validated['code'] = strtoupper(trim($validated['code']));
+        'code' => [
+            'required',
+            'string',
+            'max:100',
+        ],
 
-        $store->update($validated);
+        // KEEP YOUR OTHER EXISTING VALIDATION RULES HERE
+    ]);
 
-        return redirect()
-            ->route('admin.stores.index')
-            ->with('success', 'Store updated successfully.');
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZE VALUES
+    |--------------------------------------------------------------------------
+    */
+
+    $validated['name'] = trim($validated['name']);
+    $validated['code'] = strtoupper(trim($validated['code']));
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAIN STORE PROTECTION
+    |--------------------------------------------------------------------------
+    */
+
+    $isMainStore = str_contains(
+        strtolower($validated['name']),
+        'main'
+    ) || str_contains(
+        strtolower($validated['code']),
+        'main'
+    );
+
+    if ($isMainStore) {
+
+        $anotherMainStoreExists = Store::query()
+            ->where('id', '!=', $store->id)
+            ->where(function ($query) {
+                $query->whereRaw(
+                    'LOWER(name) LIKE ?',
+                    ['%main%']
+                )
+                ->orWhereRaw(
+                    'LOWER(code) LIKE ?',
+                    ['%main%']
+                );
+            })
+            ->exists();
+
+        if ($anotherMainStoreExists) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'name' =>
+                        'Another Main Store already exists. Only one store may contain "MAIN" in its name or code.',
+                ]);
+        }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE STORE
+    |--------------------------------------------------------------------------
+    */
+
+    $store->update($validated);
+
+    return redirect()
+        ->route('admin.stores.index')
+        ->with(
+            'success',
+            'Store updated successfully.'
+        );
+}
 
     public function toggleStatus(Store $store)
     {

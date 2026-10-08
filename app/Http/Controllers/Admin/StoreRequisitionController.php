@@ -17,6 +17,9 @@ class StoreRequisitionController extends Controller
 {
     /**
      * Display requisitions.
+     *
+     * Requesters see their own requisitions.
+     * Users with any stage-specific approval permission can see all.
      */
     public function index(Request $request)
     {
@@ -29,15 +32,33 @@ class StoreRequisitionController extends Controller
             ]);
 
         /*
-         * Requesters see only their own requisitions.
-         * Users with approval permission can see all requisitions.
-         */
-        if (!auth()->user()->can('APPROVE STORE REQUISITIONS')) {
-            $query->where('requested_by', auth()->id());
+        |--------------------------------------------------------------------------
+        | Stage-specific view access
+        |--------------------------------------------------------------------------
+        */
+        $canViewAllRequisitions =
+            auth()->user()->can(
+                'APPROVE STORE REQUISITIONS - HOD'
+            ) ||
+            auth()->user()->can(
+                'APPROVE STORE REQUISITIONS - MANAGEMENT'
+            ) ||
+            auth()->user()->can(
+                'APPROVE STORE REQUISITIONS - STORES'
+            );
+
+        if (!$canViewAllRequisitions) {
+            $query->where(
+                'requested_by',
+                auth()->id()
+            );
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where(
+                'status',
+                $request->status
+            );
         }
 
         if ($request->filled('search')) {
@@ -73,7 +94,6 @@ class StoreRequisitionController extends Controller
         );
     }
 
-
     /**
      * Show the create requisition form.
      */
@@ -87,8 +107,10 @@ class StoreRequisitionController extends Controller
             ->orderBy('name')
             ->get();
 
-        $children = Child::orderBy('name', 'asc')
-            ->get();
+        $children = Child::orderBy(
+            'name',
+            'asc'
+        )->get();
 
         $stores = Store::query()
             ->where('is_active', true)
@@ -105,108 +127,82 @@ class StoreRequisitionController extends Controller
         );
     }
 
-
     /**
      * Show the edit requisition form.
      */
-public function edit(StoreRequisition $storeRequisition)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | ONLY THE REQUESTER CAN EDIT
-    |--------------------------------------------------------------------------
-    */
+    public function edit(
+        StoreRequisition $storeRequisition
+    ) {
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY THE REQUESTER CAN EDIT
+        |--------------------------------------------------------------------------
+        */
+        if (
+            (int) $storeRequisition->requested_by !==
+            (int) auth()->id()
+        ) {
+            abort(403);
+        }
 
-    if ((int) $storeRequisition->requested_by !== (int) auth()->id()) {
-        abort(403);
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DRAFT AND RETURNED REQUISITIONS CAN BE EDITED
-    |--------------------------------------------------------------------------
-    */
-
-    if (!in_array($storeRequisition->status, ['draft', 'returned'], true)) {
-        return redirect()
-            ->route(
-                'admin.stores.store-requisitions.show',
-                $storeRequisition
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY DRAFT AND RETURNED REQUISITIONS CAN BE EDITED
+        |--------------------------------------------------------------------------
+        */
+        if (
+            !in_array(
+                $storeRequisition->status,
+                ['draft', 'returned'],
+                true
             )
-            ->with(
-                'error',
-                'Only draft or returned requisitions can be edited.'
-            );
-    }
+        ) {
+            return redirect()
+                ->route(
+                    'admin.stores.store-requisitions.show',
+                    $storeRequisition
+                )
+                ->with(
+                    'error',
+                    'Only draft or returned requisitions can be edited.'
+                );
+        }
 
+        $items = StoreItem::with([
+            'unit',
+            'variants',
+        ])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
 
-    /*
-    |--------------------------------------------------------------------------
-    | AVAILABLE STORE ITEMS
-    |--------------------------------------------------------------------------
-    */
+        $children = Child::orderBy(
+            'name'
+        )->get();
 
-    $items = StoreItem::with([
-        'unit',
-        'variants',
-    ])
-        ->where('is_active', true)
-        ->orderBy('name')
-        ->get();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHILDREN
-    |--------------------------------------------------------------------------
-    */
-
-    $children = Child::orderBy('name')->get();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STORES
-    |--------------------------------------------------------------------------
-    */
-
-    $stores = Store::where('is_active', true)
-        ->orderBy('name')
-        ->get();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD EXISTING REQUISITION DATA
-    |--------------------------------------------------------------------------
-    */
-
-    $storeRequisition->load([
-        'items.item',
-        'items.variant',
-        'items.children',
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT VIEW
-    |--------------------------------------------------------------------------
-    */
-
-    return view(
-        'admin.stores.store-requisitions.edit',
-        compact(
-            'storeRequisition',
-            'items',
-            'children',
-            'stores'
+        $stores = Store::where(
+            'is_active',
+            true
         )
-    );
-}
+            ->orderBy('name')
+            ->get();
 
+        $storeRequisition->load([
+            'items.item',
+            'items.variant',
+            'items.children',
+        ]);
 
+        return view(
+            'admin.stores.store-requisitions.edit',
+            compact(
+                'storeRequisition',
+                'items',
+                'children',
+                'stores'
+            )
+        );
+    }
 
     /**
      * Update an existing draft/returned requisition.
@@ -240,13 +236,6 @@ public function edit(StoreRequisition $storeRequisition)
         }
 
         $validated = $request->validate([
-
-            /*
-             * ----------------------------------------------------------
-             * Requisition routing
-             * ----------------------------------------------------------
-             */
-
             'requisition_type' => [
                 'required',
                 'in:ITEM,TRANSFER',
@@ -269,12 +258,6 @@ public function edit(StoreRequisition $storeRequisition)
                 'different:source_store_id',
             ],
 
-            /*
-             * ----------------------------------------------------------
-             * Basic requisition information
-             * ----------------------------------------------------------
-             */
-
             'department' => [
                 'required',
                 'string',
@@ -292,12 +275,6 @@ public function edit(StoreRequisition $storeRequisition)
                 'string',
                 'max:2000',
             ],
-
-            /*
-             * ----------------------------------------------------------
-             * Items
-             * ----------------------------------------------------------
-             */
 
             'items' => [
                 'required',
@@ -321,7 +298,6 @@ public function edit(StoreRequisition $storeRequisition)
                     $value,
                     $fail
                 ) use ($request) {
-
                     if (!$value) {
                         return;
                     }
@@ -388,15 +364,7 @@ public function edit(StoreRequisition $storeRequisition)
             $validated,
             $storeRequisition
         ) {
-
-            /*
-             * ----------------------------------------------------------
-             * Update requisition header
-             * ----------------------------------------------------------
-             */
-
             $storeRequisition->update([
-
                 'department' =>
                     $validated['department'],
 
@@ -421,23 +389,10 @@ public function edit(StoreRequisition $storeRequisition)
                         : null,
             ]);
 
-
-            /*
-             * ----------------------------------------------------------
-             * Rebuild item lines
-             *
-             * This is safe because the requisition is still
-             * draft/returned and has not been approved.
-             * ----------------------------------------------------------
-             */
-
             $storeRequisition->items()->delete();
 
             foreach ($validated['items'] as $item) {
 
-                /*
-                 * Double-check variant belongs to selected item.
-                 */
                 if (!empty($item['variant_id'])) {
 
                     $variantBelongsToItem =
@@ -460,10 +415,8 @@ public function edit(StoreRequisition $storeRequisition)
                     }
                 }
 
-
                 $requisitionItem =
                     $storeRequisition->items()->create([
-
                         'store_item_id' =>
                             $item['store_item_id'],
 
@@ -473,12 +426,6 @@ public function edit(StoreRequisition $storeRequisition)
                         'requested_quantity' =>
                             $item['requested_quantity'],
 
-                        /*
-                         * Before final approval:
-                         * approved = 0
-                         * issued = 0
-                         * outstanding = 0
-                         */
                         'approved_quantity' => 0,
 
                         'issued_quantity' => 0,
@@ -489,10 +436,6 @@ public function edit(StoreRequisition $storeRequisition)
                             $item['notes'] ?? null,
                     ]);
 
-
-                /*
-                 * Attach children where provided.
-                 */
                 if (!empty($item['child_ids'])) {
                     $requisitionItem->children()->sync(
                         $item['child_ids']
@@ -513,22 +456,12 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
      * Save a new requisition as a draft.
-     *
-     * No stock is checked or deducted here.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-
-            /*
-             * ----------------------------------------------------------
-             * Requisition routing
-             * ----------------------------------------------------------
-             */
-
             'requisition_type' => [
                 'required',
                 'in:ITEM,TRANSFER',
@@ -551,12 +484,6 @@ public function edit(StoreRequisition $storeRequisition)
                 'different:source_store_id',
             ],
 
-            /*
-             * ----------------------------------------------------------
-             * Basic requisition information
-             * ----------------------------------------------------------
-             */
-
             'department' => [
                 'required',
                 'string',
@@ -574,12 +501,6 @@ public function edit(StoreRequisition $storeRequisition)
                 'string',
                 'max:2000',
             ],
-
-            /*
-             * ----------------------------------------------------------
-             * Items
-             * ----------------------------------------------------------
-             */
 
             'items' => [
                 'required',
@@ -603,7 +524,6 @@ public function edit(StoreRequisition $storeRequisition)
                     $value,
                     $fail
                 ) use ($request) {
-
                     if (!$value) {
                         return;
                     }
@@ -666,24 +586,14 @@ public function edit(StoreRequisition $storeRequisition)
             ],
         ]);
 
-
         $requisition = null;
-
 
         DB::transaction(function () use (
             $validated,
             &$requisition
         ) {
-
-            /*
-             * ----------------------------------------------------------
-             * Create requisition header
-             * ----------------------------------------------------------
-             */
-
             $requisition =
                 StoreRequisition::create([
-
                     'requisition_number' =>
                         $this->generateRequisitionNumber(),
 
@@ -696,9 +606,6 @@ public function edit(StoreRequisition $storeRequisition)
                     'purpose' =>
                         $validated['purpose'],
 
-                    /*
-                     * Requisition routing
-                     */
                     'requisition_type' =>
                         $validated['requisition_type'],
 
@@ -713,31 +620,21 @@ public function edit(StoreRequisition $storeRequisition)
                             )
                             : null,
 
-                    /*
-                     * Workflow
-                     */
-                    'status' => 'draft',
+                    'status' =>
+                        'draft',
 
-                    'approval_stage' => 'none',
+                    'approval_stage' =>
+                        'none',
 
-                    'fulfillment_status' => 'not_issued',
+                    'fulfillment_status' =>
+                        'not_issued',
 
                     'submission_notes' =>
                         $validated['submission_notes'] ?? null,
                 ]);
 
-
-            /*
-             * ----------------------------------------------------------
-             * Create requisition items
-             * ----------------------------------------------------------
-             */
-
             foreach ($validated['items'] as $item) {
 
-                /*
-                 * Double-check variant belongs to selected item.
-                 */
                 if (!empty($item['variant_id'])) {
 
                     $variantBelongsToItem =
@@ -752,7 +649,6 @@ public function edit(StoreRequisition $storeRequisition)
                         ->exists();
 
                     if (!$variantBelongsToItem) {
-
                         throw \Illuminate\Validation\ValidationException::withMessages([
                             'items' => [
                                 'One of the selected variants does not belong to its selected item.',
@@ -761,10 +657,8 @@ public function edit(StoreRequisition $storeRequisition)
                     }
                 }
 
-
                 $requisitionItem =
                     $requisition->items()->create([
-
                         'store_item_id' =>
                             $item['store_item_id'],
 
@@ -774,11 +668,6 @@ public function edit(StoreRequisition $storeRequisition)
                         'requested_quantity' =>
                             $item['requested_quantity'],
 
-                        /*
-                         * IMPORTANT:
-                         *
-                         * Nothing is approved at draft stage.
-                         */
                         'approved_quantity' => 0,
 
                         'issued_quantity' => 0,
@@ -789,10 +678,6 @@ public function edit(StoreRequisition $storeRequisition)
                             $item['notes'] ?? null,
                     ]);
 
-
-                /*
-                 * Attach children where provided.
-                 */
                 if (!empty($item['child_ids'])) {
                     $requisitionItem->children()->sync(
                         $item['child_ids']
@@ -800,7 +685,6 @@ public function edit(StoreRequisition $storeRequisition)
                 }
             }
         });
-
 
         return redirect()
             ->route(
@@ -814,14 +698,12 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
      * Generate a unique requisition number.
      */
     protected function generateRequisitionNumber(): string
     {
         do {
-
             $number =
                 'REQ-' .
                 now()->format('Ymd') .
@@ -833,7 +715,6 @@ public function edit(StoreRequisition $storeRequisition)
                         6
                     )
                 );
-
         } while (
             StoreRequisition::where(
                 'requisition_number',
@@ -844,38 +725,136 @@ public function edit(StoreRequisition $storeRequisition)
         return $number;
     }
 
+    /**
+     * Get the permission required for the current approval stage.
+     */
+    protected function getApprovalPermissionForStage(
+        StoreRequisition $storeRequisition
+    ): ?string {
+        return match (
+            strtolower(
+                trim(
+                    $storeRequisition->approval_stage ?? ''
+                )
+            )
+        ) {
+            'hod' =>
+                'APPROVE STORE REQUISITIONS - HOD',
+
+            'management' =>
+                'APPROVE STORE REQUISITIONS - MANAGEMENT',
+
+            'stores' =>
+                'APPROVE STORE REQUISITIONS - STORES',
+
+            default =>
+                null,
+        };
+    }
 
     /**
      * Display a requisition.
      */
-    public function show(StoreRequisition $storeRequisition)
-    {
+    public function show(
+        StoreRequisition $storeRequisition
+    ) {
+        $user = auth()->user();
+
+        /*
+        |--------------------------------------------------------------------------
+        | REQUESTER
+        |--------------------------------------------------------------------------
+        */
         $isRequester =
-            $storeRequisition->requested_by === auth()->id();
+            (int) $storeRequisition->requested_by ===
+            (int) $user->id;
 
-        $canApprove =
-            auth()->user()->can(
-                'APPROVE STORE REQUISITIONS'
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | STAGE-SPECIFIC PERMISSIONS ONLY
+        |--------------------------------------------------------------------------
+        */
+        $canApproveHod = $user->can(
+            'APPROVE STORE REQUISITIONS - HOD'
+        );
 
-        $canApproveHod =
-            auth()->user()->can(
-                'APPROVE STORE REQUISITIONS - HOD'
-            );
+        $canApproveManagement = $user->can(
+            'APPROVE STORE REQUISITIONS - MANAGEMENT'
+        );
 
-        $canApproveManagement =
-            auth()->user()->can(
-                'APPROVE STORE REQUISITIONS - MANAGEMENT'
-            );
+        $canApproveStores = $user->can(
+            'APPROVE STORE REQUISITIONS - STORES'
+        );
 
-        $canApproveStores =
-            auth()->user()->can(
-                'APPROVE STORE REQUISITIONS - STORES'
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT STAGE
+        |--------------------------------------------------------------------------
+        */
+        $approvalStage = strtolower(
+            trim(
+                $storeRequisition->approval_stage ?? 'none'
+            )
+        );
 
+        $status = strtolower(
+            trim(
+                $storeRequisition->status ?? 'draft'
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY PENDING REQUISITIONS REQUIRE APPROVAL
+        |--------------------------------------------------------------------------
+        */
+        $isPending = $status === 'pending';
+
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT-STAGE APPROVAL PERMISSION
+        |--------------------------------------------------------------------------
+        */
+        $canApproveCurrentStage = false;
+
+        switch ($approvalStage) {
+
+            case 'hod':
+                $canApproveCurrentStage =
+                    $canApproveHod;
+                break;
+
+            case 'management':
+                $canApproveCurrentStage =
+                    $canApproveManagement;
+                break;
+
+            case 'stores':
+                $canApproveCurrentStage =
+                    $canApproveStores;
+                break;
+
+            default:
+                $canApproveCurrentStage = false;
+                break;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW APPROVAL FORM
+        |--------------------------------------------------------------------------
+        */
+        $showApprovalActions =
+            $isPending &&
+            $canApproveCurrentStage;
+
+        /*
+        |--------------------------------------------------------------------------
+        | VIEW ACCESS
+        |--------------------------------------------------------------------------
+        */
         $canView =
             $isRequester ||
-            $canApprove ||
             $canApproveHod ||
             $canApproveManagement ||
             $canApproveStores;
@@ -884,47 +863,82 @@ public function edit(StoreRequisition $storeRequisition)
             abort(403);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | STAGE LABEL
+        |--------------------------------------------------------------------------
+        */
+        $stageLabel = match ($approvalStage) {
+
+            'hod' =>
+                'HOD Approval',
+
+            'management' =>
+                'Management Approval',
+
+            'stores' =>
+                'Stores Approval',
+
+            'approved' =>
+                'Fully Approved',
+
+            'rejected' =>
+                'Rejected',
+
+            'returned' =>
+                'Returned to Requester',
+
+            default =>
+                'Not Submitted',
+        };
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD RELATIONSHIPS
+        |--------------------------------------------------------------------------
+        */
         $storeRequisition->load([
             'requester',
-
             'items.item.unit',
-
             'items.variant',
-
             'items.children',
-
             'approvals.approver',
-
             'sourceStore',
-
             'destinationStore',
-
             'fulfillments.processor',
-
             'fulfillments.sourceStore',
-
             'fulfillments.destinationStore',
-
             'fulfillments.items.item',
-
             'fulfillments.items.variant',
         ]);
 
         return view(
             'admin.stores.store-requisitions.show',
-            compact('storeRequisition')
+            compact(
+                'storeRequisition',
+                'showApprovalActions',
+                'canApproveCurrentStage',
+                'approvalStage',
+                'stageLabel',
+                'status',
+                'isPending',
+                'isRequester',
+                'canApproveHod',
+                'canApproveManagement',
+                'canApproveStores'
+            )
         );
     }
-
 
     /**
      * Submit a requisition for approval.
      */
-    public function submit(StoreRequisition $storeRequisition)
-    {
+    public function submit(
+        StoreRequisition $storeRequisition
+    ) {
         if (
-            $storeRequisition->requested_by !==
-            auth()->id()
+            (int) $storeRequisition->requested_by !==
+            (int) auth()->id()
         ) {
             abort(403);
         }
@@ -947,8 +961,9 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
-        if ($storeRequisition->items()->count() === 0) {
-
+        if (
+            $storeRequisition->items()->count() === 0
+        ) {
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.show',
@@ -960,11 +975,7 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
-        /*
-         * Make sure routing information exists before submission.
-         */
         if (!$storeRequisition->source_store_id) {
-
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.edit',
@@ -980,7 +991,6 @@ public function edit(StoreRequisition $storeRequisition)
             $storeRequisition->requisition_type === 'TRANSFER' &&
             !$storeRequisition->destination_store_id
         ) {
-
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.edit',
@@ -1011,7 +1021,6 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
      * Approve the current approval stage.
      */
@@ -1019,45 +1028,12 @@ public function edit(StoreRequisition $storeRequisition)
         Request $request,
         StoreRequisition $storeRequisition
     ) {
-        $validated = $request->validate([
-            'comments' => [
-                'nullable',
-                'string',
-                'max:2000',
-            ],
-        ]);
-
-        $stage =
-            $storeRequisition->approval_stage;
-
-
         /*
-         * --------------------------------------------------------------
-         * Approval permissions by stage
-         * --------------------------------------------------------------
-         */
-
-        $permissionByStage = [
-
-            'hod' =>
-                'APPROVE STORE REQUISITIONS - HOD',
-
-            'management' =>
-                'APPROVE STORE REQUISITIONS - MANAGEMENT',
-
-            'stores' =>
-                'APPROVE STORE REQUISITIONS - STORES',
-        ];
-
-
-        /*
-         * --------------------------------------------------------------
-         * Make sure requisition is at a valid approval stage
-         * --------------------------------------------------------------
-         */
-
-        if (!isset($permissionByStage[$stage])) {
-
+        |--------------------------------------------------------------------------
+        | MUST BE PENDING
+        |--------------------------------------------------------------------------
+        */
+        if ($storeRequisition->status !== 'pending') {
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.show',
@@ -1069,41 +1045,71 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | GET REQUIRED PERMISSION FOR CURRENT STAGE
+        |--------------------------------------------------------------------------
+        */
+        $requiredPermission =
+            $this->getApprovalPermissionForStage(
+                $storeRequisition
+            );
 
         /*
-         * --------------------------------------------------------------
-         * Check permission for CURRENT stage
-         * --------------------------------------------------------------
-         */
+        |--------------------------------------------------------------------------
+        | INVALID STAGE
+        |--------------------------------------------------------------------------
+        */
+        if (!$requiredPermission) {
+            return redirect()
+                ->route(
+                    'admin.stores.store-requisitions.show',
+                    $storeRequisition
+                )
+                ->with(
+                    'error',
+                    'This requisition is not currently awaiting approval.'
+                );
+        }
 
-        $requiredPermission =
-            $permissionByStage[$stage];
-
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK EXACT STAGE PERMISSION
+        |--------------------------------------------------------------------------
+        */
         abort_unless(
-            \Illuminate\Support\Facades\Gate::forUser(
-                auth()->user()
-            )->allows($requiredPermission),
+            auth()->user()->can(
+                $requiredPermission
+            ),
             403
         );
 
+        $validated = $request->validate([
+            'comments' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+        ]);
 
-        /*
-         * --------------------------------------------------------------
-         * Record approval and move to next stage
-         * --------------------------------------------------------------
-         */
+        $stage =
+            strtolower(
+                trim(
+                    $storeRequisition->approval_stage
+                )
+            );
 
         DB::transaction(function () use (
             $storeRequisition,
             $validated,
             $stage
         ) {
-
             /*
-             * Record approval.
-             */
+            |--------------------------------------------------------------------------
+            | RECORD APPROVAL
+            |--------------------------------------------------------------------------
+            */
             StoreRequisitionApproval::create([
-
                 'store_requisition_id' =>
                     $storeRequisition->id,
 
@@ -1123,10 +1129,11 @@ public function edit(StoreRequisition $storeRequisition)
                     now(),
             ]);
 
-
             /*
-             * HOD → MANAGEMENT
-             */
+            |--------------------------------------------------------------------------
+            | HOD → MANAGEMENT
+            |--------------------------------------------------------------------------
+            */
             if ($stage === 'hod') {
 
                 $storeRequisition->update([
@@ -1135,10 +1142,11 @@ public function edit(StoreRequisition $storeRequisition)
                 ]);
             }
 
-
             /*
-             * MANAGEMENT → STORES
-             */
+            |--------------------------------------------------------------------------
+            | MANAGEMENT → STORES
+            |--------------------------------------------------------------------------
+            */
             elseif ($stage === 'management') {
 
                 $storeRequisition->update([
@@ -1147,23 +1155,19 @@ public function edit(StoreRequisition $storeRequisition)
                 ]);
             }
 
-
             /*
-             * STORES → FULLY APPROVED
-             */
+            |--------------------------------------------------------------------------
+            | STORES → FULLY APPROVED
+            |--------------------------------------------------------------------------
+            */
             elseif ($stage === 'stores') {
 
                 $storeRequisition->load('items');
 
-
-                /*
-                 * Only now do approved quantities become available.
-                 */
                 foreach (
                     $storeRequisition->items
                     as $item
                 ) {
-
                     $requestedQuantity =
                         (float) $item->requested_quantity;
 
@@ -1178,7 +1182,6 @@ public function edit(StoreRequisition $storeRequisition)
                         );
 
                     $item->update([
-
                         'approved_quantity' =>
                             $requestedQuantity,
 
@@ -1187,12 +1190,7 @@ public function edit(StoreRequisition $storeRequisition)
                     ]);
                 }
 
-
-                /*
-                 * Mark requisition fully approved.
-                 */
                 $storeRequisition->update([
-
                     'status' =>
                         'approved',
 
@@ -1207,13 +1205,6 @@ public function edit(StoreRequisition $storeRequisition)
                 ]);
             }
         });
-
-
-        /*
-         * --------------------------------------------------------------
-         * Success message
-         * --------------------------------------------------------------
-         */
 
         $message = match ($stage) {
 
@@ -1230,7 +1221,6 @@ public function edit(StoreRequisition $storeRequisition)
                 'Requisition approved.',
         };
 
-
         return redirect()
             ->route(
                 'admin.stores.store-requisitions.show',
@@ -1242,7 +1232,6 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
      * Reject a pending requisition.
      */
@@ -1250,13 +1239,23 @@ public function edit(StoreRequisition $storeRequisition)
         Request $request,
         StoreRequisition $storeRequisition
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | EXACT CURRENT-STAGE PERMISSION
+        |--------------------------------------------------------------------------
+        */
+        $requiredPermission =
+            $this->getApprovalPermissionForStage(
+                $storeRequisition
+            );
+
         abort_unless(
+            $requiredPermission &&
             auth()->user()->can(
-                'APPROVE STORE REQUISITIONS'
+                $requiredPermission
             ),
             403
         );
-
 
         $validated = $request->validate([
             'comments' => [
@@ -1266,13 +1265,9 @@ public function edit(StoreRequisition $storeRequisition)
             ],
         ]);
 
-
-        /*
-         * Submitted requisitions are now represented by
-         * status = pending.
-         */
-        if ($storeRequisition->status !== 'pending') {
-
+        if (
+            $storeRequisition->status !== 'pending'
+        ) {
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.show',
@@ -1284,14 +1279,11 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
-
         DB::transaction(function () use (
             $storeRequisition,
             $validated
         ) {
-
             StoreRequisitionApproval::create([
-
                 'store_requisition_id' =>
                     $storeRequisition->id,
 
@@ -1311,9 +1303,7 @@ public function edit(StoreRequisition $storeRequisition)
                     now(),
             ]);
 
-
             $storeRequisition->update([
-
                 'status' =>
                     'rejected',
 
@@ -1321,7 +1311,6 @@ public function edit(StoreRequisition $storeRequisition)
                     'rejected',
             ]);
         });
-
 
         return redirect()
             ->route(
@@ -1336,21 +1325,30 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
-     * Send a pending requisition back to the requester.
+     * Send a pending requisition back to requester.
      */
     public function sendBack(
         Request $request,
         StoreRequisition $storeRequisition
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | EXACT CURRENT-STAGE PERMISSION
+        |--------------------------------------------------------------------------
+        */
+        $requiredPermission =
+            $this->getApprovalPermissionForStage(
+                $storeRequisition
+            );
+
         abort_unless(
+            $requiredPermission &&
             auth()->user()->can(
-                'APPROVE STORE REQUISITIONS'
+                $requiredPermission
             ),
             403
         );
-
 
         $validated = $request->validate([
             'comments' => [
@@ -1360,13 +1358,9 @@ public function edit(StoreRequisition $storeRequisition)
             ],
         ]);
 
-
-        /*
-         * Submitted requisitions are now represented by
-         * status = pending.
-         */
-        if ($storeRequisition->status !== 'pending') {
-
+        if (
+            $storeRequisition->status !== 'pending'
+        ) {
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.show',
@@ -1378,14 +1372,11 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
-
         DB::transaction(function () use (
             $storeRequisition,
             $validated
         ) {
-
             StoreRequisitionApproval::create([
-
                 'store_requisition_id' =>
                     $storeRequisition->id,
 
@@ -1405,9 +1396,7 @@ public function edit(StoreRequisition $storeRequisition)
                     now(),
             ]);
 
-
             $storeRequisition->update([
-
                 'status' =>
                     'returned',
 
@@ -1415,7 +1404,6 @@ public function edit(StoreRequisition $storeRequisition)
                     'returned',
             ]);
         });
-
 
         return redirect()
             ->route(
@@ -1430,7 +1418,6 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-
     /**
      * Delete a draft requisition.
      */
@@ -1438,9 +1425,10 @@ public function edit(StoreRequisition $storeRequisition)
         StoreRequisition $storeRequisition
     ) {
         /*
-         * Only the person who created the requisition
-         * can delete it.
-         */
+        |--------------------------------------------------------------------------
+        | ONLY REQUESTER CAN DELETE
+        |--------------------------------------------------------------------------
+        */
         if (
             (int) $storeRequisition->requested_by !==
             (int) auth()->id()
@@ -1448,12 +1436,14 @@ public function edit(StoreRequisition $storeRequisition)
             abort(403);
         }
 
-
         /*
-         * Only drafts can be deleted.
-         */
-        if ($storeRequisition->status !== 'draft') {
-
+        |--------------------------------------------------------------------------
+        | ONLY DRAFTS CAN BE DELETED
+        |--------------------------------------------------------------------------
+        */
+        if (
+            $storeRequisition->status !== 'draft'
+        ) {
             return redirect()
                 ->route(
                     'admin.stores.store-requisitions.index'
@@ -1464,26 +1454,15 @@ public function edit(StoreRequisition $storeRequisition)
                 );
         }
 
-
         $requisitionNumber =
             $storeRequisition->requisition_number;
-
 
         DB::transaction(function () use (
             $storeRequisition
         ) {
-
-            /*
-             * Delete requisition items first.
-             */
             $storeRequisition->items()->delete();
-
-            /*
-             * Delete the requisition.
-             */
             $storeRequisition->delete();
         });
-
 
         return redirect()
             ->route(
@@ -1495,31 +1474,61 @@ public function edit(StoreRequisition $storeRequisition)
             );
     }
 
-    public function cancel(Request $request, StoreRequisition $storeRequisition)
-{
-    $request->validate([
-        'cancellation_reason' => ['required', 'string', 'max:1000'],
-    ]);
-
-    if (
-        in_array($storeRequisition->status, ['cancelled', 'closed', 'completed'], true)
+    /**
+     * Cancel a requisition.
+     */
+    public function cancel(
+        Request $request,
+        StoreRequisition $storeRequisition
     ) {
-        return back()->with('error', 'This requisition can no longer be cancelled.');
+        $request->validate([
+            'cancellation_reason' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
+        ]);
+
+        if (
+            in_array(
+                $storeRequisition->status,
+                [
+                    'cancelled',
+                    'closed',
+                    'completed',
+                ],
+                true
+            )
+        ) {
+            return back()->with(
+                'error',
+                'This requisition can no longer be cancelled.'
+            );
+        }
+
+        $storeRequisition->update([
+            'status' => 'cancelled',
+
+            'submission_notes' =>
+                trim(
+                    (
+                        $storeRequisition->submission_notes
+                        ? $storeRequisition->submission_notes . "\n\n"
+                        : ''
+                    ) .
+                    'Cancellation reason: ' .
+                    $request->cancellation_reason
+                ),
+        ]);
+
+        return redirect()
+            ->route(
+                'admin.stores.store-requisitions.show',
+                $storeRequisition
+            )
+            ->with(
+                'success',
+                'Store requisition cancelled successfully.'
+            );
     }
-
-    $storeRequisition->update([
-        'status' => 'cancelled',
-        'submission_notes' => trim(
-            ($storeRequisition->submission_notes ? $storeRequisition->submission_notes . "\n\n" : '') .
-            'Cancellation reason: ' . $request->cancellation_reason
-        ),
-    ]);
-
-    return redirect()
-        ->route('admin.stores.store-requisitions.show', $storeRequisition)
-        ->with('success', 'Store requisition cancelled successfully.');
 }
-
-
-}
-

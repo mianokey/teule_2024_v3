@@ -3,125 +3,198 @@
 @section('content')
 
 @php
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS
-    |--------------------------------------------------------------------------
-    */
 
-    $status = strtolower($storeRequisition->status ?? 'draft');
-    $approvalStage = strtolower($storeRequisition->approval_stage ?? 'none');
+    /* ==========================================================================
+       STATUS
+       ========================================================================== */
+
+    $status = strtolower(
+        trim($storeRequisition->status ?? 'draft')
+    );
+
+    $approvalStage = strtolower(
+        trim($storeRequisition->approval_stage ?? 'none')
+    );
 
     $isDraft = $status === 'draft';
 
-    $isPending = in_array($status, [
-        'pending',
-        'submitted',
-    ], true);
+    $isPending = in_array(
+        $status,
+        [
+            'pending',
+            'submitted',
+        ],
+        true
+    );
 
-    $isApproved = $status === 'approved'
-        && $approvalStage === 'approved';
+    $isApproved =
+        $status === 'approved' &&
+        $approvalStage === 'approved';
 
     $isRejected = $status === 'rejected';
 
     $isReturned = $status === 'returned';
 
-    $isClosed = in_array($status, [
-        'closed',
-        'fulfilled',
-        'completed',
-    ], true);
+    $isClosed = in_array(
+        $status,
+        [
+            'closed',
+            'fulfilled',
+            'completed',
+        ],
+        true
+    );
 
     $isCancelled = $status === 'cancelled';
 
-    $isRequester = (int) $storeRequisition->requested_by === (int) auth()->id();
+    $isRequester =
+        (int) $storeRequisition->requested_by ===
+        (int) auth()->id();
 
-    $isEditable = ($isDraft || $isReturned) && $isRequester;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS DISPLAY
-    |--------------------------------------------------------------------------
-    */
-
-    $statusClass = match ($status) {
-        'draft' => 'requisition-status-draft',
-
-        'pending',
-        'submitted' => 'requisition-status-pending',
-
-        'approved' => 'requisition-status-approved',
-
-        'returned' => 'requisition-status-returned',
-
-        'rejected' => 'requisition-status-rejected',
-
-        'cancelled' => 'requisition-status-rejected',
-
-        'closed',
-        'fulfilled',
-        'completed' => 'requisition-status-closed',
-
-        default => 'requisition-status-draft',
-    };
-
-    $statusLabel = match ($status) {
-        'submitted' => 'Pending Approval',
-        'cancelled' => 'Cancelled',
-        default => ucfirst(str_replace('_', ' ', $status)),
-    };
+    $isEditable =
+        ($isDraft || $isReturned) &&
+        $isRequester;
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | PERMISSIONS
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       PERMISSIONS
+       ========================================================================== */
 
     $user = auth()->user();
 
-    $canApproveGeneral =
-        $user->can('APPROVE STORE REQUISITIONS');
+    /*
+    |--------------------------------------------------------------------------
+    | STRICT STAGE-SPECIFIC APPROVAL PERMISSIONS
+    |--------------------------------------------------------------------------
+    |
+    | HOD:
+    | APPROVE STORE REQUISITIONS - HOD
+    |
+    | Management:
+    | APPROVE STORE REQUISITIONS - MANAGEMENT
+    |
+    | Stores:
+    | APPROVE STORE REQUISITIONS - STORES
+    |
+    | There is NO general approval permission.
+    |--------------------------------------------------------------------------
+    */
 
-    $canApproveHod =
-        $user->can('APPROVE STORE REQUISITIONS - HOD');
+    $canApproveHod = $user->can(
+        'APPROVE STORE REQUISITIONS - HOD'
+    );
 
-    $canApproveManagement =
-        $user->can('APPROVE STORE REQUISITIONS - MANAGEMENT');
+    $canApproveManagement = $user->can(
+        'APPROVE STORE REQUISITIONS - MANAGEMENT'
+    );
 
-    $canApproveStores =
-        $user->can('APPROVE STORE REQUISITIONS - STORES');
-
-
-    $canApproveCurrentStage = false;
-
-    if ($approvalStage === 'hod') {
-
-        $canApproveCurrentStage =
-            $canApproveGeneral || $canApproveHod;
-
-    } elseif ($approvalStage === 'management') {
-
-        $canApproveCurrentStage =
-            $canApproveGeneral || $canApproveManagement;
-
-    } elseif ($approvalStage === 'stores') {
-
-        $canApproveCurrentStage =
-            $canApproveGeneral || $canApproveStores;
-    }
-
-
-    $showApprovalActions =
-        $isPending && $canApproveCurrentStage;
+    $canApproveStores = $user->can(
+        'APPROVE STORE REQUISITIONS - STORES'
+    );
 
 
     /*
     |--------------------------------------------------------------------------
-    | STAGE LABEL
+    | DETERMINE WHETHER USER CAN APPROVE THE CURRENT STAGE
     |--------------------------------------------------------------------------
     */
+
+    $canApproveCurrentStage = false;
+
+    if ($isPending) {
+
+        if ($approvalStage === 'hod') {
+
+            $canApproveCurrentStage =
+                $canApproveHod;
+
+        } elseif ($approvalStage === 'management') {
+
+            $canApproveCurrentStage =
+                $canApproveManagement;
+
+        } elseif ($approvalStage === 'stores') {
+
+            $canApproveCurrentStage =
+                $canApproveStores;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW APPROVAL ACTIONS
+    |--------------------------------------------------------------------------
+    |
+    | The approval panel can only appear when:
+    |
+    | 1. The requisition is pending
+    | 2. The user has permission for the CURRENT stage
+    |
+    */
+
+    $showApprovalActions =
+        $isPending &&
+        $canApproveCurrentStage;
+
+
+    /* ==========================================================================
+       STATUS DISPLAY
+       ========================================================================== */
+
+    $statusClass = match ($status) {
+
+        'draft' =>
+            'requisition-status-draft',
+
+        'pending',
+        'submitted' =>
+            'requisition-status-pending',
+
+        'approved' =>
+            'requisition-status-approved',
+
+        'returned' =>
+            'requisition-status-returned',
+
+        'rejected' =>
+            'requisition-status-rejected',
+
+        'cancelled' =>
+            'requisition-status-rejected',
+
+        'closed',
+        'fulfilled',
+        'completed' =>
+            'requisition-status-closed',
+
+        default =>
+            'requisition-status-draft',
+    };
+
+
+    $statusLabel = match ($status) {
+
+        'submitted' =>
+            'Pending Approval',
+
+        'cancelled' =>
+            'Cancelled',
+
+        default =>
+            ucfirst(
+                str_replace(
+                    '_',
+                    ' ',
+                    $status
+                )
+            ),
+    };
+
+
+    /* ==========================================================================
+       CURRENT APPROVAL STAGE LABEL
+       ========================================================================== */
 
     $stageLabel = match ($approvalStage) {
 
@@ -137,16 +210,20 @@
         'approved' =>
             'Fully Approved',
 
+        'rejected' =>
+            'Rejected',
+
+        'returned' =>
+            'Returned to Requester',
+
         default =>
             'Not Submitted',
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | TOTALS
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       TOTALS
+       ========================================================================== */
 
     $totalRequested = 0;
     $totalApproved = 0;
@@ -168,28 +245,30 @@
 
         if ($isApproved || $isClosed) {
 
-            $totalApproved += $approved;
+            $totalApproved +=
+                $approved;
 
-            $totalIssued += $issued;
+            $totalIssued +=
+                $issued;
 
-            $totalOutstanding += max(
-                0,
-                $approved - $issued
-            );
+            $totalOutstanding +=
+                max(
+                    0,
+                    $approved - $issued
+                );
         }
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | FULFILLMENT
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       FULFILLMENT
+       ========================================================================== */
 
-    $fulfillmentStatus =
-        strtolower(
+    $fulfillmentStatus = strtolower(
+        trim(
             $storeRequisition->fulfillment_status ?? ''
-        );
+        )
+    );
 
     $fulfillmentLabel = match ($fulfillmentStatus) {
 
@@ -205,6 +284,7 @@
         default =>
             'Not Issued',
     };
+
 
     $fulfillmentBadge = match ($fulfillmentStatus) {
 
@@ -222,11 +302,9 @@
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | OUTSTANDING
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       OUTSTANDING
+       ========================================================================== */
 
     $hasOutstanding = false;
 
@@ -243,7 +321,10 @@
             (float) $item->issued_quantity;
 
         if (
-            max(0, $approved - $issued) > 0
+            max(
+                0,
+                $approved - $issued
+            ) > 0
         ) {
             $hasOutstanding = true;
             break;
@@ -251,11 +332,9 @@
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LATEST FULFILLMENT
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       LATEST FULFILLMENT
+       ========================================================================== */
 
     $latestFulfillment = null;
 
@@ -265,22 +344,22 @@
     ) {
 
         $latestFulfillment =
-            $storeRequisition->fulfillments
+            $storeRequisition
+                ->fulfillments
                 ->sortByDesc(function ($fulfillment) {
 
                     return $fulfillment->created_at
                         ? $fulfillment->created_at->timestamp
                         : $fulfillment->id;
+
                 })
                 ->first();
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SOURCE STORE STOCK
-    |--------------------------------------------------------------------------
-    */
+    /* ==========================================================================
+       SOURCE STORE STOCK
+       ========================================================================== */
 
     $sourceStockByKey = collect();
 
@@ -290,7 +369,8 @@
     ) {
 
         $storeItemIds =
-            $storeRequisition->items
+            $storeRequisition
+                ->items
                 ->pluck('store_item_id')
                 ->filter()
                 ->unique()
@@ -300,30 +380,40 @@
 
             $sourceStockByKey =
                 \App\Models\StoreStock::query()
+
                     ->where(
                         'store_id',
                         $storeRequisition->source_store_id
                     )
+
                     ->whereIn(
                         'store_item_id',
                         $storeItemIds
                     )
+
                     ->get()
+
                     ->keyBy(function ($stock) {
 
-                        return $stock->store_item_id
-                            . '|'
-                            . ($stock->variant_id ?? 'null');
+                        return
+                            $stock->store_item_id .
+                            '|' .
+                            (
+                                $stock->variant_id
+                                ?? 'null'
+                            );
                     });
         }
     }
+
 @endphp
 
 
 <style>
-/* =========================================================
+
+/* ==========================================================================
    STORE REQUISITION - MINIMAL DETAIL PAGE
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-page {
     max-width: 1450px;
@@ -409,9 +499,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    WORKFLOW
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-workflow {
     background: #fff;
@@ -491,9 +581,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    ACTION / STATE PANEL
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-state-panel {
     display: flex;
@@ -546,9 +636,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    ITEMS CARD
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-card {
     border: 1px solid #e4e7ec;
@@ -645,9 +735,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    SUMMARY STRIP
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-summary-strip {
     display: grid;
@@ -683,9 +773,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    HISTORY
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-history-grid {
     display: grid;
@@ -717,9 +807,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    NOTICES
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-notice {
     display: flex;
@@ -760,9 +850,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    DETAILS MODAL
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-details-grid {
     display: grid;
@@ -794,9 +884,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    APPROVAL PANEL
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-approval-panel {
     border: 1px solid #dbe4ff;
@@ -820,9 +910,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    TIMELINE
-   ========================================================= */
+   ========================================================================== */
 
 .timeline {
     position: relative;
@@ -881,9 +971,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    FULFILLMENT
-   ========================================================= */
+   ========================================================================== */
 
 .fulfillment-rules {
     background: #f8f9fb;
@@ -912,9 +1002,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    BOTTOM
-   ========================================================= */
+   ========================================================================== */
 
 .requisition-bottom-actions {
     display: flex;
@@ -932,9 +1022,9 @@
 }
 
 
-/* =========================================================
+/* ==========================================================================
    RESPONSIVE
-   ========================================================= */
+   ========================================================================== */
 
 @media (max-width: 992px) {
 
@@ -999,6 +1089,7 @@
         overflow-x: auto;
     }
 }
+
 </style>
 
 
@@ -1006,7 +1097,7 @@
 
     {{-- =====================================================
          HEADER
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.header'
@@ -1015,7 +1106,7 @@
 
     {{-- =====================================================
          WORKFLOW
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.workflow'
@@ -1024,7 +1115,7 @@
 
     {{-- =====================================================
          STATE / ACTIONS / NOTICES
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.state'
@@ -1033,7 +1124,7 @@
 
     {{-- =====================================================
          APPROVAL ACTIONS
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.approval'
@@ -1042,7 +1133,7 @@
 
     {{-- =====================================================
          ITEMS
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.items'
@@ -1051,7 +1142,7 @@
 
     {{-- =====================================================
          HISTORY
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.history'
@@ -1060,7 +1151,7 @@
 
     {{-- =====================================================
          BOTTOM ACTIONS
-    ====================================================== --}}
+         ====================================================== --}}
 
     @include(
         'admin.stores.store-requisitions.partials.bottom-actions'
@@ -1071,7 +1162,7 @@
 
 {{-- =========================================================
      MODALS
-========================================================= --}}
+     ========================================================= --}}
 
 @include(
     'admin.stores.store-requisitions.partials.modals'
