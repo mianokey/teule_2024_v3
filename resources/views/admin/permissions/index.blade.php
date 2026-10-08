@@ -133,9 +133,9 @@
                             <div class="requisition-list-actions">
 
                                 <a href="{{ route('admin.permissions.edit', $permission->id) }}"
-                                   class="requisition-list-action primary"
+                                   class="requisition-add-button primary"
                                    title="Edit permission">
-                                    <i class="fa fa-pencil"></i>
+                                    <i class="fa fa-edit"></i>
                                 </a>
 
                                 <form method="POST"
