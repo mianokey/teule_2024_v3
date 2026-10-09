@@ -31,7 +31,10 @@
 </head>
 
 <body class=" color-light ">
-
+<audio id="workflowNotificationAudio"
+       src="/sounds/teule_notification.mp3"
+       preload="auto"></audio>
+       
     <div id="loading">
         <div id="loading-center">
         </div>
@@ -1585,188 +1588,61 @@
                             </li>
 
 
-                            <li class="nav-item nav-icon dropdown">
+<li class="nav-item nav-icon dropdown">
+    <div class="dropdown workflow-notification-dropdown"
+         id="workflowNotificationDropdown"
+         data-feed-url="{{ route('workflow-notifications.feed') }}"
+         data-history-url="{{ route('workflow-notifications.index') }}"
+         data-read-url="{{ url('/workflow-notifications') }}"
+         data-read-all-url="{{ route('workflow-notifications.read-all') }}">
+
+        <button type="button"
+                class="btn workflow-notification-trigger"
+                id="workflowNotificationToggle"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-label="Open notifications">
+            <i class="fa fa-bell"></i>
+            <span class="workflow-notification-count"
+                  id="workflowNotificationCount"
+                  style="display:none;">0</span>
+        </button>
+
+        <div class="dropdown-menu dropdown-menu-right workflow-notification-menu"
+             aria-labelledby="workflowNotificationToggle">
+
+            <div class="workflow-notification-menu-header">
+                <div class="workflow-notification-heading">
+                    <h6>Notifications</h6>
+                    <small class="text-muted" id="workflowNotificationSubtitle">
+                        Checking for updates...
+                    </small>
+                </div>
+
+                <button type="button"
+                        class="workflow-notification-mark-all"
+                        id="workflowNotificationMarkAll">
+                    Mark all read
+                </button>
+            </div>
+
+            <div class="workflow-notification-list"
+                 id="workflowNotificationList">
+                <div class="workflow-notification-empty">
+                    Loading notifications...
+                </div>
+            </div>
+
+            <a href="{{ route('workflow-notifications.index') }}"
+               class="workflow-notification-footer">
+                View all notifications
+                <i class="fa fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    </div>
+</li>
 
-                                <a href="#"
-                                   class="search-toggle dropdown-toggle"
-                                   id="dropdownMenuButton"
-                                   data-toggle="dropdown"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
-
-                                    <svg class="svg-icon text-primary"
-                                         id="mm-bell-2"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         width="20"
-                                         height="20"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="2"
-                                         stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="feather feather-bell">
-
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-
-                                    </svg>
-
-                                    <span class="bg-primary"></span>
-
-                                </a>
-
-                                <div class="mm-sub-dropdown dropdown-menu"
-                                     aria-labelledby="dropdownMenuButton">
-
-                                    <div class="card shadow-none m-0 border-0">
-
-                                        <div class="card-body p-0">
-
-                                            <div class="cust-title p-3">
-
-                                                <h5 class="mb-0">
-                                                    All Notifications
-                                                </h5>
-
-                                            </div>
-
-                                            <div class="p-3">
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="{{ asset('admin-assets/images/user/1.jpg') }}"
-                                                                 alt="01">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Emma Watson Barry
-                                                                <small class="badge badge-success float-right">
-                                                                    New
-                                                                </small>
-                                                            </h6>
-
-                                                            <p class="mb-0">95 MB</p>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/2.jpg"
-                                                                 alt="02">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                New customer is join
-                                                            </h6>
-
-                                                            <p class="mb-0">
-                                                                Cyst Barry
-                                                            </p>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/3.jpg"
-                                                                 alt="03">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Two customer is left
-                                                            </h6>
-
-                                                            <p class="mb-0">
-                                                                Cyst Barry
-                                                            </p>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/4.jpg"
-                                                                 alt="04">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                New Mail from Fenny
-                                                                <small class="badge badge-success float-right">
-                                                                    New
-                                                                </small>
-                                                            </h6>
-
-                                                            <p class="mb-0">
-                                                                Cyst Barry
-                                                            </p>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                            </div>
-
-                                            <a class="d-flex justify-content-center p-2 card-footer"
-                                               href="#"
-                                               role="button">
-
-                                                View All
-
-                                            </a>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </li>
 
 
                             <li class="nav-item nav-icon dropdown full-screen">
@@ -2038,6 +1914,467 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Include Selectize JS -->
     <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
+
+   
+
+
+
+<script>
+(function () {
+    'use strict';
+
+    const root = document.getElementById('workflowNotificationDropdown');
+
+    if (!root || root.dataset.initialized === '1') {
+        return;
+    }
+
+    root.dataset.initialized = '1';
+
+    const feedUrl = root.dataset.feedUrl;
+    const historyUrl = root.dataset.historyUrl;
+    const readBaseUrl = root.dataset.readUrl;
+    const readAllUrl = root.dataset.readAllUrl;
+
+    const badge = document.getElementById('workflowNotificationCount');
+    const subtitle = document.getElementById('workflowNotificationSubtitle');
+    const list = document.getElementById('workflowNotificationList');
+    const markAllButton = document.getElementById('workflowNotificationMarkAll');
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+    const soundUrl = '/sounds/teule_notification.mp3';
+    const soundVolume = 0.9;
+
+    const snapshotKey = 'teule_workflow_notification_snapshot';
+    const unreadKey = 'teule_workflow_notification_unread_count';
+
+    let audio = null;
+    let soundUnlocked = false;
+    let pendingSound = false;
+    let initialFeedLoaded = false;
+    let feedRequestInProgress = false;
+    let previousUnreadCount = null;
+
+    let knownNotificationIds = new Set();
+    let storedSnapshotExists = false;
+
+    /*
+     * Restore notification state across page navigation.
+     */
+    try {
+        const savedIds = sessionStorage.getItem(snapshotKey);
+        const savedCount = sessionStorage.getItem(unreadKey);
+
+        if (savedIds !== null) {
+            const parsedIds = JSON.parse(savedIds);
+
+            if (Array.isArray(parsedIds)) {
+                knownNotificationIds = new Set(
+                    parsedIds.map(String)
+                );
+                storedSnapshotExists = true;
+            }
+        }
+
+        if (savedCount !== null) {
+            previousUnreadCount = Number(savedCount);
+        }
+    } catch (error) {
+        console.warn('Could not restore notification state:', error);
+    }
+
+    function getAudio() {
+        if (!audio) {
+            audio = new Audio(soundUrl);
+            audio.preload = 'auto';
+            audio.volume = soundVolume;
+        }
+
+        return audio;
+    }
+
+    /*
+     * Unlock audio silently through the user's first interaction
+     * anywhere on the page. Do not play a sound when the bell is clicked.
+     */
+    async function unlockSound() {
+        if (soundUnlocked) {
+            return;
+        }
+
+        const player = getAudio();
+
+        try {
+            player.muted = true;
+            player.volume = soundVolume;
+
+            await player.play();
+
+            player.pause();
+            player.currentTime = 0;
+            player.muted = false;
+
+            soundUnlocked = true;
+
+            console.info('Notification audio is ready.');
+
+            if (pendingSound) {
+                pendingSound = false;
+                playNotificationSound();
+            }
+        } catch (error) {
+            player.muted = false;
+
+            console.warn(
+                'Browser has not allowed notification audio yet:',
+                error
+            );
+        }
+    }
+
+    /*
+     * Any genuine interaction can unlock audio.
+     * No interaction with the notification bell is required.
+     */
+    document.addEventListener('pointerdown', unlockSound, {
+        once: true,
+        capture: true
+    });
+
+    document.addEventListener('keydown', unlockSound, {
+        once: true,
+        capture: true
+    });
+
+function playNotificationSound() {
+    const audio = document.getElementById('workflowNotificationAudio');
+
+    if (!audio || !soundUnlocked) {
+        return;
+    }
+
+    audio.volume = 0.9;
+    audio.currentTime = 0;
+
+    audio.play().catch(error => {
+        console.warn('Notification sound was blocked:', error);
+    });
+}
+
+
+    function saveNotificationSnapshot(ids, count) {
+        try {
+            /*
+             * Keep a recent set of IDs across page navigation.
+             */
+            const recentIds = Array.from(ids).slice(-100);
+
+            sessionStorage.setItem(
+                snapshotKey,
+                JSON.stringify(recentIds)
+            );
+
+            sessionStorage.setItem(
+                unreadKey,
+                String(count)
+            );
+        } catch (error) {
+            console.warn(
+                'Could not save notification state:',
+                error
+            );
+        }
+    }
+
+    function safeDestination(url) {
+        if (!url || typeof url !== 'string') {
+            return historyUrl;
+        }
+
+        try {
+            const parsed = new URL(url, window.location.origin);
+
+            return parsed.origin === window.location.origin
+                ? parsed.href
+                : historyUrl;
+        } catch (error) {
+            return historyUrl;
+        }
+    }
+
+    function updateBadge(count) {
+        const unread = Number(count) || 0;
+
+        if (badge) {
+            badge.textContent = unread > 99 ? '99+' : String(unread);
+            badge.style.display = unread > 0 ? 'inline-block' : 'none';
+        }
+
+        if (subtitle) {
+            subtitle.textContent = unread === 0
+                ? 'You are all caught up'
+                : unread + (
+                    unread === 1
+                        ? ' unread notification'
+                        : ' unread notifications'
+                );
+        }
+    }
+
+    function createNotificationItem(notification) {
+        const link = document.createElement('a');
+
+        link.className = 'workflow-notification-item' +
+            (notification.read ? '' : ' is-unread');
+
+        link.href = safeDestination(notification.url);
+
+        const iconBox = document.createElement('span');
+        iconBox.className = 'workflow-notification-item-icon';
+
+        const icon = document.createElement('i');
+        icon.className = 'fa fa-bell';
+        iconBox.appendChild(icon);
+
+        const content = document.createElement('span');
+        content.className = 'workflow-notification-item-content';
+
+        const title = document.createElement('span');
+        title.className = 'workflow-notification-item-title';
+        title.textContent = notification.title || 'Notification';
+
+        const message = document.createElement('span');
+        message.className = 'workflow-notification-item-message';
+        message.textContent = notification.message || '';
+
+        const time = document.createElement('span');
+        time.className = 'workflow-notification-item-time';
+        time.textContent = notification.time || '';
+
+        content.appendChild(title);
+        content.appendChild(message);
+        content.appendChild(time);
+
+        link.appendChild(iconBox);
+        link.appendChild(content);
+
+        if (!notification.read) {
+            const dot = document.createElement('span');
+            dot.className = 'workflow-notification-unread-dot';
+            link.appendChild(dot);
+        }
+
+        link.addEventListener('click', function (event) {
+            if (notification.read) {
+                return;
+            }
+
+            event.preventDefault();
+
+            fetch(
+                readBaseUrl + '/' +
+                encodeURIComponent(notification.id) + '/read',
+                {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                }
+            )
+            .catch(function (error) {
+                console.error(
+                    'Could not mark notification as read:',
+                    error
+                );
+            })
+            .finally(function () {
+                window.location.href = link.href;
+            });
+        });
+
+        return link;
+    }
+
+    async function loadNotifications() {
+        if (feedRequestInProgress || document.hidden) {
+            return;
+        }
+
+        feedRequestInProgress = true;
+
+        try {
+            const response = await fetch(feedUrl, {
+                method: 'GET',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    'Notification feed returned HTTP ' + response.status
+                );
+            }
+
+            const result = await response.json();
+
+            const unreadCount = Number(result.unread_count) || 0;
+
+            const notifications = Array.isArray(result.notifications)
+                ? result.notifications
+                : [];
+
+            const currentIds = notifications
+                .filter(function (notification) {
+                    return notification.id !== null &&
+                           notification.id !== undefined;
+                })
+                .map(function (notification) {
+                    return String(notification.id);
+                });
+
+            let hasNewNotification = false;
+
+            if (initialFeedLoaded || storedSnapshotExists) {
+                hasNewNotification = currentIds.some(function (id) {
+                    return !knownNotificationIds.has(id);
+                });
+
+                if (
+                    previousUnreadCount !== null &&
+                    unreadCount > previousUnreadCount
+                ) {
+                    hasNewNotification = true;
+                }
+            }
+
+            /*
+             * First-ever load establishes a baseline silently.
+             * Subsequent polls and page visits compare against it.
+             */
+            knownNotificationIds = new Set([
+                ...knownNotificationIds,
+                ...currentIds
+            ]);
+
+            previousUnreadCount = unreadCount;
+            initialFeedLoaded = true;
+            storedSnapshotExists = true;
+
+            saveNotificationSnapshot(
+                knownNotificationIds,
+                unreadCount
+            );
+
+            updateBadge(unreadCount);
+
+            if (list) {
+                list.replaceChildren();
+
+                if (notifications.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'workflow-notification-empty';
+                    empty.textContent = 'No unread notifications';
+
+                    list.appendChild(empty);
+                } else {
+                    notifications.forEach(function (notification) {
+                        list.appendChild(
+                            createNotificationItem(notification)
+                        );
+                    });
+                }
+            }
+
+            if (hasNewNotification) {
+                console.info('New notification detected.');
+
+                playNotificationSound();
+            }
+
+        } catch (error) {
+            console.error(
+                'Workflow notification feed error:',
+                error
+            );
+        } finally {
+            feedRequestInProgress = false;
+        }
+    }
+
+    /*
+     * Mark all notifications as read without treating the operation
+     * as a new notification.
+     */
+    if (markAllButton) {
+        markAllButton.addEventListener('click', async function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            markAllButton.disabled = true;
+
+            try {
+                const response = await fetch(readAllUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        'Unable to mark notifications as read. HTTP ' +
+                        response.status
+                    );
+                }
+
+                previousUnreadCount = 0;
+
+                saveNotificationSnapshot(
+                    knownNotificationIds,
+                    0
+                );
+
+                await loadNotifications();
+
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+            } finally {
+                markAllButton.disabled = false;
+            }
+        });
+    }
+
+    /*
+     * Poll immediately and every 20 seconds, regardless of whether
+     * the notification dropdown has been opened.
+     */
+    loadNotifications();
+
+    window.setInterval(loadNotifications, 20000);
+
+    /*
+     * Refresh promptly when the user returns to this browser tab.
+     */
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            loadNotifications();
+        }
+    });
+
+})();
+</script>
 
 </body>
 

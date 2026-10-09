@@ -1536,4 +1536,5 @@ class StoreRequisitionController extends Controller
                 'Store requisition cancelled successfully.'
             );
     }
+
 }

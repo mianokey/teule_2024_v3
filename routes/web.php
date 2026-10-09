@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\StoreFulfillmentController;
 use App\Http\Controllers\Admin\StoreLpoController;
 use App\Http\Controllers\Admin\StoreStockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\WorkflowNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -179,6 +180,14 @@ Route::patch('stores/{store}/toggle-status', [StoreController::class, 'toggleSta
 Route::resource('store-items', StoreItemController::class)->parameters(['store-items' => 'storeItem'])->names('admin.store-items');
 
 Route::patch('store-items/{storeItem}/toggle-status', [StoreItemController::class, 'toggleStatus'])->name('admin.store-items.toggle-status');
+
+
+// Workflow Notifications
+Route::get('/workflow-notifications', [WorkflowNotificationController::class, 'index'])->name('workflow-notifications.index');
+Route::get('/workflow-notifications/feed', [WorkflowNotificationController::class, 'feed'])->name('workflow-notifications.feed');
+Route::post('/workflow-notifications/{id}/read', [WorkflowNotificationController::class, 'markAsRead'])->name('workflow-notifications.read');
+Route::post('/workflow-notifications/read-all', [WorkflowNotificationController::class, 'markAllAsRead'])->name('workflow-notifications.read-all');
+ 
 
 
 // Stores - Item Variants
