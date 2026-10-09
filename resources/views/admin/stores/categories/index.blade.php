@@ -111,9 +111,9 @@
 
                             <tr>
                                 <th>#</th>
-                                <th>Category</th>
-                                <th>Description</th>
-                                <th>Items</th>
+                                <th style="width: 40%">Category</th>
+                                <th style="width: 20%">Description</th>
+                                <th style="width: 20%">Items</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -196,7 +196,7 @@
                                             {{-- VIEW --}}
 
                                             <a href="{{ route('admin.store-categories.show', $category) }}"
-                                               class="requisition-list-action primary"
+                                               class="requisition-add-button primary"
                                                title="View Category">
 
                                                 <i class="fa fa-eye"></i>
@@ -208,7 +208,7 @@
                                             {{-- EDIT --}}
 
                                             <a href="{{ route('admin.store-categories.edit', $category) }}"
-                                               class="requisition-list-action warning"
+                                               class="requisition-add-button warning"
                                                title="Edit Category">
 
                                                 <i class="fa fa-pencil"></i>
@@ -229,7 +229,7 @@
                                                 @if($category->is_active)
 
                                                     <button type="submit"
-                                                            class="requisition-list-action danger"
+                                                            class="requisition-add-button danger"
                                                             title="Deactivate Category"
                                                             onclick="return confirm('Deactivate this category?')">
 
@@ -241,7 +241,7 @@
                                                 @else
 
                                                     <button type="submit"
-                                                            class="requisition-list-action success"
+                                                            class="requisition-add-button success"
                                                             title="Activate Category"
                                                             onclick="return confirm('Activate this category?')">
 
@@ -267,7 +267,7 @@
                                                     @method('DELETE')
 
                                                     <button type="submit"
-                                                            class="requisition-list-action danger"
+                                                            class="requisition-add-button danger"
                                                             title="Delete Category"
                                                             onclick="return confirm('Delete this category?')">
 

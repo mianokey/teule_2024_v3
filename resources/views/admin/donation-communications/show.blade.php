@@ -1,854 +1,431 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@endpush
+
 @section('content')
 
-<div class="communication-page">
+@php
+    $status = strtolower((string) ($communication->status ?? 'pending'));
+    $channel = strtolower((string) ($communication->channel ?? 'unknown'));
 
-    {{-- Header --}}
-    <div class="page-header">
+    $donation = $communication->donation ?? null;
+    $donor = $donation->donor ?? null;
 
-        <div>
+    $statusLabels = [
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+        'pending' => 'Pending',
+        'sending' => 'Sending',
+        'cancelled' => 'Cancelled',
+    ];
 
-            <div class="text-muted small mb-1">
+    $statusLabel = $statusLabels[$status] ?? ucfirst($status);
 
-                Communications /
+    $statusClasses = [
+        'sent' => 'badge-success',
+        'failed' => 'badge-danger',
+        'pending' => 'badge-warning',
+        'sending' => 'badge-warning',
+        'cancelled' => 'badge-secondary',
+    ];
 
-                {{ $communication->donation?->donation_number ?? 'Message' }}
+    $statusClass = $statusClasses[$status] ?? 'badge-secondary';
 
+    $donorName = $donor->name ?? $donor->donor_name ?? null;
+    $donorEmail = $donor->email ?? $donor->email_address ?? null;
+    $donorPhone = $donor->phone ?? $donor->phone_number ?? $donor->mobile ?? null;
+
+    $donationReference = $donation->donation_number
+        ?? $donation->reference_number
+        ?? null;
+
+    $createdAt = $communication->created_at ?? null;
+    $sentAt = $communication->sent_at ?? null;
+    $donationCurrency = $donation->currency ?? 'KES';
+    $donationAmount = $donation->amount ?? null;
+@endphp
+
+<div class="store-requisition-page">
+
+    {{-- PAGE HEADER --}}
+    <div class="requisition-page-header">
+        <div class="requisition-header-content">
+            <div class="requisition-header-icon">
+                <i class="fas fa-envelope"></i>
             </div>
 
-            <h5 class="mb-0">
-                Communication Details
-            </h5>
+            <div>
+                <div class="requisition-breadcrumb">
+                    <a href="{{ route('admin.donation-communications.index') }}">
+                        Communications
+                    </a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Details</span>
+                </div>
 
+                <h1 class="requisition-page-title">
+                    Communication Details
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    View message delivery and associated donor information.
+                </p>
+            </div>
         </div>
 
-
-        <div class="page-actions">
-
-            <a href="{{ route(
-                'admin.donation-communications.index'
-            ) }}"
-               class="btn btn-light btn-sm">
-
-                <i class="fas fa-arrow-left me-1"></i>
-
-                Back
-
-            </a>
-
+        <div class="requisition-header-right">
+            <div class="requisition-page-actions">
+                <a href="{{ route('admin.donation-communications.index') }}"
+                   class="requisition-cancel-button">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Back
+                </a>
+            </div>
         </div>
-
     </div>
-
 
     <x-message></x-message>
 
+    {{-- STATUS SUMMARY --}}
+    <div class="requisition-state-panel">
+        <div class="requisition-state-main">
+            <div class="requisition-state-icon">
+                @if($status === 'sent')
+                    <i class="fas fa-check-circle"></i>
+                @elseif($status === 'failed')
+                    <i class="fas fa-exclamation-circle"></i>
+                @elseif($status === 'cancelled')
+                    <i class="fas fa-ban"></i>
+                @else
+                    <i class="fas fa-clock"></i>
+                @endif
+            </div>
 
+            <div class="requisition-state-text">
+                <strong>Communication {{ $statusLabel }}</strong>
+                <span>
+                    {{ $communication->recipient ?? 'No recipient recorded' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="requisition-state-actions">
+            <span class="badge {{ $statusClass }}">
+                {{ $statusLabel }}
+            </span>
+        </div>
+    </div>
+
+    {{-- TWO-COLUMN CONTENT --}}
     <div class="row">
 
-        {{-- Main message --}}
+        {{-- LEFT COLUMN: COMMUNICATION --}}
         <div class="col-lg-8">
 
-            <div class="simple-card">
-
-                <div class="simple-card-header">
-
-                    <div>
-
-                        <span class="text-muted small">
-
-                            @if($communication->channel === 'sms')
-
-                                <i class="fas fa-sms me-1"></i>
-
-                            @elseif($communication->channel === 'email')
-
-                                <i class="fas fa-envelope me-1"></i>
-
-                            @endif
-
-                            {{ ucfirst($communication->channel) }}
-
+            {{-- MESSAGE INFORMATION --}}
+            <div class="requisition-section">
+                <div class="requisition-section-header">
+                    <div class="requisition-section-heading">
+                        <span class="requisition-section-icon">
+                            <i class="fas fa-paper-plane"></i>
                         </span>
 
-
-                        <h5 class="mb-0 mt-1">
-
-                            {{ ucfirst(str_replace(
-                                '_',
-                                ' ',
-                                $communication->type
-                            )) }}
-
-                        </h5>
-
+                        <div>
+                            <h5>Message Information</h5>
+                            <p>Channel and delivery details.</p>
+                        </div>
                     </div>
-
-
-                    @php
-
-                        $statusClasses = [
-
-                            'pending'   => 'status-pending',
-
-                            'sending'   => 'status-sending',
-
-                            'sent'      => 'status-sent',
-
-                            'failed'    => 'status-failed',
-
-                            'cancelled' => 'status-cancelled',
-
-                        ];
-
-                        $statusClass =
-                            $statusClasses[$communication->status]
-                            ?? 'status-pending';
-
-                    @endphp
-
-
-                    <span class="status-badge {{ $statusClass }}">
-
-                        {{ ucfirst($communication->status) }}
-
-                    </span>
-
                 </div>
 
-
-                {{-- Communication information --}}
-                <div class="details-grid">
-
-
-                    {{-- Recipient --}}
-                    <div>
-
-                        <span class="label">
-                            Recipient
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->recipient }}
-
-                        </span>
-
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Channel</div>
+                            <div class="requisition-detail-value fw-semibold">
+                                {{ ucfirst($channel) }}
+                            </div>
+                        </div>
                     </div>
 
-
-                    {{-- Channel --}}
-                    <div>
-
-                        <span class="label">
-                            Channel
-                        </span>
-
-                        <span class="value">
-
-                            {{ strtoupper($communication->channel) }}
-
-                        </span>
-
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Status</div>
+                            <div class="requisition-detail-value">
+                                <span class="badge {{ $statusClass }}">
+                                    {{ $statusLabel }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
-
-                    {{-- Created --}}
-                    <div>
-
-                        <span class="label">
-                            Created
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->created_at?->format(
-                                'd M Y H:i:s'
-                            ) }}
-
-                        </span>
-
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Recipient</div>
+                            <div class="requisition-detail-value">
+                                {{ $communication->recipient ?? '—' }}
+                            </div>
+                        </div>
                     </div>
 
-
-                    {{-- Scheduled --}}
-                    <div>
-
-                        <span class="label">
-                            Scheduled
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->scheduled_at?->format(
-                                'd M Y H:i:s'
-                            ) ?? 'Immediately' }}
-
-                        </span>
-
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Communication Type</div>
+                            <div class="requisition-detail-value">
+                                {{ $communication->type
+                                    ? ucfirst(str_replace('_', ' ', $communication->type))
+                                    : '—' }}
+                            </div>
+                        </div>
                     </div>
 
-
-                    {{-- Sent --}}
-                    <div>
-
-                        <span class="label">
-                            Sent At
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->sent_at?->format(
-                                'd M Y H:i:s'
-                            ) ?? 'Not sent' }}
-
-                        </span>
-
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Created At</div>
+                            <div class="requisition-detail-value">
+                                {{ $createdAt ? \Carbon\Carbon::parse($createdAt)->format('d M Y, H:i') : '—' }}
+                            </div>
+                        </div>
                     </div>
 
-
-                    {{-- Cancelled --}}
-                    <div>
-
-                        <span class="label">
-                            Cancelled At
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->cancelled_at?->format(
-                                'd M Y H:i:s'
-                            ) ?? 'Not cancelled' }}
-
-                        </span>
-
+                    <div class="col-md-6">
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Sent At</div>
+                            <div class="requisition-detail-value">
+                                {{ $sentAt ? \Carbon\Carbon::parse($sentAt)->format('d M Y, H:i') : 'Not sent' }}
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-
-                    {{-- Delivered --}}
-                    <div>
-
-                        <span class="label">
-                            Delivered At
+            {{-- SUBJECT --}}
+            <div class="requisition-section">
+                <div class="requisition-section-header">
+                    <div class="requisition-section-heading">
+                        <span class="requisition-section-icon">
+                            <i class="fas fa-heading"></i>
                         </span>
 
-                        <span class="value">
-
-                            {{ $communication->delivered_at?->format(
-                                'd M Y H:i:s'
-                            ) ?? 'Not available' }}
-
-                        </span>
-
+                        <div>
+                            <h5>Subject</h5>
+                            <p>Message subject line.</p>
+                        </div>
                     </div>
-
-
-                    {{-- Sent By --}}
-                    <div>
-
-                        <span class="label">
-                            Created By
-                        </span>
-
-                        <span class="value">
-
-                            {{ $communication->sentBy?->name ?? 'System' }}
-
-                        </span>
-
-                    </div>
-
-
                 </div>
 
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-value fw-semibold">
+                        {{ $communication->subject ?: 'No subject recorded' }}
+                    </div>
+                </div>
+            </div>
 
-                {{-- Subject --}}
-                @if($communication->subject)
-
-                    <div class="text-section">
-
-                        <span class="label">
-                            Subject
+            {{-- MESSAGE BODY --}}
+            <div class="requisition-section">
+                <div class="requisition-section-header">
+                    <div class="requisition-section-heading">
+                        <span class="requisition-section-icon">
+                            <i class="fas fa-comment-alt"></i>
                         </span>
 
-                        <p>
-                            {{ $communication->subject }}
-                        </p>
-
+                        <div>
+                            <h5>Message Content</h5>
+                            <p>Recorded communication message.</p>
+                        </div>
                     </div>
-
-                @endif
-
-
-                {{-- Message --}}
-                <div class="text-section">
-
-                    <span class="label">
-                        Message
-                    </span>
-
-                    <div class="message-box">
-
-                        {{ $communication->message }}
-
-                    </div>
-
                 </div>
 
-
-                {{-- Provider reference --}}
-                @if($communication->provider_reference)
-
-                    <div class="text-section">
-
-                        <span class="label">
-                            Provider Reference
-                        </span>
-
-                        <p>
-
-                            {{ $communication->provider_reference }}
-
-                        </p>
-
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-value">
+                        {!! nl2br(e($communication->message ?? 'No message content recorded.')) !!}
                     </div>
+                </div>
 
-                @endif
-
-
-                {{-- Error --}}
-                @if($communication->error_message)
-
-                    <div class="text-section">
-
-                        <span class="label">
-                            Error
-                        </span>
-
-                        <div class="error-box">
-
-                            {{ $communication->error_message }}
-
+                @if($status === 'failed' && $communication->error_message)
+                    <div class="requisition-detail-item">
+                        <div class="requisition-detail-label text-danger">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Delivery Error
                         </div>
 
+                        <div class="requisition-detail-value text-danger">
+                            {{ $communication->error_message }}
+                        </div>
                     </div>
-
                 @endif
-
-
-                {{-- Cancellation --}}
-                @if($communication->status === 'pending')
-
-                    <div class="action-section">
-
-                        <form method="POST"
-                              action="{{ route(
-                                  'admin.donation-communications.cancel',
-                                  $communication
-                              ) }}"
-                              onsubmit="return confirm(
-                                  'Cancel this message?'
-                              )">
-
-                            @csrf
-
-                            @method('PATCH')
-
-                            <button type="submit"
-                                    class="btn btn-outline-danger btn-sm">
-
-                                <i class="fas fa-ban me-1"></i>
-
-                                Cancel Sending
-
-                            </button>
-
-                            <span class="text-muted small ms-2">
-
-                                This will prevent the pending message
-                                from being sent.
-
-                            </span>
-
-                        </form>
-
-                    </div>
-
-                @endif
-
             </div>
 
         </div>
 
-
-        {{-- Sidebar --}}
+        {{-- RIGHT COLUMN: DONOR AND DONATION --}}
         <div class="col-lg-4">
 
+            {{-- DONOR INFORMATION --}}
+            <div class="requisition-section">
+                <div class="requisition-section-header">
+                    <div class="requisition-section-heading">
+                        <span class="requisition-section-icon">
+                            <i class="fas fa-user"></i>
+                        </span>
 
-            {{-- Donor --}}
-            <div class="simple-card mb-3">
-
-                <div class="simple-card-header">
-
-                    <strong>
-                        Donor
-                    </strong>
-
+                        <div>
+                            <h5>Donor Information</h5>
+                            <p>Contact associated with this communication.</p>
+                        </div>
+                    </div>
                 </div>
 
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-label">Donor Name</div>
 
-                <div class="sidebar-body">
-
-                    @if($communication->donor)
-
-                        <div class="donor-name">
-
-                            {{ $communication->donor->name }}
-
-                        </div>
-
-
-                        <div class="text-muted small mb-3">
-
-                            {{ $communication->donor->donor_number }}
-
-                        </div>
-
-
-                        @if($communication->donor->phone)
-
-                            <div class="sidebar-row">
-
-                                <span>
-                                    Phone
-                                </span>
-
-                                <strong>
-
-                                    {{ $communication->donor->phone }}
-
-                                </strong>
-
-                            </div>
-
+                    <div class="requisition-detail-value fw-semibold">
+                        @if($donor)
+                            {{ $donorName ?: 'Name not recorded' }}
+                        @else
+                            Donor information unavailable
                         @endif
+                    </div>
+                </div>
 
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-label">Email Address</div>
 
-                        @if($communication->donor->email)
-
-                            <div class="sidebar-row">
-
-                                <span>
-                                    Email
-                                </span>
-
-                                <strong>
-
-                                    {{ $communication->donor->email }}
-
-                                </strong>
-
-                            </div>
-
+                    <div class="requisition-detail-value">
+                        @if($donorEmail)
+                            <a href="mailto:{{ $donorEmail }}">
+                                {{ $donorEmail }}
+                            </a>
+                        @else
+                            —
                         @endif
+                    </div>
+                </div>
 
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-label">Phone Number</div>
 
-                        <a href="{{ route(
-                            'admin.donors.show',
-                            $communication->donor
-                        ) }}"
-                           class="btn btn-light btn-sm w-100 mt-3">
+                    <div class="requisition-detail-value">
+                        @if($donorPhone)
+                            <a href="tel:{{ $donorPhone }}">
+                                {{ $donorPhone }}
+                            </a>
+                        @else
+                            —
+                        @endif
+                    </div>
+                </div>
 
-                            <i class="fas fa-user me-1"></i>
-
+                @if($donor && \Illuminate\Support\Facades\Route::has('admin.donors.show'))
+                    <div class="requisition-detail-item">
+                        <a href="{{ route('admin.donors.show', $donor) }}"
+                           class="requisition-donation-link">
+                            <i class="fas fa-external-link-alt mr-1"></i>
                             View Donor
-
                         </a>
-
-                    @else
-
-                        <div class="text-muted">
-
-                            Unknown donor
-
-                        </div>
-
-                    @endif
-
-                </div>
-
+                    </div>
+                @endif
             </div>
 
+            {{-- RELATED DONATION --}}
+            <div class="requisition-section">
+                <div class="requisition-section-header">
+                    <div class="requisition-section-heading">
+                        <span class="requisition-section-icon">
+                            <i class="fas fa-hand-holding-heart"></i>
+                        </span>
 
-            {{-- Donation --}}
-            <div class="simple-card">
-
-                <div class="simple-card-header">
-
-                    <strong>
-                        Donation
-                    </strong>
-
+                        <div>
+                            <h5>Related Donation</h5>
+                            <p>Donation associated with this message.</p>
+                        </div>
+                    </div>
                 </div>
 
+                @if($donation)
 
-                <div class="sidebar-body">
+                    <div class="requisition-detail-item">
+                        <div class="requisition-detail-label">Donation Reference</div>
 
-                    @if($communication->donation)
-
-                        <div class="sidebar-row">
-
-                            <span>
-                                Number
-                            </span>
-
-                            <strong>
-
-                                {{ $communication->donation->donation_number }}
-
-                            </strong>
-
+                        <div class="requisition-detail-value fw-semibold">
+                            {{ $donationReference ?: 'Not recorded' }}
                         </div>
+                    </div>
 
+                    @if(isset($donation->amount))
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Amount</div>
 
-                        <div class="sidebar-row">
-
-                            <span>
-                                Amount
-                            </span>
-
-                            <strong>
-
-                                {{ $communication->donation->currency }}
-
-                                {{ number_format(
-                                    $communication->donation->amount ?? 0,
-                                    2
-                                ) }}
-
-                            </strong>
-
-                        </div>
-
-
-                        <div class="sidebar-row">
-
-                            <span>
-                                Date
-                            </span>
-
-                            <strong>
-
-                                {{ $communication->donation->donation_date?->format(
-                                    'd M Y'
-                                ) }}
-
-                            </strong>
-
-                        </div>
-
-
-                        @if($communication->donation->classification)
-
-                            <div class="sidebar-row">
-
-                                <span>
-                                    Classification
-                                </span>
-
-                                <strong>
-
-                                    {{ ucfirst(
-                                        $communication->donation->classification
-                                    ) }}
-
-                                </strong>
-
+                            <div class="requisition-detail-value fw-semibold">
+                                {{ $donationCurrency }}
+                                {{ number_format((float) $donationAmount, 2) }}
                             </div>
-
-                        @endif
-
-
-                        <a href="{{ route(
-                            'admin.donations.show',
-                            $communication->donation
-                        ) }}"
-                           class="btn btn-light btn-sm w-100 mt-3">
-
-                            <i class="fas fa-hand-holding-heart me-1"></i>
-
-                            View Donation
-
-                        </a>
-
-                    @else
-
-                        <div class="text-muted">
-
-                            Donation not available
-
                         </div>
-
                     @endif
 
-                </div>
+                    @if(isset($donation->donation_date))
+                        <div class="requisition-detail-item">
+                            <div class="requisition-detail-label">Donation Date</div>
 
+                            <div class="requisition-detail-value">
+                                {{ \Carbon\Carbon::parse($donation->donation_date)->format('d M Y') }}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(\Illuminate\Support\Facades\Route::has('admin.donations.show'))
+                        <div class="requisition-detail-item">
+                            <a href="{{ route('admin.donations.show', $donation) }}"
+                               class="requisition-donation-link">
+                                <i class="fas fa-external-link-alt mr-1"></i>
+                                View Donation
+                            </a>
+                        </div>
+                    @endif
+
+                @else
+
+                    <div class="requisition-detail-item">
+                        <div class="requisition-detail-value text-muted">
+                            No related donation is linked to this communication.
+                        </div>
+                    </div>
+
+                @endif
             </div>
 
         </div>
+    </div>
 
+    {{-- BOTTOM ACTIONS --}}
+    <div class="requisition-bottom-actions">
+        <div class="requisition-bottom-actions-left">
+            <a href="{{ route('admin.donation-communications.index') }}"
+               class="requisition-cancel-button">
+                <i class="fas fa-arrow-left mr-1"></i>
+                Back to Communications
+            </a>
+        </div>
+
+        <div class="requisition-bottom-actions-right">
+            @if($status === 'pending' &&
+                \Illuminate\Support\Facades\Route::has('admin.donation-communications.cancel'))
+
+                <form action="{{ route('admin.donation-communications.cancel', $communication) }}"
+                      method="POST"
+                      onsubmit="return confirm('Are you sure you want to cancel this communication?');">
+                    @csrf
+                    @method('PATCH')
+
+                    <button type="submit" class="requisition-cancel-button">
+                        <i class="fas fa-ban mr-1"></i>
+                        Cancel Communication
+                    </button>
+                </form>
+            @endif
+        </div>
     </div>
 
 </div>
-
-
-<style>
-
-    .communication-page {
-        padding-bottom: 30px;
-    }
-
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-
-    .page-actions {
-        display: flex;
-        gap: 8px;
-    }
-
-
-    .simple-card {
-        background: #fff;
-        border: 1px solid #e6e8eb;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-
-    .simple-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        padding: 16px 20px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-
-    .details-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-
-    .details-grid > div {
-        padding: 15px 20px;
-        border-bottom: 1px solid #f0f1f2;
-    }
-
-
-    .details-grid > div:nth-child(odd) {
-        border-right: 1px solid #f0f1f2;
-    }
-
-
-    .label {
-        display: block;
-        color: #8a929a;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .3px;
-        margin-bottom: 4px;
-    }
-
-
-    .value {
-        color: #343a40;
-        font-size: 14px;
-        word-break: break-word;
-    }
-
-
-    .text-section {
-        padding: 15px 20px;
-        border-top: 1px solid #f0f1f2;
-    }
-
-
-    .text-section p {
-        margin: 0;
-        color: #495057;
-        font-size: 14px;
-        white-space: pre-line;
-    }
-
-
-    .message-box {
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 15px;
-        color: #495057;
-        font-size: 14px;
-        line-height: 1.7;
-        white-space: pre-line;
-    }
-
-
-    .error-box {
-        background: #ffebee;
-        border: 1px solid #ffcdd2;
-        border-radius: 6px;
-        padding: 12px 15px;
-        color: #c62828;
-        font-size: 13px;
-        line-height: 1.6;
-        word-break: break-word;
-    }
-
-
-    .action-section {
-        padding: 15px 20px;
-        border-top: 1px solid #f0f1f2;
-        background: #fffdfd;
-    }
-
-
-    .status-badge {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-
-
-    .status-pending {
-        background: #fff8e1;
-        color: #a36b00;
-    }
-
-
-    .status-sending {
-        background: #e3f2fd;
-        color: #1565c0;
-    }
-
-
-    .status-sent {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-
-    .status-failed {
-        background: #ffebee;
-        color: #c62828;
-    }
-
-
-    .status-cancelled {
-        background: #f1f3f5;
-        color: #6c757d;
-    }
-
-
-    .sidebar-body {
-        padding: 16px 20px;
-    }
-
-
-    .donor-name {
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-
-    .sidebar-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        padding: 9px 0;
-        border-bottom: 1px solid #f0f1f2;
-        font-size: 13px;
-    }
-
-
-    .sidebar-row:last-child {
-        border-bottom: 0;
-    }
-
-
-    .sidebar-row span {
-        color: #8a929a;
-    }
-
-
-    .sidebar-row strong {
-        color: #343a40;
-        font-weight: 500;
-        text-align: right;
-        word-break: break-word;
-    }
-
-
-    @media (max-width: 767px) {
-
-        .page-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-
-        .page-actions {
-            width: 100%;
-        }
-
-
-        .details-grid {
-            grid-template-columns: 1fr;
-        }
-
-
-        .details-grid > div:nth-child(odd) {
-            border-right: 0;
-        }
-
-
-        .simple-card-header {
-            padding: 14px 16px;
-        }
-
-
-        .details-grid > div,
-        .text-section,
-        .action-section {
-            padding: 13px 16px;
-        }
-
-
-        .action-section form {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-
-        .action-section .ms-2 {
-            margin-left: 0 !important;
-        }
-
-    }
-
-</style>
-
 @endsection
