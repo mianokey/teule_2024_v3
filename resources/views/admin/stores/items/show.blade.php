@@ -631,7 +631,7 @@
                                                         $variant
                                                     ]
                                                 ) }}"
-                                                class="requisition-list-action primary"
+                                                class="requisition-add-button primary"
                                             >
 
                                                 <i class="fa fa-eye"></i>
@@ -649,7 +649,7 @@
                                                         $variant
                                                     ]
                                                 ) }}"
-                                                class="requisition-list-action warning"
+                                                class="requisition-add-button warning"
                                             >
 
                                                 <i class="fa fa-pencil"></i>
