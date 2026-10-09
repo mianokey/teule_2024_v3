@@ -555,21 +555,6 @@
         @endif
 
 
-        {{-- =====================================================
-             PAGINATION
-        ====================================================== --}}
-        @if($stocks->hasPages())
-
-            <div class="requisition-pagination">
-
-                {{ $stocks->appends(
-                    request()->except('page')
-                )->links() }}
-
-            </div>
-
-        @endif
-
     </div>
 
 </div>
