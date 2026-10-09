@@ -3,6 +3,7 @@
    Consolidated Index + Detail Styles
    ============================================================ */
 
+
 /* ------------------------------------------------------------
    DESIGN TOKENS
    ------------------------------------------------------------ */
@@ -75,6 +76,7 @@
     background: var(--stores-card);
     border: 1px solid var(--stores-border);
     border-radius: var(--stores-radius);
+
     box-shadow: var(--stores-shadow);
 }
 
@@ -144,7 +146,6 @@
     justify-content: flex-end;
     gap: 7px;
     flex-wrap: wrap;
-
     flex-shrink: 0;
 }
 
@@ -169,6 +170,7 @@
     color: #fff !important;
 
     text-decoration: none !important;
+
     font-size: 11px;
     font-weight: 600;
 
@@ -179,6 +181,7 @@
     background: var(--stores-primary-dark);
     border-color: var(--stores-primary-dark);
     color: #fff !important;
+
     transform: translateY(-1px);
 }
 
@@ -190,7 +193,9 @@
 .store-requisition-page > .alert,
 .requisition-page > .alert {
     margin-bottom: 14px;
+
     border-radius: 8px;
+
     font-size: 12px;
 }
 
@@ -207,6 +212,7 @@
     border-radius: var(--stores-radius);
 
     overflow: hidden;
+
     box-shadow: var(--stores-shadow);
 }
 
@@ -226,6 +232,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+
     min-width: 0;
 }
 
@@ -239,6 +246,7 @@
     justify-content: center;
 
     border-radius: 7px;
+
     background: #f4f5f8;
     color: var(--stores-primary);
 
@@ -269,11 +277,13 @@
     padding: 0 9px;
 
     border-radius: 20px;
+
     background: #f3f5f8;
     color: #596273;
 
     font-size: 10px;
     font-weight: 600;
+
     white-space: nowrap;
 }
 
@@ -291,6 +301,7 @@
 
 .requisition-field-label {
     display: block;
+
     margin-bottom: 5px;
 
     color: #596273;
@@ -311,6 +322,7 @@
     color: #303744;
 
     font-size: 11px;
+
     outline: none;
 
     transition:
@@ -320,6 +332,7 @@
 
 .requisition-input:focus {
     border-color: var(--stores-primary);
+
     box-shadow: 0 0 0 2px rgba(0, 9, 106, .07);
 }
 
@@ -340,6 +353,7 @@
     font-weight: 600;
 
     text-decoration: none !important;
+
     cursor: pointer;
 }
 
@@ -347,6 +361,7 @@
     flex: 1;
 
     border: 1px solid var(--stores-primary);
+
     background: var(--stores-primary);
     color: #fff;
 }
@@ -358,6 +373,7 @@
 
 .requisition-cancel-button {
     border: 1px solid #dfe3e9;
+
     background: #fff;
     color: #667085 !important;
 }
@@ -384,6 +400,7 @@
      * Pagination remains outside the scroll area.
      * Table heading remains visible while scrolling.
      */
+
     max-height: 520px;
 
     scrollbar-width: thin;
@@ -433,6 +450,7 @@
     padding: 10px 11px;
 
     background: #f7f8fa;
+
     border-bottom: 1px solid #dfe3e9;
 
     color: #687182;
@@ -447,14 +465,16 @@
 }
 
 .requisition-list-table tbody td {
-    padding: 10px 11px;
+    padding: 2px 11px;
 
     background: #fff;
+
     border-bottom: 1px solid #edf0f3;
 
     color: #454d5a;
 
     font-size: 11px;
+
     vertical-align: middle;
 }
 
@@ -519,6 +539,7 @@
     max-width: 140px;
 
     color: #4b5563;
+
     font-size: 11px;
     font-weight: 600;
 }
@@ -547,6 +568,7 @@
     overflow: hidden;
 
     color: #667085;
+
     line-height: 1.4;
 
     text-overflow: ellipsis;
@@ -555,8 +577,10 @@
 
 .requisition-list-date {
     color: #4b5563;
+
     font-size: 11px;
     font-weight: 600;
+
     white-space: nowrap;
 }
 
@@ -595,6 +619,7 @@
     flex: 0 0 6px;
 
     border-radius: 50%;
+
     background: currentColor;
 }
 
@@ -630,6 +655,7 @@
     margin-top: 3px;
 
     color: #9aa1ad;
+
     font-size: 9px;
     line-height: 1.2;
 
@@ -665,6 +691,7 @@
     color: #697384 !important;
 
     text-decoration: none !important;
+
     cursor: pointer;
 
     transition: var(--stores-transition);
@@ -711,6 +738,7 @@
 
 .requisition-table-empty {
     padding: 55px 20px;
+
     text-align: center;
 }
 
@@ -736,6 +764,7 @@
     margin: 0 0 5px;
 
     color: #343a46;
+
     font-size: 14px;
     font-weight: 700;
 }
@@ -744,6 +773,7 @@
     margin: 0 0 15px;
 
     color: #8a91a0;
+
     font-size: 11px;
 }
 
@@ -760,6 +790,7 @@
     padding: 12px 16px;
 
     background: #fff;
+
     border-top: 1px solid #edf0f3;
 }
 
@@ -778,6 +809,7 @@
     padding: 0 8px;
 
     border-color: #e1e5ea;
+
     color: #596273;
 
     font-size: 10px;
@@ -808,9 +840,11 @@
     padding: 6px 15px;
 
     background: #fafbfc;
+
     border-top: 1px solid #f0f1f3;
 
     color: #9aa1ad;
+
     font-size: 9px;
 }
 
@@ -880,6 +914,7 @@
     padding: 11px 15px;
 
     background: #fff;
+
     border: 1px solid var(--stores-border);
     border-radius: 9px;
 
@@ -889,6 +924,7 @@
 .requisition-workflow-track {
     display: flex;
     align-items: center;
+
     width: 100%;
 }
 
@@ -980,6 +1016,7 @@
     padding: 11px 14px;
 
     background: #fff;
+
     border: 1px solid var(--stores-border);
     border-radius: 8px;
 }
@@ -1011,6 +1048,7 @@
     display: block;
 
     color: #212529;
+
     font-size: 13px;
 }
 
@@ -1020,6 +1058,7 @@
     margin-top: 2px;
 
     color: var(--stores-muted);
+
     font-size: 10px;
 }
 
@@ -1038,10 +1077,12 @@
     margin-bottom: 14px;
 
     background: #fff;
+
     border: 1px solid var(--stores-border);
     border-radius: 9px;
 
     overflow: hidden;
+
     box-shadow: var(--stores-shadow);
 }
 
@@ -1054,17 +1095,20 @@
     padding: 10px 14px;
 
     background: #f8f9fb;
+
     border-bottom: 1px solid var(--stores-border);
 }
 
 .requisition-card-title {
     color: var(--stores-primary);
+
     font-size: 13px;
     font-weight: 700;
 }
 
 .requisition-card-subtitle {
     color: var(--stores-muted);
+
     font-size: 10px;
 }
 
@@ -1082,6 +1126,7 @@
     padding: 8px 10px;
 
     background: #fff;
+
     border-bottom: 1px solid var(--stores-border);
 
     color: var(--stores-muted);
@@ -1113,6 +1158,7 @@
     display: block;
 
     color: #212529;
+
     font-weight: 700;
 }
 
@@ -1122,6 +1168,7 @@
     margin-top: 2px;
 
     color: var(--stores-muted);
+
     font-size: 9px;
 }
 
@@ -1155,6 +1202,7 @@
 
 .requisition-summary-strip {
     display: grid;
+
     grid-template-columns: repeat(4, 1fr);
 
     border-top: 1px solid var(--stores-border);
@@ -1202,7 +1250,9 @@
 
 .requisition-history-grid {
     display: grid;
+
     grid-template-columns: 1fr 1fr;
+
     gap: 14px;
 }
 
@@ -1210,6 +1260,7 @@
     padding: 12px 14px;
 
     background: #fff;
+
     border: 1px solid var(--stores-border);
     border-radius: 9px;
 }
@@ -1230,6 +1281,7 @@
     margin-top: 5px;
 
     color: var(--stores-muted);
+
     font-size: 10px;
 }
 
@@ -1286,7 +1338,9 @@
 
 .requisition-details-grid {
     display: grid;
+
     grid-template-columns: repeat(3, minmax(0, 1fr));
+
     gap: 10px;
 }
 
@@ -1294,6 +1348,7 @@
     padding: 9px 10px;
 
     background: #f8f9fb;
+
     border: 1px solid #edf0f3;
     border-radius: 7px;
 }
@@ -1330,6 +1385,7 @@
     padding: 11px 13px;
 
     background: #f8faff;
+
     border: 1px solid #dbe4ff;
     border-radius: 8px;
 }
@@ -1410,6 +1466,7 @@
     margin-top: 2px;
 
     color: var(--stores-muted);
+
     font-size: 9px;
 }
 
@@ -1418,9 +1475,11 @@
     padding: 7px 9px;
 
     background: #f8f9fb;
+
     border-radius: 6px;
 
     color: #495057;
+
     font-size: 10px;
 }
 
@@ -1433,10 +1492,12 @@
     padding: 10px 12px;
 
     background: #f8f9fb;
+
     border: 1px solid var(--stores-border);
     border-radius: 8px;
 
     color: #495057;
+
     font-size: 10px;
 }
 
@@ -1620,11 +1681,13 @@
         width: 38px;
         height: 38px;
         min-width: 38px;
+
         font-size: 15px;
     }
 
     .requisition-section-header {
         align-items: flex-start;
+
         padding: 11px 12px;
     }
 
@@ -1669,201 +1732,27 @@
     }
 }
 
-/* ============================================================
-LPO PICKER
-============================================================ */
-
-.requisition-lpo-picker {
-width: 100%;
-min-height: 68px;
-display: flex;
-align-items: center;
-gap: 12px;
-padding: 10px 14px;
-border: 1px solid #d9dee7;
-border-radius: 8px;
-background: #fff;
-color: #263238;
-text-align: left;
-transition: all 0.18s ease;
-}
-
-.requisition-lpo-picker:hover {
-border-color: #00096A;
-background: #f8f9fc;
-}
-
-.requisition-lpo-picker-icon {
-width: 40px;
-height: 40px;
-min-width: 40px;
-display: flex;
-align-items: center;
-justify-content: center;
-border-radius: 7px;
-background: #f0f2f8;
-color: #00096A;
-font-size: 17px;
-}
-
-.requisition-lpo-picker-text {
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 2px;
-}
-
-.requisition-lpo-picker-text strong {
-font-size: 14px;
-font-weight: 600;
-}
-
-.requisition-lpo-picker-text small {
-color: #6c757d;
-font-size: 12px;
-}
-
-.requisition-lpo-picker-arrow {
-color: #8a93a2;
-font-size: 12px;
-}
-
-.requisition-lpo-selected {
-min-height: 68px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 12px;
-padding: 10px 14px;
-border: 1px solid #d9dee7;
-border-radius: 8px;
-background: #f8f9fc;
-}
-
-.requisition-lpo-selected-main {
-min-width: 0;
-display: flex;
-align-items: center;
-gap: 11px;
-}
-
-.requisition-lpo-selected-icon {
-width: 40px;
-height: 40px;
-min-width: 40px;
-display: flex;
-align-items: center;
-justify-content: center;
-border-radius: 7px;
-background: #00096A;
-color: #fff;
-}
-
-.requisition-lpo-selected-number {
-font-size: 14px;
-font-weight: 700;
-color: #202733;
-}
-
-.requisition-lpo-selected-meta {
-margin-top: 2px;
-font-size: 12px;
-color: #6c757d;
-}
-
-.requisition-lpo-change {
-border: 0;
-background: transparent;
-color: #00096A;
-font-size: 12px;
-font-weight: 600;
-padding: 5px 4px;
-white-space: nowrap;
-}
-
-.requisition-lpo-change:hover {
-text-decoration: underline;
-}
 
 /* ============================================================
-LPO MODAL
-============================================================ */
-
-#lpoSelectionModal .modal-content {
-border: 0;
-border-radius: 10px;
-overflow: hidden;
-}
-
-#lpoSelectionModal .modal-header {
-padding: 16px 20px;
-border-bottom: 1px solid #e9ecf1;
-}
-
-#lpoSelectionModal .modal-title {
-font-size: 17px;
-font-weight: 700;
-}
-
-#lpoSelectionModal .modal-body {
-padding: 18px 20px 20px;
-}
-
-#lpoSelectionModal .input-group-text {
-background: #fff;
-border-right: 0;
-color: #6c757d;
-}
-
-#lpoSelectionModal .input-group .form-control {
-border-left: 0;
-}
-
-#lpoSelectionModal .form-control,
-#lpoSelectionModal .form-select {
-min-height: 40px;
-font-size: 13px;
-}
-
-#lpo_selection_table {
-min-width: 900px;
-}
-
-#lpo_selection_table th {
-white-space: nowrap;
-font-size: 11px;
-text-transform: uppercase;
-letter-spacing: .03em;
-}
-
-#lpo_selection_table td {
-vertical-align: middle;
-font-size: 13px;
-}
-
-#lpo_selection_table .requisition-list-action {
-white-space: nowrap;
-}
-
-
-/* ============================================================
-   LPO COMPATIBILITY ALIASES
-   Keeps existing LPO Blade working while using the
-   shared Stores design language.
+   LPO PICKER
    ============================================================ */
 
 .requisition-lpo-picker {
     width: 100%;
-    min-height: 68px;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
+
+    padding: 0px 14px;
+
     border: 1px solid #d9dee7;
     border-radius: 8px;
-    background: #ffffff;
+
+    background: #fff;
     color: #263238;
+
     text-align: left;
+
     transition: all 0.18s ease;
 }
 
@@ -1876,27 +1765,33 @@ white-space: nowrap;
     width: 40px;
     height: 40px;
     min-width: 40px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 7px;
+
     background: #f0f2f8;
     color: #00096A;
+
     font-size: 17px;
 }
 
 .requisition-lpo-picker-text {
     flex: 1;
     min-width: 0;
+
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
 .requisition-lpo-picker-text strong {
+    color: #202733;
+
     font-size: 14px;
     font-weight: 600;
-    color: #202733;
 }
 
 .requisition-lpo-picker-text small {
@@ -1911,18 +1806,23 @@ white-space: nowrap;
 
 .requisition-lpo-selected {
     min-height: 68px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+
     padding: 10px 14px;
+
     border: 1px solid #d9dee7;
     border-radius: 8px;
+
     background: #f8f9fc;
 }
 
 .requisition-lpo-selected-main {
     min-width: 0;
+
     display: flex;
     align-items: center;
     gap: 11px;
@@ -1932,33 +1832,43 @@ white-space: nowrap;
     width: 40px;
     height: 40px;
     min-width: 40px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 7px;
+
     background: #00096A;
-    color: #ffffff;
+    color: #fff;
 }
 
 .requisition-lpo-selected-number {
+    color: #202733;
+
     font-size: 14px;
     font-weight: 700;
-    color: #202733;
 }
 
 .requisition-lpo-selected-meta {
     margin-top: 2px;
-    font-size: 12px;
+
     color: #6c757d;
+
+    font-size: 12px;
 }
 
 .requisition-lpo-change {
     border: 0;
+
     background: transparent;
     color: #00096A;
+
     font-size: 12px;
     font-weight: 600;
+
     padding: 5px 4px;
+
     white-space: nowrap;
 }
 
@@ -1966,9 +1876,74 @@ white-space: nowrap;
     text-decoration: underline;
 }
 
+
+/* ============================================================
+   LPO MODAL
+   ============================================================ */
+
+#lpoSelectionModal .modal-content {
+    border: 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#lpoSelectionModal .modal-header {
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #e9ecf1;
+}
+
+#lpoSelectionModal .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+#lpoSelectionModal .modal-body {
+    padding: 18px 20px 20px;
+}
+
+#lpoSelectionModal .input-group-text {
+    background: #fff;
+    border-right: 0;
+    color: #6c757d;
+}
+
+#lpoSelectionModal .input-group .form-control {
+    border-left: 0;
+}
+
+#lpoSelectionModal .form-control,
+#lpoSelectionModal .form-select {
+    min-height: 40px;
+    font-size: 13px;
+}
+
+#lpo_selection_table {
+    min-width: 900px;
+}
+
+#lpo_selection_table th {
+    white-space: nowrap;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+#lpo_selection_table td {
+    vertical-align: middle;
+    font-size: 13px;
+}
+
+#lpo_selection_table .requisition-list-action {
+    white-space: nowrap;
+}
+
+
 /* ============================================================
    STORE RECEIPTS - EDIT FORM
-   Uses the existing Stores / Requisition design language
+   Uses existing Stores / Requisition design language
    ============================================================ */
 
 .store-receipt-edit-form {
@@ -1982,17 +1957,24 @@ white-space: nowrap;
 
 .store-requisition-page .requisition-input {
     box-sizing: border-box;
+
     width: 100%;
     min-height: 36px;
+
     padding: 7px 10px;
+
     border: 1px solid #dfe3e9;
     border-radius: 6px;
+
     background: #fff;
     color: #303744;
+
     font-family: inherit;
     font-size: 11px;
     line-height: 1.35;
+
     outline: none;
+
     transition:
         border-color .15s ease,
         box-shadow .15s ease,
@@ -2010,12 +1992,14 @@ white-space: nowrap;
 
 .store-requisition-page .requisition-input:focus {
     border-color: var(--stores-primary);
+
     box-shadow: 0 0 0 2px rgba(0, 9, 106, .07);
 }
 
 .store-requisition-page .requisition-input:disabled {
     background: #f3f4f6;
     color: #8a91a0;
+
     cursor: not-allowed;
 }
 
@@ -2024,29 +2008,29 @@ white-space: nowrap;
    EDIT TABLE INPUTS
    ------------------------------------------------------------ */
 
-.store-requisition-page .requisition-list-table
-.receipt-item-row .requisition-input {
+.store-requisition-page .requisition-list-table .receipt-item-row .requisition-input {
     min-height: 32px;
     padding: 5px 8px;
+
     font-size: 10px;
 }
 
-.store-requisition-page .requisition-list-table
-.receipt-item-row td {
+.store-requisition-page .requisition-list-table .receipt-item-row td {
     padding: 8px 9px;
 }
 
-.store-requisition-page .requisition-list-table
-.receipt-item-row .quantity-input {
+.store-requisition-page .requisition-list-table .receipt-item-row .quantity-input {
     text-align: right;
+
     font-variant-numeric: tabular-nums;
 }
 
-.store-requisition-page .requisition-list-table
-.receipt-item-row .item-unit {
+.store-requisition-page .requisition-list-table .receipt-item-row .item-unit {
     color: #596273;
+
     font-size: 10px;
     font-weight: 600;
+
     white-space: nowrap;
 }
 
@@ -2059,23 +2043,19 @@ white-space: nowrap;
     width: 100%;
 }
 
-.store-requisition-page #donationItemsPanel
-.requisition-list-table-wrapper {
+.store-requisition-page #donationItemsPanel .requisition-list-table-wrapper {
     max-height: 360px;
 }
 
-.store-requisition-page #donationItemsPanel
-.requisition-list-table {
+.store-requisition-page #donationItemsPanel .requisition-list-table {
     min-width: 850px;
 }
 
-.store-requisition-page #donationItemsPanel
-.requisition-list-table tbody td {
+.store-requisition-page #donationItemsPanel .requisition-list-table tbody td {
     font-size: 10px;
 }
 
-.store-requisition-page #donationItemsPanel
-.requisition-list-table strong {
+.store-requisition-page #donationItemsPanel .requisition-list-table strong {
     color: #212529;
     font-weight: 700;
 }
@@ -2095,15 +2075,11 @@ white-space: nowrap;
    FORM ACTIONS
    ------------------------------------------------------------ */
 
-.store-requisition-page
-.requisition-page-actions
-.requisition-add-button {
+.store-requisition-page .requisition-page-actions .requisition-add-button {
     flex: 0 0 auto;
 }
 
-.store-requisition-page
-.requisition-page-actions
-.requisition-cancel-button {
+.store-requisition-page .requisition-page-actions .requisition-cancel-button {
     min-height: 37px;
 }
 
@@ -2123,8 +2099,7 @@ white-space: nowrap;
 
 @media (max-width: 768px) {
 
-    .store-requisition-page
-    .requisition-page-actions {
+    .store-requisition-page .requisition-page-actions {
         width: auto;
     }
 
@@ -2139,7 +2114,6 @@ white-space: nowrap;
     .requisition-list-table-wrapper {
         max-height: 330px;
     }
-
 }
 
 @media (max-width: 575.98px) {
@@ -2157,8 +2131,8 @@ white-space: nowrap;
     .requisition-add-button {
         flex: 1;
     }
-
 }
+
 
 /* ============================================================
    DONATION SELECTION
@@ -2182,19 +2156,1016 @@ white-space: nowrap;
     background: #f5f6f8;
 }
 
-.donation-selection-row.donation-already-received
-.requisition-list-action {
+.donation-selection-row.donation-already-received .requisition-list-action {
     color: #8a8f96;
+
     background: #e9ebee;
+
     border-color: #dfe2e6;
+
     cursor: not-allowed;
+
     opacity: 0.9;
 }
 
-.donation-selection-row.donation-already-received
-.requisition-list-action:hover {
+.donation-selection-row.donation-already-received .requisition-list-action:hover {
     color: #8a8f96;
+
     background: #e9ebee;
+
     border-color: #dfe2e6;
 }
 
+
+/* ============================================================
+   DONOR PAGE
+   ============================================================ */
+
+.donor-page {
+    padding-bottom: 40px;
+}
+
+
+/* ============================================================
+   DONOR HEADER
+   ============================================================ */
+
+.donor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    padding: 20px 24px;
+    margin-bottom: 24px;
+
+    background: #fff;
+
+    border: 1px solid #e7e9ed;
+    border-radius: 12px;
+}
+
+.donor-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.donor-avatar {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background: #00096A;
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    flex-shrink: 0;
+}
+
+.donor-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    color: #7b8490;
+
+    font-size: 12px;
+}
+
+.donor-meta span {
+    white-space: nowrap;
+}
+
+.donor-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.modern-card {
+    background: #fff;
+
+    border: 1px solid #e7e9ed;
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.modern-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    padding: 17px 20px;
+
+    border-bottom: 1px solid #edf0f2;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+
+    color: #252a31;
+}
+
+.section-subtitle {
+    color: #8a929a;
+
+    font-size: 12px;
+
+    margin-top: 3px;
+}
+
+.section-icon {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 8px;
+
+    background: #eef1fa;
+    color: #00096A;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modern-card-body {
+    padding: 8px 20px 20px;
+}
+
+.count-badge {
+    padding: 6px 10px;
+
+    background: #eef1fa;
+    color: #00096A;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   DONOR INFORMATION - 2 COLUMNS
+   ============================================================ */
+
+.donor-info-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    column-gap: 25px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid #f0f1f3;
+
+    min-width: 0;
+}
+
+.info-icon {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 7px;
+
+    background: #f5f6f8;
+    color: #68717c;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+
+    flex-shrink: 0;
+}
+
+.info-label {
+    color: #8a929a;
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+    letter-spacing: .35px;
+
+    margin-bottom: 2px;
+}
+
+.info-value {
+    color: #343a40;
+
+    font-size: 13px;
+
+    word-break: break-word;
+}
+
+.notes-box {
+    margin-top: 14px;
+    padding: 12px;
+
+    background: #f8f9fa;
+
+    border-radius: 8px;
+
+    color: #59616a;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   DONOR SUMMARY
+   ============================================================ */
+
+.donor-summary {
+    display: flex;
+    align-items: center;
+
+    margin-top: 18px;
+    padding-top: 17px;
+
+    border-top: 1px solid #edf0f2;
+}
+
+.summary-item {
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.summary-divider {
+    width: 1px;
+    height: 40px;
+
+    background: #e9ecef;
+
+    margin: 0 20px;
+}
+
+.summary-icon {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 13px;
+}
+
+.donation-icon {
+    background: #fff3ed;
+    color: #EF4700;
+}
+
+.communication-icon {
+    background: #eef1fa;
+    color: #00096A;
+}
+
+.summary-value {
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #252a31;
+
+    line-height: 1.1;
+}
+
+.summary-label {
+    font-size: 11px;
+
+    color: #8a929a;
+
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   DONATION LIST
+   ============================================================ */
+
+.donation-list {
+    padding: 5px 0;
+}
+
+.donation-item {
+    border-bottom: 1px solid #edf0f2;
+}
+
+.donation-item:last-child {
+    border-bottom: 0;
+}
+
+.donation-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 18px 20px 14px;
+}
+
+.donation-date {
+    width: 50px;
+
+    text-align: center;
+
+    flex-shrink: 0;
+}
+
+.date-day {
+    font-size: 20px;
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: #00096A;
+}
+
+.date-month {
+    font-size: 10px;
+
+    color: #8a929a;
+
+    margin-top: 4px;
+
+    text-transform: uppercase;
+}
+
+.donation-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.donation-number a {
+    color: #252a31;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.donation-number a:hover {
+    color: #00096A;
+}
+
+.donation-description {
+    margin-top: 4px;
+
+    color: #59616a;
+
+    font-size: 12px;
+}
+
+.dot-separator {
+    color: #b5bbc1;
+    padding: 0 4px;
+}
+
+.donation-source {
+    margin-top: 5px;
+
+    color: #969da5;
+
+    font-size: 11px;
+}
+
+.donation-amount {
+    text-align: right;
+
+    flex-shrink: 0;
+}
+
+.amount-value {
+    color: #252a31;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.amount-label {
+    color: #9aa1a8;
+
+    font-size: 10px;
+
+    margin-top: 3px;
+}
+
+
+/* ============================================================
+   COMMUNICATION BAR
+   ============================================================ */
+
+.communication-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    margin: 0 20px 14px;
+    padding: 10px 12px;
+
+    background: #f8f9fb;
+
+    border: 1px solid #edf0f2;
+    border-radius: 8px;
+}
+
+.communication-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.communication-icon {
+    width: 30px;
+    height: 30px;
+
+    border-radius: 7px;
+
+    background: #eef1fa;
+    color: #00096A;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+
+    flex-shrink: 0;
+}
+
+.communication-title {
+    color: #343a40;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.communication-title.muted {
+    color: #7c858e;
+}
+
+.communication-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    margin-top: 3px;
+
+    color: #9aa1a8;
+
+    font-size: 10px;
+}
+
+.mini-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.mini-status.sent {
+    color: #2e7d32;
+}
+
+.mini-status.pending {
+    color: #a36b00;
+}
+
+.mini-status.failed {
+    color: #c62828;
+}
+
+.btn-communication {
+    border: 1px solid #dfe3e7;
+
+    background: #fff;
+    color: #495057;
+
+    border-radius: 6px;
+
+    padding: 6px 11px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.btn-communication:hover {
+    background: #00096A;
+    border-color: #00096A;
+    color: #fff;
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.status-badge {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #fff8e1;
+    color: #a36b00;
+}
+
+.status-sending {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-sent {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-failed {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.status-cancelled {
+    background: #f1f3f5;
+    color: #6c757d;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.empty-state {
+    text-align: center;
+
+    padding: 50px 20px;
+}
+
+.empty-icon {
+    width: 50px;
+    height: 50px;
+
+    margin: 0 auto 12px;
+
+    border-radius: 50%;
+
+    background: #f5f6f8;
+    color: #9aa1a8;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state h6 {
+    margin-bottom: 5px;
+
+    color: #495057;
+}
+
+.empty-state p {
+    margin: 0;
+
+    color: #9aa1a8;
+
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   COMMUNICATION MODAL
+   ============================================================ */
+
+.communication-modal {
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    background: rgba(15, 23, 42, .55);
+
+    padding: 30px 15px;
+
+    overflow-y: auto;
+}
+
+.communication-modal.show {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.communication-modal-dialog {
+    width: 100%;
+    max-width: 720px;
+
+    margin: auto;
+
+    background: #fff;
+
+    border-radius: 14px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .20);
+
+    overflow: hidden;
+
+    animation: modalSlideIn .18s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.communication-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+
+    padding: 20px 22px;
+
+    background: #00096A;
+    color: #fff;
+}
+
+.communication-modal-header h5 {
+    color: #fff;
+    font-weight: 600;
+}
+
+.modal-eyebrow {
+    font-size: 10px;
+
+    text-transform: uppercase;
+    letter-spacing: .8px;
+
+    opacity: .7;
+
+    margin-bottom: 5px;
+}
+
+.modal-donation-summary {
+    font-size: 11px;
+    opacity: .75;
+}
+
+.modal-donation-summary span {
+    margin: 0 5px;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    flex-shrink: 0;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, .22);
+}
+
+.communication-modal-body {
+    max-height: 65vh;
+
+    overflow-y: auto;
+
+    padding: 15px;
+
+    background: #f7f8fa;
+}
+
+.communication-record {
+    background: #fff;
+
+    border: 1px solid #e5e8ec;
+    border-radius: 10px;
+
+    margin-bottom: 12px;
+
+    overflow: hidden;
+}
+
+.communication-record:last-child {
+    margin-bottom: 0;
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    padding: 14px 15px;
+}
+
+.record-channel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.record-channel-icon {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: #f1f3f5;
+    color: #68717c;
+}
+
+.record-channel-icon.email {
+    background: #eef1fa;
+    color: #00096A;
+}
+
+.record-channel-icon.sms {
+    background: #fff3ed;
+    color: #EF4700;
+}
+
+.record-channel-name {
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #343a40;
+}
+
+.record-recipient {
+    color: #8a929a;
+
+    font-size: 11px;
+
+    margin-top: 2px;
+
+    word-break: break-word;
+}
+
+.record-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding: 9px 15px;
+
+    border-top: 1px solid #f0f1f3;
+    border-bottom: 1px solid #f0f1f3;
+
+    color: #8a929a;
+
+    font-size: 10px;
+}
+
+.record-subject {
+    padding: 12px 15px 0;
+
+    color: #495057;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.record-message {
+    margin: 10px 15px;
+
+    padding: 12px;
+
+    background: #f8f9fa;
+
+    border-radius: 7px;
+
+    color: #59616a;
+
+    font-size: 12px;
+    line-height: 1.65;
+
+    white-space: pre-line;
+}
+
+.record-error {
+    margin: 10px 15px;
+
+    padding: 10px 12px;
+
+    background: #ffebee;
+
+    border-radius: 6px;
+
+    color: #c62828;
+
+    font-size: 11px;
+}
+
+
+/* ============================================================
+   RECORD FOOTER
+   ============================================================ */
+
+.record-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 15px;
+
+    border-top: 1px solid #f0f1f3;
+}
+
+.record-view-link {
+    color: #00096A;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.record-view-link:hover {
+    color: #EF4700;
+}
+
+.resend-form {
+    margin: 0;
+}
+
+.btn-resend {
+    border: 1px solid #dfe3e7;
+
+    background: #fff;
+    color: #00096A;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    padding: 5px 9px;
+
+    border-radius: 6px;
+}
+
+.btn-resend:hover {
+    background: #00096A;
+    border-color: #00096A;
+    color: #fff;
+}
+
+
+/* ============================================================
+   MODAL FOOTER
+   ============================================================ */
+
+.communication-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+
+    padding: 13px 20px;
+
+    border-top: 1px solid #e9ecef;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+    .donor-header {
+        align-items: flex-start;
+        flex-direction: column;
+
+        padding: 16px;
+    }
+
+    .donor-header-actions {
+        width: 100%;
+    }
+
+    .donor-header-actions .btn {
+        flex: 1;
+    }
+
+    .donor-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .donation-main {
+        align-items: flex-start;
+
+        padding: 15px;
+    }
+
+    .donation-amount {
+        display: none;
+    }
+
+    .communication-bar {
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .communication-status {
+        display: none;
+    }
+
+    .communication-modal {
+        padding: 10px;
+    }
+
+    .communication-modal-dialog {
+        border-radius: 10px;
+    }
+
+    .record-header {
+        align-items: flex-start;
+    }
+
+    .record-footer {
+        flex-wrap: wrap;
+    }
+
+    .donor-summary {
+        gap: 10px;
+    }
+
+    .summary-divider {
+        margin: 0 8px;
+    }
+}

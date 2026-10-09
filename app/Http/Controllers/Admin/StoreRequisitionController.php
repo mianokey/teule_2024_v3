@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Child;
+use App\Models\Department;
 use App\Models\Store;
 use App\Models\StoreItem;
 use App\Models\StoreItemVariant;
@@ -70,16 +71,16 @@ class StoreRequisitionController extends Controller
                     'like',
                     '%' . $search . '%'
                 )
-                ->orWhere(
-                    'department',
-                    'like',
-                    '%' . $search . '%'
-                )
-                ->orWhere(
-                    'purpose',
-                    'like',
-                    '%' . $search . '%'
-                );
+                    ->orWhere(
+                        'department',
+                        'like',
+                        '%' . $search . '%'
+                    )
+                    ->orWhere(
+                        'purpose',
+                        'like',
+                        '%' . $search . '%'
+                    );
             });
         }
 
@@ -112,6 +113,11 @@ class StoreRequisitionController extends Controller
             'asc'
         )->get();
 
+        $departments = Department::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+
         $stores = Store::query()
             ->where('is_active', true)
             ->orderBy('name')
@@ -122,7 +128,8 @@ class StoreRequisitionController extends Controller
             compact(
                 'items',
                 'children',
-                'stores'
+                'stores',
+                'departments'
             )
         );
     }
@@ -252,8 +259,8 @@ class StoreRequisitionController extends Controller
                 'integer',
                 'exists:stores,id',
                 Rule::requiredIf(
-                    fn () =>
-                        $request->input('requisition_type') === 'TRANSFER'
+                    fn() =>
+                    $request->input('requisition_type') === 'TRANSFER'
                 ),
                 'different:source_store_id',
             ],
@@ -265,10 +272,12 @@ class StoreRequisitionController extends Controller
             ],
 
             'purpose' => [
-                'required',
+                'nullable',
                 'string',
                 'max:2000',
             ],
+
+
 
             'submission_notes' => [
                 'nullable',
@@ -366,27 +375,27 @@ class StoreRequisitionController extends Controller
         ) {
             $storeRequisition->update([
                 'department' =>
-                    $validated['department'],
+                $validated['department'],
 
                 'purpose' =>
-                    $validated['purpose'],
+                $validated['purpose'],
 
                 'submission_notes' =>
-                    $validated['submission_notes'] ?? null,
+                $validated['submission_notes'] ?? null,
 
                 'requisition_type' =>
-                    $validated['requisition_type'],
+                $validated['requisition_type'],
 
                 'source_store_id' =>
-                    $validated['source_store_id'],
+                $validated['source_store_id'],
 
                 'destination_store_id' =>
-                    $validated['requisition_type'] === 'TRANSFER'
-                        ? (
-                            $validated['destination_store_id']
-                            ?? null
-                        )
-                        : null,
+                $validated['requisition_type'] === 'TRANSFER'
+                    ? (
+                        $validated['destination_store_id']
+                        ?? null
+                    )
+                    : null,
             ]);
 
             $storeRequisition->items()->delete();
@@ -418,13 +427,13 @@ class StoreRequisitionController extends Controller
                 $requisitionItem =
                     $storeRequisition->items()->create([
                         'store_item_id' =>
-                            $item['store_item_id'],
+                        $item['store_item_id'],
 
                         'variant_id' =>
-                            $item['variant_id'] ?? null,
+                        $item['variant_id'] ?? null,
 
                         'requested_quantity' =>
-                            $item['requested_quantity'],
+                        $item['requested_quantity'],
 
                         'approved_quantity' => 0,
 
@@ -433,7 +442,7 @@ class StoreRequisitionController extends Controller
                         'outstanding_quantity' => 0,
 
                         'notes' =>
-                            $item['notes'] ?? null,
+                        $item['notes'] ?? null,
                     ]);
 
                 if (!empty($item['child_ids'])) {
@@ -451,8 +460,8 @@ class StoreRequisitionController extends Controller
             ->with(
                 'success',
                 'Requisition ' .
-                $storeRequisition->requisition_number .
-                ' updated successfully.'
+                    $storeRequisition->requisition_number .
+                    ' updated successfully.'
             );
     }
 
@@ -478,8 +487,8 @@ class StoreRequisitionController extends Controller
                 'integer',
                 'exists:stores,id',
                 Rule::requiredIf(
-                    fn () =>
-                        $request->input('requisition_type') === 'TRANSFER'
+                    fn() =>
+                    $request->input('requisition_type') === 'TRANSFER'
                 ),
                 'different:source_store_id',
             ],
@@ -491,7 +500,7 @@ class StoreRequisitionController extends Controller
             ],
 
             'purpose' => [
-                'required',
+                'nullable',
                 'string',
                 'max:2000',
             ],
@@ -595,42 +604,42 @@ class StoreRequisitionController extends Controller
             $requisition =
                 StoreRequisition::create([
                     'requisition_number' =>
-                        $this->generateRequisitionNumber(),
+                    $this->generateRequisitionNumber(),
 
                     'requested_by' =>
-                        auth()->id(),
+                    auth()->id(),
 
                     'department' =>
-                        $validated['department'],
+                    $validated['department'],
 
                     'purpose' =>
-                        $validated['purpose'],
+                    $validated['purpose'],
 
                     'requisition_type' =>
-                        $validated['requisition_type'],
+                    $validated['requisition_type'],
 
                     'source_store_id' =>
-                        $validated['source_store_id'],
+                    $validated['source_store_id'],
 
                     'destination_store_id' =>
-                        $validated['requisition_type'] === 'TRANSFER'
-                            ? (
-                                $validated['destination_store_id']
-                                ?? null
-                            )
-                            : null,
+                    $validated['requisition_type'] === 'TRANSFER'
+                        ? (
+                            $validated['destination_store_id']
+                            ?? null
+                        )
+                        : null,
 
                     'status' =>
-                        'draft',
+                    'draft',
 
                     'approval_stage' =>
-                        'none',
+                    'none',
 
                     'fulfillment_status' =>
-                        'not_issued',
+                    'not_issued',
 
                     'submission_notes' =>
-                        $validated['submission_notes'] ?? null,
+                    $validated['submission_notes'] ?? null,
                 ]);
 
             foreach ($validated['items'] as $item) {
@@ -660,13 +669,13 @@ class StoreRequisitionController extends Controller
                 $requisitionItem =
                     $requisition->items()->create([
                         'store_item_id' =>
-                            $item['store_item_id'],
+                        $item['store_item_id'],
 
                         'variant_id' =>
-                            $item['variant_id'] ?? null,
+                        $item['variant_id'] ?? null,
 
                         'requested_quantity' =>
-                            $item['requested_quantity'],
+                        $item['requested_quantity'],
 
                         'approved_quantity' => 0,
 
@@ -675,7 +684,7 @@ class StoreRequisitionController extends Controller
                         'outstanding_quantity' => 0,
 
                         'notes' =>
-                            $item['notes'] ?? null,
+                        $item['notes'] ?? null,
                     ]);
 
                 if (!empty($item['child_ids'])) {
@@ -693,8 +702,8 @@ class StoreRequisitionController extends Controller
             ->with(
                 'success',
                 'Requisition ' .
-                $requisition->requisition_number .
-                ' saved as draft successfully.'
+                    $requisition->requisition_number .
+                    ' saved as draft successfully.'
             );
     }
 
@@ -731,24 +740,22 @@ class StoreRequisitionController extends Controller
     protected function getApprovalPermissionForStage(
         StoreRequisition $storeRequisition
     ): ?string {
-        return match (
-            strtolower(
-                trim(
-                    $storeRequisition->approval_stage ?? ''
-                )
+        return match (strtolower(
+            trim(
+                $storeRequisition->approval_stage ?? ''
             )
-        ) {
+        )) {
             'hod' =>
-                'APPROVE STORE REQUISITIONS - HOD',
+            'APPROVE STORE REQUISITIONS - HOD',
 
             'management' =>
-                'APPROVE STORE REQUISITIONS - MANAGEMENT',
+            'APPROVE STORE REQUISITIONS - MANAGEMENT',
 
             'stores' =>
-                'APPROVE STORE REQUISITIONS - STORES',
+            'APPROVE STORE REQUISITIONS - STORES',
 
             default =>
-                null,
+            null,
         };
     }
 
@@ -871,25 +878,25 @@ class StoreRequisitionController extends Controller
         $stageLabel = match ($approvalStage) {
 
             'hod' =>
-                'HOD Approval',
+            'HOD Approval',
 
             'management' =>
-                'Management Approval',
+            'Management Approval',
 
             'stores' =>
-                'Stores Approval',
+            'Stores Approval',
 
             'approved' =>
-                'Fully Approved',
+            'Fully Approved',
 
             'rejected' =>
-                'Rejected',
+            'Rejected',
 
             'returned' =>
-                'Returned to Requester',
+            'Returned to Requester',
 
             default =>
-                'Not Submitted',
+            'Not Submitted',
         };
 
         /*
@@ -1016,8 +1023,8 @@ class StoreRequisitionController extends Controller
             ->with(
                 'success',
                 'Requisition ' .
-                $storeRequisition->requisition_number .
-                ' submitted successfully for approval.'
+                    $storeRequisition->requisition_number .
+                    ' submitted successfully for approval.'
             );
     }
 
@@ -1111,22 +1118,22 @@ class StoreRequisitionController extends Controller
             */
             StoreRequisitionApproval::create([
                 'store_requisition_id' =>
-                    $storeRequisition->id,
+                $storeRequisition->id,
 
                 'approved_by' =>
-                    auth()->id(),
+                auth()->id(),
 
                 'approval_level' =>
-                    $stage,
+                $stage,
 
                 'decision' =>
-                    'approved',
+                'approved',
 
                 'comments' =>
-                    $validated['comments'] ?? null,
+                $validated['comments'] ?? null,
 
                 'decided_at' =>
-                    now(),
+                now(),
             ]);
 
             /*
@@ -1146,8 +1153,7 @@ class StoreRequisitionController extends Controller
             |--------------------------------------------------------------------------
             | MANAGEMENT → STORES
             |--------------------------------------------------------------------------
-            */
-            elseif ($stage === 'management') {
+            */ elseif ($stage === 'management') {
 
                 $storeRequisition->update([
                     'status' => 'pending',
@@ -1159,8 +1165,7 @@ class StoreRequisitionController extends Controller
             |--------------------------------------------------------------------------
             | STORES → FULLY APPROVED
             |--------------------------------------------------------------------------
-            */
-            elseif ($stage === 'stores') {
+            */ elseif ($stage === 'stores') {
 
                 $storeRequisition->load('items');
 
@@ -1178,30 +1183,30 @@ class StoreRequisitionController extends Controller
                         max(
                             0,
                             $requestedQuantity -
-                            $issuedQuantity
+                                $issuedQuantity
                         );
 
                     $item->update([
                         'approved_quantity' =>
-                            $requestedQuantity,
+                        $requestedQuantity,
 
                         'outstanding_quantity' =>
-                            $outstandingQuantity,
+                        $outstandingQuantity,
                     ]);
                 }
 
                 $storeRequisition->update([
                     'status' =>
-                        'approved',
+                    'approved',
 
                     'approval_stage' =>
-                        'approved',
+                    'approved',
 
                     'approved_at' =>
-                        now(),
+                    now(),
 
                     'fulfillment_status' =>
-                        'not_issued',
+                    'not_issued',
                 ]);
             }
         });
@@ -1209,16 +1214,16 @@ class StoreRequisitionController extends Controller
         $message = match ($stage) {
 
             'hod' =>
-                'HOD approval recorded. The requisition is now awaiting CM/DCM approval.',
+            'HOD approval recorded. The requisition is now awaiting CM/DCM approval.',
 
             'management' =>
-                'Management approval recorded. The requisition is now awaiting Stores review.',
+            'Management approval recorded. The requisition is now awaiting Stores review.',
 
             'stores' =>
-                'Stores approval recorded. The requisition is now fully approved and ready for physical fulfillment.',
+            'Stores approval recorded. The requisition is now fully approved and ready for physical fulfillment.',
 
             default =>
-                'Requisition approved.',
+            'Requisition approved.',
         };
 
         return redirect()
@@ -1251,9 +1256,9 @@ class StoreRequisitionController extends Controller
 
         abort_unless(
             $requiredPermission &&
-            auth()->user()->can(
-                $requiredPermission
-            ),
+                auth()->user()->can(
+                    $requiredPermission
+                ),
             403
         );
 
@@ -1285,30 +1290,30 @@ class StoreRequisitionController extends Controller
         ) {
             StoreRequisitionApproval::create([
                 'store_requisition_id' =>
-                    $storeRequisition->id,
+                $storeRequisition->id,
 
                 'approved_by' =>
-                    auth()->id(),
+                auth()->id(),
 
                 'approval_level' =>
-                    $storeRequisition->approval_stage,
+                $storeRequisition->approval_stage,
 
                 'decision' =>
-                    'rejected',
+                'rejected',
 
                 'comments' =>
-                    $validated['comments'],
+                $validated['comments'],
 
                 'decided_at' =>
-                    now(),
+                now(),
             ]);
 
             $storeRequisition->update([
                 'status' =>
-                    'rejected',
+                'rejected',
 
                 'approval_stage' =>
-                    'rejected',
+                'rejected',
             ]);
         });
 
@@ -1320,8 +1325,8 @@ class StoreRequisitionController extends Controller
             ->with(
                 'success',
                 'Requisition ' .
-                $storeRequisition->requisition_number .
-                ' rejected.'
+                    $storeRequisition->requisition_number .
+                    ' rejected.'
             );
     }
 
@@ -1344,9 +1349,9 @@ class StoreRequisitionController extends Controller
 
         abort_unless(
             $requiredPermission &&
-            auth()->user()->can(
-                $requiredPermission
-            ),
+                auth()->user()->can(
+                    $requiredPermission
+                ),
             403
         );
 
@@ -1378,30 +1383,30 @@ class StoreRequisitionController extends Controller
         ) {
             StoreRequisitionApproval::create([
                 'store_requisition_id' =>
-                    $storeRequisition->id,
+                $storeRequisition->id,
 
                 'approved_by' =>
-                    auth()->id(),
+                auth()->id(),
 
                 'approval_level' =>
-                    $storeRequisition->approval_stage,
+                $storeRequisition->approval_stage,
 
                 'decision' =>
-                    'returned',
+                'returned',
 
                 'comments' =>
-                    $validated['comments'],
+                $validated['comments'],
 
                 'decided_at' =>
-                    now(),
+                now(),
             ]);
 
             $storeRequisition->update([
                 'status' =>
-                    'returned',
+                'returned',
 
                 'approval_stage' =>
-                    'returned',
+                'returned',
             ]);
         });
 
@@ -1413,8 +1418,8 @@ class StoreRequisitionController extends Controller
             ->with(
                 'success',
                 'Requisition ' .
-                $storeRequisition->requisition_number .
-                ' has been sent back to the requester for edits.'
+                    $storeRequisition->requisition_number .
+                    ' has been sent back to the requester for edits.'
             );
     }
 
@@ -1510,15 +1515,15 @@ class StoreRequisitionController extends Controller
             'status' => 'cancelled',
 
             'submission_notes' =>
-                trim(
-                    (
-                        $storeRequisition->submission_notes
-                        ? $storeRequisition->submission_notes . "\n\n"
-                        : ''
-                    ) .
+            trim(
+                (
+                    $storeRequisition->submission_notes
+                    ? $storeRequisition->submission_notes . "\n\n"
+                    : ''
+                ) .
                     'Cancellation reason: ' .
                     $request->cancellation_reason
-                ),
+            ),
         ]);
 
         return redirect()

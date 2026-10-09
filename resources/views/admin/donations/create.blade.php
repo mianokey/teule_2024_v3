@@ -749,7 +749,7 @@
                             </span>
 
                             <strong class="stores-detail-value d-block" style="font-size:18px;">
-                                KES44
+                                KES
 
                                 <span id="estimated-total">
                                     0.00
@@ -1882,22 +1882,21 @@ IN-KIND ITEM SELECTION MODAL
 
             <td>
 
-                <div class="input-group">
+              <div class="input-group" style="display: flex; flex-wrap: nowrap; align-items: stretch;">
+    <span class="input-group-text" style="white-space: nowrap;">
+        KES
+    </span>
 
-                    <span class="input-group-text">
-                        KES
-                    </span>
-
-                    <input
-                        type="number"
-                        name="items[${index}][estimated_value]"
-                        class="form-control requisition-input estimated-value"
-                        value="0"
-                        step="0.01"
-                        min="0"
-                    >
-
-                </div>
+    <input
+        type="number"
+        name="items[${index}][estimated_value]"
+        class="form-control requisition-input estimated-value"
+        value="0"
+        step="0.01"
+        min="0"
+        style="width: 1%; flex: 1 1 auto;"
+    >
+</div>
 
             </td>
 

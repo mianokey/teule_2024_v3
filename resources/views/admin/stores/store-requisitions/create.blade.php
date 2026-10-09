@@ -1,7 +1,8 @@
+blade
 @extends('layouts.admin')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
 @endpush
 
 @section('content')
@@ -9,8 +10,8 @@
 <div class="store-requisition-page">
 
     {{-- ============================================================
-        PAGE HEADER
-    ============================================================= --}}
+         PAGE HEADER
+    ============================================================ --}}
     <div class="requisition-page-header">
 
         <div class="requisition-header-content">
@@ -20,10 +21,15 @@
             </div>
 
             <div>
+
                 <div class="requisition-breadcrumb">
-                    Stores
+
+                    <span>Stores</span>
                     <span>/</span>
-                    Requisitions
+                    <span>Requisitions</span>
+                    <span>/</span>
+                    <span>Create</span>
+
                 </div>
 
                 <h1 class="requisition-page-title">
@@ -33,15 +39,20 @@
                 <p class="requisition-page-subtitle">
                     Request items from Stores for your department or specific children.
                 </p>
+
             </div>
 
         </div>
 
+
         <div class="requisition-header-right">
 
             <span class="requisition-draft-badge">
+
                 <span class="requisition-status-dot"></span>
+
                 Draft
+
             </span>
 
             <span
@@ -60,15 +71,9 @@
 
 
     {{-- ============================================================
-        ENTIRE REQUISITION FORM
-        IMPORTANT:
-        This remains completely hidden until transaction setup
-        has been completed.
-    ============================================================= --}}
-    <div
-        id="requisition-form"
-        style="display:none;"
-    >
+         REQUISITION FORM
+    ============================================================ --}}
+    <div id="requisition-form" style="display:none;">
 
         <form
             id="requisitionForm"
@@ -78,10 +83,10 @@
 
             @csrf
 
-            {{-- ====================================================
-                TRANSACTION SETUP VALUES
-            ===================================================== --}}
 
+            {{-- ====================================================
+                 TRANSACTION VALUES
+            ===================================================== --}}
             <input
                 type="hidden"
                 name="requisition_type"
@@ -105,84 +110,41 @@
 
 
             {{-- ====================================================
-                REQUESTED ITEMS
+                 REQUESTED ITEMS
             ===================================================== --}}
+            <div class="requisition-section">
 
-            <section class="requisition-section">
+                <div class="requisition-section-header">
 
-                <div class="requisition-details-header">
+                    <div class="requisition-section-heading">
 
-                    <strong>
-                        Requested Items
-                    </strong>
+                        <div class="requisition-section-icon">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
 
-                    <span>
-                        Add the items and quantities required.
-                    </span>
+                        <div>
 
-                </div>
+                            <h5>
+                                Requested Items
+                            </h5>
 
-                <div class="requisition-details-body">
+                            <p>
+                                Add the items and quantities required.
+                            </p>
 
-                    <div class="table-responsive">
-
-                        <table class="table align-middle mb-0">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th style="width:60px;">
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Item
-                                    </th>
-
-                                    <th>
-                                        Variant
-                                    </th>
-
-                                    <th style="width:150px;">
-                                        Quantity
-                                    </th>
-
-                                    <th style="width:120px;">
-                                        Unit
-                                    </th>
-
-                                    <th style="width:220px;">
-                                        Child
-                                    </th>
-
-                                    <th>
-                                        Notes
-                                    </th>
-
-                                    <th style="width:60px;">
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="requisitionItemsBody">
-
-                            </tbody>
-
-                        </table>
+                        </div>
 
                     </div>
 
-                    <div class="mt-3">
+
+                    <div class="requisition-header-right">
 
                         <button
                             type="button"
                             id="addItemButton"
-                            class="requisition-save-button"
+                            class="requisition-add-button"
                         >
-                            <i class="fa fa-plus me-1"></i>
+                            <i class="fa fa-plus"></i>
                             Add Item
                         </button>
 
@@ -190,105 +152,251 @@
 
                 </div>
 
-            </section>
+
+                <div class="requisition-details-body">
+
+                    <div class="requisition-list-table-wrapper">
+
+                        <table class="requisition-list-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th style="width:45px;">
+                                        #
+                                    </th>
+
+                                    <th style="min-width:220px;">
+                                        Item
+                                    </th>
+
+                                    <th style="min-width:140px;">
+                                        Variant
+                                    </th>
+
+                                    <th style="width:120px;">
+                                        Quantity
+                                    </th>
+
+                                    <th style="width:90px;">
+                                        Unit
+                                    </th>
+
+                                    <th style="min-width:240px;">
+                                        Child
+                                    </th>
+
+                                    <th style="min-width:170px;">
+                                        Notes
+                                    </th>
+
+                                    <th style="width:55px;">
+                                    </th>
+
+                                </tr>
+
+                            </thead>
 
 
-            {{-- ====================================================
-                REQUEST DETAILS
-            ===================================================== --}}
+                            <tbody id="requisitionItemsBody">
+                            </tbody>
 
-<section class="requisition-section requisition-details-section">
+                        </table>
 
-    <div class="requisition-details-header">
+                    </div>
 
-        <strong>
-            Request Details
-        </strong>
 
-        <span>
-            Provide additional information about this request.
-        </span>
+                    <div
+                        id="emptyItemsMessage"
+                        class="requisition-table-empty"
+                        style="display:none;"
+                    >
 
-    </div>
+                        <div class="requisition-empty-icon">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
 
-    <div class="requisition-details-body">
+                        <p>
+                            No items have been added to this requisition yet.
+                        </p>
 
-        <div class="row g-3">
+                        <button
+                            type="button"
+                            class="requisition-add-button"
+                            onclick="document.getElementById('addItemButton').click()"
+                        >
+                            <i class="fa fa-plus"></i>
+                            Add Item
+                        </button>
 
-            <div class="col-6">
+                    </div>
 
-                <label
-                    for="department"
-                    class="requisition-field-label"
-                >
-                    Department
-                </label>
-
-                <input
-                    type="text"
-                    name="department"
-                    id="department"
-                    class="form-control requisition-input"
-                    value="{{ old('department') }}"
-                    placeholder="Enter department"
-                >
+                </div>
 
             </div>
 
-            <div class="col-6">
 
-                <label
-                    for="purpose"
-                    class="requisition-field-label"
-                >
-                    Purpose
-                </label>
+            {{-- ====================================================
+                 REQUEST DETAILS
+            ===================================================== --}}
+            <div class="requisition-section">
 
-                <INPUT
-                    name="purpose"
-                    id="purpose"
-                    class="form-control requisition-input"
-                    placeholder="Explain what the requested items will be used for."
-                >{{ old('purpose') }}</textarea>
+                <div class="requisition-section-header">
+
+                    <div class="requisition-section-heading">
+
+                        <div class="requisition-section-icon">
+                            <i class="fa fa-info"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Request Details
+                            </h5>
+
+                            <p>
+                                Provide additional information about this request.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="requisition-details-body">
+
+                    <div class="row">
+
+                        {{-- DEPARTMENT --}}
+                        <div class="col-lg-6 col-md-6 mb-3">
+
+                            <div class="d-flex align-items-center">
+
+                                <label
+                                    for="department"
+                                    class="requisition-field-label mb-0 mr-2"
+                                    style="min-width:95px;"
+                                >
+                                    Department:
+                                </label>
+
+                                <select
+                                    name="department"
+                                    id="department"
+                                    class="form-select requisition-input flex-grow-1"
+                                >
+
+                                    <option value="">
+                                        Select department
+                                    </option>
+
+                                    @if(isset($departments))
+
+                                        @foreach($departments as $department)
+
+                                            @php
+
+                                                $departmentValue =
+                                                    is_object($department)
+                                                        ? (
+                                                            $department->name
+                                                            ?? $department->department_name
+                                                            ?? $department->title
+                                                            ?? ''
+                                                        )
+                                                        : $department;
+
+                                            @endphp
+
+                                            @if($departmentValue !== '')
+
+                                                <option
+                                                    value="{{ $departmentValue }}"
+                                                    {{ old('department') == $departmentValue ? 'selected' : '' }}
+                                                >
+                                                    {{ $departmentValue }}
+                                                </option>
+
+                                            @endif
+
+                                        @endforeach
+
+                                    @endif
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- PURPOSE --}}
+                        <div class="col-lg-6 col-md-6 mb-3">
+
+                            <div class="d-flex align-items-center">
+
+                                <label
+                                    for="purpose"
+                                    class="requisition-field-label mb-0 mr-2"
+                                    style="min-width:70px;"
+                                >
+                                    Purpose:
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="purpose"
+                                    id="purpose"
+                                    class="form-control requisition-input flex-grow-1"
+                                    value="{{ old('purpose') }}"
+                                    placeholder="Explain what the requested items will be used for."
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
-
-    </div>
-
-</section>
-
 
             {{-- ====================================================
-                ACTION BAR
+                 BOTTOM ACTIONS
             ===================================================== --}}
-
-            <div class="requisition-action-bar">
+            <div class="requisition-bottom-actions">
 
                 <a
                     href="{{ route('admin.stores.store-requisitions.index') }}"
                     class="requisition-cancel-button"
                 >
-                    <i class="fa fa-arrow-left me-1"></i>
+                    <i class="fa fa-arrow-left"></i>
                     Cancel
                 </a>
+
 
                 <button
                     type="button"
                     id="changeTransactionSetup"
                     class="requisition-cancel-button"
                 >
-                    <i class="fa fa-exchange-alt me-1"></i>
+                    <i class="fa fa-exchange-alt"></i>
                     Change Transaction
                 </button>
+
 
                 <button
                     type="button"
                     id="saveRequisitionButton"
-                    class="requisition-save-button"
+                    class="requisition-add-button"
                 >
-                    <i class="fa fa-save me-1"></i>
+                    <i class="fa fa-save"></i>
                     Save Requisition
                 </button>
 
@@ -300,9 +408,8 @@
 
 
     {{-- ============================================================
-        ITEM ROW TEMPLATE
-    ============================================================= --}}
-
+         ITEM ROW TEMPLATE
+    ============================================================ --}}
     <template id="itemRowTemplate">
 
         <tr
@@ -310,54 +417,69 @@
             data-row-index="__INDEX__"
         >
 
+            {{-- NUMBER --}}
             <td>
-
-                <span class="requisition-row-number item-number">
+                <strong class="item-number">
                     1
-                </span>
-
+                </strong>
             </td>
 
 
+            {{-- ITEM --}}
             <td>
 
-                <select
+                <input
+                    type="hidden"
                     name="items[__INDEX__][store_item_id]"
-                    class="form-select requisition-table-input requisition-item-select"
+                    class="requisition-item-id"
                     required
                 >
 
-                    <option value="">
+                <button
+                    type="button"
+                    class="requisition-list-action form-control form-control-sm primary requisition-item-picker"
+                    data-action="select-item"
+                    title="Select item"
+                    style="
+                        width:100%;
+                        display:flex;
+                        align-items:center;
+                        justify-content:space-between;
+                        gap:8px;
+                        text-align:left;
+                        overflow:hidden;
+                    "
+                >
+
+                    <span
+                        class="requisition-item-label"
+                        style="
+                            min-width:0;
+                            flex:1 1 auto;
+                            overflow:hidden;
+                            text-overflow:ellipsis;
+                            white-space:nowrap;
+                        "
+                    >
                         Select item
-                    </option>
+                    </span>
 
-                    @foreach($items as $item)
+                    <i
+                        class="fa fa-chevron-down"
+                        style="flex:0 0 auto;"
+                    ></i>
 
-                        <option
-                            value="{{ $item->id }}"
-                            data-uom="{{ $item->unit?->name ?? '—' }}"
-                        >
-
-                            {{ $item->name }}
-
-                            @if($item->sku)
-                                ({{ $item->sku }})
-                            @endif
-
-                        </option>
-
-                    @endforeach
-
-                </select>
+                </button>
 
             </td>
 
 
+            {{-- VARIANT --}}
             <td>
 
                 <select
                     name="items[__INDEX__][variant_id]"
-                    class="form-select requisition-table-input requisition-variant-select"
+                    class="form-select form-select-sm requisition-table-input requisition-variant-select"
                     disabled
                 >
 
@@ -370,12 +492,13 @@
             </td>
 
 
+            {{-- QUANTITY --}}
             <td>
 
                 <input
                     type="number"
                     name="items[__INDEX__][requested_quantity]"
-                    class="form-control requisition-table-input requisition-quantity"
+                    class="form-control form-control-sm requisition-table-input requisition-quantity"
                     min="0.001"
                     step="0.001"
                     placeholder="0"
@@ -385,76 +508,102 @@
             </td>
 
 
-            <td>
+            {{-- UNIT --}}
+<td>
 
-                <div class="requisition-uom-display">
+    <div class="requisition-input">
 
-                    <span class="uom-value requisition-uom">
-                        —
-                    </span>
+        <span class="requisition-uom">
+            —
+        </span>
 
-                </div>
+    </div>
 
-            </td>
-
-
-            <td>
-
-                <div class="requisition-child-assignment">
-
-                    <button
-                        type="button"
-                        class="requisition-assign-child-button"
-                        data-action="assign-children"
-                    >
-
-                        <i class="fa fa-user-plus"></i>
-
-                        <span class="child-assignment-label">
-                            + Assign
-                        </span>
-
-                    </button>
+</td>
 
 
-                    <div class="requisition-selected-children">
 
-                        <span class="requisition-no-child-label">
-                            General
-                        </span>
+            {{-- CHILD --}}
+<td>
+    <div
+        class="requisition-child-assignment"
+        style="
+            width:100%;
+            min-width:0;
+            display:flex;
+            align-items:center;
+            gap:6px;
+        "
+    >
 
-                    </div>
+        {{-- ASSIGN BUTTON --}}
+        <button
+            type="button"
+            class="requisition-add-button primary"
+            data-action="assign-children"
+            title="Assign this item to one or more children"
+            style="
+                flex:0 0 auto;
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                gap:5px;
+                white-space:nowrap;
+                margin:0;
+                padding:6px 10px;
+            "
+        >
+            <i class="fa fa-user-plus"></i>
+            Assign
+        </button>
 
+        {{-- CHILD FIELD --}}
+        <div
+            class="requisition-selected-children requisition-input"
+            title="General"
+            style="
+                flex:1 1 auto;
+                width:auto;
+                min-width:0;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                white-space:nowrap;
+                cursor:default;
+            "
+        >
+            <span class="requisition-no-child-label">
+                General
+            </span>
+        </div>
 
-                    <div class="requisition-child-inputs"></div>
+        {{-- HIDDEN CHILD IDS --}}
+        <div class="requisition-child-inputs"></div>
 
-                </div>
+    </div>
+</td>
 
-            </td>
-
-
+            {{-- NOTES --}}
             <td>
 
                 <input
                     type="text"
                     name="items[__INDEX__][notes]"
-                    class="form-control requisition-table-input"
+                    class="form-control form-control-sm requisition-table-input"
                     placeholder="Optional"
                 >
 
             </td>
 
 
+            {{-- REMOVE --}}
             <td class="text-center">
 
                 <button
                     type="button"
-                    class="requisition-row-remove requisition-remove-item"
+                    class="requisition-list-action danger requisition-remove-item"
                     title="Remove item"
                 >
-
                     <i class="fa fa-trash"></i>
-
                 </button>
 
             </td>
@@ -465,9 +614,235 @@
 
 
     {{-- ============================================================
-        ASSIGN CHILDREN MODAL
-    ============================================================= --}}
+         ITEM SELECTION MODAL
+    ============================================================ --}}
+    <div
+        class="modal fade"
+        id="storeItemSelectionModal"
+        tabindex="-1"
+        aria-hidden="true"
+    >
 
+        <div
+            class="modal-dialog modal-dialog-centered modal-lg"
+            style="max-width:720px;"
+        >
+
+            <div
+                class="modal-content border-0 shadow"
+                style="overflow:hidden;"
+            >
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title mb-1">
+                            Select Store Item
+                        </h5>
+
+                        <div class="requisition-modal-subtitle">
+                            Search and select an item.
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    {{-- SEARCH --}}
+                    <div
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                            width:100%;
+                            margin-bottom:12px;
+                        "
+                    >
+
+                        <i
+                            class="fa fa-search"
+                            style="
+                                flex:0 0 auto;
+                                color:#6c757d;
+                            "
+                        ></i>
+
+                        <input
+                            type="text"
+                            id="storeItemSearch"
+                            class="form-control requisition-input"
+                            placeholder="Search item, SKU or unit..."
+                            autocomplete="off"
+                            style="
+                                width:1%;
+                                flex:1 1 auto;
+                            "
+                        >
+
+                    </div>
+
+
+                    {{-- ITEM LIST --}}
+                    <div
+                        id="storeItemSelectionList"
+                        style="
+                            width:100%;
+                            max-height:52vh;
+                            overflow-y:auto;
+                            overflow-x:hidden;
+                            border:1px solid #e9ecef;
+                            border-radius:5px;
+                        "
+                    >
+
+                        @forelse($items as $item)
+
+                            <label
+                                class="store-item-option"
+                                data-item-name="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . ($item->unit?->name ?? '')) }}"
+                                style="
+                                    display:flex;
+                                    align-items:center;
+                                    gap:10px;
+                                    width:100%;
+                                    min-width:0;
+                                    box-sizing:border-box;
+                                    padding:9px 12px;
+                                    margin:0;
+                                    border-bottom:1px solid #eeeeee;
+                                    cursor:pointer;
+                                    overflow:hidden;
+                                "
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="selected_store_item"
+                                    class="store-item-radio"
+                                    value="{{ $item->id }}"
+                                    data-item-name="{{ $item->name }}"
+                                    data-sku="{{ $item->sku ?? '' }}"
+                                    data-uom="{{ $item->unit?->name ?? '—' }}"
+                                    style="
+                                        flex:0 0 18px;
+                                        width:18px;
+                                        height:18px;
+                                        margin:0;
+                                    "
+                                >
+
+
+                                {{-- ITEM --}}
+                                <span
+                                    style="
+                                        flex:1 1 45%;
+                                        min-width:0;
+                                        overflow:hidden;
+                                    "
+                                >
+
+                                    <strong
+                                        style="
+                                            display:block;
+                                            overflow:hidden;
+                                            text-overflow:ellipsis;
+                                            white-space:nowrap;
+                                        "
+                                    >
+                                        {{ $item->name }}
+                                    </strong>
+
+                                </span>
+
+
+                                {{-- SKU --}}
+                                <span
+                                    style="
+                                        flex:0 0 22%;
+                                        min-width:0;
+                                        overflow:hidden;
+                                        text-overflow:ellipsis;
+                                        white-space:nowrap;
+                                        color:#6c757d;
+                                        font-size:12px;
+                                    "
+                                >
+                                    {{ $item->sku ?: '—' }}
+                                </span>
+
+
+                                {{-- UNIT --}}
+                                <span
+                                    style="
+                                        flex:0 0 18%;
+                                        min-width:0;
+                                        overflow:hidden;
+                                        text-overflow:ellipsis;
+                                        white-space:nowrap;
+                                        color:#6c757d;
+                                        font-size:12px;
+                                        text-align:right;
+                                    "
+                                >
+                                    {{ $item->unit?->name ?? '—' }}
+                                </span>
+
+                            </label>
+
+                        @empty
+
+                            <div class="requisition-table-empty">
+
+                                <div class="requisition-empty-icon">
+                                    <i class="fa fa-cube"></i>
+                                </div>
+
+                                <p>
+                                    No store items found.
+                                </p>
+
+                            </div>
+
+                        @endforelse
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="requisition-cancel-button"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================================
+         ASSIGN CHILDREN MODAL
+    ============================================================ --}}
     <div
         class="modal fade requisition-child-modal"
         id="assignChildrenModal"
@@ -477,7 +852,10 @@
 
         <div class="modal-dialog modal-dialog-centered modal-lg">
 
-            <div class="modal-content border-0 shadow">
+            <div
+                class="modal-content border-0 shadow"
+                style="overflow:hidden;"
+            >
 
                 <div class="modal-header">
 
@@ -505,23 +883,49 @@
 
                 <div class="modal-body">
 
-                    <div class="requisition-child-search">
+                    {{-- SEARCH --}}
+                    <div
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                            width:100%;
+                            margin-bottom:12px;
+                        "
+                    >
 
-                        <i class="fa fa-search"></i>
+                        <i
+                            class="fa fa-search"
+                            style="
+                                flex:0 0 auto;
+                                color:#6c757d;
+                            "
+                        ></i>
 
                         <input
                             type="text"
                             id="childSearchInput"
                             class="form-control requisition-input"
                             placeholder="Search children..."
+                            autocomplete="off"
+                            style="
+                                width:1%;
+                                flex:1 1 auto;
+                            "
                         >
 
                     </div>
 
 
+                    {{-- CHILDREN --}}
                     <div
                         id="childSelectionList"
-                        class="requisition-child-selection-list"
+                        style="
+                            width:100%;
+                            max-height:52vh;
+                            overflow-y:auto;
+                            overflow-x:hidden;
+                        "
                     >
 
                         @forelse($children as $child)
@@ -529,6 +933,19 @@
                             <label
                                 class="requisition-child-option"
                                 data-child-name="{{ strtolower($child->name) }}"
+                                style="
+                                    display:flex;
+                                    align-items:center;
+                                    gap:10px;
+                                    width:100%;
+                                    min-width:0;
+                                    max-width:100%;
+                                    box-sizing:border-box;
+                                    padding:8px 10px;
+                                    margin:0;
+                                    cursor:pointer;
+                                    overflow:hidden;
+                                "
                             >
 
                                 <input
@@ -536,13 +953,33 @@
                                     class="requisition-child-checkbox"
                                     value="{{ $child->id }}"
                                     data-child-name="{{ $child->name }}"
+                                    style="
+                                        position:static !important;
+                                        display:block !important;
+                                        opacity:1 !important;
+                                        visibility:visible !important;
+                                        flex:0 0 18px !important;
+                                        width:18px !important;
+                                        min-width:18px !important;
+                                        max-width:18px !important;
+                                        height:18px !important;
+                                        margin:0 !important;
+                                        padding:0 !important;
+                                        box-sizing:border-box !important;
+                                    "
                                 >
 
-                                <span class="requisition-child-checkmark">
-                                    <i class="fa fa-check"></i>
-                                </span>
-
-                                <span class="requisition-child-name">
+                                <span
+                                    class="requisition-child-name"
+                                    style="
+                                        min-width:0;
+                                        flex:1 1 auto;
+                                        overflow:hidden;
+                                        text-overflow:ellipsis;
+                                        white-space:nowrap;
+                                    "
+                                    title="{{ $child->name }}"
+                                >
                                     {{ $child->name }}
                                 </span>
 
@@ -550,8 +987,16 @@
 
                         @empty
 
-                            <div class="requisition-no-children-found">
-                                No children found.
+                            <div class="requisition-table-empty">
+
+                                <div class="requisition-empty-icon">
+                                    <i class="fa fa-users"></i>
+                                </div>
+
+                                <p>
+                                    No children found.
+                                </p>
+
                             </div>
 
                         @endforelse
@@ -581,7 +1026,7 @@
                     <button
                         type="button"
                         id="assignSelectedChildren"
-                        class="requisition-save-button"
+                        class="requisition-add-button"
                     >
                         <i class="fa fa-check"></i>
                         Assign Selected
@@ -597,9 +1042,8 @@
 
 
     {{-- ============================================================
-        SAVE REQUISITION MODAL
-    ============================================================= --}}
-
+         SAVE REQUISITION MODAL
+    ============================================================ --}}
     <div
         class="modal fade"
         id="requisitionConfirmModal"
@@ -654,7 +1098,6 @@
                             <span class="optional-label">
                                 optional
                             </span>
-
                         </label>
 
                         <textarea
@@ -684,7 +1127,7 @@
                     <button
                         type="button"
                         id="confirmSaveRequisition"
-                        class="requisition-save-button"
+                        class="requisition-add-button"
                     >
                         <i class="fa fa-save"></i>
                         Save Draft
@@ -700,11 +1143,15 @@
 
 
     {{-- ============================================================
-        TRANSACTION SETUP MODAL
-        THIS OPENS FIRST
-    ============================================================= --}}
-
-    <div class="modal fade"  id="transactionSetupModal"  tabindex="-1" aria-labelledby="transactionSetupModalLabel" aria-hidden="true">
+         TRANSACTION SETUP MODAL
+    ============================================================ --}}
+    <div
+        class="modal fade"
+        id="transactionSetupModal"
+        tabindex="-1"
+        aria-labelledby="transactionSetupModalLabel"
+        aria-hidden="true"
+    >
 
         <div class="modal-dialog modal-dialog-centered">
 
@@ -727,7 +1174,6 @@
 
                     </div>
 
-
                     <button
                         type="button"
                         class="btn-close"
@@ -740,17 +1186,11 @@
 
                 <div class="modal-body">
 
-
-                    {{-- =================================================
-                        MOVEMENT VISUAL
-                    ================================================== --}}
-
+                    {{-- MOVEMENT VISUAL --}}
                     <div
                         id="transactionMovementVisual"
                         class="text-center mb-4"
                     >
-
-                        {{-- ITEM REQUISITION VISUAL --}}
 
                         <div
                             id="itemMovementVisual"
@@ -771,7 +1211,6 @@
 
                                 </div>
 
-
                                 <div class="px-2">
 
                                     <i
@@ -780,7 +1219,6 @@
                                     ></i>
 
                                 </div>
-
 
                                 <div class="text-center">
 
@@ -796,18 +1234,17 @@
 
                             </div>
 
-
                             <div class="requisition-modal-subtitle mt-3">
 
                                 Items move from a store
-                                <strong>to the person requesting them.</strong>
+                                <strong>
+                                    to the person requesting them.
+                                </strong>
 
                             </div>
 
                         </div>
 
-
-                        {{-- TRANSFER VISUAL --}}
 
                         <div
                             id="transferMovementVisual"
@@ -831,7 +1268,6 @@
 
                                 </div>
 
-
                                 <div class="px-2">
 
                                     <i
@@ -840,7 +1276,6 @@
                                     ></i>
 
                                 </div>
-
 
                                 <div class="text-center">
 
@@ -859,22 +1294,19 @@
 
                             </div>
 
-
                             <div class="requisition-modal-subtitle mt-3">
 
                                 Stock moves from one store
-                                <strong>to another store.</strong>
+                                <strong>
+                                    to another store.
+                                </strong>
 
                             </div>
 
                         </div>
 
 
-                        {{-- DEFAULT VISUAL --}}
-
-                        <div
-                            id="defaultMovementVisual"
-                        >
+                        <div id="defaultMovementVisual">
 
                             <div class="d-flex align-items-center justify-content-center gap-3">
 
@@ -894,7 +1326,9 @@
                             </div>
 
                             <div class="requisition-modal-subtitle mt-3">
+
                                 Choose a transaction type to see how the stock will move.
+
                             </div>
 
                         </div>
@@ -902,10 +1336,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                        TRANSACTION TYPE
-                    ================================================== --}}
-
+                    {{-- TRANSACTION TYPE --}}
                     <div class="mb-3">
 
                         <label
@@ -915,7 +1346,6 @@
                             Transaction Type
                             <span class="required-mark">*</span>
                         </label>
-
 
                         <select
                             id="setup_requisition_type"
@@ -939,10 +1369,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                        SOURCE STORE
-                    ================================================== --}}
-
+                    {{-- SOURCE STORE --}}
                     <div class="mb-3">
 
                         <label
@@ -952,7 +1379,6 @@
                             Source Store
                             <span class="required-mark">*</span>
                         </label>
-
 
                         <select
                             id="setup_source_store_id"
@@ -976,10 +1402,7 @@
                     </div>
 
 
-                    {{-- =================================================
-                        DESTINATION STORE
-                    ================================================== --}}
-
+                    {{-- DESTINATION STORE --}}
                     <div
                         id="setupDestinationGroup"
                         class="mb-3"
@@ -993,7 +1416,6 @@
                             Destination Store
                             <span class="required-mark">*</span>
                         </label>
-
 
                         <select
                             id="setup_destination_store_id"
@@ -1018,10 +1440,6 @@
                     </div>
 
 
-                    {{-- =================================================
-                        VALIDATION MESSAGE
-                    ================================================== --}}
-
                     <div
                         id="transactionSetupMessage"
                         class="alert alert-danger mb-0"
@@ -1041,11 +1459,10 @@
                         Cancel
                     </button>
 
-
                     <button
                         type="button"
                         id="continueTransactionSetup"
-                        class="requisition-save-button"
+                        class="requisition-add-button"
                     >
                         Continue
                         <i class="fa fa-arrow-right ms-1"></i>
@@ -1063,10 +1480,8 @@
 
 
 {{-- ================================================================
-    VARIANT DATA
-    Kept outside the JS expression to avoid Blade parser problems.
+     VARIANT DATA
 ================================================================ --}}
-
 @php
 
     $variantData = $items->mapWithKeys(function ($item) {
@@ -1084,7 +1499,7 @@
         }
 
         return [
-            $item->id => $variantList,
+            $item->id => $variantList
         ];
 
     })->toArray();
@@ -1096,18 +1511,44 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Transaction Setup
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       ELEMENTS
+    ============================================================ */
 
-    const transactionSetupElement =
-        document.getElementById('transactionSetupModal');
+    const requisitionForm =
+        document.getElementById('requisitionForm');
+
+    const requisitionFormWrapper =
+        document.getElementById('requisition-form');
+
+    const itemsBody =
+        document.getElementById('requisitionItemsBody');
+
+    const itemRowTemplate =
+        document.getElementById('itemRowTemplate');
+
+    const addItemButton =
+        document.getElementById('addItemButton');
+
+    const emptyItemsMessage =
+        document.getElementById('emptyItemsMessage');
+
+
+    /* ============================================================
+       VARIANT DATA
+    ============================================================ */
+
+    const variantData =
+        @json($variantData);
+
+
+    /* ============================================================
+       MODALS
+    ============================================================ */
 
     const transactionSetupModal =
         new bootstrap.Modal(
-            transactionSetupElement,
+            document.getElementById('transactionSetupModal'),
             {
                 backdrop: 'static',
                 keyboard: false
@@ -1115,28 +1556,42 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    const requisitionFormWrapper =
-        document.getElementById('requisition-form');
+    const itemSelectionModal =
+        new bootstrap.Modal(
+            document.getElementById('storeItemSelectionModal')
+        );
 
-    const requisitionForm =
-        document.getElementById('requisitionForm');
 
+    const assignChildrenModal =
+        new bootstrap.Modal(
+            document.getElementById('assignChildrenModal')
+        );
+
+
+    const requisitionConfirmModal =
+        new bootstrap.Modal(
+            document.getElementById('requisitionConfirmModal')
+        );
+
+
+    /* ============================================================
+       TRANSACTION SETUP
+    ============================================================ */
 
     const setupType =
         document.getElementById('setup_requisition_type');
 
-    const setupSource =
+    const setupSourceStore =
         document.getElementById('setup_source_store_id');
 
-    const setupDestination =
+    const setupDestinationStore =
         document.getElementById('setup_destination_store_id');
 
     const setupDestinationGroup =
         document.getElementById('setupDestinationGroup');
 
-    const setupMessage =
+    const transactionSetupMessage =
         document.getElementById('transactionSetupMessage');
-
 
     const itemMovementVisual =
         document.getElementById('itemMovementVisual');
@@ -1154,324 +1609,202 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('movementDestinationName');
 
 
-    const hiddenType =
-        document.getElementById('requisition_type');
-
-    const hiddenSource =
-        document.getElementById('source_store_id');
-
-    const hiddenDestination =
-        document.getElementById('destination_store_id');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Store Names
-    |--------------------------------------------------------------------------
-    */
-
-    const storeNames =
-        @json($stores->pluck('name', 'id'));
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Existing Setup Values
-    |--------------------------------------------------------------------------
-    */
-
-    const oldType =
-        @json(old('requisition_type'));
-
-    const oldSource =
-        @json(old('source_store_id'));
-
-    const oldDestination =
-        @json(old('destination_store_id'));
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Setup State
-    |--------------------------------------------------------------------------
-    */
-
-    let transactionSetupComplete = false;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Visual
-    |--------------------------------------------------------------------------
-    */
-
-    function updateMovementVisual() {
-
-        const type = setupType.value;
+    function updateTransactionVisual() {
 
         itemMovementVisual.style.display = 'none';
+
         transferMovementVisual.style.display = 'none';
-        defaultMovementVisual.style.display = 'none';
+
+        defaultMovementVisual.style.display = 'block';
+
+        setupDestinationGroup.style.display = 'none';
+
+        setupDestinationStore.disabled = true;
 
 
-        if (type === 'ITEM') {
+        if (setupType.value === 'ITEM') {
 
             itemMovementVisual.style.display = 'block';
 
-            return;
-        }
+            defaultMovementVisual.style.display = 'none';
 
-
-        if (type === 'TRANSFER') {
-
-            transferMovementVisual.style.display = 'block';
-
-            const sourceId =
-                setupSource.value;
-
-            const destinationId =
-                setupDestination.value;
-
-
-            movementSourceName.textContent =
-                sourceId && storeNames[sourceId]
-                    ? storeNames[sourceId]
-                    : 'Source Store';
-
-
-            movementDestinationName.textContent =
-                destinationId && storeNames[destinationId]
-                    ? storeNames[destinationId]
-                    : 'Destination Store';
-
-            return;
-        }
-
-
-        defaultMovementVisual.style.display = 'block';
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transaction Type Change
-    |--------------------------------------------------------------------------
-    */
-
-    setupType.addEventListener('change', function () {
-
-        setupMessage.style.display = 'none';
-        setupMessage.textContent = '';
-
-
-        if (this.value === 'TRANSFER') {
-
-            setupDestinationGroup.style.display = 'block';
-
-            setupDestination.disabled = false;
-
-        } else {
-
-            setupDestinationGroup.style.display = 'none';
-
-            setupDestination.disabled = true;
-
-            setupDestination.value = '';
-
-        }
-
-
-        updateMovementVisual();
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Source Store Change
-    |--------------------------------------------------------------------------
-    */
-
-    setupSource.addEventListener('change', function () {
-
-        setupMessage.style.display = 'none';
-        setupMessage.textContent = '';
-
-        updateMovementVisual();
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Destination Store Change
-    |--------------------------------------------------------------------------
-    */
-
-    setupDestination.addEventListener('change', function () {
-
-        setupMessage.style.display = 'none';
-        setupMessage.textContent = '';
-
-        updateMovementVisual();
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validation
-    |--------------------------------------------------------------------------
-    */
-
-    function validateTransactionSetup() {
-
-        setupMessage.style.display = 'none';
-        setupMessage.textContent = '';
-
-
-        if (!setupType.value) {
-
-            setupMessage.textContent =
-                'Please select the transaction type.';
-
-            setupMessage.style.display = 'block';
-
-            return false;
-        }
-
-
-        if (!setupSource.value) {
-
-            setupMessage.textContent =
-                'Please select the source store.';
-
-            setupMessage.style.display = 'block';
-
-            return false;
         }
 
 
         if (setupType.value === 'TRANSFER') {
 
-            if (!setupDestination.value) {
+            transferMovementVisual.style.display = 'block';
 
-                setupMessage.textContent =
-                    'Please select the destination store.';
+            defaultMovementVisual.style.display = 'none';
 
-                setupMessage.style.display = 'block';
+            setupDestinationGroup.style.display = 'block';
 
-                return false;
-            }
-
-
-            if (
-                setupSource.value ===
-                setupDestination.value
-            ) {
-
-                setupMessage.textContent =
-                    'The source and destination stores must be different.';
-
-                setupMessage.style.display = 'block';
-
-                return false;
-            }
+            setupDestinationStore.disabled = false;
 
         }
 
-
-        return true;
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Continue
-    |--------------------------------------------------------------------------
-    */
+    setupType.addEventListener(
+        'change',
+        updateTransactionVisual
+    );
+
+
+    setupSourceStore.addEventListener(
+        'change',
+        function () {
+
+            const option =
+                setupSourceStore.options[
+                    setupSourceStore.selectedIndex
+                ];
+
+            movementSourceName.textContent =
+                option && option.value
+                    ? option.text
+                    : 'Source Store';
+
+        }
+    );
+
+
+    setupDestinationStore.addEventListener(
+        'change',
+        function () {
+
+            const option =
+                setupDestinationStore.options[
+                    setupDestinationStore.selectedIndex
+                ];
+
+            movementDestinationName.textContent =
+                option && option.value
+                    ? option.text
+                    : 'Destination Store';
+
+        }
+    );
+
 
     document
         .getElementById('continueTransactionSetup')
-        .addEventListener('click', function () {
+        .addEventListener(
+            'click',
+            function () {
 
-            if (!validateTransactionSetup()) {
-                return;
+                transactionSetupMessage.style.display = 'none';
+
+                transactionSetupMessage.textContent = '';
+
+
+                if (!setupType.value) {
+
+                    transactionSetupMessage.textContent =
+                        'Please select a transaction type.';
+
+                    transactionSetupMessage.style.display =
+                        'block';
+
+                    return;
+
+                }
+
+
+                if (!setupSourceStore.value) {
+
+                    transactionSetupMessage.textContent =
+                        'Please select the source store.';
+
+                    transactionSetupMessage.style.display =
+                        'block';
+
+                    return;
+
+                }
+
+
+                if (
+                    setupType.value === 'TRANSFER' &&
+                    !setupDestinationStore.value
+                ) {
+
+                    transactionSetupMessage.textContent =
+                        'Please select the destination store.';
+
+                    transactionSetupMessage.style.display =
+                        'block';
+
+                    return;
+
+                }
+
+
+                if (
+                    setupType.value === 'TRANSFER' &&
+                    setupSourceStore.value ===
+                    setupDestinationStore.value
+                ) {
+
+                    transactionSetupMessage.textContent =
+                        'The source and destination stores cannot be the same.';
+
+                    transactionSetupMessage.style.display =
+                        'block';
+
+                    return;
+
+                }
+
+
+                document.getElementById(
+                    'requisition_type'
+                ).value = setupType.value;
+
+
+                document.getElementById(
+                    'source_store_id'
+                ).value = setupSourceStore.value;
+
+
+                document.getElementById(
+                    'destination_store_id'
+                ).value =
+                    setupDestinationStore.value || '';
+
+
+                transactionSetupModal.hide();
+
+
+                requisitionFormWrapper.style.display =
+                    'block';
+
+
+                if (
+                    itemsBody.querySelectorAll(
+                        '.requisition-item-row'
+                    ).length === 0
+                ) {
+
+                    addItemRow();
+
+                }
+
             }
-
-
-            hiddenType.value =
-                setupType.value;
-
-            hiddenSource.value =
-                setupSource.value;
-
-
-            if (setupType.value === 'TRANSFER') {
-
-                hiddenDestination.value =
-                    setupDestination.value;
-
-            } else {
-
-                hiddenDestination.value = '';
-
-            }
-
-
-            transactionSetupComplete = true;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Show the actual form only AFTER setup is complete
-            |--------------------------------------------------------------------------
-            */
-
-            requisitionFormWrapper.style.display = '';
-
-
-            transactionSetupModal.hide();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Add first item automatically
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                document.querySelectorAll(
-                    '#requisitionItemsBody .requisition-item-row'
-                ).length === 0
-            ) {
-
-                addItemRow();
-
-            }
-
-        });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Leave Setup
-    |--------------------------------------------------------------------------
-    */
-
-    function leaveTransactionSetup() {
-
-        window.location.href =
-            "{{ route('admin.stores.store-requisitions.index') }}";
-
-    }
+        );
 
 
     document
         .getElementById('cancelTransactionSetup')
         .addEventListener(
             'click',
-            leaveTransactionSetup
+            function () {
+
+                window.location.href =
+                    "{{ route('admin.stores.store-requisitions.index') }}";
+
+            }
         );
 
 
@@ -1479,386 +1812,439 @@ document.addEventListener('DOMContentLoaded', function () {
         .getElementById('closeTransactionSetup')
         .addEventListener(
             'click',
-            leaveTransactionSetup
+            function () {
+
+                window.location.href =
+                    "{{ route('admin.stores.store-requisitions.index') }}";
+
+            }
         );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Change Transaction
-    |--------------------------------------------------------------------------
-    */
-
     document
         .getElementById('changeTransactionSetup')
-        .addEventListener('click', function () {
+        .addEventListener(
+            'click',
+            function () {
 
-            transactionSetupComplete = false;
-
-            transactionSetupModal.show();
-
-        });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Restore Old Values
-    |--------------------------------------------------------------------------
-    */
-
-    if (oldType && oldSource) {
-
-        setupType.value =
-            oldType;
-
-        setupSource.value =
-            oldSource;
+                setupType.value =
+                    document.getElementById(
+                        'requisition_type'
+                    ).value || '';
 
 
-        if (oldType === 'TRANSFER') {
+                setupSourceStore.value =
+                    document.getElementById(
+                        'source_store_id'
+                    ).value || '';
 
-            setupDestinationGroup.style.display =
-                'block';
 
-            setupDestination.disabled =
-                false;
+                setupDestinationStore.value =
+                    document.getElementById(
+                        'destination_store_id'
+                    ).value || '';
 
-            if (oldDestination) {
 
-                setupDestination.value =
-                    oldDestination;
+                updateTransactionVisual();
+
+
+                requisitionFormWrapper.style.display =
+                    'none';
+
+
+                transactionSetupModal.show();
 
             }
-
-        }
-
-
-        hiddenType.value =
-            oldType;
-
-        hiddenSource.value =
-            oldSource;
-
-        hiddenDestination.value =
-            oldDestination || '';
+        );
 
 
-        transactionSetupComplete =
-            true;
+    /* ============================================================
+       ITEM ROWS
+    ============================================================ */
+
+    let itemRowIndex = 0;
 
 
-        requisitionFormWrapper.style.display =
-            '';
+    function updateRowNumbers() {
 
-        updateMovementVisual();
+        itemsBody
+            .querySelectorAll(
+                '.requisition-item-row'
+            )
+            .forEach(function (row, index) {
 
-    } else {
+                const number =
+                    row.querySelector('.item-number');
 
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT:
-        | Form stays completely hidden.
-        |--------------------------------------------------------------------------
-        */
+                if (number) {
 
-        requisitionFormWrapper.style.display =
-            'none';
+                    number.textContent =
+                        index + 1;
 
+                }
 
-        updateMovementVisual();
+            });
 
 
-        setTimeout(function () {
+        const hasRows =
+            itemsBody.querySelectorAll(
+                '.requisition-item-row'
+            ).length > 0;
 
-            transactionSetupModal.show();
 
-        }, 150);
+        emptyItemsMessage.style.display =
+            hasRows
+                ? 'none'
+                : 'block';
 
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Requisition Items
-    |--------------------------------------------------------------------------
-    */
-
-    const itemsBody =
-        document.getElementById('requisitionItemsBody');
-
-    const itemRowTemplate =
-        document.getElementById('itemRowTemplate');
-
-
-    let rowIndex = 0;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Variant Data
-    |--------------------------------------------------------------------------
-    */
-
-    const variantData =
-        @json($variantData);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Add Item Row
-    |--------------------------------------------------------------------------
-    */
-
     function addItemRow() {
 
-        const template =
-            itemRowTemplate.innerHTML.replace(
-                /__INDEX__/g,
-                rowIndex
-            );
+        const index =
+            itemRowIndex++;
+
+
+        const html =
+            itemRowTemplate.innerHTML
+                .replaceAll(
+                    '__INDEX__',
+                    index
+                );
 
 
         itemsBody.insertAdjacentHTML(
             'beforeend',
-            template
+            html
         );
 
-
-        rowIndex++;
 
         updateRowNumbers();
 
     }
 
 
-    document
-        .getElementById('addItemButton')
-        .addEventListener(
-            'click',
-            addItemRow
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Row Numbers
-    |--------------------------------------------------------------------------
-    */
-
-    function updateRowNumbers() {
-
-        const rows =
-            itemsBody.querySelectorAll(
-                '.requisition-item-row'
-            );
-
-
-        rows.forEach(function (row, index) {
-
-            const number =
-                row.querySelector('.item-number');
-
-
-            if (number) {
-
-                number.textContent =
-                    index + 1;
-
-            }
-
-        });
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Item Selection
-    |--------------------------------------------------------------------------
-    */
-
-    itemsBody.addEventListener(
-        'change',
-        function (event) {
-
-            if (
-                !event.target.classList.contains(
-                    'requisition-item-select'
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            const itemSelect =
-                event.target;
-
-            const row =
-                itemSelect.closest(
-                    '.requisition-item-row'
-                );
-
-
-            if (!row) {
-                return;
-            }
-
-
-            const variantSelect =
-                row.querySelector(
-                    '.requisition-variant-select'
-                );
-
-            const uomDisplay =
-                row.querySelector(
-                    '.requisition-uom'
-                );
-
-
-            const itemId =
-                itemSelect.value;
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Unit
-            |--------------------------------------------------------------------------
-            */
-
-            const selectedOption =
-                itemSelect.options[
-                    itemSelect.selectedIndex
-                ];
-
-
-            if (selectedOption) {
-
-                uomDisplay.textContent =
-                    selectedOption.dataset.uom || '—';
-
-            } else {
-
-                uomDisplay.textContent =
-                    '—';
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Variants
-            |--------------------------------------------------------------------------
-            */
-
-            variantSelect.innerHTML =
-                '<option value="">No variant</option>';
-
-
-            variantSelect.disabled =
-                true;
-
-
-            if (
-                itemId &&
-                Array.isArray(variantData[itemId]) &&
-                variantData[itemId].length > 0
-            ) {
-
-                variantData[itemId].forEach(
-                    function (variant) {
-
-                        const option =
-                            document.createElement('option');
-
-                        option.value =
-                            variant.id;
-
-                        option.textContent =
-                            variant.name +
-                            (
-                                variant.code
-                                    ? ' (' + variant.code + ')'
-                                    : ''
-                            );
-
-                        variantSelect.appendChild(
-                            option
-                        );
-
-                    }
-                );
-
-
-                variantSelect.disabled =
-                    false;
-
-            }
-
-        }
+    addItemButton.addEventListener(
+        'click',
+        addItemRow
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Remove Item
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       ITEM SELECTION
+    ============================================================ */
+
+    let activeItemRow = null;
+
+
+    const storeItemSearch =
+        document.getElementById(
+            'storeItemSearch'
+        );
+
 
     itemsBody.addEventListener(
         'click',
         function (event) {
 
-            const removeButton =
+            const button =
                 event.target.closest(
-                    '.requisition-remove-item'
+                    '[data-action="select-item"]'
                 );
 
 
-            if (!removeButton) {
+            if (!button) {
                 return;
             }
 
 
-            const row =
-                removeButton.closest(
+            activeItemRow =
+                button.closest(
                     '.requisition-item-row'
                 );
 
 
-            if (!row) {
-                return;
-            }
+            const currentItemId =
+                activeItemRow
+                    .querySelector(
+                        '.requisition-item-id'
+                    )
+                    .value;
 
 
-            row.remove();
+            document
+                .querySelectorAll(
+                    '.store-item-radio'
+                )
+                .forEach(function (radio) {
 
-            updateRowNumbers();
+                    radio.checked =
+                        radio.value ===
+                        currentItemId;
+
+                });
+
+
+            storeItemSearch.value =
+                '';
+
+
+            document
+                .querySelectorAll(
+                    '.store-item-option'
+                )
+                .forEach(function (option) {
+
+                    option.style.display =
+                        'flex';
+
+                });
+
+
+            itemSelectionModal.show();
 
         }
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Assign Children
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       ITEM SEARCH
+    ============================================================ */
+
+    storeItemSearch.addEventListener(
+        'input',
+        function () {
+
+            const search =
+                this.value
+                    .trim()
+                    .toLowerCase();
+
+
+            document
+                .querySelectorAll(
+                    '.store-item-option'
+                )
+                .forEach(function (option) {
+
+                    const name =
+                        option.dataset.itemName || '';
+
+
+                    option.style.display =
+                        name.includes(search)
+                            ? 'flex'
+                            : 'none';
+
+                });
+
+        }
+    );
+
+
+    /* ============================================================
+       ITEM SELECTED
+    ============================================================ */
+
+document.addEventListener(
+    'change',
+    function (event) {
+
+        if (
+            !event.target.classList.contains(
+                'store-item-radio'
+            )
+        ) {
+            return;
+        }
+
+
+        if (!activeItemRow) {
+            return;
+        }
+
+
+        const radio =
+            event.target;
+
+
+        const itemId =
+            radio.value;
+
+
+        const itemName =
+            radio.dataset.itemName || '';
+
+
+        const sku =
+            radio.dataset.sku || '';
+
+
+        const uom =
+            radio.dataset.uom || '—';
+
+
+        const hiddenInput =
+            activeItemRow.querySelector(
+                '.requisition-item-id'
+            );
+
+
+        const itemLabel =
+            activeItemRow.querySelector(
+                '.requisition-item-label'
+            );
+
+
+        const uomElement =
+            activeItemRow.querySelector(
+                '.requisition-uom'
+            );
+
+
+        const variantSelect =
+            activeItemRow.querySelector(
+                '.requisition-variant-select'
+            );
+
+
+        /* ====================================================
+           SAVE SELECTED ITEM
+        ==================================================== */
+
+        hiddenInput.value =
+            itemId;
+
+
+        itemLabel.textContent =
+            sku
+                ? itemName + ' (' + sku + ')'
+                : itemName;
+
+
+        itemLabel.title =
+            sku
+                ? itemName + ' (' + sku + ')'
+                : itemName;
+
+
+        uomElement.textContent =
+            uom;
+
+
+        /* ====================================================
+           LOAD VARIANTS
+        ==================================================== */
+
+        variantSelect.innerHTML =
+            '<option value="">No variant</option>';
+
+
+        variantSelect.disabled =
+            true;
+
+
+        if (
+            Array.isArray(
+                variantData[itemId]
+            ) &&
+            variantData[itemId].length
+        ) {
+
+            variantData[itemId]
+                .forEach(function (variant) {
+
+                    const option =
+                        document.createElement(
+                            'option'
+                        );
+
+
+                    option.value =
+                        variant.id;
+
+
+                    option.textContent =
+                        variant.code
+                            ? variant.name +
+                              ' (' +
+                              variant.code +
+                              ')'
+                            : variant.name;
+
+
+                    variantSelect.appendChild(
+                        option
+                    );
+
+                });
+
+
+            variantSelect.disabled =
+                false;
+
+        }
+
+
+        /* ====================================================
+           CLOSE ITEM SELECTION MODAL
+        ==================================================== */
+
+        itemSelectionModal.hide();
+
+
+        /*
+         * Make sure Bootstrap has time to complete
+         * the modal closing animation.
+         */
+        activeItemRow = null;
+
+    }
+);
+
+    /* ============================================================
+       REMOVE ITEM
+    ============================================================ */
+
+    itemsBody.addEventListener(
+        'click',
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    '.requisition-remove-item'
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const row =
+                button.closest(
+                    '.requisition-item-row'
+                );
+
+
+            if (row) {
+
+                row.remove();
+
+                updateRowNumbers();
+
+            }
+
+        }
+    );
+
+
+    /* ============================================================
+       CHILD ASSIGNMENT
+    ============================================================ */
 
     let activeChildRow = null;
-
-
-    const assignChildrenModalElement =
-        document.getElementById(
-            'assignChildrenModal'
-        );
-
-
-    const assignChildrenModal =
-        new bootstrap.Modal(
-            assignChildrenModalElement
-        );
 
 
     const childSearchInput =
@@ -1887,6 +2273,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    /* ============================================================
+       OPEN CHILD MODAL
+    ============================================================ */
+
     itemsBody.addEventListener(
         'click',
         function (event) {
@@ -1908,9 +2298,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
-            if (!activeChildRow) {
-                return;
-            }
+            const existingIds = [];
+
+
+            activeChildRow
+                .querySelectorAll(
+                    '.requisition-child-inputs input'
+                )
+                .forEach(function (input) {
+
+                    existingIds.push(
+                        String(input.value)
+                    );
+
+                });
 
 
             document
@@ -1920,40 +2321,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 .forEach(function (checkbox) {
 
                     checkbox.checked =
-                        false;
+                        existingIds.includes(
+                            String(checkbox.value)
+                        );
 
                 });
 
-
-            const existingInputs =
-                activeChildRow.querySelectorAll(
-                    '.requisition-child-input'
-                );
-
-
-            existingInputs.forEach(
-                function (input) {
-
-                    const checkbox =
-                        document.querySelector(
-                            '.requisition-child-checkbox[value="' +
-                            input.value +
-                            '"]'
-                        );
-
-
-                    if (checkbox) {
-
-                        checkbox.checked =
-                            true;
-
-                    }
-
-                }
-            );
-
-
-            updateSelectedChildrenCount();
 
             childSearchInput.value =
                 '';
@@ -1966,9 +2339,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 .forEach(function (option) {
 
                     option.style.display =
-                        '';
+                        'flex';
 
                 });
+
+
+            updateSelectedChildrenCount();
 
 
             assignChildrenModal.show();
@@ -1977,11 +2353,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Child Search
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       CHILD SEARCH
+    ============================================================ */
 
     childSearchInput.addEventListener(
         'input',
@@ -2005,7 +2379,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     option.style.display =
                         name.includes(search)
-                            ? ''
+                            ? 'flex'
                             : 'none';
 
                 });
@@ -2014,11 +2388,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Child Checkbox Change
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       CHILD CHECKBOX CHANGE
+    ============================================================ */
 
     document.addEventListener(
         'change',
@@ -2038,11 +2410,9 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Assign Selected Children
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       ASSIGN SELECTED CHILDREN
+    ============================================================ */
 
     document
         .getElementById('assignSelectedChildren')
@@ -2055,110 +2425,122 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
 
-                const container =
+                const selected =
+                    Array.from(
+                        document.querySelectorAll(
+                            '.requisition-child-checkbox:checked'
+                        )
+                    );
+
+
+                const inputsContainer =
                     activeChildRow.querySelector(
                         '.requisition-child-inputs'
                     );
 
 
-                const display =
+                const displayField =
                     activeChildRow.querySelector(
                         '.requisition-selected-children'
                     );
 
 
-                const label =
-                    activeChildRow.querySelector(
-                        '.child-assignment-label'
-                    );
+                const rowIndex =
+                    activeChildRow.dataset.rowIndex;
 
 
-                container.innerHTML =
-                    '';
-
-                display.innerHTML =
+                inputsContainer.innerHTML =
                     '';
 
 
-                const selected =
-                    document.querySelectorAll(
-                        '.requisition-child-checkbox:checked'
-                    );
-
-
+                /* GENERAL */
                 if (selected.length === 0) {
 
-                    display.innerHTML =
+                    displayField.innerHTML =
                         '<span class="requisition-no-child-label">General</span>';
 
-                    label.textContent =
-                        '+ Assign';
 
-                } else {
+                    displayField.title =
+                        'General';
 
-                    selected.forEach(
+
+                    assignChildrenModal.hide();
+
+                    return;
+
+                }
+
+
+                /* HIDDEN INPUTS */
+                selected.forEach(
+                    function (checkbox) {
+
+                        const input =
+                            document.createElement(
+                                'input'
+                            );
+
+
+                        input.type =
+                            'hidden';
+
+
+                        input.name =
+                            'items[' +
+                            rowIndex +
+                            '][child_ids][]';
+
+
+                        input.value =
+                            checkbox.value;
+
+
+                        inputsContainer.appendChild(
+                            input
+                        );
+
+                    }
+                );
+
+
+                /* CHILD NAMES */
+                const names =
+                    selected.map(
                         function (checkbox) {
 
-                            const input =
-                                document.createElement(
-                                    'input'
-                                );
-
-                            input.type =
-                                'hidden';
-
-                            input.name =
-                                checkbox.value
-                                    ? (
-                                        checkbox.closest(
-                                            '.requisition-child-option'
-                                        )
-                                            ? 'items[' +
-                                                activeChildRow.dataset.rowIndex +
-                                                '][child_ids][]'
-                                            : ''
-                                    )
-                                    : '';
-
-                            input.value =
-                                checkbox.value;
-
-                            input.className =
-                                'requisition-child-input';
-
-                            if (input.name) {
-
-                                container.appendChild(
-                                    input
-                                );
-
-                            }
-
-
-                            const childName =
-                                document.createElement(
-                                    'span'
-                                );
-
-                            childName.className =
-                                'badge bg-light text-dark me-1 mb-1';
-
-                            childName.textContent =
-                                checkbox.dataset.childName;
-
-                            display.appendChild(
-                                childName
-                            );
+                            return checkbox.dataset.childName;
 
                         }
                     );
 
 
-                    label.textContent =
-                        selected.length +
-                        ' Assigned';
+                const fullNames =
+                    names.join(', ');
+
+
+                displayField.innerHTML =
+                    '';
+
+
+                if (names.length === 1) {
+
+                    displayField.textContent =
+                        names[0];
+
+                } else {
+
+                    displayField.textContent =
+                        names.length +
+                        ' children assigned';
 
                 }
+
+
+                /*
+                 * Full names appear on hover.
+                 */
+                displayField.title =
+                    fullNames;
 
 
                 assignChildrenModal.hide();
@@ -2167,65 +2549,36 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Save Requisition
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       SAVE
+    ============================================================ */
 
-    const saveRequisitionButton =
-        document.getElementById(
-            'saveRequisitionButton'
-        );
+    document
+        .getElementById('saveRequisitionButton')
+        .addEventListener(
+            'click',
+            function () {
 
+                if (
+                    !requisitionForm.checkValidity()
+                ) {
 
-    const requisitionConfirmModalElement =
-        document.getElementById(
-            'requisitionConfirmModal'
-        );
+                    requisitionForm.reportValidity();
 
+                    return;
 
-    const requisitionConfirmModal =
-        new bootstrap.Modal(
-            requisitionConfirmModalElement
-        );
+                }
 
 
-    saveRequisitionButton.addEventListener(
-        'click',
-        function () {
-
-            if (!transactionSetupComplete) {
-
-                transactionSetupModal.show();
-
-                return;
+                requisitionConfirmModal.show();
 
             }
+        );
 
 
-            if (
-                !requisitionForm.checkValidity()
-            ) {
-
-                requisitionForm.reportValidity();
-
-                return;
-
-            }
-
-
-            requisitionConfirmModal.show();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Confirm Save
-    |--------------------------------------------------------------------------
-    */
+    /* ============================================================
+       CONFIRM SAVE
+    ============================================================ */
 
     document
         .getElementById('confirmSaveRequisition')
@@ -2233,13 +2586,128 @@ document.addEventListener('DOMContentLoaded', function () {
             'click',
             function () {
 
+                const button =
+                    this;
+
+
+                button.disabled =
+                    true;
+
+
+                button.innerHTML =
+                    '<i class="fa fa-spinner fa-spin"></i> Saving...';
+
+
+                const submissionNotes =
+                    document.getElementById(
+                        'submission_notes'
+                    );
+
+
+                let hiddenNotes =
+                    requisitionForm.querySelector(
+                        'input[name="submission_notes"]'
+                    );
+
+
+                if (!hiddenNotes) {
+
+                    hiddenNotes =
+                        document.createElement(
+                            'input'
+                        );
+
+
+                    hiddenNotes.type =
+                        'hidden';
+
+
+                    hiddenNotes.name =
+                        'submission_notes';
+
+
+                    requisitionForm.appendChild(
+                        hiddenNotes
+                    );
+
+                }
+
+
+                hiddenNotes.value =
+                    submissionNotes.value;
+
+
                 requisitionForm.submit();
 
             }
         );
+
+
+    /* ============================================================
+       INITIAL STATE
+    ============================================================ */
+
+    const oldType =
+        document.getElementById(
+            'requisition_type'
+        ).value;
+
+
+    const oldSource =
+        document.getElementById(
+            'source_store_id'
+        ).value;
+
+
+    const oldDestination =
+        document.getElementById(
+            'destination_store_id'
+        ).value;
+
+
+    if (
+        oldType &&
+        oldSource
+    ) {
+
+        setupType.value =
+            oldType;
+
+
+        setupSourceStore.value =
+            oldSource;
+
+
+        setupDestinationStore.value =
+            oldDestination;
+
+
+        updateTransactionVisual();
+
+
+        requisitionFormWrapper.style.display =
+            'block';
+
+
+        if (
+            itemsBody.querySelectorAll(
+                '.requisition-item-row'
+            ).length === 0
+        ) {
+
+            addItemRow();
+
+        }
+
+    } else {
+
+        transactionSetupModal.show();
+
+    }
 
 });
 
 </script>
 
 @endsection
+

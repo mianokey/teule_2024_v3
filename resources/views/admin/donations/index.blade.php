@@ -1,54 +1,94 @@
 @extends('layouts.admin')
 
+@push('styles')
+
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+
+@endpush
+
 @section('content')
 
-<div class="donation-page">
+<div class="store-requisition-page">
 
-    {{-- Header --}}
 
-    <div class="page-header">
+    {{-- =========================================================
+         PAGE HEADER
+         ========================================================= --}}
+    <div class="requisition-page-header">
 
-        <div>
+        <div class="requisition-header-content">
 
-            <div class="text-muted small mb-1">
-                Donations
+            <div class="requisition-header-icon">
+                <i class="fa fa-hand-holding-heart"></i>
             </div>
 
-            <h5 class="mb-0">
-                All Donations
-            </h5>
+            <div>
+
+                <div class="requisition-breadcrumb">
+                    <span>Donations</span>
+                    <span>/</span>
+                    <span>Donation Records</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    All Donations
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    View and manage recorded donations and their details.
+                </p>
+
+            </div>
 
         </div>
 
-        <a href="{{ route('admin.donations.create') }}" class="btn btn-primary btn-sm">
 
-            <i class="fas fa-plus me-1"></i>
+        <div class="requisition-header-right">
 
-            Record Donation
+            <a
+                href="{{ route('admin.donations.create') }}"
+                class="requisition-add-button"
+            >
+                <i class="fa fa-plus"></i>
+                Record Donation
+            </a>
 
-        </a>
+        </div>
 
     </div>
 
 
+
+    {{-- =========================================================
+         MESSAGES
+         ========================================================= --}}
     <x-message></x-message>
 
 
-    {{-- Donations table --}}
 
-    <div class="simple-card">
+    {{-- =========================================================
+         SEARCH SECTION
+         ========================================================= --}}
+    <div class="requisition-section">
 
-        <div class="simple-card-header">
+        <div class="requisition-section-header">
 
-            <div>
+            <div class="requisition-section-heading">
 
-                <strong>
-                    Donation Records
-                </strong>
+                <div class="requisition-section-icon">
+                    <i class="fa fa-search"></i>
+                </div>
 
-                <div class="text-muted small">
-                    {{ $donations->count() }}
-                    {{ $donations->count() === 1 ? 'record' : 'records' }}
+                <div>
+
+                    <h5>
+                        Search Donations
+                    </h5>
+
+                    <p>
+                        Search by donation number, donor, purpose, source, type or classification.
+                    </p>
+
                 </div>
 
             </div>
@@ -56,47 +96,181 @@
         </div>
 
 
-        <div class="table-responsive">
+        <div class="requisition-details-body">
 
-            <table id="datatable" class="table donations-table mb-0">
+            <form
+                method="GET"
+                action="{{ route('admin.donations.index') }}"
+            >
+
+                <div class="row">
+
+                    <div class="col-md-10">
+
+                        <label class="requisition-field-label">
+                            Search
+                        </label>
+
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            class="requisition-input"
+                            placeholder="Search donation number, donor, purpose, source, type or classification..."
+                        >
+
+                    </div>
+
+
+                    <div
+                        class="col-md-2"
+                        style="
+                            display:flex;
+                            align-items:flex-end;
+                            gap:8px;
+                        "
+                    >
+
+                        <button
+                            type="submit"
+                            class="requisition-save-button"
+                            style="width:100%;"
+                        >
+                            <i class="fa fa-search"></i>
+                            Search
+                        </button>
+
+
+                        @if(request('search'))
+
+                            <a
+                                href="{{ route('admin.donations.index') }}"
+                                class="requisition-cancel-button"
+                                title="Clear search"
+                                style="
+                                    display:inline-flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    white-space:nowrap;
+                                "
+                            >
+                                <i class="fa fa-times"></i>
+                                Clear
+                            </a>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    {{-- =========================================================
+         DONATION LIST
+         ========================================================= --}}
+    <div class="requisition-section">
+
+
+        {{-- =====================================================
+             SECTION HEADER
+             ===================================================== --}}
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+
+                <div class="requisition-section-icon">
+                    <i class="fa fa-hand-holding-heart"></i>
+                </div>
+
+                <div>
+
+                    <h5>
+                        Donation Records
+                    </h5>
+
+                    <p>
+
+                        @if(request('search'))
+
+                            Showing donations matching
+                            "<strong>{{ request('search') }}</strong>".
+
+                        @else
+
+                            View all recorded donations and their details.
+
+                        @endif
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="requisition-count-badge">
+
+                {{ $donations->count() }}
+
+                {{ $donations->count() === 1 ? 'Record' : 'Records' }}
+
+            </div>
+
+        </div>
+
+
+
+        {{-- =====================================================
+             TABLE
+             ===================================================== --}}
+        <div class="requisition-list-table-wrapper">
+
+            <table class="requisition-list-table">
 
                 <thead>
 
                     <tr>
 
-                        <th>
+                        <th style="min-width:140px;">
                             Donation
                         </th>
 
-                        <th>
+                        <th style="min-width:120px;">
                             Date
                         </th>
 
-                        <th>
+                        <th style="min-width:180px;">
                             Donor
                         </th>
 
-                        <th>
+                        <th style="min-width:100px;">
                             Type
                         </th>
 
-                        <th>
+                        <th style="min-width:150px;">
                             Amount / Value
                         </th>
 
-                        <th>
+                        <th style="min-width:180px;">
                             Purpose
                         </th>
 
-                        <th>
+                        <th style="min-width:120px;">
                             Source
                         </th>
 
-                        <th>
+                        <th style="min-width:130px;">
                             Status
                         </th>
 
-                        <th class="text-end">
+                        <th style="width:110px;">
                             Actions
                         </th>
 
@@ -107,177 +281,329 @@
 
                 <tbody>
 
-                    @foreach($donations as $donation)
+                    @forelse($donations as $donation)
 
-                    @php
-                    $classificationClasses = [
-                    'donation' => 'badge-success',
-                    'payment' => 'badge-info',
-                    'refund' => 'badge-warning',
-                    'other' => 'badge-secondary',
-                    'unclassified' => 'badge-light',
-                    ];
+                        @php
 
-                    $classificationClass =
-                    $classificationClasses[$donation->classification]
-                    ?? 'badge-light';
-                    @endphp
+                            $classificationClasses = [
 
-                    <tr>
+                                'donation' =>
+                                    'badge-success',
 
-                        {{-- Donation number --}}
+                                'payment' =>
+                                    'badge-info',
 
-                        <td>
+                                'refund' =>
+                                    'badge-warning',
 
-                            <a href="{{ route('admin.donations.show', $donation) }}" class="donation-number">
+                                'other' =>
+                                    'badge-secondary',
 
-                                {{ $donation->donation_number }}
+                                'unclassified' =>
+                                    'badge-light',
 
-                            </a>
+                            ];
 
-                        </td>
+                            $classificationClass =
+                                $classificationClasses[
+                                    $donation->classification
+                                ] ?? 'badge-light';
 
+                        @endphp
 
-                        {{-- Date --}}
 
-                        <td class="text-nowrap">
+                        <tr>
 
-                            {{ $donation->donation_date?->format('d M Y') }}
 
-                        </td>
+                            {{-- DONATION NUMBER --}}
+                            <td>
 
+                                <div class="requisition-list-number">
 
-                        {{-- Donor --}}
+                                    <a
+                                        href="{{ route(
+                                            'admin.donations.show',
+                                            $donation
+                                        ) }}"
+                                    >
+                                        {{ $donation->donation_number }}
+                                    </a>
 
-                        <td>
+                                </div>
 
-                            @if($donation->donor)
+                            </td>
 
-                            <div class="donor-name">
 
-                                {{ $donation->donor->name }}
 
-                            </div>
+                            {{-- DATE --}}
+                            <td>
 
-                            <small class="text-muted">
+                                <span class="requisition-list-date">
 
-                                {{ $donation->donor->donor_number }}
+                                    {{ $donation->donation_date?->format('d M Y') }}
 
-                            </small>
+                                </span>
 
-                            @else
+                            </td>
 
-                            <span class="text-muted">
-                                Anonymous
-                            </span>
 
-                            @endif
 
-                        </td>
+                            {{-- DONOR --}}
+                            <td>
 
+                                @if($donation->donor)
 
-                        {{-- Type --}}
+                                    <div class="requisition-list-number">
 
-                        <td>
+                                        <a
+                                            href="{{ route(
+                                                'admin.donors.show',
+                                                $donation->donor
+                                            ) }}"
+                                        >
+                                            {{ $donation->donor->name }}
+                                        </a>
 
-                            @if($donation->type === 'cash')
+                                    </div>
 
-                            <span class="type-badge">
-                                Cash
-                            </span>
+                                    <div class="requisition-list-meta">
 
-                            @else
+                                        {{ $donation->donor->donor_number }}
 
-                            <span class="type-badge">
-                                In-Kind
-                            </span>
+                                    </div>
 
-                            @endif
+                                @else
 
-                        </td>
+                                    <span class="requisition-list-department">
+                                        Anonymous
+                                    </span>
 
+                                @endif
 
-                        {{-- Amount --}}
+                            </td>
 
-                        <td class="text-nowrap">
 
-                            @if($donation->amount !== null)
 
-                            <strong>
+                            {{-- TYPE --}}
+                            <td>
 
-                                {{ $donation->currency }}
+                                @if($donation->type === 'cash')
 
-                                {{ number_format($donation->amount, 2) }}
+                                    <span class="requisition-list-status requisition-list-status-approved">
 
-                            </strong>
+                                        <span class="requisition-list-status-dot"></span>
 
-                            @else
+                                        Cash
 
-                            <span class="text-muted">
-                                —
-                            </span>
+                                    </span>
 
-                            @endif
+                                @else
 
-                        </td>
+                                    <span class="requisition-list-status requisition-list-status-pending">
 
+                                        <span class="requisition-list-status-dot"></span>
 
-                        {{-- Purpose --}}
+                                        In-Kind
 
-                        <td>
+                                    </span>
 
-                            {{ $donation->purpose ?: '—' }}
+                                @endif
 
-                        </td>
+                            </td>
 
 
-                        {{-- Source --}}
 
-                        <td>
-                            @if($donation->type === 'cash')
-                            {{ ucfirst($donation->source) }}
-                            @else
-                            —
-                            @endif
-                        </td>
+                            {{-- AMOUNT --}}
+                            <td>
 
+                                @if($donation->amount !== null)
 
-                        {{-- Classification --}}
+                                    <strong>
 
-                        <td>
+                                        {{ $donation->currency }}
 
-                            <span class="status-badge {{ $classificationClass }}">
+                                        {{ number_format(
+                                            $donation->amount,
+                                            2
+                                        ) }}
 
-                                {{ ucfirst($donation->classification) }}
+                                    </strong>
 
-                            </span>
+                                @else
 
-                        </td>
+                                    <span class="requisition-list-meta">
+                                        —
+                                    </span>
 
+                                @endif
 
-                        {{-- Actions --}}
+                            </td>
 
-                        <td class="text-end text-nowrap">
 
-                            <a href="{{ route('admin.donations.show', $donation) }}" class="btn btn-light btn-sm"
-                                title="View">
 
-                                <i class="fas fa-eye"></i>
+                            {{-- PURPOSE --}}
+                            <td>
 
-                            </a>
+                                <span class="requisition-list-purpose">
 
-                            <a href="{{ route('admin.donations.edit', $donation) }}" class="btn btn-light btn-sm"
-                                title="Edit">
+                                    {{ $donation->purpose ?: '—' }}
 
-                                <i class="fas fa-edit"></i>
+                                </span>
 
-                            </a>
+                            </td>
 
-                        </td>
 
-                    </tr>
 
-                    @endforeach
+                            {{-- SOURCE --}}
+                            <td>
+
+                                @if($donation->type === 'cash')
+
+                                    <span class="requisition-list-department">
+
+                                        {{ ucfirst(
+                                            $donation->source
+                                        ) }}
+
+                                    </span>
+
+                                @else
+
+                                    <span class="requisition-list-meta">
+                                        —
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+
+                            {{-- CLASSIFICATION --}}
+                            <td>
+
+                                <span
+                                    class="requisition-list-status
+                                    @if($donation->classification === 'donation')
+                                        requisition-list-status-approved
+                                    @elseif($donation->classification === 'payment')
+                                        requisition-list-status-pending
+                                    @elseif($donation->classification === 'refund')
+                                        requisition-list-status-rejected
+                                    @else
+                                        requisition-list-status-draft
+                                    @endif"
+                                >
+
+                                    <span class="requisition-list-status-dot"></span>
+
+                                    {{ ucfirst(
+                                        $donation->classification
+                                    ) }}
+
+                                </span>
+
+                            </td>
+
+
+
+                            {{-- ACTIONS --}}
+                            <td>
+
+                                <div class="requisition-list-actions">
+
+
+                                    {{-- VIEW --}}
+                                    <a
+                                        href="{{ route(
+                                            'admin.donations.show',
+                                            $donation
+                                        ) }}"
+                                        class="requisition-list-action primary"
+                                        title="View donation"
+                                    >
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+
+
+                                    {{-- EDIT --}}
+                                    <a
+                                        href="{{ route(
+                                            'admin.donations.edit',
+                                            $donation
+                                        ) }}"
+                                        class="requisition-list-action"
+                                        title="Edit donation"
+                                    >
+                                        <i class="fa fa-pen"></i>
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="9">
+
+                                <div class="requisition-table-empty">
+
+                                    <div class="requisition-empty-icon">
+                                        <i class="fa fa-hand-holding-heart"></i>
+                                    </div>
+
+
+                                    @if(request('search'))
+
+                                        <h5>
+                                            No donations found
+                                        </h5>
+
+                                        <p>
+                                            No donation records match
+                                            "{{ request('search') }}".
+                                        </p>
+
+                                        <a
+                                            href="{{ route('admin.donations.index') }}"
+                                            class="requisition-add-button"
+                                        >
+                                            <i class="fa fa-times"></i>
+                                            Clear Search
+                                        </a>
+
+                                    @else
+
+                                        <h5>
+                                            No donations found
+                                        </h5>
+
+                                        <p>
+                                            There are currently no donation records.
+                                        </p>
+
+                                        <a
+                                            href="{{ route('admin.donations.create') }}"
+                                            class="requisition-add-button"
+                                        >
+                                            <i class="fa fa-plus"></i>
+                                            Record Donation
+                                        </a>
+
+                                    @endif
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
 
                 </tbody>
 
@@ -285,174 +611,27 @@
 
         </div>
 
+
+
+        {{-- =====================================================
+             SCROLL INDICATOR
+             ===================================================== --}}
+        @if($donations->count() > 8)
+
+            <div class="requisition-scroll-hint">
+
+                <i class="fa fa-arrows-alt-v"></i>
+
+                Scroll to view more donations
+
+            </div>
+
+        @endif
+
+
     </div>
 
+
 </div>
-
-
-<style>
-    .donation-page {
-        padding-bottom: 30px;
-    }
-
-
-    /* Header */
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-
-    /* Card */
-
-    .simple-card {
-        background: #fff;
-        border: 1px solid #e6e8eb;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-
-    .simple-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-
-    /* Table */
-
-    .donations-table {
-        font-size: 13px;
-    }
-
-
-    .donations-table thead th {
-        background: #f8f9fa;
-        color: #6c757d;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: .25px;
-        padding: 11px 15px;
-        border-bottom: 1px solid #e9ecef;
-        white-space: nowrap;
-    }
-
-
-    .donations-table tbody td {
-        padding: 13px 15px;
-        vertical-align: middle;
-        border-bottom: 1px solid #f0f1f2;
-    }
-
-
-    .donations-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-
-    .donations-table tbody tr:hover {
-        background: #fafbfc;
-    }
-
-
-    /* Donation number */
-
-    .donation-number {
-        color: #343a40;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-
-    .donation-number:hover {
-        text-decoration: underline;
-    }
-
-
-    /* Donor */
-
-    .donor-name {
-        font-weight: 500;
-    }
-
-
-    /* Type */
-
-    .type-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: #f1f3f5;
-        color: #495057;
-        font-size: 11px;
-        font-weight: 500;
-    }
-
-
-    /* Status */
-
-    .status-badge {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-    }
-
-
-    .badge-success {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-
-    .badge-info {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-
-    .badge-warning {
-        background: #fff8e1;
-        color: #a36b00;
-    }
-
-
-    .badge-secondary {
-        background: #f1f3f5;
-        color: #495057;
-    }
-
-
-    .badge-light {
-        background: #f8f9fa;
-        color: #495057;
-    }
-
-
-    /* Mobile */
-
-    @media (max-width: 767px) {
-
-        .page-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .page-header .btn {
-            width: 100%;
-        }
-
-    }
-</style>
 
 @endsection
