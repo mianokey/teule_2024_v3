@@ -516,19 +516,26 @@
                  STOCK BALANCES
                  ================================================= --}}
 
-            @can('APPROVE STORE REQUISITIONS - STORES')
+@can('APPROVE STORE REQUISITIONS - STORES')
+    <li>
+        <a href="{{ route('admin.store-stock.index') }}"
+           class="svg-icon">
+            <i class="fa fa-database"></i>
+            <span>Stock Balances</span>
+        </a>
+    </li>
+@endcan
 
-                <li>
-                    <a href="{{ route('admin.store-stock.index') }}"
-                       class="svg-icon">
+@can('ADJUST STORE STOCK')
+    <li>
+        <a href="{{ route('admin.store-stock-adjustments.create') }}"
+           class="svg-icon">
+            <i class="fa fa-adjust"></i>
+            <span>Adjust Store Stock</span>
+        </a>
+    </li>
+@endcan
 
-                        <i class="fa fa-database"></i>
-                        <span>Stock Balances</span>
-
-                    </a>
-                </li>
-
-            @endcan
 
 
         </ul>
