@@ -4,7 +4,7 @@
     "name": "Teule Management System",
     "short_name": "Teule",
     "description": "Teule Kenya Management System",
-    "start_url": "/login",
+    "start_url": "/admin",
     "scope": "/",
     "display": "standalone",
     "background_color": "#ffffff",
