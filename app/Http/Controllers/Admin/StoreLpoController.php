@@ -270,7 +270,7 @@ class StoreLpoController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.store_lpos.edit', compact(
+        return view('admin.stores.store_lpos.edit', compact(
             'storeLpo',
             'suppliers',
             'stores',

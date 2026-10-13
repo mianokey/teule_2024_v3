@@ -1,4 +1,3 @@
-
 @extends('layouts.admin')
 
 @push('styles')
@@ -44,8 +43,7 @@
 
         <div class="requisition-header-right">
 
-            <a href="{{ route('admin.store-receipts.index') }}"
-               class="requisition-add-button">
+            <a href="{{ route('admin.store-receipts.index') }}" class="requisition-add-button">
 
                 <i class="fas fa-arrow-left me-1"></i>
                 Back
@@ -65,29 +63,29 @@
 
     @if($errors->any())
 
-        <div class="requisition-notice requisition-notice-danger mb-3">
+    <div class="requisition-notice requisition-notice-danger mb-3">
 
-            <div>
+        <div>
 
-                <strong>
-                    Please correct the following:
-                </strong>
+            <strong>
+                Please correct the following:
+            </strong>
 
-                <ul class="mb-0 mt-2">
+            <ul class="mb-0 mt-2">
 
-                    @foreach($errors->all() as $error)
+                @foreach($errors->all() as $error)
 
-                        <li>
-                            {{ $error }}
-                        </li>
+                <li>
+                    {{ $error }}
+                </li>
 
-                    @endforeach
+                @endforeach
 
-                </ul>
-
-            </div>
+            </ul>
 
         </div>
+
+    </div>
 
     @endif
 
@@ -95,8 +93,7 @@
     {{-- =========================================================
     CREATE FORM
     ========================================================= --}}
-    <form method="POST"
-          action="{{ route('admin.store-receipts.store') }}">
+    <form method="POST" action="{{ route('admin.store-receipts.store') }}">
 
         @csrf
 
@@ -145,10 +142,8 @@
                             Receipt Number
                         </label>
 
-                        <input type="text"
-                               class="form-control requisition-input"
-                               value="{{ $receiptNumber ?? 'Will be generated automatically' }}"
-                               readonly>
+                        <input type="text" class="form-control requisition-input"
+                            value="{{ $receiptNumber ?? 'Will be generated automatically' }}" readonly>
 
                     </div>
 
@@ -162,29 +157,27 @@
                             Receiving Store <span class="text-danger">*</span>
                         </label>
 
-                        <select name="store_id"
-                                id="store_id"
-                                class="form-select requisition-input"
-                                required>
+                        <select name="store_id" id="store_id" class="form-select requisition-input" required>
 
-                            <option value="">
-                                Select Store
-                            </option>
+                            <option value="">Select Store</option>
 
                             @foreach($stores as $store)
+                            @php
+                            $receivePermission = 'RECEIVE ITEMS TO ' . strtoupper(trim($store->name));
+                            @endphp
 
-                                <option value="{{ $store->id }}"
-                                    {{ old('store_id') == $store->id ? 'selected' : '' }}>
-
-                                    {{ $store->name }}
-
-                                </option>
-
+                            @can($receivePermission)
+                            <option value="{{ $store->id }}" {{ old('store_id')==$store->id ? 'selected' : '' }}>
+                                {{ $store->name }}
+                            </option>
+                            @endcan
                             @endforeach
 
                         </select>
 
                     </div>
+
+
 
 
                     {{-- =================================================
@@ -196,12 +189,9 @@
                             Received Date <span class="text-danger">*</span>
                         </label>
 
-                        <input type="date"
-                               name="received_date"
-                               id="received_date"
-                               class="form-control requisition-input"
-                               value="{{ old('received_date', now()->format('Y-m-d')) }}"
-                               required>
+                        <input type="date" name="received_date" id="received_date"
+                            class="form-control requisition-input"
+                            value="{{ old('received_date', now()->format('Y-m-d')) }}" required>
 
                     </div>
 
@@ -245,16 +235,14 @@
 
             <div class="requisition-bottom-actions-right">
 
-                <a href="{{ route('admin.store-receipts.index') }}"
-                   class="requisition-cancel-button">
+                <a href="{{ route('admin.store-receipts.index') }}" class="requisition-cancel-button">
 
                     <i class="fas fa-times"></i>
                     Cancel
 
                 </a>
 
-                <button type="submit"
-                        class="requisition-add-button">
+                <button type="submit" class="requisition-add-button">
 
                     <i class="fas fa-arrow-right me-1"></i>
                     Create & Continue

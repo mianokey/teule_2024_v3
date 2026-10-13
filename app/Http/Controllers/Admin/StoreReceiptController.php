@@ -717,13 +717,17 @@ public function update(Request $request, StoreReceipt $storeReceipt)
             'exists:stores,id',
         ],
 
-        'source_type' => [
-            'required',
-            Rule::in([
-                'PURCHASE',
-                'DONATION',
-            ]),
-        ],
+'source_type' => [
+    'required',
+    Rule::in([
+        'PURCHASE',
+        'DONATION',
+        'FARM_SUPPLIES',
+        'DAIRY_SUPPLIES',
+    ]),
+],
+
+
 
         'supplier_id' => [
             'nullable',
@@ -1023,6 +1027,39 @@ public function update(Request $request, StoreReceipt $storeReceipt)
         $validated['supplier_name'] = null;
         $validated['supplier_reference'] = null;
     }
+
+
+    /*
+|--------------------------------------------------------------------------
+| FARM AND DAIRY SUPPLY VALIDATION
+|--------------------------------------------------------------------------
+|
+| Production receipts use the existing StoreItem master list.
+| They do not require a supplier, LPO, or donation record.
+|
+*/
+
+if (in_array($validated['source_type'], [
+    'FARM_SUPPLIES',
+    'DAIRY_SUPPLIES',
+], true)) {
+    $sourcePermission = $validated['source_type'] === 'FARM_SUPPLIES'
+        ? 'RECEIVE ITEMS FROM FARM SUPPLIES'
+        : 'RECEIVE ITEMS FROM DAIRY SUPPLIES';
+
+    if (!auth()->user()->can($sourcePermission)) {
+        abort(403, 'You are not authorised to receive items from this source.');
+    }
+
+    // Production receipts are independent of purchase and donation records.
+    $validated['supplier_id'] = null;
+    $validated['store_lpo_id'] = null;
+    $validated['supplier_name'] = null;
+    $validated['supplier_reference'] = null;
+    $validated['donation_id'] = null;
+}
+
+
 
     /*
     |--------------------------------------------------------------------------

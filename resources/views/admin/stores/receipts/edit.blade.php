@@ -138,11 +138,16 @@
                                 Select Store
                             </option>
 
-                            @foreach($stores as $store)
-                                <option value="{{ $store->id }}"
-                                    {{ (string) old('store_id', $storeReceipt->store_id) === (string) $store->id ? 'selected' : '' }}>
-                                    {{ $store->name }}
-                                </option>
+                             @foreach($stores as $store)
+                            @php
+                            $receivePermission = 'RECEIVE ITEMS TO ' . strtoupper(trim($store->name));
+                            @endphp
+
+                            @can($receivePermission)
+                            <option value="{{ $store->id }}" {{ old('store_id')==$store->id ? 'selected' : '' }}>
+                                {{ $store->name }}
+                            </option>
+                            @endcan
                             @endforeach
 
                         </select>
@@ -171,6 +176,22 @@
                                 {{ old('source_type', $storeReceipt->source_type) === 'DONATION' ? 'selected' : '' }}>
                                 Donation
                             </option>
+
+                            @can('RECEIVE ITEMS FROM FARM SUPPLIES')
+    <option value="FARM_SUPPLIES"
+        {{ old('source_type', $storeReceipt->source_type) === 'FARM_SUPPLIES' ? 'selected' : '' }}>
+        Farm Supplies
+    </option>
+@endcan
+
+@can('RECEIVE ITEMS FROM DAIRY SUPPLIES')
+    <option value="DAIRY_SUPPLIES"
+        {{ old('source_type', $storeReceipt->source_type) === 'DAIRY_SUPPLIES' ? 'selected' : '' }}>
+        Dairy Supplies
+    </option>
+@endcan
+
+
 
                         </select>
                     </div>
@@ -561,6 +582,28 @@
 
             <div class="p-3">
 
+                <div id="productionItemsControls"
+     class="mb-3"
+     style="display:none;">
+
+    <div class="requisition-notice requisition-notice-info mb-3">
+        <i class="fas fa-info-circle me-1"></i>
+        Select items from the existing master item list, then enter the quantity received.
+        Stock will only change when this receipt is posted.
+    </div>
+
+    <button type="button"
+            class="requisition-add-button"
+            id="openProductionItemModal"
+            data-bs-toggle="modal"
+            data-bs-target="#productionItemSelectionModal">
+        <i class="fas fa-plus me-1"></i>
+        Select Items
+    </button>
+</div>
+
+
+
                 <div id="purchaseItemsNotice"
                      class="requisition-notice requisition-notice-info mb-3"
                      style="display:none;">
@@ -949,6 +992,106 @@
 
     </div>
 
+</div>
+
+
+<div class="modal fade"
+     id="productionItemSelectionModal"
+     tabindex="-1"
+     aria-labelledby="productionItemSelectionModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="productionItemSelectionModalLabel">
+                        Select Master Items
+                    </h5>
+                    <small class="text-muted">
+                        Select items received from Farm or Dairy production.
+                    </small>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+
+                    <input type="search"
+                           id="productionItemSearch"
+                           class="form-control"
+                           placeholder="Search item name or SKU...">
+                </div>
+
+                <div class="requisition-list-table-wrapper">
+                    <table class="requisition-list-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>SKU</th>
+                                <th>Unit</th>
+                                <th>Variant</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="productionItemSelectionBody">
+                            @foreach($items as $item)
+                                <tr class="production-item-option"
+                                    data-item-id="{{ $item->id }}"
+                                    data-search="{{ strtolower($item->name . ' ' . ($item->sku ?? '')) }}">
+
+                                    <td>
+                                        <strong>{{ $item->name }}</strong>
+                                    </td>
+
+                                    <td>{{ $item->sku ?: '—' }}</td>
+
+                                    <td>
+                                        {{ $item->unit->name ?? $item->unit->code ?? '—' }}
+                                    </td>
+
+                                    <td>
+                                        <select class="form-select form-select-sm production-item-variant"
+                                                aria-label="Variant for {{ $item->name }}">
+                                            <option value="">Default / No variant</option>
+
+                                            @foreach($item->variants as $variant)
+                                                <option value="{{ $variant->id }}">
+                                                    {{ $variant->name }}
+                                                    {{ $variant->code ? ' (' . $variant->code . ')' : '' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <button type="button"
+                                                class="requisition-list-action primary add-production-item"
+                                                data-item-id="{{ $item->id }}">
+                                            <i class="fas fa-plus me-1"></i>
+                                            Add
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -1813,51 +1956,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+function updateSourceUI() {
+    const source = sourceType.value;
+    const isPurchase = source === 'PURCHASE';
+    const isDonation = source === 'DONATION';
+    const isProduction = isProductionSource(source);
 
-    function updateSourceUI() {
+    purchaseSection.style.display = isPurchase ? '' : 'none';
+    donationSection.style.display = isDonation ? '' : 'none';
 
-        const source = sourceType.value;
+    purchaseItemsNotice.style.display = isPurchase ? '' : 'none';
+    donationItemsNotice.style.display = isDonation ? '' : 'none';
 
-        if (source === 'PURCHASE') {
+    productionItemsControls.style.display = isProduction ? '' : 'none';
 
-            purchaseSection.style.display = '';
-            donationSection.style.display = 'none';
+    if (isPurchase) {
+        itemsSectionDescription.textContent =
+            'Enter the quantities actually received against the selected LPO.';
 
-            purchaseItemsNotice.style.display = '';
-            donationItemsNotice.style.display = 'none';
+        clearDonationSelection();
+    } else if (isDonation) {
+        itemsSectionDescription.textContent =
+            'Donation items and quantities are taken directly from the donation record.';
 
-            itemsSectionDescription.textContent =
-                'Enter the quantities actually received against the selected LPO.';
+        clearPurchaseSelection();
+    } else if (isProduction) {
+        itemsSectionDescription.textContent =
+            'Select items from the master list and enter the quantities received from production.';
 
-            clearDonationSelection();
-
-        } else if (source === 'DONATION') {
-
-            purchaseSection.style.display = 'none';
-            donationSection.style.display = '';
-
-            purchaseItemsNotice.style.display = 'none';
-            donationItemsNotice.style.display = '';
-
-            itemsSectionDescription.textContent =
-                'Donation items and quantities are taken directly from the donation record.';
-
-            clearPurchaseSelection();
-
-        } else {
-
-            purchaseSection.style.display = '';
-            donationSection.style.display = 'none';
-
-            purchaseItemsNotice.style.display = 'none';
-            donationItemsNotice.style.display = 'none';
-
-            itemsSectionDescription.textContent =
-                'Select an LPO or donation to load the items.';
-
-        }
-
+        clearDonationSelection();
+        clearPurchaseSelection();
+    } else {
+        itemsSectionDescription.textContent =
+            'Select a source to load or add the items.';
     }
+}
 
 
     function renderRows(rows) {
@@ -3028,6 +3161,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+
+const productionItemsControls =
+    document.getElementById('productionItemsControls');
+
+const productionItemSearch =
+    document.getElementById('productionItemSearch');
+
+const productionItemSelectionModal =
+    document.getElementById('productionItemSelectionModal');
+
+function isProductionSource(source = sourceType.value) {
+    return source === 'FARM_SUPPLIES' ||
+           source === 'DAIRY_SUPPLIES';
+}
+
 
 </script>
 
