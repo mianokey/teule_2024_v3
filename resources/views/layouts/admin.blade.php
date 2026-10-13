@@ -4,8 +4,16 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">.
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#00096A">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Teule">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
+
     <title>TEULE KENYA || ADMIN</title>
 
     <link rel="shortcut icon" href="{{ asset('.../assets/img/logo.png') }}" />
@@ -1920,6 +1928,19 @@
 
 
 <script>
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function (registration) {
+                    console.log('Teule service worker registered:', registration.scope);
+                })
+                .catch(function (error) {
+                    console.error('Service worker registration failed:', error);
+                });
+        });
+    }
+
 (function () {
     'use strict';
 
