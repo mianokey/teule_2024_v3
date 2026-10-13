@@ -63,6 +63,12 @@
                                     Donate
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{route('login')}}">
+                                    <i class="icofont-simple-right"></i>
+                                    Staff Login
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
