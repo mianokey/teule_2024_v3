@@ -284,6 +284,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 
+Route::get('/home', function () {
+    return redirect()->route('admin.index');
+})->middleware('auth')->name('home');
+
+
 
 
 
