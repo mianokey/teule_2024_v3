@@ -39,143 +39,112 @@
 </head>
 
 <body class=" color-light ">
-<audio id="workflowNotificationAudio"
-       src="/sounds/teule_notification.mp3"
-       preload="auto"></audio>
-       
+    <audio id="workflowNotificationAudio" src="/sounds/teule_notification.mp3" preload="auto"></audio>
+
     <div id="loading">
         <div id="loading-center">
         </div>
     </div>
 
 
-<div class="wrapper">
+    <div class="wrapper">
 
-    <div class="mm-sidebar sidebar-default">
+        <div class="mm-sidebar sidebar-default">
 
-        <div class="mm-sidebar-logo d-flex align-items-center justify-content-between">
+            <div class="mm-sidebar-logo d-flex align-items-center justify-content-between">
 
-            <a href="{{ url('/admin') }}" class="header-logo">
-                <img src="{{ asset('../assets/img/logo.png') }}"
-                     class="img-fluid rounded-normal light-logo"
-                     alt="logo">
+                <a href="{{ url('/admin') }}" class="header-logo">
+                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal light-logo"
+                        alt="logo">
 
-                <img src="{{ asset('../assets/img/logo.png') }}"
-                     class="img-fluid rounded-normal darkmode-logo"
-                     alt="logo">
-            </a>
+                    <img src="{{ asset('../assets/img/logo.png') }}" class="img-fluid rounded-normal darkmode-logo"
+                        alt="logo">
+                </a>
 
-            <div class="side-menu-bt-sidebar">
-                <i class="fa fa-bars wrapper-menu"></i>
+                <div class="side-menu-bt-sidebar">
+                    <i class="fa fa-bars wrapper-menu"></i>
+                </div>
+
             </div>
 
-        </div>
+            <div class="data-scrollbar" data-scroll="1">
 
-        <div class="data-scrollbar" data-scroll="1">
+                <nav class="mm-sidebar-menu">
 
-            <nav class="mm-sidebar-menu">
+                    <ul id="mm-sidebar-toggle" class="side-menu">
 
-                <ul id="mm-sidebar-toggle" class="side-menu">
+                        {{-- =========================================================
+                        DASHBOARD
+                        ========================================================== --}}
+                        <li class>
 
-                    {{-- =========================================================
-                         DASHBOARD
-                    ========================================================== --}}
-                    <li class>
+                            <a href="#Dashboards" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
 
-                        <a href="#Dashboards"
-                           class="collapsed svg-icon"
-                           data-toggle="collapse"
-                           aria-expanded="false">
+                                <i class>
+                                    <svg class="svg-icon" id="mm-dash" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                            <i class>
-                                <svg class="svg-icon"
-                                     id="mm-dash"
-                                     width="20"
-                                     xmlns="http://www.w3.org/2000/svg"
-                                     fill="none"
-                                     viewBox="0 0 24 24"
-                                     stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                </i>
 
-                                    <path stroke-linecap="round"
-                                          stroke-linejoin="round"
-                                          stroke-width="2"
-                                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
-                            </i>
+                                <span class="ml-2">Dashboards</span>
 
-                            <span class="ml-2">Dashboards</span>
+                            </a>
 
-                        </a>
+                            <ul id="Dashboards" class="collapse" data-parent="#mm-sidebar-toggle">
 
-                        <ul id="Dashboards"
-                            class="collapse"
-                            data-parent="#mm-sidebar-toggle">
+                                <li class>
 
-                            <li class>
+                                    <a href="{{ url('/admin') }}" class="svg-icon">
 
-                                <a href="{{ url('/admin') }}" class="svg-icon">
+                                        <i class>
 
-                                    <i class>
+                                            <svg class="svg-icon" id="mm-dash-3" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                        <svg class="svg-icon"
-                                             id="mm-dash-3"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                            </svg>
 
-                                        </svg>
+                                        </i>
 
-                                    </i>
+                                        <span>Dashboard</span>
 
-                                    <span>Dashboard</span>
+                                    </a>
 
-                                </a>
+                                </li>
 
-                            </li>
+                            </ul>
 
-                        </ul>
-
-                    </li>
+                        </li>
 
 
-                    {{-- =========================================================
-                         CHILDREN
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        CHILDREN
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW CHILDREN') ||
                         auth()->user()->can('CREATE CHILDREN') ||
                         auth()->user()->can('EDIT CHILDREN') ||
                         auth()->user()->can('DELETE CHILDREN')
-                    )
+                        )
 
                         <li>
 
-                            <a href="#Children"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#Children" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
 
                                 <i class>
 
-                                    <svg class="svg-icon"
-                                         id="mm-extra-1"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
 
                                     </svg>
 
@@ -188,377 +157,352 @@
 
                             </a>
 
-                            <ul id="Children"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="Children" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
                                 @can('CREATE CHILDREN')
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('newchild.index') }}" class="svg-icon">
+                                    <a href="{{ route('newchild.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>New Child</span>
+                                        <span>New Child</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
                                 @endcan
 
                                 @can('VIEW CHILDREN')
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('children.index') }}" class="svg-icon">
+                                    <a href="{{ route('children.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>Children List</span>
+                                        <span>Children List</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('children.sponscard') }}" class="svg-icon">
+                                    <a href="{{ route('children.sponscard') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>Children Sponsorship Card</span>
+                                        <span>Children Sponsorship Card</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
                                 @endcan
 
                             </ul>
 
                         </li>
 
-                    @endif
+                        @endif
 
-{{-- =========================================================
-     STORES & INVENTORY
-     ========================================================== --}}
+                        {{-- =========================================================
+                        STORES & INVENTORY
+                        ========================================================== --}}
 
-@if(
-    auth()->user()->can('MAKE REQUISITION') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-)
+                        @if(
+                        auth()->user()->can('MAKE REQUISITION') ||
+                        auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+                        auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+                        auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+                        auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                        )
 
-    <li class="nav-item">
+                        <li class="nav-item">
 
-        <a href="#stores_inventory"
-           class="collapsed svg-icon"
-           data-toggle="collapse"
-           aria-expanded="false">
+                            <a href="#stores_inventory" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
 
-            <i>
-                <svg class="svg-icon"
-                     width="20"
-                     xmlns="http://www.w3.org/2000/svg"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke="currentColor">
+                                <i>
+                                    <svg class="svg-icon" width="20" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
 
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 0L4 7m8 4v10" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 0L4 7m8 4v10" />
 
-                </svg>
-            </i>
+                                    </svg>
+                                </i>
 
-            <span class="ml-2">
-                Stores & Inventory
-            </span>
+                                <span class="ml-2">
+                                    Stores & Inventory
+                                </span>
 
-            <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
-            <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+                                <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+                                <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
 
-        </a>
+                            </a>
 
 
-        <ul id="stores_inventory"
-            class="submenu collapse"
-            data-parent="#mm-sidebar-toggle">
+                            <ul id="stores_inventory" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
-            {{-- =================================================
-                 REQUISITIONS
-                 ================================================= --}}
+                                {{-- =================================================
+                                REQUISITIONS
+                                ================================================= --}}
 
-            @if(
-                auth()->user()->can('MAKE REQUISITION') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.stores.store-requisitions.index') }}" class="svg-icon">
 
-                        <i class="fa fa-list-alt"></i>
-                        <span>Store Requisitions</span>
+                                        <i class="fa fa-list-alt"></i>
+                                        <span>Store Requisitions</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
 
-            {{-- NEW REQUISITION --}}
+                                {{-- NEW REQUISITION --}}
 
-            @can('MAKE REQUISITION')
+                                @can('MAKE REQUISITION')
 
-                <li>
-                    <a href="{{ route('admin.stores.store-requisitions.create') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.stores.store-requisitions.create') }}" class="svg-icon">
 
-                        <i class="fa fa-plus-circle"></i>
-                        <span>New Requisition</span>
+                                        <i class="fa fa-plus-circle"></i>
+                                        <span>New Requisition</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endcan
+                                @endcan
 
 
 
 
-            {{-- MY REQUISITIONS --}}
+                                {{-- MY REQUISITIONS --}}
 
-            @can('MAKE REQUISITION')
+                                @can('MAKE REQUISITION')
 
-                <li>
-                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.stores.store-requisitions.index') }}" class="svg-icon">
 
-                        <i class="fa fa-file-text-o"></i>
-                        <span>My Requisitions</span>
+                                        <i class="fa fa-file-text-o"></i>
+                                        <span>My Requisitions</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endcan
+                                @endcan
 
 
-            {{-- REQUISITION APPROVALS --}}
+                                {{-- REQUISITION APPROVALS --}}
 
-            @if(
-                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.stores.store-requisitions.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.stores.store-requisitions.index') }}" class="svg-icon">
 
-                        <i class="fa fa-check-square-o"></i>
-                        <span>Requisition Approvals</span>
+                                        <i class="fa fa-check-square-o"></i>
+                                        <span>Requisition Approvals</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
-            {{-- =================================================
-     LOCAL PURCHASE ORDERS (LPOs)
-     ================================================= --}}
+                                {{-- =================================================
+                                LOCAL PURCHASE ORDERS (LPOs)
+                                ================================================= --}}
 
-@if(
-    auth()->user()->can('MAKE REQUISITION') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-)
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-   <li>
+                                <li>
 
-    <a href="{{ route('admin.store-lpos.index') }}"
-       class="svg-icon">
+                                    <a href="{{ route('admin.store-lpos.index') }}" class="svg-icon">
 
-        <i class="fa fa-file-text-o"></i>
-        <span>Local Purchase Orders</span>
+                                        <i class="fa fa-file-text-o"></i>
+                                        <span>Local Purchase Orders</span>
 
-    </a>
+                                    </a>
 
-</li>
+                                </li>
 
 
-@endif
+                                @endif
 
-            @if(
-    auth()->user()->can('MAKE REQUISITION') ||
-    auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-)
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-    <li>
+                                <li>
 
-        <a href="{{ route('admin.suppliers.index') }}"
-           class="svg-icon">
+                                    <a href="{{ route('admin.suppliers.index') }}" class="svg-icon">
 
-            <i class="fa fa-truck"></i>
+                                        <i class="fa fa-truck"></i>
 
-            <span>Suppliers</span>
+                                        <span>Suppliers</span>
 
-        </a>
+                                    </a>
 
-    </li>
+                                </li>
 
-@endif
+                                @endif
 
 
 
-            {{-- =================================================
-                 STORES
-                 ================================================= --}}
+                                {{-- =================================================
+                                STORES
+                                ================================================= --}}
 
-            @if(
-                auth()->user()->can('MAKE REQUISITION') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.stores.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.stores.index') }}" class="svg-icon">
 
-                        <i class="fa fa-building-o"></i>
-                        <span>Stores</span>
+                                        <i class="fa fa-building-o"></i>
+                                        <span>Stores</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
 
-            {{-- =================================================
-                 STORE ITEMS
-                 ================================================= --}}
+                                {{-- =================================================
+                                STORE ITEMS
+                                ================================================= --}}
 
-            @if(
-                auth()->user()->can('MAKE REQUISITION') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.store-items.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.store-items.index') }}" class="svg-icon">
 
-                        <i class="fa fa-cubes"></i>
-                        <span>Store Items</span>
+                                        <i class="fa fa-cubes"></i>
+                                        <span>Store Items</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
 
-            {{-- =================================================
-                 ITEM CATEGORIES
-                 ================================================= --}}
+                                {{-- =================================================
+                                ITEM CATEGORIES
+                                ================================================= --}}
 
-            @if(
-                auth()->user()->can('MAKE REQUISITION') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.store-categories.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.store-categories.index') }}" class="svg-icon">
 
-                        <i class="fa fa-tags"></i>
-                        <span>Item Categories</span>
+                                        <i class="fa fa-tags"></i>
+                                        <span>Item Categories</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
 
-            {{-- =================================================
-                 UNITS
-                 ================================================= --}}
+                                {{-- =================================================
+                                UNITS
+                                ================================================= --}}
 
-            @if(
-                auth()->user()->can('MAKE REQUISITION') ||
-                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-            )
+                                @if(
+                                auth()->user()->can('MAKE REQUISITION') ||
+                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
+                                )
 
-                <li>
-                    <a href="{{ route('admin.store-units.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.store-units.index') }}" class="svg-icon">
 
-                        <i class="fa fa-balance-scale"></i>
-                        <span>Units</span>
+                                        <i class="fa fa-balance-scale"></i>
+                                        <span>Units</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endif
+                                @endif
 
 
-            {{-- =================================================
-                 STOCK RECEIPTS / GOODS INWARDS
-                 ================================================= --}}
+                                {{-- =================================================
+                                STOCK RECEIPTS / GOODS INWARDS
+                                ================================================= --}}
 
-            @can('APPROVE STORE REQUISITIONS - STORES')
+                                @can('APPROVE STORE REQUISITIONS - STORES')
 
-                <li>
-                    <a href="{{ route('admin.store-receipts.index') }}"
-                       class="svg-icon">
+                                <li>
+                                    <a href="{{ route('admin.store-receipts.index') }}" class="svg-icon">
 
-                        <i class="fa fa-download"></i>
-                        <span>Stock Receipts</span>
+                                        <i class="fa fa-download"></i>
+                                        <span>Stock Receipts</span>
 
-                    </a>
-                </li>
+                                    </a>
+                                </li>
 
-            @endcan
+                                @endcan
 
 
-            {{-- =================================================
-                 STOCK BALANCES
-                 ================================================= --}}
+                                {{-- =================================================
+                                STOCK BALANCES
+                                ================================================= --}}
 
-@can('APPROVE STORE REQUISITIONS - STORES')
-    <li>
-        <a href="{{ route('admin.store-stock.index') }}"
-           class="svg-icon">
-            <i class="fa fa-database"></i>
-            <span>Stock Balances</span>
-        </a>
-    </li>
-@endcan
+                                @can('APPROVE STORE REQUISITIONS - STORES')
+                                <li>
+                                    <a href="{{ route('admin.store-stock.index') }}" class="svg-icon">
+                                        <i class="fa fa-database"></i>
+                                        <span>Stock Balances</span>
+                                    </a>
+                                </li>
+                                @endcan
 
-@can('ADJUST STORE STOCK')
-    <li>
-        <a href="{{ route('admin.store-stock-adjustments.create') }}"
-           class="svg-icon">
-            <i class="fa fa-adjust"></i>
-            <span>Adjust Store Stock</span>
-        </a>
-    </li>
-@endcan
+                                @can('ADJUST STORE STOCK')
+                                <li>
+                                    <a href="{{ route('admin.store-stock-adjustments.create') }}" class="svg-icon">
+                                        <i class="fa fa-adjust"></i>
+                                        <span>Adjust Store Stock</span>
+                                    </a>
+                                </li>
+                                @endcan
 
 
 
-        </ul>
+                            </ul>
 
-    </li>
+                        </li>
 
-@endif
+                        @endif
 
-                    {{-- =========================================================
-                         GIVING & PAYMENTS
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        GIVING & PAYMENTS
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW DONATIONS') ||
                         auth()->user()->can('CREATE DONATIONS') ||
                         auth()->user()->can('MANAGE DONATIONS') ||
@@ -568,29 +512,19 @@
                         auth()->user()->can('REVIEW MPESA TRANSACTIONS') ||
                         auth()->user()->can('VIEW DONATION COMMUNICATIONS') ||
                         auth()->user()->can('MANAGE DONATION COMMUNICATIONS')
-                    )
+                        )
 
                         <li>
 
-                            <a href="#comms"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#comms" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
 
                                 <i>
 
-                                    <svg class="svg-icon"
-                                         id="mm-extra-1"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-12V5m0 14v-3m0-8a9 9 0 100 18 9 9 0 000-18z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-2.21 0-4 1.343-4 3s1.79 3 4 3 4 1.343 4 3-1.79 3-4 3m0-12V5m0 14v-3m0-8a9 9 0 100 18 9 9 0 000-18z" />
 
                                     </svg>
 
@@ -603,118 +537,111 @@
 
                             </a>
 
-                            <ul id="comms"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="comms" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
                                 {{-- DONATIONS --}}
                                 @if(
-                                    auth()->user()->can('VIEW DONATIONS') ||
-                                    auth()->user()->can('CREATE DONATIONS') ||
-                                    auth()->user()->can('MANAGE DONATIONS')
+                                auth()->user()->can('VIEW DONATIONS') ||
+                                auth()->user()->can('CREATE DONATIONS') ||
+                                auth()->user()->can('MANAGE DONATIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.donations.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.donations.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-gift"></i>
+                                        <i class="fa fa-gift"></i>
 
-                                            <span>Donations</span>
+                                        <span>Donations</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- M-PESA --}}
                                 @if(
-                                    auth()->user()->can('VIEW MPESA TRANSACTIONS') ||
-                                    auth()->user()->can('REVIEW MPESA TRANSACTIONS')
+                                auth()->user()->can('VIEW MPESA TRANSACTIONS') ||
+                                auth()->user()->can('REVIEW MPESA TRANSACTIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.mpesa-transactions.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.mpesa-transactions.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-mobile"></i>
+                                        <i class="fa fa-mobile"></i>
 
-                                            <span>M-Pesa Reviews</span>
+                                        <span>M-Pesa Reviews</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- DONORS --}}
                                 @if(
-                                    auth()->user()->can('VIEW DONORS') ||
-                                    auth()->user()->can('MANAGE DONORS')
+                                auth()->user()->can('VIEW DONORS') ||
+                                auth()->user()->can('MANAGE DONORS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.donors.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.donors.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-users"></i>
+                                        <i class="fa fa-users"></i>
 
-                                            <span>Donors</span>
+                                        <span>Donors</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- COMMUNICATIONS --}}
                                 @if(
-                                    auth()->user()->can('VIEW DONATION COMMUNICATIONS') ||
-                                    auth()->user()->can('MANAGE DONATION COMMUNICATIONS')
+                                auth()->user()->can('VIEW DONATION COMMUNICATIONS') ||
+                                auth()->user()->can('MANAGE DONATION COMMUNICATIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.donation-communications.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.donation-communications.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-paper-plane"></i>
+                                        <i class="fa fa-paper-plane"></i>
 
-                                            <span>Communications</span>
+                                        <span>Communications</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- RECEIVE DONATION --}}
                                 @if(
-                                    auth()->user()->can('CREATE DONATIONS') ||
-                                    auth()->user()->can('MANAGE DONATIONS')
+                                auth()->user()->can('CREATE DONATIONS') ||
+                                auth()->user()->can('MANAGE DONATIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.donations.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.donations.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-plus-circle"></i>
+                                        <i class="fa fa-plus-circle"></i>
 
-                                            <span>Receive Donation</span>
+                                        <span>Receive Donation</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
@@ -722,38 +649,28 @@
 
                         </li>
 
-                    @endif
+                        @endif
 
 
-                    {{-- =========================================================
-                         SYSTEM
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        SYSTEM
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW SYSTEM DETAILS') ||
                         auth()->user()->can('MANAGE SYSTEM DETAILS')
-                    )
+                        )
 
                         <li>
 
-                            <a href="#System"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#System" class="collapsed svg-icon" data-toggle="collapse" aria-expanded="false">
 
                                 <i class>
 
-                                    <svg class="svg-icon"
-                                         id="mm-extra-1"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
 
                                     </svg>
 
@@ -766,29 +683,26 @@
 
                             </a>
 
-                            <ul id="System"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="System" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
                                 {{-- SYSTEM VARIABLE LIST --}}
                                 @if(
-                                    auth()->user()->can('VIEW SYSTEM DETAILS') ||
-                                    auth()->user()->can('MANAGE SYSTEM DETAILS')
+                                auth()->user()->can('VIEW SYSTEM DETAILS') ||
+                                auth()->user()->can('MANAGE SYSTEM DETAILS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.system_details.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.system_details.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>System Variable List</span>
+                                        <span>System Variable List</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
@@ -796,18 +710,17 @@
                                 {{-- NEW SYSTEM DATA --}}
                                 @can('MANAGE SYSTEM DETAILS')
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.system_details.add') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.system_details.add') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>New System Data</span>
+                                        <span>New System Data</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endcan
 
@@ -815,13 +728,13 @@
 
                         </li>
 
-                    @endif
+                        @endif
 
 
-                    {{-- =========================================================
-                         ROLES & PERMISSIONS
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        ROLES & PERMISSIONS
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW USERS') ||
                         auth()->user()->can('CREATE USERS') ||
                         auth()->user()->can('MANAGE USERS') ||
@@ -831,14 +744,12 @@
                         auth()->user()->can('VIEW PERMISSIONS') ||
                         auth()->user()->can('CREATE PERMISSIONS') ||
                         auth()->user()->can('MANAGE PERMISSIONS')
-                    )
+                        )
 
                         <li class="nav-item">
 
-                            <a href="#requisition"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#requisition" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
 
                                 <i class="fa fa-user"></i>
 
@@ -849,140 +760,132 @@
 
                             </a>
 
-                            <ul id="requisition"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="requisition" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
                                 {{-- ALL USERS --}}
                                 @if(
-                                    auth()->user()->can('VIEW USERS') ||
-                                    auth()->user()->can('CREATE USERS') ||
-                                    auth()->user()->can('MANAGE USERS')
+                                auth()->user()->can('VIEW USERS') ||
+                                auth()->user()->can('CREATE USERS') ||
+                                auth()->user()->can('MANAGE USERS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.user.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.user.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>All Users List</span>
+                                        <span>All Users List</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- NEW USER --}}
                                 @if(
-                                    auth()->user()->can('CREATE USERS') ||
-                                    auth()->user()->can('MANAGE USERS')
+                                auth()->user()->can('CREATE USERS') ||
+                                auth()->user()->can('MANAGE USERS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.user.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.user.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>New User</span>
+                                        <span>New User</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- MANAGE ROLES --}}
                                 @if(
-                                    auth()->user()->can('VIEW ROLES') ||
-                                    auth()->user()->can('MANAGE ROLES')
+                                auth()->user()->can('VIEW ROLES') ||
+                                auth()->user()->can('MANAGE ROLES')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.roles.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.roles.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-shield"></i>
+                                        <i class="fa fa-shield"></i>
 
-                                            <span>Manage Roles</span>
+                                        <span>Manage Roles</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- CREATE ROLE --}}
                                 @if(
-                                    auth()->user()->can('CREATE ROLES') ||
-                                    auth()->user()->can('MANAGE ROLES')
+                                auth()->user()->can('CREATE ROLES') ||
+                                auth()->user()->can('MANAGE ROLES')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.roles.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.roles.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-plus-circle"></i>
+                                        <i class="fa fa-plus-circle"></i>
 
-                                            <span>Create Role</span>
+                                        <span>Create Role</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- MANAGE PERMISSIONS --}}
                                 @if(
-                                    auth()->user()->can('VIEW PERMISSIONS') ||
-                                    auth()->user()->can('MANAGE PERMISSIONS')
+                                auth()->user()->can('VIEW PERMISSIONS') ||
+                                auth()->user()->can('MANAGE PERMISSIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.permissions.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.permissions.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-key"></i>
+                                        <i class="fa fa-key"></i>
 
-                                            <span>Manage Permissions</span>
+                                        <span>Manage Permissions</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- CREATE PERMISSION --}}
                                 @if(
-                                    auth()->user()->can('CREATE PERMISSIONS') ||
-                                    auth()->user()->can('MANAGE PERMISSIONS')
+                                auth()->user()->can('CREATE PERMISSIONS') ||
+                                auth()->user()->can('MANAGE PERMISSIONS')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.permissions.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.permissions.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-plus-circle"></i>
+                                        <i class="fa fa-plus-circle"></i>
 
-                                            <span>Create Permission</span>
+                                        <span>Create Permission</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
@@ -990,40 +893,31 @@
 
                         </li>
 
-                    @endif
+                        @endif
 
 
-                    {{-- =========================================================
-                         PETTY CASH
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        PETTY CASH
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW PETTY CASH') ||
                         auth()->user()->can('CREATE PETTY CASH') ||
                         auth()->user()->can('MANAGE PETTY CASH') ||
                         auth()->user()->can('APPROVE PETTY CASH')
-                    )
+                        )
 
                         <li class="nav-item">
 
-                            <a href="#roles_perm"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#roles_perm" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
 
                                 <i class>
 
-                                    <svg class="svg-icon"
-                                         id="mm-extra-1"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
 
                                     </svg>
 
@@ -1036,52 +930,48 @@
 
                             </a>
 
-                            <ul id="roles_perm"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="roles_perm" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
                                 {{-- ALL PETTY CASH --}}
                                 @if(
-                                    auth()->user()->can('VIEW PETTY CASH') ||
-                                    auth()->user()->can('MANAGE PETTY CASH') ||
-                                    auth()->user()->can('APPROVE PETTY CASH')
+                                auth()->user()->can('VIEW PETTY CASH') ||
+                                auth()->user()->can('MANAGE PETTY CASH') ||
+                                auth()->user()->can('APPROVE PETTY CASH')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.pettycash.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.pettycash.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>All Petty Cash</span>
+                                        <span>All Petty Cash</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- REQUEST --}}
                                 @if(
-                                    auth()->user()->can('CREATE PETTY CASH') ||
-                                    auth()->user()->can('MANAGE PETTY CASH')
+                                auth()->user()->can('CREATE PETTY CASH') ||
+                                auth()->user()->can('MANAGE PETTY CASH')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.pettycash.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.pettycash.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-plus-circle"></i>
+                                        <i class="fa fa-plus-circle"></i>
 
-                                            <span>Request</span>
+                                        <span>Request</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
@@ -1089,39 +979,30 @@
 
                         </li>
 
-                    @endif
+                        @endif
 
 
-                    {{-- =========================================================
-                         MERCHANDISE
-                    ========================================================== --}}
-                    @if(
+                        {{-- =========================================================
+                        MERCHANDISE
+                        ========================================================== --}}
+                        @if(
                         auth()->user()->can('VIEW MERCHANDISE') ||
                         auth()->user()->can('CREATE MERCHANDISE') ||
                         auth()->user()->can('MANAGE MERCHANDISE')
-                    )
+                        )
 
                         <li class="nav-item">
 
-                            <a href="#merchandise"
-                               class="collapsed svg-icon"
-                               data-toggle="collapse"
-                               aria-expanded="false">
+                            <a href="#merchandise" class="collapsed svg-icon" data-toggle="collapse"
+                                aria-expanded="false">
 
                                 <i class>
 
-                                    <svg class="svg-icon"
-                                         id="mm-extra-1"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                    <svg class="svg-icon" id="mm-extra-1" width="20" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 012 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 012 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
 
                                     </svg>
 
@@ -1134,51 +1015,47 @@
 
                             </a>
 
-                            <ul id="merchandise"
-                                class="submenu collapse"
-                                data-parent="#mm-sidebar-toggle">
+                            <ul id="merchandise" class="submenu collapse" data-parent="#mm-sidebar-toggle">
 
 
                                 {{-- ALL PRODUCTS --}}
                                 @if(
-                                    auth()->user()->can('VIEW MERCHANDISE') ||
-                                    auth()->user()->can('MANAGE MERCHANDISE')
+                                auth()->user()->can('VIEW MERCHANDISE') ||
+                                auth()->user()->can('MANAGE MERCHANDISE')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.merchandise.index') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.merchandise.index') }}" class="svg-icon">
 
-                                            <i class="fa fa-asterisk"></i>
+                                        <i class="fa fa-asterisk"></i>
 
-                                            <span>All Products</span>
+                                        <span>All Products</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
 
                                 {{-- CREATE NEW --}}
                                 @if(
-                                    auth()->user()->can('CREATE MERCHANDISE') ||
-                                    auth()->user()->can('MANAGE MERCHANDISE')
+                                auth()->user()->can('CREATE MERCHANDISE') ||
+                                auth()->user()->can('MANAGE MERCHANDISE')
                                 )
 
-                                    <li>
+                                <li>
 
-                                        <a href="{{ route('admin.merchandise.create') }}"
-                                           class="svg-icon">
+                                    <a href="{{ route('admin.merchandise.create') }}" class="svg-icon">
 
-                                            <i class="fa fa-plus-circle"></i>
+                                        <i class="fa fa-plus-circle"></i>
 
-                                            <span>Create New</span>
+                                        <span>Create New</span>
 
-                                        </a>
+                                    </a>
 
-                                    </li>
+                                </li>
 
                                 @endif
 
@@ -1186,694 +1063,605 @@
 
                         </li>
 
-                    @endif
+                        @endif
 
-                </ul>
+                    </ul>
 
-            </nav>
+                </nav>
 
-            <div class="pt-5 pb-2"></div>
+                <div class="pt-5 pb-2"></div>
+
+            </div>
 
         </div>
 
-    </div>
 
+        {{-- ============================================================
+        TOP NAVBAR
+        KEPT EXACTLY AS YOUR EXISTING CODE
+        ============================================================= --}}
 
-    {{-- ============================================================
-         TOP NAVBAR
-         KEPT EXACTLY AS YOUR EXISTING CODE
-    ============================================================= --}}
+        <div class="mm-top-navbar">
 
-    <div class="mm-top-navbar">
+            <div class="mm-navbar-custom">
 
-        <div class="mm-navbar-custom">
+                <nav class="navbar navbar-expand-lg navbar-light p-0">
 
-            <nav class="navbar navbar-expand-lg navbar-light p-0">
+                    <div class="mm-navbar-logo d-flex align-items-center justify-content-between">
 
-                <div class="mm-navbar-logo d-flex align-items-center justify-content-between">
+                        <i class="ri-menu-line wrapper-menu"></i>
 
-                    <i class="ri-menu-line wrapper-menu"></i>
+                        <a href="{{ url('/admin') }}" class="header-logo">
 
-                    <a href="{{ url('/admin') }}" class="header-logo">
+                            <img src="{{ asset('../assets/img/logo.png') }}"
+                                class="img-fluid rounded-normal darkmode-logo" alt="logo">
 
-                        <img src="{{ asset('../assets/img/logo.png') }}"
-                             class="img-fluid rounded-normal darkmode-logo"
-                             alt="logo">
+                            <h4 class="ml-1">
+                                <b>TEULE KENYA</b>
+                            </h4>
 
-                        <h4 class="ml-1">
-                            <b>TEULE KENYA</b>
-                        </h4>
-
-                    </a>
-
-                </div>
-
-                <div class="mm-search-bar device-search m-auto">
-
-                    <form action="#" class="searchbox">
-
-                        <a class="search-link" href="#">
-                            <i class="ri-search-line"></i>
                         </a>
 
-                        <input type="text"
-                               class="text search-input"
-                               placeholder="Search here...">
+                    </div>
 
-                    </form>
+                    <div class="mm-search-bar device-search m-auto">
 
-                </div>
+                        <form action="#" class="searchbox">
 
-                <div class="d-flex align-items-center">
+                            <a class="search-link" href="#">
+                                <i class="ri-search-line"></i>
+                            </a>
 
-                    <div class="change-mode">
+                            <input type="text" class="text search-input" placeholder="Search here...">
 
-                        <div class="custom-control custom-switch custom-switch-icon custom-control-inline">
+                        </form>
 
-                            <div class="custom-switch-inner">
+                    </div>
 
-                                <p class="mb-0"></p>
+                    <div class="d-flex align-items-center">
 
-                                <input type="checkbox"
-                                       class="custom-control-input"
-                                       id="dark-mode"
-                                       data-active="true">
+                        <div class="change-mode">
 
-                                <label class="custom-control-label"
-                                       for="dark-mode"
-                                       data-mode="toggle">
+                            <div class="custom-control custom-switch custom-switch-icon custom-control-inline">
 
-                                    <span class="switch-icon-left">
+                                <div class="custom-switch-inner">
 
-                                        <svg class="svg-icon"
-                                             id="h-moon"
-                                             height="20"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                    <p class="mb-0"></p>
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                    <input type="checkbox" class="custom-control-input" id="dark-mode"
+                                        data-active="true">
 
-                                        </svg>
+                                    <label class="custom-control-label" for="dark-mode" data-mode="toggle">
 
-                                    </span>
+                                        <span class="switch-icon-left">
 
-                                    <span class="switch-icon-right">
+                                            <svg class="svg-icon" id="h-moon" height="20" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                        <svg class="svg-icon"
-                                             id="h-sun"
-                                             height="20"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
 
-                                        </svg>
+                                        </span>
 
-                                    </span>
+                                        <span class="switch-icon-right">
 
-                                </label>
+                                            <svg class="svg-icon" id="h-sun" height="20" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+
+                                            </svg>
+
+                                        </span>
+
+                                    </label>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
-
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-toggle="collapse"
-                            data-target="#navbarSupportedContent"
-                            aria-controls="navbarSupportedContent"
+                        <button class="navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                             aria-label="Toggle navigation">
 
-                        <i class="ri-menu-3-line"></i>
+                            <i class="ri-menu-3-line"></i>
 
-                    </button>
+                        </button>
 
-                    <div class="collapse navbar-collapse"
-                         id="navbarSupportedContent">
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                        <ul class="navbar-nav ml-auto navbar-list align-items-center">
+                            <ul class="navbar-nav ml-auto navbar-list align-items-center">
 
-                            <li class="nav-item nav-icon search-content">
+                                <li class="nav-item nav-icon search-content">
 
-                                <a href="#"
-                                   class="search-toggle rounded"
-                                   id="dropdownSearch"
-                                   data-toggle="dropdown"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
+                                    <a href="#" class="search-toggle rounded" id="dropdownSearch" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
 
-                                    <svg class="svg-icon text-primary"
-                                         id="h-suns"
-                                         height="20"
-                                         width="20"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         fill="none"
-                                         viewBox="0 0 24 24"
-                                         stroke="currentColor">
+                                        <svg class="svg-icon text-primary" id="h-suns" height="20" width="20"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              stroke-width="2"
-                                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 
-                                    </svg>
+                                        </svg>
 
-                                </a>
+                                    </a>
 
-                                <div class="mm-search-bar mm-sub-dropdown dropdown-menu"
-                                     aria-labelledby="dropdownSearch">
+                                    <div class="mm-search-bar mm-sub-dropdown dropdown-menu"
+                                        aria-labelledby="dropdownSearch">
 
-                                    <form action="#" class="searchbox p-2">
+                                        <form action="#" class="searchbox p-2">
 
-                                        <div class="form-group mb-0 position-relative">
+                                            <div class="form-group mb-0 position-relative">
 
-                                            <input type="text"
-                                                   class="text search-input font-size-12"
-                                                   placeholder="type here to search...">
+                                                <input type="text" class="text search-input font-size-12"
+                                                    placeholder="type here to search...">
 
-                                            <a href="#" class="search-link">
-                                                <i class="las la-search"></i>
-                                            </a>
-
-                                        </div>
-
-                                    </form>
-
-                                </div>
-
-                            </li>
-
-
-                            <li class="nav-item nav-icon dropdown">
-
-                                <a href="#"
-                                   class="search-toggle dropdown-toggle"
-                                   id="dropdownMenuButton2"
-                                   data-toggle="dropdown"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
-
-                                    <svg class="svg-icon text-primary"
-                                         id="mm-mail-2"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         width="20"
-                                         height="20"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="2"
-                                         stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="feather feather-mail">
-
-                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                        </path>
-
-                                        <polyline points="22,6 12,13 2,6"></polyline>
-
-                                    </svg>
-
-                                    <span class="bg-primary"></span>
-
-                                </a>
-
-                                <div class="mm-sub-dropdown dropdown-menu"
-                                     aria-labelledby="dropdownMenuButton2">
-
-                                    <div class="card shadow-none m-0 border-0">
-
-                                        <div class="card-body p-0">
-
-                                            <div class="cust-title p-3">
-
-                                                <h5 class="mb-0">
-                                                    All Messages
-                                                </h5>
-
-                                            </div>
-
-                                            <div class="p-3">
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="{{ asset('admin-assets/images/user/1.jpg') }}"
-                                                                 alt="01">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Barry Emma Watson
-                                                                <small class="badge badge-success float-right">
-                                                                    New
-                                                                </small>
-                                                            </h6>
-
-                                                            <small class="float-left font-size-12">
-                                                                12:00 PM
-                                                            </small>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/2.jpg"
-                                                                 alt="02">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Lorem Ipsum Watson
-                                                            </h6>
-
-                                                            <small class="float-left font-size-12">
-                                                                20 Apr
-                                                            </small>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/3.jpg"
-                                                                 alt="03">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Why do we use it?
-                                                                <small class="badge badge-success float-right">
-                                                                    New
-                                                                </small>
-                                                            </h6>
-
-                                                            <small class="float-left font-size-12">
-                                                                1:24 PM
-                                                            </small>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/4.jpg"
-                                                                 alt="04">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Variations Passages
-                                                                <small class="badge badge-success float-right">
-                                                                    New
-                                                                </small>
-                                                            </h6>
-
-                                                            <small class="float-left font-size-12">
-                                                                5:45 PM
-                                                            </small>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                </a>
-
-                                                <a href="#" class="mm-sub-card">
-
-                                                    <div class="media align-items-center">
-
-                                                        <div>
-
-                                                            <img class="avatar-40 rounded-small"
-                                                                 src="../assets/images/user/5.jpg"
-                                                                 alt="05">
-
-                                                        </div>
-
-                                                        <div class="media-body ml-3">
-
-                                                            <h6 class="mb-0">
-                                                                Lorem Ipsum generators
-                                                            </h6>
-
-                                                            <small class="float-left font-size-12">
-                                                                1 day ago
-                                                            </small>
-
-                                                        </div>
-
-                                                    </div>
-
+                                                <a href="#" class="search-link">
+                                                    <i class="las la-search"></i>
                                                 </a>
 
                                             </div>
 
-                                            <a class="d-flex justify-content-center p-2 card-footer"
-                                               href="#"
-                                               role="button">
+                                        </form>
 
-                                                View All
+                                    </div>
 
-                                            </a>
+                                </li>
+
+
+                                <li class="nav-item nav-icon dropdown">
+
+                                    <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton2"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                                        <svg class="svg-icon text-primary" id="mm-mail-2"
+                                            xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail">
+
+                                            <path
+                                                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                            </path>
+
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+
+                                        </svg>
+
+                                        <span class="bg-primary"></span>
+
+                                    </a>
+
+                                    <div class="mm-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton2">
+
+                                        <div class="card shadow-none m-0 border-0">
+
+                                            <div class="card-body p-0">
+
+                                                <div class="cust-title p-3">
+
+                                                    <h5 class="mb-0">
+                                                        All Messages
+                                                    </h5>
+
+                                                </div>
+
+                                                <div class="p-3">
+
+                                                    <a href="#" class="mm-sub-card">
+
+                                                        <div class="media align-items-center">
+
+                                                            <div>
+
+                                                                <img class="avatar-40 rounded-small"
+                                                                    src="{{ asset('admin-assets/images/user/1.jpg') }}"
+                                                                    alt="01">
+
+                                                            </div>
+
+                                                            <div class="media-body ml-3">
+
+                                                                <h6 class="mb-0">
+                                                                    Barry Emma Watson
+                                                                    <small class="badge badge-success float-right">
+                                                                        New
+                                                                    </small>
+                                                                </h6>
+
+                                                                <small class="float-left font-size-12">
+                                                                    12:00 PM
+                                                                </small>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </a>
+
+                                                    <a href="#" class="mm-sub-card">
+
+                                                        <div class="media align-items-center">
+
+                                                            <div>
+
+                                                                <img class="avatar-40 rounded-small"
+                                                                    src="../assets/images/user/2.jpg" alt="02">
+
+                                                            </div>
+
+                                                            <div class="media-body ml-3">
+
+                                                                <h6 class="mb-0">
+                                                                    Lorem Ipsum Watson
+                                                                </h6>
+
+                                                                <small class="float-left font-size-12">
+                                                                    20 Apr
+                                                                </small>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </a>
+
+                                                    <a href="#" class="mm-sub-card">
+
+                                                        <div class="media align-items-center">
+
+                                                            <div>
+
+                                                                <img class="avatar-40 rounded-small"
+                                                                    src="../assets/images/user/3.jpg" alt="03">
+
+                                                            </div>
+
+                                                            <div class="media-body ml-3">
+
+                                                                <h6 class="mb-0">
+                                                                    Why do we use it?
+                                                                    <small class="badge badge-success float-right">
+                                                                        New
+                                                                    </small>
+                                                                </h6>
+
+                                                                <small class="float-left font-size-12">
+                                                                    1:24 PM
+                                                                </small>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </a>
+
+                                                    <a href="#" class="mm-sub-card">
+
+                                                        <div class="media align-items-center">
+
+                                                            <div>
+
+                                                                <img class="avatar-40 rounded-small"
+                                                                    src="../assets/images/user/4.jpg" alt="04">
+
+                                                            </div>
+
+                                                            <div class="media-body ml-3">
+
+                                                                <h6 class="mb-0">
+                                                                    Variations Passages
+                                                                    <small class="badge badge-success float-right">
+                                                                        New
+                                                                    </small>
+                                                                </h6>
+
+                                                                <small class="float-left font-size-12">
+                                                                    5:45 PM
+                                                                </small>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </a>
+
+                                                    <a href="#" class="mm-sub-card">
+
+                                                        <div class="media align-items-center">
+
+                                                            <div>
+
+                                                                <img class="avatar-40 rounded-small"
+                                                                    src="../assets/images/user/5.jpg" alt="05">
+
+                                                            </div>
+
+                                                            <div class="media-body ml-3">
+
+                                                                <h6 class="mb-0">
+                                                                    Lorem Ipsum generators
+                                                                </h6>
+
+                                                                <small class="float-left font-size-12">
+                                                                    1 day ago
+                                                                </small>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </a>
+
+                                                </div>
+
+                                                <a class="d-flex justify-content-center p-2 card-footer" href="#"
+                                                    role="button">
+
+                                                    View All
+
+                                                </a>
+
+                                            </div>
 
                                         </div>
 
                                     </div>
 
-                                </div>
+                                </li>
 
-                            </li>
+                                <li class="nav-item nav-icon dropdown">
+                                    <div class="dropdown workflow-notification-dropdown"
+                                        id="workflowNotificationDropdown"
+                                        data-feed-url="{{ route('workflow-notifications.feed') }}"
+                                        data-history-url="{{ route('workflow-notifications.index') }}"
+                                        data-read-url="{{ url('/workflow-notifications') }}"
+                                        data-read-all-url="{{ route('workflow-notifications.read-all') }}">
 
+                                        <button type="button" class="btn workflow-notification-trigger"
+                                            id="workflowNotificationToggle" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false" aria-label="Open notifications">
+                                            <i class="fa fa-bell"></i>
+                                            <span class="workflow-notification-count" id="workflowNotificationCount"
+                                                style="display:none;">0</span>
+                                        </button>
 
-<li class="nav-item nav-icon dropdown">
-    <div class="dropdown workflow-notification-dropdown"
-         id="workflowNotificationDropdown"
-         data-feed-url="{{ route('workflow-notifications.feed') }}"
-         data-history-url="{{ route('workflow-notifications.index') }}"
-         data-read-url="{{ url('/workflow-notifications') }}"
-         data-read-all-url="{{ route('workflow-notifications.read-all') }}">
+                                        <div class="dropdown-menu dropdown-menu-right workflow-notification-menu"
+                                            aria-labelledby="workflowNotificationToggle">
 
-        <button type="button"
-                class="btn workflow-notification-trigger"
-                id="workflowNotificationToggle"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                aria-label="Open notifications">
-            <i class="fa fa-bell"></i>
-            <span class="workflow-notification-count"
-                  id="workflowNotificationCount"
-                  style="display:none;">0</span>
-        </button>
+                                            <!-- Header -->
+                                            <div class="workflow-notification-menu-header">
+                                                <div class="workflow-notification-heading">
+                                                    <h6>Notifications</h6>
+                                                    <small class="text-muted" id="workflowNotificationSubtitle">
+                                                        Checking for updates...
+                                                    </small>
+                                                </div>
 
-        <div class="dropdown-menu dropdown-menu-right workflow-notification-menu"
-             aria-labelledby="workflowNotificationToggle">
+                                                <button type="button" class="workflow-notification-mark-all"
+                                                    id="workflowNotificationMarkAll">
+                                                    Mark all read
+                                                </button>
+                                            </div>
 
-            <div class="workflow-notification-menu-header">
-                <div class="workflow-notification-heading">
-                    <h6>Notifications</h6>
-                    <small class="text-muted" id="workflowNotificationSubtitle">
-                        Checking for updates...
-                    </small>
-                </div>
-
-                <button type="button"
-                        class="workflow-notification-mark-all"
-                        id="workflowNotificationMarkAll">
-                    Mark all read
-                </button>
-            </div>
-
-            <div class="workflow-notification-list"
-                 id="workflowNotificationList">
-                <div class="workflow-notification-empty">
-                    Loading notifications...
-                </div>
-            </div>
-
-            <a href="{{ route('workflow-notifications.index') }}"
-               class="workflow-notification-footer">
-                View all notifications
-                <i class="fa fa-arrow-right ml-1"></i>
-            </a>
-        </div>
+                                            <!-- Compact browser notification settings -->
+<div class="workflow-push-settings">
+    <div class="workflow-push-icon">
+        <i class="fa fa-bell"></i>
     </div>
-</li>
+
+    <div class="workflow-push-content">
+        <div class="workflow-push-title">Browser notifications</div>
+
+        <small id="pushNotificationStatus" class="workflow-push-status">
+            Receive notifications when you are not using this page.
+        </small>
+    </div>
+
+    <button type="button"
+            id="togglePushNotifications"
+            class="btn btn-sm btn-outline-primary workflow-push-toggle"
+            data-vapid-public-key="{{ config('webpush.vapid.public_key') }}"
+            data-store-url="{{ route('push-subscriptions.store') }}"
+            data-delete-url="{{ route('push-subscriptions.destroy') }}">
+        <span id="pushNotificationButtonText">Enable</span>
+    </button>
+</div>
+
+                                            <!-- Notification list -->
+                                            <div class="workflow-notification-list" id="workflowNotificationList">
+                                                <div class="workflow-notification-empty">
+                                                    Loading notifications...
+                                                </div>
+                                            </div>
+
+                                            <!-- Footer -->
+                                            <a href="{{ route('workflow-notifications.index') }}"
+                                                class="workflow-notification-footer">
+                                                View all notifications
+                                                <i class="fa fa-arrow-right ml-1"></i>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                </li>
 
 
 
-                            <li class="nav-item nav-icon dropdown full-screen">
+                                <li class="nav-item nav-icon dropdown full-screen">
 
-                                <a href="#"
-                                   class="nav-item nav-icon dropdown"
-                                   id="btnFullscreen">
+                                    <a href="#" class="nav-item nav-icon dropdown" id="btnFullscreen">
 
-                                    <i class="max">
+                                        <i class="max">
 
-                                        <svg class="svg-icon text-primary"
-                                             id="d-3-max"
-                                             width="20"
-                                             height="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             stroke-width="2"
-                                             stroke-linecap="round"
-                                             stroke-linejoin="round"
-                                             class="feather feather-maximize">
+                                            <svg class="svg-icon text-primary" id="d-3-max" width="20" height="20"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" class="feather feather-maximize">
 
-                                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
-                                            </path>
+                                                <path
+                                                    d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
+                                                </path>
 
-                                        </svg>
+                                            </svg>
 
-                                    </i>
+                                        </i>
 
-                                    <i class="min d-none">
+                                        <i class="min d-none">
 
-                                        <svg class="svg-icon text-primary"
-                                             id="d-3-min"
-                                             width="20"
-                                             height="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             stroke-width="2"
-                                             stroke-linecap="round"
-                                             stroke-linejoin="round"
-                                             class="feather feather-minimize">
+                                            <svg class="svg-icon text-primary" id="d-3-min" width="20" height="20"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" class="feather feather-minimize">
 
-                                            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3">
-                                            </path>
+                                                <path
+                                                    d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3">
+                                                </path>
 
-                                        </svg>
+                                            </svg>
 
-                                    </i>
+                                        </i>
 
-                                </a>
+                                    </a>
 
-                            </li>
+                                </li>
 
 
-                            {{-- USER PROFILE --}}
-                            <li class="nav-item nav-icon dropdown">
+                                {{-- USER PROFILE --}}
+                                <li class="nav-item nav-icon dropdown">
 
-                                <a href="#"
-                                   class="nav-item nav-icon dropdown-toggle pr-0 search-toggle"
-                                   id="dropdownMenuButton"
-                                   data-toggle="dropdown"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
+                                    <a href="#" class="nav-item nav-icon dropdown-toggle pr-0 search-toggle"
+                                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
 
-                                    <img src="{{ asset('admin-assets/images/user/1.jpg') }}"
-                                         class="img-fluid avatar-rounded"
-                                         alt="user">
+                                        <img src="{{ asset('admin-assets/images/user/1.jpg') }}"
+                                            class="img-fluid avatar-rounded" alt="user">
 
-                                </a>
+                                    </a>
 
-                                <ul class="dropdown-menu dropdown-menu-right"
-                                    aria-labelledby="dropdownMenuButton">
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 
-                                    <li class="dropdown-item d-flex svg-icon">
+                                        <li class="dropdown-item d-flex svg-icon">
 
-                                        <svg class="svg-icon mr-0 text-primary"
-                                             id="h-01-p"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                            <svg class="svg-icon mr-0 text-primary" id="h-01-p" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 
-                                        </svg>
+                                            </svg>
 
-                                        <a href="#">
-                                            My Profile
-                                        </a>
+                                            <a href="#">
+                                                My Profile
+                                            </a>
 
-                                    </li>
+                                        </li>
 
-                                    <li class="dropdown-item d-flex svg-icon">
+                                        <li class="dropdown-item d-flex svg-icon">
 
-                                        <svg class="svg-icon mr-0 text-primary"
-                                             id="h-02-p"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                            <svg class="svg-icon mr-0 text-primary" id="h-02-p" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
 
-                                        </svg>
+                                            </svg>
 
-                                        <a href="#">
-                                            Edit Profile
-                                        </a>
+                                            <a href="#">
+                                                Edit Profile
+                                            </a>
 
-                                    </li>
+                                        </li>
 
-                                    <li class="dropdown-item d-flex svg-icon">
+                                        <li class="dropdown-item d-flex svg-icon">
 
-                                        <svg class="svg-icon mr-0 text-primary"
-                                             id="h-03-p"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                            <svg class="svg-icon mr-0 text-primary" id="h-03-p" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426.756-1.756-1.543-2.37-2.37a1.724 1.724 0 00-2.572-1.065c-.426.94-2.193-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.572c-.94-1.543.826-2.193 2.37-2.37.996-.608 2.296-.07 2.572 1.065z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426.756-1.756-1.543-2.37-2.37a1.724 1.724 0 00-2.572-1.065c-.426.94-2.193-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.572c-.94-1.543.826-2.193 2.37-2.37.996-.608 2.296-.07 2.572 1.065z" />
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
 
-                                        </svg>
+                                            </svg>
 
-                                        <a href="#">
-                                            Account Settings
-                                        </a>
+                                            <a href="#">
+                                                Account Settings
+                                            </a>
 
-                                    </li>
+                                        </li>
 
-                                    <li class="dropdown-item d-flex svg-icon">
+                                        <li class="dropdown-item d-flex svg-icon">
 
-                                        <svg class="svg-icon mr-0 text-primary"
-                                             id="h-04-p"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                            <svg class="svg-icon mr-0 text-primary" id="h-04-p" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
 
-                                        </svg>
+                                            </svg>
 
-                                        <a href="#">
-                                            Privacy Settings
-                                        </a>
+                                            <a href="#">
+                                                Privacy Settings
+                                            </a>
 
-                                    </li>
+                                        </li>
 
-                                    <li class="dropdown-item d-flex svg-icon border-top">
+                                        <li class="dropdown-item d-flex svg-icon border-top">
 
-                                        <svg class="svg-icon mr-0 text-primary"
-                                             id="h-05-p"
-                                             width="20"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             fill="none"
-                                             viewBox="0 0 24 24"
-                                             stroke="currentColor">
+                                            <svg class="svg-icon mr-0 text-primary" id="h-05-p" width="20"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
 
-                                            <path stroke-linecap="round"
-                                                  stroke-linejoin="round"
-                                                  stroke-width="2"
-                                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
 
-                                        </svg>
+                                            </svg>
 
-                                        <a href="{{ route('logout') }}"
-                                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            <a href="{{ route('logout') }}"
+                                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
 
-                                            Logout
+                                                Logout
 
-                                        </a>
+                                            </a>
 
-                                        <form id="logout-form"
-                                              action="{{ route('logout') }}"
-                                              method="POST"
-                                              style="display: none;">
+                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                                style="display: none;">
 
-                                            @csrf
+                                                @csrf
 
-                                        </form>
+                                            </form>
 
-                                    </li>
+                                        </li>
 
-                                </ul>
+                                    </ul>
 
-                            </li>
+                                </li>
 
-                        </ul>
+                            </ul>
+
+                        </div>
 
                     </div>
 
-                </div>
+                </nav>
 
-            </nav>
+            </div>
 
         </div>
-
-    </div>
         <div class="content-page">
             <div class="container-fluid">
                 <div class="row">
@@ -1923,13 +1711,12 @@
     <!-- Include Selectize JS -->
     <script src="https://cdn.jsdelivr.net/npm/selectize/dist/js/standalone/selectize.min.js"></script>
 
-   
 
 
 
-<script>
-    
-    if ('serviceWorker' in navigator) {
+
+    <script>
+        if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
             navigator.serviceWorker.register('/sw.js')
                 .then(function (registration) {
@@ -2221,9 +2008,11 @@ function playNotificationSound() {
     }
 
     async function loadNotifications() {
-        if (feedRequestInProgress || document.hidden) {
-            return;
-        }
+
+if (feedRequestInProgress) {
+    return;
+}
+
 
         feedRequestInProgress = true;
 
@@ -2381,21 +2170,192 @@ function playNotificationSound() {
      * Poll immediately and every 20 seconds, regardless of whether
      * the notification dropdown has been opened.
      */
+
+loadNotifications();
+
+// Refresh the bell feed every 20 seconds while the page is available.
+window.setInterval(function () {
     loadNotifications();
+}, 20000);
 
-    window.setInterval(loadNotifications, 20000);
+// Refresh immediately when the user returns to Teule.
+document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) {
+        loadNotifications();
+    }
+});
 
-    /*
-     * Refresh promptly when the user returns to this browser tab.
-     */
-    document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) {
-            loadNotifications();
+// Also refresh when the browser window regains focus.
+window.addEventListener('focus', function () {
+    loadNotifications();
+});
+
+
+
+})();
+
+(function () {
+    'use strict';
+
+    const button = document.getElementById('togglePushNotifications');
+    const buttonText = document.getElementById('pushNotificationButtonText');
+    const status = document.getElementById('pushNotificationStatus');
+
+    if (!button || button.dataset.initialized === '1') {
+        return;
+    }
+
+    button.dataset.initialized = '1';
+
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+    const publicKey = button.dataset.vapidPublicKey;
+    const storeUrl = button.dataset.storeUrl;
+    const deleteUrl = button.dataset.deleteUrl;
+
+    function setStatus(message) {
+        status.textContent = message;
+    }
+
+    function setButton(enabled) {
+        buttonText.textContent = enabled
+            ? 'Disable browser notifications'
+            : 'Enable browser notifications';
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const output = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; i++) {
+            output[i] = rawData.charCodeAt(i);
+        }
+
+        return output;
+    }
+
+    async function sendSubscription(url, method, data) {
+        const response = await fetch(url, {
+            method: method,
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                result.message || 'The server could not save the subscription.'
+            );
+        }
+
+        return result;
+    }
+
+    async function getCurrentSubscription() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            throw new Error(
+                'This browser does not support push notifications.'
+            );
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+
+        return {
+            registration: registration,
+            subscription: await registration.pushManager.getSubscription()
+        };
+    }
+
+    async function refreshButton() {
+        try {
+            const result = await getCurrentSubscription();
+            setButton(!!result.subscription);
+        } catch (error) {
+            button.disabled = true;
+            setStatus(error.message);
+        }
+    }
+
+    button.addEventListener('click', async function () {
+        button.disabled = true;
+
+        try {
+            const current = await getCurrentSubscription();
+
+            if (current.subscription) {
+                setStatus('Disabling browser notifications...');
+
+                await sendSubscription(deleteUrl, 'DELETE', {
+                    endpoint: current.subscription.endpoint
+                });
+
+                await current.subscription.unsubscribe();
+
+                setButton(false);
+                setStatus('Browser notifications have been disabled.');
+                return;
+            }
+
+            if (!publicKey) {
+                throw new Error('The VAPID public key is missing from the configuration.');
+            }
+
+            if (!window.isSecureContext) {
+                throw new Error('Push notifications require HTTPS or localhost.');
+            }
+
+            if (!('Notification' in window)) {
+                throw new Error('This browser does not support notifications.');
+            }
+
+            const permission = await Notification.requestPermission();
+
+            if (permission !== 'granted') {
+                throw new Error(
+                    'Notification permission was not granted. Check your browser settings.'
+                );
+            }
+
+            setStatus('Registering this browser...');
+
+            const subscription = await current.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+
+            const json = subscription.toJSON();
+
+            await sendSubscription(storeUrl, 'POST', {
+                endpoint: json.endpoint,
+                keys: json.keys,
+                contentEncoding: 'aes128gcm'
+            });
+
+            setButton(true);
+            setStatus('Browser notifications enabled successfully.');
+        } catch (error) {
+            console.error('Push notification setup failed:', error);
+            setStatus(error.message || 'Could not configure browser notifications.');
+        } finally {
+            button.disabled = false;
         }
     });
 
+    refreshButton();
 })();
-</script>
+
+    </script>
 
 </body>
 

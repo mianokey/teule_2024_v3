@@ -1,25 +1,25 @@
 self.addEventListener('push', function (event) {
-    let data = {};
+    let payload = {};
 
     if (event.data) {
         try {
-            data = event.data.json();
+            payload = event.data.json();
         } catch (error) {
-            data = {
+            payload = {
                 title: 'Teule Management System',
                 body: event.data.text()
             };
         }
     }
 
-    const title = data.title || 'Teule Management System';
+    const title = payload.title || 'Teule Management System';
 
     const options = {
-        body: data.body || 'You have a new notification.',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        body: payload.body || 'You have a new notification.',
+        icon: payload.icon || '/icons/icon-192.png',
+        badge: payload.badge || '/icons/icon-192.png',
         data: {
-            url: data.url || '/'
+            url: (payload.data && payload.data.url) || payload.url || '/'
         }
     };
 
@@ -31,10 +31,8 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
 
-    const target = new URL(
-        event.notification.data.url || '/',
-        self.location.origin
-    );
+    const targetUrl = event.notification.data?.url || '/';
+    const target = new URL(targetUrl, self.location.origin);
 
     if (target.origin !== self.location.origin) {
         return;

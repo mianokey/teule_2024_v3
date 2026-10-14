@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\StoreFulfillment;
 use App\Models\StoreFulfillmentItem;
 use App\Models\StoreRequisition;
+use App\Models\StoreRequisitionApproval;
 use App\Models\StoreRequisitionItem;
 use App\Models\StoreStock;
 use App\Models\StoreStockMovement;
@@ -13,18 +14,20 @@ use Illuminate\Validation\ValidationException;
 
 class StoreFulfillmentService
 {
+    protected WorkflowNotificationService $workflowNotifications;
+
+    public function __construct(
+        WorkflowNotificationService $workflowNotifications
+    ) {
+        $this->workflowNotifications = $workflowNotifications;
+    }
+
     /**
      * Fulfill an approved requisition.
      *
-     * IMPORTANT BUSINESS RULE:
-     * A requisition can only be physically fulfilled ONCE.
-     *
-     * If the full approved quantity cannot be issued because the
-     * recorded system stock is insufficient, the requisition is still
-     * closed after the fulfillment.
-     *
-     * Any remaining approved quantity is carried forward into a NEW
-     * requisition which starts again at HOD approval.
+     * A requisition can only be physically fulfilled once.
+     * Any outstanding approved quantity is carried forward into a
+     * new requisition that starts again at HOD approval.
      */
     public function fulfill(
         StoreRequisition $storeRequisition,
@@ -33,7 +36,7 @@ class StoreFulfillmentService
         ?string $notes = null,
         string $mode = 'available'
     ): StoreFulfillment {
-        return DB::transaction(function () use (
+        $fulfillment = DB::transaction(function () use (
             $storeRequisition,
             $items,
             $userId,
@@ -41,9 +44,7 @@ class StoreFulfillmentService
             $mode
         ) {
             /*
-             * ---------------------------------------------------------
              * 1. LOCK THE REQUISITION
-             * ---------------------------------------------------------
              */
             $requisition = StoreRequisition::query()
                 ->whereKey($storeRequisition->id)
@@ -51,9 +52,7 @@ class StoreFulfillmentService
                 ->firstOrFail();
 
             /*
-             * ---------------------------------------------------------
              * 2. REQUISITION MUST BE FULLY APPROVED
-             * ---------------------------------------------------------
              */
             if (
                 strtolower((string) $requisition->status) !== 'approved' ||
@@ -66,12 +65,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
-             * 3. ONE-TIME FULFILLMENT RULE
-             * ---------------------------------------------------------
-             *
-             * Once a fulfillment exists, this requisition has already
-             * been physically processed and must never be fulfilled again.
+             * 3. ENFORCE ONE-TIME FULFILLMENT
              */
             $existingFulfillment = StoreFulfillment::query()
                 ->where('store_requisition_id', $requisition->id)
@@ -86,9 +80,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 4. VALIDATE MODE
-             * ---------------------------------------------------------
              */
             if (!in_array($mode, ['available', 'all_or_nothing'], true)) {
                 throw ValidationException::withMessages([
@@ -97,9 +89,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
-             * 5. VALIDATE REQUISITION TYPE / STORE
-             * ---------------------------------------------------------
+             * 5. VALIDATE REQUISITION TYPE AND STORES
              */
             $requisitionType = strtoupper(
                 (string) ($requisition->requisition_type ?? 'ITEM')
@@ -130,9 +120,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 6. NORMALISE REQUESTED LINES
-             * ---------------------------------------------------------
              */
             $requestedLines = [];
 
@@ -143,18 +131,10 @@ class StoreFulfillmentService
 
                 $quantity = (float) ($line['quantity'] ?? 0);
 
-                if ($requisitionItemId <= 0) {
+                if ($requisitionItemId <= 0 || $quantity <= 0) {
                     continue;
                 }
 
-                if ($quantity <= 0) {
-                    continue;
-                }
-
-                /*
-                 * If the same requisition item appears more than once,
-                 * combine the quantities rather than processing it twice.
-                 */
                 if (!isset($requestedLines[$requisitionItemId])) {
                     $requestedLines[$requisitionItemId] = 0;
                 }
@@ -170,9 +150,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 7. LOCK THE REQUISITION ITEMS
-             * ---------------------------------------------------------
              */
             $requisitionItems = StoreRequisitionItem::query()
                 ->where('store_requisition_id', $requisition->id)
@@ -181,9 +159,7 @@ class StoreFulfillmentService
                 ->get()
                 ->keyBy('id');
 
-            if (
-                $requisitionItems->count() !== count($requestedLines)
-            ) {
+            if ($requisitionItems->count() !== count($requestedLines)) {
                 throw ValidationException::withMessages([
                     'items' =>
                         'One or more selected requisition items could not be found on this requisition.',
@@ -191,40 +167,24 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 8. PREPARE FULFILLMENT LINES
-             * ---------------------------------------------------------
              */
             $fulfillmentLines = [];
 
-            foreach (
-                $requestedLines as $requisitionItemId => $requestedQuantity
-            ) {
+            foreach ($requestedLines as $requisitionItemId => $requestedQuantity) {
                 /** @var StoreRequisitionItem $requisitionItem */
                 $requisitionItem = $requisitionItems->get(
                     $requisitionItemId
                 );
 
-                /*
-                 * Approved quantity is the maximum quantity that the
-                 * requisition authorises Stores to issue.
-                 */
                 $approvedQuantity = (float) (
                     $requisitionItem->approved_quantity ?? 0
                 );
 
-                /*
-                 * Use issued_quantity as the authoritative historical
-                 * amount already issued.
-                 */
                 $issuedQuantity = (float) (
                     $requisitionItem->issued_quantity ?? 0
                 );
 
-                /*
-                 * Calculate outstanding from approved - issued rather
-                 * than trusting a potentially stale stored balance.
-                 */
                 $outstandingQuantity = max(
                     0,
                     $approvedQuantity - $issuedQuantity
@@ -237,10 +197,6 @@ class StoreFulfillmentService
                     ]);
                 }
 
-                /*
-                 * Never allow Stores to issue more than the remaining
-                 * approved quantity.
-                 */
                 if ($requestedQuantity > $outstandingQuantity) {
                     throw ValidationException::withMessages([
                         'items' =>
@@ -253,31 +209,16 @@ class StoreFulfillmentService
                 }
 
                 /*
-                 * -----------------------------------------------------
-                 * LOCK SYSTEM STOCK
-                 * -----------------------------------------------------
-                 *
-                 * We use the SYSTEM stock balance here.
-                 *
-                 * Physical stock discrepancies are handled separately
-                 * through stock adjustment.
+                 * Lock source system stock.
                  */
                 $stock = $this->lockStock(
-                    $requisition->source_store_id,
-                    $requisitionItem->store_item_id,
+                    (int) $requisition->source_store_id,
+                    (int) $requisitionItem->store_item_id,
                     $requisitionItem->variant_id
                 );
 
-                $availableQuantity = (float) (
-                    $stock->quantity ?? 0
-                );
+                $availableQuantity = (float) ($stock->quantity ?? 0);
 
-                /*
-                 * ALL OR NOTHING:
-                 *
-                 * The selected line must have enough recorded system
-                 * stock to issue the requested amount.
-                 */
                 if (
                     $mode === 'all_or_nothing' &&
                     $availableQuantity < $requestedQuantity
@@ -294,24 +235,12 @@ class StoreFulfillmentService
                     ]);
                 }
 
-                /*
-                 * AVAILABLE MODE:
-                 *
-                 * Issue whatever is actually available in the system,
-                 * up to the requested amount.
-                 */
                 $actualQuantity = min(
                     $requestedQuantity,
                     $availableQuantity,
                     $outstandingQuantity
                 );
 
-                /*
-                 * If there is no stock for this particular line, simply
-                 * do not create a fulfillment line for it.
-                 *
-                 * Another selected line may still be fulfilled.
-                 */
                 if ($actualQuantity <= 0) {
                     continue;
                 }
@@ -326,9 +255,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
-             * 9. NOTHING CAN BE ISSUED
-             * ---------------------------------------------------------
+             * 9. ENSURE SOMETHING CAN BE ISSUED
              */
             if (empty($fulfillmentLines)) {
                 throw ValidationException::withMessages([
@@ -338,9 +265,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 10. CREATE FULFILLMENT HEADER
-             * ---------------------------------------------------------
              */
             $fulfillment = StoreFulfillment::create([
                 'store_requisition_id' => $requisition->id,
@@ -357,38 +282,25 @@ class StoreFulfillmentService
             ]);
 
             /*
-             * ---------------------------------------------------------
              * 11. PROCESS EACH PHYSICAL ISSUE
-             * ---------------------------------------------------------
              */
             foreach ($fulfillmentLines as $line) {
                 /** @var StoreRequisitionItem $requisitionItem */
                 $requisitionItem = $line['requisition_item'];
 
-                /** @var StoreStock $stock */
-                $stock = $line['stock'];
-
                 $actualQuantity = (float) $line['actual_quantity'];
 
                 /*
                  * Re-lock stock immediately before modifying it.
-                 *
-                 * This protects against another stock transaction being
-                 * processed concurrently.
                  */
                 $stock = $this->lockStock(
-                    $requisition->source_store_id,
-                    $requisitionItem->store_item_id,
+                    (int) $requisition->source_store_id,
+                    (int) $requisitionItem->store_item_id,
                     $requisitionItem->variant_id
                 );
 
                 $currentStock = (float) ($stock->quantity ?? 0);
 
-                /*
-                 * Stock could have changed between preparation and
-                 * processing. Never issue more than the current locked
-                 * balance.
-                 */
                 if ($actualQuantity > $currentStock) {
                     if ($mode === 'all_or_nothing') {
                         throw ValidationException::withMessages([
@@ -405,16 +317,10 @@ class StoreFulfillmentService
                 }
 
                 /*
-                 * -----------------------------------------------------
-                 * DECREASE SOURCE STOCK
-                 * -----------------------------------------------------
+                 * Decrease source stock.
                  */
-                $newStockBalance =
-                    $currentStock - $actualQuantity;
+                $newStockBalance = $currentStock - $actualQuantity;
 
-                /*
-                 * Avoid tiny floating point residue.
-                 */
                 if (abs($newStockBalance) < 0.000001) {
                     $newStockBalance = 0;
                 }
@@ -424,15 +330,12 @@ class StoreFulfillmentService
                 $stock->save();
 
                 /*
-                 * -----------------------------------------------------
-                 * CREATE SOURCE STOCK MOVEMENT
-                 * -----------------------------------------------------
+                 * Record source stock movement.
                  */
-                if ($requisitionType === 'TRANSFER') {
-                    $sourceMovementType = 'TRANSFER_OUT';
-                } else {
-                    $sourceMovementType = 'ISSUE';
-                }
+                $sourceMovementType =
+                    $requisitionType === 'TRANSFER'
+                        ? 'TRANSFER_OUT'
+                        : 'ISSUE';
 
                 StoreStockMovement::create([
                     'store_id' => $requisition->source_store_id,
@@ -452,14 +355,12 @@ class StoreFulfillmentService
                 ]);
 
                 /*
-                 * -----------------------------------------------------
-                 * TRANSFER DESTINATION STOCK
-                 * -----------------------------------------------------
+                 * Transfer stock to destination where applicable.
                  */
                 if ($requisitionType === 'TRANSFER') {
                     $destinationStock = $this->lockOrCreateStock(
-                        $requisition->destination_store_id,
-                        $requisitionItem->store_item_id,
+                        (int) $requisition->destination_store_id,
+                        (int) $requisitionItem->store_item_id,
                         $requisitionItem->variant_id
                     );
 
@@ -469,24 +370,18 @@ class StoreFulfillmentService
                     $destinationNew =
                         $destinationCurrent + $actualQuantity;
 
-                    $destinationStock->quantity =
-                        $destinationNew;
-
+                    $destinationStock->quantity = $destinationNew;
                     $destinationStock->last_movement_at = now();
                     $destinationStock->save();
 
                     StoreStockMovement::create([
-                        'store_id' =>
-                            $requisition->destination_store_id,
-                        'store_item_id' =>
-                            $requisitionItem->store_item_id,
-                        'variant_id' =>
-                            $requisitionItem->variant_id,
+                        'store_id' => $requisition->destination_store_id,
+                        'store_item_id' => $requisitionItem->store_item_id,
+                        'variant_id' => $requisitionItem->variant_id,
                         'movement_type' => 'TRANSFER_IN',
                         'quantity' => $actualQuantity,
                         'balance_after' => $destinationNew,
-                        'reference_type' =>
-                            StoreFulfillment::class,
+                        'reference_type' => StoreFulfillment::class,
                         'reference_id' => $fulfillment->id,
                         'created_by' => $userId,
                         'notes' =>
@@ -498,29 +393,18 @@ class StoreFulfillmentService
                 }
 
                 /*
-                 * -----------------------------------------------------
-                 * CREATE FULFILLMENT ITEM
-                 * -----------------------------------------------------
+                 * Create fulfillment item.
                  */
                 StoreFulfillmentItem::create([
                     'store_fulfillment_id' => $fulfillment->id,
-                    'store_requisition_item_id' =>
-                        $requisitionItem->id,
-                    'store_item_id' =>
-                        $requisitionItem->store_item_id,
-                    'variant_id' =>
-                        $requisitionItem->variant_id,
+                    'store_requisition_item_id' => $requisitionItem->id,
+                    'store_item_id' => $requisitionItem->store_item_id,
+                    'variant_id' => $requisitionItem->variant_id,
                     'quantity' => $actualQuantity,
                 ]);
 
                 /*
-                 * -----------------------------------------------------
-                 * UPDATE REQUISITION ITEM
-                 * -----------------------------------------------------
-                 *
-                 * Use direct assignment + save instead of mass update.
-                 * This guarantees the values are persisted even if the
-                 * model's $fillable list is restrictive.
+                 * Update requisition item quantities.
                  */
                 $approvedQuantity = (float) (
                     $requisitionItem->approved_quantity ?? 0
@@ -530,40 +414,26 @@ class StoreFulfillmentService
                     $requisitionItem->issued_quantity ?? 0
                 );
 
-                $newIssuedQuantity =
-                    $oldIssuedQuantity + $actualQuantity;
-
-                /*
-                 * Never allow issued quantity to exceed approved quantity.
-                 */
-                if ($newIssuedQuantity > $approvedQuantity) {
-                    $newIssuedQuantity = $approvedQuantity;
-                }
+                $newIssuedQuantity = min(
+                    $approvedQuantity,
+                    $oldIssuedQuantity + $actualQuantity
+                );
 
                 $newOutstandingQuantity = max(
                     0,
                     $approvedQuantity - $newIssuedQuantity
                 );
 
-                $requisitionItem->issued_quantity =
-                    $newIssuedQuantity;
-
+                $requisitionItem->issued_quantity = $newIssuedQuantity;
                 $requisitionItem->outstanding_quantity =
                     $newOutstandingQuantity;
 
                 $requisitionItem->save();
-
-                /*
-                 * Refresh to ensure the model reflects what is actually
-                 * stored in the database.
-                 */
                 $requisitionItem->refresh();
             }
 
             /*
-             * ---------------------------------------------------------
-             * 12. MAKE SURE SOMETHING WAS ACTUALLY ISSUED
-             * ---------------------------------------------------------
+             * 12. VERIFY THAT SOMETHING WAS ISSUED
              */
             $fulfillmentItemCount = StoreFulfillmentItem::query()
                 ->where('store_fulfillment_id', $fulfillment->id)
@@ -577,14 +447,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
-             * 13. RELOAD ALL REQUISITION ITEMS
-             * ---------------------------------------------------------
-             *
-             * Do NOT use only the selected items here.
-             *
-             * The requisition must be evaluated as a whole when deciding
-             * whether a balance needs to be carried forward.
+             * 13. RELOAD ALL REQUISITION ITEMS AND CALCULATE BALANCE
              */
             $allRequisitionItems = StoreRequisitionItem::query()
                 ->where('store_requisition_id', $requisition->id)
@@ -607,9 +470,6 @@ class StoreFulfillmentService
                     $approvedQuantity - $issuedQuantity
                 );
 
-                /*
-                 * Keep the stored balance synchronized.
-                 */
                 if (
                     (float) $requisitionItem->outstanding_quantity
                     !== $outstandingQuantity
@@ -626,13 +486,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
-             * 14. CLOSE THE ORIGINAL REQUISITION
-             * ---------------------------------------------------------
-             *
-             * THIS HAPPENS AFTER THE FIRST SUCCESSFUL PHYSICAL ISSUE.
-             *
-             * The original requisition can NEVER be used again.
+             * 14. CLOSE ORIGINAL REQUISITION
              */
             $requisition->status = 'closed';
 
@@ -645,26 +499,16 @@ class StoreFulfillmentService
             $requisition->save();
 
             /*
-             * ---------------------------------------------------------
-             * 15. CREATE NEW REQUISITION FOR ANY BALANCE
-             * ---------------------------------------------------------
+             * 15. CREATE A NEW REQUISITION FOR ANY BALANCE
              */
             if ($hasOutstandingBalance) {
-                $balanceRequisition =
-                    $this->createBalanceRequisition(
-                        $requisition,
-                        $allRequisitionItems,
-                        $userId
-                    );
-
-                /*
-                 * Add the new requisition reference to the fulfillment
-                 * notes so the audit trail clearly shows where the
-                 * remaining quantity went.
-                 */
-                $existingNotes = trim(
-                    (string) $fulfillment->notes
+                $balanceRequisition = $this->createBalanceRequisition(
+                    $requisition,
+                    $allRequisitionItems,
+                    $userId
                 );
+
+                $existingNotes = trim((string) $fulfillment->notes);
 
                 $carryForwardNote =
                     'Outstanding balance carried forward to new requisition ' .
@@ -680,9 +524,7 @@ class StoreFulfillmentService
             }
 
             /*
-             * ---------------------------------------------------------
              * 16. RETURN COMPLETE FULFILLMENT
-             * ---------------------------------------------------------
              */
             return $fulfillment->fresh([
                 'requisition',
@@ -694,6 +536,102 @@ class StoreFulfillmentService
                 'items.variant',
             ]);
         });
+
+        /*
+         * 17. SEND NOTIFICATIONS AFTER THE TRANSACTION COMMITS
+         *
+         * A notification failure must not undo or misreport a
+         * successful stock fulfillment.
+         */
+        try {
+            $requisition = StoreRequisition::query()
+                ->find($fulfillment->store_requisition_id);
+
+            if ($requisition) {
+                /*
+                 * Include the requester.
+                 */
+                $recipientIds = [];
+
+                if ($requisition->requested_by) {
+                    $recipientIds[] = (int) $requisition->requested_by;
+                }
+
+                /*
+                 * Include users recorded as approvers.
+                 */
+                $approverIds = StoreRequisitionApproval::query()
+                    ->where('store_requisition_id', $requisition->id)
+                    ->whereNotNull('approved_by')
+                    ->where('decision', 'approved')
+                    ->pluck('approved_by')
+                    ->map(fn ($id) => (int) $id)
+                    ->all();
+
+                /*
+                 * Deduplicate recipients.
+                 */
+                $recipientIds = array_values(array_unique(
+                    array_merge($recipientIds, $approverIds)
+                ));
+
+                if (!empty($recipientIds)) {
+                    $requisitionNumber =
+                        $requisition->requisition_number;
+
+                    $transactionNumber =
+                        $fulfillment->transaction_number;
+
+                    $message =
+                        'Fulfillment ' . $transactionNumber .
+                        ' for requisition ' . $requisitionNumber .
+                        ' has been completed.';
+
+                    if (
+                        $requisition->fulfillment_status ===
+                        'closed_with_balance'
+                    ) {
+                        $message .=
+                            ' Outstanding quantities have been carried ' .
+                            'forward to a new requisition for approval.';
+                    } else {
+                        $message .=
+                            ' The approved quantities have been issued.';
+                    }
+
+                    $this->workflowNotifications->send(
+                        [
+                            'event' => 'store_fulfillment_completed',
+                            'title' => 'Store Requisition Fulfilled',
+                            'message' => $message,
+                            'url' => url(
+                                '/admin/store-requisitions/' .
+                                $requisition->id
+                            ),
+                            'icon' => 'package-check',
+                            'priority' => 'normal',
+                            'metadata' => [
+                                'requisition_id' => $requisition->id,
+                                'requisition_number' =>
+                                    $requisitionNumber,
+                                'fulfillment_id' => $fulfillment->id,
+                                'transaction_number' =>
+                                    $transactionNumber,
+                                'fulfillment_status' =>
+                                    $requisition->fulfillment_status,
+                            ],
+                            'created_by' => $userId,
+                        ],
+                        $recipientIds,
+                        ['database', 'webpush']
+                    );
+                }
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
+        return $fulfillment;
     }
 
     /**
@@ -724,9 +662,6 @@ class StoreFulfillmentService
                 ]);
             }
 
-            /*
-             * A requisition with a fulfillment can never be cancelled.
-             */
             $hasFulfillment = StoreFulfillment::query()
                 ->where('store_requisition_id', $requisition->id)
                 ->exists();
@@ -747,8 +682,7 @@ class StoreFulfillmentService
             );
 
             $cancelNote =
-                'Cancelled by user #' .
-                $userId .
+                'Cancelled by user #' . $userId .
                 ($reason
                     ? '. Reason: ' . trim($reason)
                     : '.');
@@ -770,9 +704,7 @@ class StoreFulfillmentService
     }
 
     /**
-     * Create a brand-new requisition containing the unfulfilled balance.
-     *
-     * The new requisition starts from HOD again.
+     * Create a new requisition containing the unfulfilled balance.
      */
     protected function createBalanceRequisition(
         StoreRequisition $originalRequisition,
@@ -804,19 +736,8 @@ class StoreFulfillmentService
             'purpose' =>
                 $originalRequisition->purpose,
 
-            /*
-             * New requisition must enter the normal approval workflow.
-             */
             'status' => 'pending',
-
             'approval_stage' => 'hod',
-
-            /*
-             * IMPORTANT:
-             * The database does not allow fulfillment_status to be NULL.
-             *
-             * This is a NEW request which has not been issued yet.
-             */
             'fulfillment_status' => 'not_issued',
 
             'submission_notes' =>
@@ -825,9 +746,7 @@ class StoreFulfillmentService
                 ' to carry forward quantities not issued during fulfillment.',
 
             'submitted_at' => now(),
-
             'approved_at' => null,
-
             'completed_at' => null,
         ]);
 
@@ -850,29 +769,13 @@ class StoreFulfillmentService
             }
 
             StoreRequisitionItem::create([
-                'store_requisition_id' =>
-                    $newRequisition->id,
-
-                'store_item_id' =>
-                    $originalItem->store_item_id,
-
-                'variant_id' =>
-                    $originalItem->variant_id,
-
-                /*
-                 * The remaining quantity becomes a NEW REQUEST.
-                 */
+                'store_requisition_id' => $newRequisition->id,
+                'store_item_id' => $originalItem->store_item_id,
+                'variant_id' => $originalItem->variant_id,
                 'requested_quantity' => $balance,
-
-                /*
-                 * It has NOT yet been approved.
-                 */
                 'approved_quantity' => 0,
-
                 'issued_quantity' => 0,
-
                 'outstanding_quantity' => 0,
-
                 'notes' =>
                     'Balance carried forward from requisition ' .
                     $originalRequisition->requisition_number .
@@ -890,9 +793,6 @@ class StoreFulfillmentService
 
     /**
      * Lock existing stock.
-     *
-     * Physical stock discrepancies are NOT corrected here.
-     * They must be handled through the stock adjustment workflow.
      */
     protected function lockStock(
         int $storeId,
@@ -961,8 +861,7 @@ class StoreFulfillmentService
     /**
      * Generate fulfillment transaction number.
      *
-     * Format:
-     * FUL-YYYYMMDD-XXXXXX
+     * Format: FUL-YYYYMMDD-XXXXXX
      */
     protected function generateTransactionNumber(): string
     {
@@ -971,14 +870,11 @@ class StoreFulfillmentService
                 'FUL-' .
                 now()->format('Ymd') .
                 '-' .
-                strtoupper(
-                    substr(bin2hex(random_bytes(3)), 0, 6)
-                );
+                strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
 
             $exists = StoreFulfillment::query()
                 ->where('transaction_number', $number)
                 ->exists();
-
         } while ($exists);
 
         return $number;
@@ -987,8 +883,7 @@ class StoreFulfillmentService
     /**
      * Generate requisition number.
      *
-     * Format:
-     * REQ-YYYYMMDD-XXXXXX
+     * Format: REQ-YYYYMMDD-XXXXXX
      */
     protected function generateRequisitionNumber(): string
     {
@@ -997,14 +892,11 @@ class StoreFulfillmentService
                 'REQ-' .
                 now()->format('Ymd') .
                 '-' .
-                strtoupper(
-                    substr(bin2hex(random_bytes(3)), 0, 6)
-                );
+                strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
 
             $exists = StoreRequisition::query()
                 ->where('requisition_number', $number)
                 ->exists();
-
         } while ($exists);
 
         return $number;
@@ -1020,12 +912,8 @@ class StoreFulfillmentService
         }
 
         return rtrim(
-            rtrim(
-                number_format($quantity, 3, '.', ''),
-                '0'
-            ),
+            rtrim(number_format($quantity, 3, '.', ''), '0'),
             '.'
         );
     }
 }
-

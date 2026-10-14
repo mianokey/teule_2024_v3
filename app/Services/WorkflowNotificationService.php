@@ -28,7 +28,10 @@ class WorkflowNotificationService
     ): int {
         $channels = array_values(array_unique($channels));
 
-        $unsupported = array_diff($channels, ['database', 'mail']);
+        $unsupported = array_diff(
+            $channels,
+            ['database', 'mail', 'webpush']
+        );
 
         if ($unsupported) {
             throw new InvalidArgumentException(

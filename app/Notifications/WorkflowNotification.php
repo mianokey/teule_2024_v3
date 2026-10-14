@@ -5,6 +5,8 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 class WorkflowNotification extends Notification
 {
@@ -23,10 +25,28 @@ class WorkflowNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return array_values(array_intersect(
+        $supportedChannels = [
+            'database',
+            'mail',
+            'webpush',
+        ];
+
+        $selectedChannels = array_values(array_intersect(
             array_unique($this->channels),
-            ['database', 'mail']
+            $supportedChannels
         ));
+
+        $result = [];
+
+        foreach ($selectedChannels as $channel) {
+            $result[] = match ($channel) {
+                'database' => 'database',
+                'mail' => 'mail',
+                'webpush' => WebPushChannel::class,
+            };
+        }
+
+        return $result;
     }
 
     public function toDatabase(object $notifiable): array
@@ -41,6 +61,29 @@ class WorkflowNotification extends Notification
             'metadata' => $this->payload['metadata'] ?? [],
             'created_by' => $this->payload['created_by'] ?? null,
         ];
+    }
+
+    public function toWebPush(
+        object $notifiable,
+        object $notification
+    ): WebPushMessage {
+        $message = $this->payload['message']
+            ?? 'You have a new notification.';
+
+        $push = (new WebPushMessage())
+            ->title(
+                $this->payload['title']
+                    ?? 'Teule Management System'
+            )
+            ->body($message)
+            ->icon('/icons/icon-192.png')
+            ->badge('/icons/icon-192.png')
+            ->data([
+                'url' => $this->payload['url'] ?? '/admin',
+                'notification_id' => $notification->id ?? null,
+            ]);
+
+        return $push;
     }
 
     public function toMail(object $notifiable): MailMessage

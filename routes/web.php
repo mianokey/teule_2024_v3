@@ -187,7 +187,11 @@ Route::get('/workflow-notifications', [WorkflowNotificationController::class, 'i
 Route::get('/workflow-notifications/feed', [WorkflowNotificationController::class, 'feed'])->name('workflow-notifications.feed');
 Route::post('/workflow-notifications/{id}/read', [WorkflowNotificationController::class, 'markAsRead'])->name('workflow-notifications.read');
 Route::post('/workflow-notifications/read-all', [WorkflowNotificationController::class, 'markAllAsRead'])->name('workflow-notifications.read-all');
- 
+
+//push subscription routes
+Route::post('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+Route::delete('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
+
 
 
 // Stores - Item Variants
