@@ -233,6 +233,7 @@ Route::patch('suppliers/{supplier}/deactivate',[SupplierController::class, 'deac
 
 
 Route::resource('store-lpos', StoreLpoController::class)->names('admin.store-lpos');
+Route::resource('store-lpos/{storeLpo}/edit', StoreLpoController::class)->names('admin.store-lpos.edit');
 Route::post('store-lpos/{storeLpo}/submit',[StoreLpoController::class, 'submit'])->name('admin.store-lpos.submit');
 Route::post('store-lpos/{storeLpo}/approval',[StoreLpoController::class, 'approval'])->name('admin.store-lpos.approval');
 Route::get('store-lpos/{storeLpo}/pdf',[StoreLpoController::class, 'pdf'])->name('admin.store-lpos.pdf');

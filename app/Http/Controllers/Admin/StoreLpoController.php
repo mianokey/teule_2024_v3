@@ -9,10 +9,13 @@ use App\Models\StoreItemVariant;
 use App\Models\StoreLpo;
 use App\Models\StoreLpoApproval;
 use App\Models\Supplier;
+use App\Models\User;
+use App\Services\WorkflowNotificationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -27,11 +30,7 @@ class StoreLpoController extends Controller
     public function index(Request $request): View
     {
         $query = StoreLpo::query()
-            ->with([
-                'supplier',
-                'store',
-                'creator',
-            ])
+            ->with(['supplier', 'store', 'creator'])
             ->withCount('items');
 
         if ($request->filled('search')) {
@@ -60,7 +59,6 @@ class StoreLpoController extends Controller
 
         return view('admin.store_lpos.index', compact('lpos'));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -99,7 +97,6 @@ class StoreLpoController extends Controller
         ));
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | STORE
@@ -110,25 +107,19 @@ class StoreLpoController extends Controller
     {
         $validated = $this->validateLpo($request);
 
-        DB::transaction(function () use ($validated, $request) {
-            $items = $validated['items'];
-
+        $lpo = DB::transaction(function () use ($validated) {
             $subtotal = 0;
 
-            foreach ($items as $item) {
+            foreach ($validated['items'] as $item) {
                 $quantity = (float) $item['ordered_quantity'];
                 $unitPrice = (float) $item['unit_price'];
                 $discount = (float) ($item['discount'] ?? 0);
                 $tax = (float) ($item['tax'] ?? 0);
 
-                $lineBase = $quantity * $unitPrice;
-
-                $lineTotal = max(
+                $subtotal += max(
                     0,
-                    $lineBase - $discount + $tax
+                    ($quantity * $unitPrice) - $discount + $tax
                 );
-
-                $subtotal += $lineTotal;
             }
 
             $headerDiscount = (float) ($validated['discount'] ?? 0);
@@ -144,7 +135,8 @@ class StoreLpoController extends Controller
                 'supplier_id' => $validated['supplier_id'],
                 'store_id' => $validated['store_id'],
                 'lpo_date' => $validated['lpo_date'],
-                'expected_delivery_date' => $validated['expected_delivery_date'] ?? null,
+                'expected_delivery_date' =>
+                    $validated['expected_delivery_date'] ?? null,
                 'status' => 'DRAFT',
                 'approval_stage' => 'hod',
                 'subtotal' => $subtotal,
@@ -155,8 +147,10 @@ class StoreLpoController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            foreach ($items as $item) {
-                $storeItem = StoreItem::findOrFail($item['store_item_id']);
+            foreach ($validated['items'] as $item) {
+                $storeItem = StoreItem::findOrFail(
+                    $item['store_item_id']
+                );
 
                 $variant = null;
 
@@ -172,11 +166,9 @@ class StoreLpoController extends Controller
                 $discount = (float) ($item['discount'] ?? 0);
                 $tax = (float) ($item['tax'] ?? 0);
 
-                $lineBase = $quantity * $unitPrice;
-
                 $lineTotal = max(
                     0,
-                    $lineBase - $discount + $tax
+                    ($quantity * $unitPrice) - $discount + $tax
                 );
 
                 $description = $item['description'] ?? null;
@@ -199,13 +191,16 @@ class StoreLpoController extends Controller
                     'notes' => $item['notes'] ?? null,
                 ]);
             }
+
+            return $lpo;
         });
+
+        // Draft creation intentionally does not notify approvers.
 
         return redirect()
             ->route('admin.store-lpos.index')
             ->with('success', 'LPO created successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -227,7 +222,6 @@ class StoreLpoController extends Controller
 
         return view('admin.store_lpos.show', compact('storeLpo'));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -270,14 +264,13 @@ class StoreLpoController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.stores.store_lpos.edit', compact(
+        return view('admin.store_lpos.edit', compact(
             'storeLpo',
             'suppliers',
             'stores',
             'items'
         ));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -295,37 +288,16 @@ class StoreLpoController extends Controller
                 ->with('error', 'This LPO can no longer be edited.');
         }
 
-        $validated = $this->validateLpo(
-            $request,
-            $storeLpo
-        );
+        $validated = $this->validateLpo($request, $storeLpo);
 
-        DB::transaction(function () use (
-            $validated,
-            $storeLpo
-        ) {
-            /*
-             * Once receipts exist, the LPO supplier/store and
-             * already-received lines must not be changed.
-             */
-            $hasReceipts = $storeLpo->loadCount('items')
-                ->items()
-                ->whereHas('lpo', function ($query) use ($storeLpo) {
-                    $query->where('id', $storeLpo->id);
-                })
-                ->whereHas('lpo', function ($query) {
-                    $query->whereHas('approvals');
-                })
-                ->exists();
+        DB::transaction(function () use ($validated, $storeLpo) {
+            $storeLpo->load('items');
 
-            /*
-             * The actual receipt check is performed directly below.
-             */
             $existingReceived = [];
 
             foreach ($storeLpo->items as $existingItem) {
                 $existingReceived[$existingItem->id] =
-                    $existingItem->received_quantity;
+                    (float) $existingItem->received_quantity;
             }
 
             $subtotal = 0;
@@ -354,7 +326,8 @@ class StoreLpoController extends Controller
                 'supplier_id' => $validated['supplier_id'],
                 'store_id' => $validated['store_id'],
                 'lpo_date' => $validated['lpo_date'],
-                'expected_delivery_date' => $validated['expected_delivery_date'] ?? null,
+                'expected_delivery_date' =>
+                    $validated['expected_delivery_date'] ?? null,
                 'subtotal' => $subtotal,
                 'tax' => $headerTax,
                 'discount' => $headerDiscount,
@@ -379,10 +352,33 @@ class StoreLpoController extends Controller
                 }
 
                 $quantity = (float) $item['ordered_quantity'];
+                $unitPrice = (float) $item['unit_price'];
+                $discount = (float) ($item['discount'] ?? 0);
+                $tax = (float) ($item['tax'] ?? 0);
 
-                /*
-                 * Existing line, if supplied.
-                 */
+                $description = $item['description'] ?? null;
+
+                if (!$description) {
+                    $description = $variant
+                        ? $storeItem->name . ' - ' . $variant->name
+                        : $storeItem->name;
+                }
+
+                $lineData = [
+                    'store_item_id' => $storeItem->id,
+                    'variant_id' => $variant?->id,
+                    'description' => $description,
+                    'ordered_quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'discount' => $discount,
+                    'tax' => $tax,
+                    'line_total' => max(
+                        0,
+                        ($quantity * $unitPrice) - $discount + $tax
+                    ),
+                    'notes' => $item['notes'] ?? null,
+                ];
+
                 $lpoItem = null;
 
                 if (!empty($item['id'])) {
@@ -392,9 +388,7 @@ class StoreLpoController extends Controller
                 }
 
                 if ($lpoItem) {
-                    $received = (float) (
-                        $existingReceived[$lpoItem->id] ?? 0
-                    );
+                    $received = $existingReceived[$lpoItem->id] ?? 0;
 
                     if ($quantity < $received) {
                         abort(
@@ -403,67 +397,21 @@ class StoreLpoController extends Controller
                         );
                     }
 
-                    $lpoItem->update([
-                        'store_item_id' => $storeItem->id,
-                        'variant_id' => $variant?->id,
-                        'description' => $item['description'] ?? (
-                            $variant
-                            ? $storeItem->name . ' - ' . $variant->name
-                            : $storeItem->name
-                        ),
-                        'ordered_quantity' => $quantity,
-                        'unit_price' => $item['unit_price'],
-                        'discount' => $item['discount'] ?? 0,
-                        'tax' => $item['tax'] ?? 0,
-                        'line_total' => max(
-                            0,
-                            ($quantity * (float) $item['unit_price'])
-                                - (float) ($item['discount'] ?? 0)
-                                + (float) ($item['tax'] ?? 0)
-                        ),
-                        'notes' => $item['notes'] ?? null,
-                    ]);
-
+                    $lpoItem->update($lineData);
                     $submittedItemIds[] = $lpoItem->id;
                 } else {
-                    $newItem = $storeLpo->items()->create([
-                        'store_item_id' => $storeItem->id,
-                        'variant_id' => $variant?->id,
-                        'description' => $item['description'] ?? (
-                            $variant
-                            ? $storeItem->name . ' - ' . $variant->name
-                            : $storeItem->name
-                        ),
-                        'ordered_quantity' => $quantity,
-                        'unit_price' => $item['unit_price'],
-                        'discount' => $item['discount'] ?? 0,
-                        'tax' => $item['tax'] ?? 0,
-                        'line_total' => max(
-                            0,
-                            ($quantity * (float) $item['unit_price'])
-                                - (float) ($item['discount'] ?? 0)
-                                + (float) ($item['tax'] ?? 0)
-                        ),
-                        'notes' => $item['notes'] ?? null,
-                    ]);
-
+                    $newItem = $storeLpo->items()->create($lineData);
                     $submittedItemIds[] = $newItem->id;
                 }
             }
 
-            /*
-             * Delete lines removed by the user, but never delete a
-             * line that has already received stock.
-             */
             foreach ($storeLpo->items()->get() as $existingItem) {
-                if (
-                    !in_array(
-                        $existingItem->id,
-                        $submittedItemIds,
-                        true
-                    )
-                ) {
-                    if ($existingItem->received_quantity > 0) {
+                if (!in_array(
+                    $existingItem->id,
+                    $submittedItemIds,
+                    true
+                )) {
+                    if ((float) $existingItem->received_quantity > 0) {
                         abort(
                             422,
                             'An LPO item that has already been received cannot be removed.'
@@ -474,10 +422,6 @@ class StoreLpoController extends Controller
                 }
             }
 
-            /*
-             * If the LPO was returned for correction, editing it
-             * puts it back into DRAFT.
-             */
             if ($storeLpo->status === 'RETURNED') {
                 $storeLpo->update([
                     'status' => 'DRAFT',
@@ -492,7 +436,6 @@ class StoreLpoController extends Controller
             ->route('admin.store-lpos.show', $storeLpo)
             ->with('success', 'LPO updated successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -522,7 +465,6 @@ class StoreLpoController extends Controller
             ->with('success', 'LPO deleted successfully.');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | SUBMIT
@@ -550,12 +492,23 @@ class StoreLpoController extends Controller
             'approval_stage' => 'HOD',
         ]);
 
+        $this->notifyLpoUsers(
+            $storeLpo,
+            [
+                'APPROVE STORE LPO',
+                'APPROVE STORE LPO - HOD',
+            ],
+            'store_lpo_submitted',
+            'LPO Awaiting HOD Approval',
+            'LPO ' . $storeLpo->lpo_number .
+                ' has been submitted and requires HOD approval.'
+        );
+
         return back()->with(
             'success',
             'LPO submitted for HOD approval.'
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -570,11 +523,7 @@ class StoreLpoController extends Controller
         $validated = $request->validate([
             'action' => [
                 'required',
-                Rule::in([
-                    'approve',
-                    'return',
-                    'reject',
-                ]),
+                Rule::in(['approve', 'return', 'reject']),
             ],
             'comments' => [
                 'nullable',
@@ -583,9 +532,7 @@ class StoreLpoController extends Controller
             ],
         ]);
 
-        $stage = strtoupper(
-            (string) $storeLpo->approval_stage
-        );
+        $stage = strtoupper((string) $storeLpo->approval_stage);
 
         if (!in_array($stage, ['HOD', 'MANAGEMENT'], true)) {
             return back()->with(
@@ -637,10 +584,6 @@ class StoreLpoController extends Controller
                 return;
             }
 
-            /*
-             * APPROVE
-             */
-
             if ($stage === 'HOD') {
                 $storeLpo->update([
                     'status' => 'PENDING',
@@ -650,10 +593,6 @@ class StoreLpoController extends Controller
                 return;
             }
 
-            /*
-             * MANAGEMENT APPROVED
-             */
-
             $storeLpo->update([
                 'status' => 'APPROVED',
                 'approval_stage' => 'COMPLETED',
@@ -662,21 +601,186 @@ class StoreLpoController extends Controller
             ]);
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | NOTIFY AFTER THE DATABASE TRANSACTION
+        |--------------------------------------------------------------------------
+        */
+
+        if ($action === 'return') {
+            $this->notifyLpoCreator(
+                $storeLpo,
+                'store_lpo_returned',
+                'LPO Returned for Correction',
+                'LPO ' . $storeLpo->lpo_number .
+                    ' was returned for correction at the ' . $stage .
+                    ' stage.' .
+                    (!empty($validated['comments'])
+                        ? ' Reason: ' . $validated['comments']
+                        : '')
+            );
+        } elseif ($action === 'reject') {
+            $this->notifyLpoCreator(
+                $storeLpo,
+                'store_lpo_rejected',
+                'LPO Rejected',
+                'LPO ' . $storeLpo->lpo_number .
+                    ' was rejected at the ' . $stage . ' stage.' .
+                    (!empty($validated['comments'])
+                        ? ' Reason: ' . $validated['comments']
+                        : '')
+            );
+        } elseif ($action === 'approve' && $stage === 'HOD') {
+            $this->notifyLpoUsers(
+                $storeLpo,
+                [
+                    'APPROVE STORE LPO',
+                    'APPROVE STORE LPO - MANAGEMENT',
+                ],
+                'store_lpo_hod_approved',
+                'LPO Awaiting Management Approval',
+                'LPO ' . $storeLpo->lpo_number .
+                    ' has been approved by HOD and requires management approval.'
+            );
+
+            $this->notifyLpoCreator(
+                $storeLpo,
+                'store_lpo_hod_approved',
+                'LPO Approved by HOD',
+                'LPO ' . $storeLpo->lpo_number .
+                    ' has passed HOD approval and has been forwarded to management.'
+            );
+        } elseif ($action === 'approve' && $stage === 'MANAGEMENT') {
+            $this->notifyLpoCreator(
+                $storeLpo,
+                'store_lpo_approved',
+                'LPO Fully Approved',
+                'LPO ' . $storeLpo->lpo_number .
+                    ' has been approved by management and is ready for receiving.'
+            );
+
+            $storeLpo->loadMissing('store');
+
+            if ($storeLpo->store) {
+                $receivingPermission = 'RECEIVE ITEMS TO ' .
+                    strtoupper(trim($storeLpo->store->name));
+
+                $this->notifyLpoUsers(
+                    $storeLpo,
+                    [$receivingPermission],
+                    'store_lpo_ready_for_receiving',
+                    'Approved LPO Ready for Receiving',
+                    'LPO ' . $storeLpo->lpo_number .
+                        ' has been approved. Items can now be received into ' .
+                        $storeLpo->store->name . '.'
+                );
+            }
+        }
+
         $message = match ($action) {
             'approve' => $stage === 'HOD'
                 ? 'LPO approved by HOD and forwarded for management approval.'
                 : 'LPO approved by management and is now available for receiving.',
-
             'return' => 'LPO returned for correction.',
-
             'reject' => 'LPO rejected.',
-
             default => 'LPO approval action completed.',
         };
 
         return back()->with('success', $message);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | WORKFLOW NOTIFICATION HELPERS
+    |--------------------------------------------------------------------------
+    */
+
+    protected function notifyLpoUsers(
+        StoreLpo $storeLpo,
+        array $permissions,
+        string $event,
+        string $title,
+        string $message
+    ): void {
+        try {
+            $users = User::permission($permissions)
+                ->where('id', '!=', auth()->id())
+                ->get()
+                ->unique('id')
+                ->values();
+
+            if ($users->isEmpty()) {
+                return;
+            }
+
+            app(WorkflowNotificationService::class)->sendToUsers(
+                [
+                    'event' => $event,
+                    'title' => $title,
+                    'message' => $message,
+                    'url' => route('admin.store-lpos.show', $storeLpo),
+                    'icon' => asset('icons/teule-logo.png'),
+                    'priority' => 'normal',
+                    'metadata' => [
+                        'store_lpo_id' => $storeLpo->id,
+                        'lpo_number' => $storeLpo->lpo_number,
+                        'status' => $storeLpo->status,
+                        'approval_stage' => $storeLpo->approval_stage,
+                    ],
+                    'created_by' => auth()->id(),
+                ],
+                $users,
+                ['database', 'webpush']
+            );
+        } catch (\Throwable $exception) {
+            Log::error('Store LPO notification failed.', [
+                'lpo_id' => $storeLpo->id,
+                'event' => $event,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
+    protected function notifyLpoCreator(
+        StoreLpo $storeLpo,
+        string $event,
+        string $title,
+        string $message
+    ): void {
+        try {
+            $creator = User::find($storeLpo->created_by);
+
+            if (!$creator || (int) $creator->id === (int) auth()->id()) {
+                return;
+            }
+
+            app(WorkflowNotificationService::class)->sendToUsers(
+                [
+                    'event' => $event,
+                    'title' => $title,
+                    'message' => $message,
+                    'url' => route('admin.store-lpos.show', $storeLpo),
+                    'icon' => asset('icons/teule-logo.png'),
+                    'priority' => 'normal',
+                    'metadata' => [
+                        'store_lpo_id' => $storeLpo->id,
+                        'lpo_number' => $storeLpo->lpo_number,
+                        'status' => $storeLpo->status,
+                        'approval_stage' => $storeLpo->approval_stage,
+                    ],
+                    'created_by' => auth()->id(),
+                ],
+                collect([$creator]),
+                ['database', 'webpush']
+            );
+        } catch (\Throwable $exception) {
+            Log::error('Store LPO creator notification failed.', [
+                'lpo_id' => $storeLpo->id,
+                'event' => $event,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -791,7 +895,6 @@ class StoreLpoController extends Controller
         ]);
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | PERMISSION CHECK
@@ -823,7 +926,6 @@ class StoreLpoController extends Controller
         return false;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | EDIT CHECK
@@ -832,9 +934,6 @@ class StoreLpoController extends Controller
 
     protected function canEdit(StoreLpo $storeLpo): bool
     {
-        /*
-         * Only DRAFT and RETURNED LPOs are editable.
-         */
         if (!in_array(
             $storeLpo->status,
             ['DRAFT', 'RETURNED'],
@@ -843,19 +942,16 @@ class StoreLpoController extends Controller
             return false;
         }
 
-        /*
-         * Safety check: if receiving has already started,
-         * do not allow editing.
-         */
+        $storeLpo->loadMissing('items');
+
         foreach ($storeLpo->items as $item) {
-            if ($item->received_quantity > 0) {
+            if ((float) $item->received_quantity > 0) {
                 return false;
             }
         }
 
         return true;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -873,30 +969,16 @@ class StoreLpoController extends Controller
             return false;
         }
 
-        $hasPostedReceipts = $storeLpo->items()
-            ->whereHas('lpo', function ($query) {
-                $query->where('id', '>', 0);
-            })
-            ->whereHas('lpo', function ($query) {
-                $query->whereExists(function ($subQuery) {
-                    $subQuery->selectRaw('1');
-                });
-            })
-            ->exists();
+        $storeLpo->loadMissing('items');
 
-        /*
-         * Actual receipt existence is checked directly against
-         * store_receipt_items through the relationship.
-         */
         foreach ($storeLpo->items as $item) {
-            if ($item->received_quantity > 0) {
+            if ((float) $item->received_quantity > 0) {
                 return false;
             }
         }
 
-        return !$hasPostedReceipts;
+        return true;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -918,72 +1000,44 @@ class StoreLpoController extends Controller
         if ($lastLpo) {
             $parts = explode('-', $lastLpo->lpo_number);
             $lastNumber = (int) end($parts);
-
             $nextNumber = $lastNumber + 1;
         }
 
-        return sprintf(
-            'LPO-%s-%04d',
-            $year,
-            $nextNumber
-        );
+        return sprintf('LPO-%s-%04d', $year, $nextNumber);
     }
 
-public function pdf(StoreLpo $storeLpo)
-{
-    $storeLpo->load([
-        'supplier',
-        'store',
-        'creator',
-        'approver',
-        'items.item',
-        'items.variant',
-        'approvals.user',
-    ]);
-
     /*
     |--------------------------------------------------------------------------
-    | Generated At
+    | PDF
     |--------------------------------------------------------------------------
     */
 
-    $generatedAt = now();
+    public function pdf(StoreLpo $storeLpo)
+    {
+        $storeLpo->load([
+            'supplier',
+            'store',
+            'creator',
+            'approver',
+            'items.item',
+            'items.variant',
+            'approvals.user',
+        ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Generate PDF
-    |--------------------------------------------------------------------------
-    */
+        $generatedAt = now();
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-        'admin.store_lpos.printlpo',
-        [
-            'storeLpo'    => $storeLpo,
-            'generatedAt' => $generatedAt,
-        ]
-    );
+        $pdf = Pdf::loadView(
+            'admin.store_lpos.printlpo',
+            [
+                'storeLpo' => $storeLpo,
+                'generatedAt' => $generatedAt,
+            ]
+        );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Page Size
-    |--------------------------------------------------------------------------
-    */
+        $pdf->setPaper('A4', 'portrait');
 
-    $pdf->setPaper('A4', 'portrait');
+        $filename = 'LPO-' . $storeLpo->lpo_number . '.pdf';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Filename
-    |--------------------------------------------------------------------------
-    */
-
-    $filename = 'LPO-' .
-        $storeLpo->lpo_number .
-        '.pdf';
-
-    return $pdf->download($filename);
-}
-
-
-
+        return $pdf->download($filename);
+    }
 }
