@@ -425,7 +425,7 @@ class StoreLpoController extends Controller
             if ($storeLpo->status === 'RETURNED') {
                 $storeLpo->update([
                     'status' => 'DRAFT',
-                    'approval_stage' => null,
+                    'approval_stage' => 'hod',
                     'approved_by' => null,
                     'approved_at' => null,
                 ]);
@@ -471,44 +471,47 @@ class StoreLpoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function submit(StoreLpo $storeLpo): RedirectResponse
-    {
-        if ($storeLpo->status !== 'DRAFT') {
-            return back()->with(
-                'error',
-                'Only draft LPOs can be submitted.'
-            );
-        }
 
-        if (!$storeLpo->items()->exists()) {
-            return back()->with(
-                'error',
-                'An LPO must contain at least one item before submission.'
-            );
-        }
-
-        $storeLpo->update([
-            'status' => 'PENDING',
-            'approval_stage' => 'HOD',
-        ]);
-
-        $this->notifyLpoUsers(
-            $storeLpo,
-            [
-                'APPROVE STORE LPO',
-                'APPROVE STORE LPO - HOD',
-            ],
-            'store_lpo_submitted',
-            'LPO Awaiting HOD Approval',
-            'LPO ' . $storeLpo->lpo_number .
-                ' has been submitted and requires HOD approval.'
-        );
-
+public function submit(StoreLpo $storeLpo): RedirectResponse
+{
+    if ($storeLpo->status !== 'DRAFT') {
         return back()->with(
-            'success',
-            'LPO submitted for HOD approval.'
+            'error',
+            'Only draft LPOs can be submitted.'
         );
     }
+
+    if (!$storeLpo->items()->exists()) {
+        return back()->with(
+            'error',
+            'An LPO must contain at least one item before submission.'
+        );
+    }
+
+    $storeLpo->update([
+        'status' => 'PENDING',
+        'approval_stage' => 'HOD',
+    ]);
+
+    $storeLpo->refresh();
+
+    // Notify users authorised to approve at HOD stage.
+    $this->notifyLpoUsers(
+        $storeLpo,
+        ['APPROVE STORE LPO - HOD'],
+        'store_lpo_submitted',
+        'LPO Awaiting HOD Approval',
+        'LPO ' . $storeLpo->lpo_number .
+            ' has been submitted and requires HOD approval.'
+    );
+
+    return back()->with(
+        'success',
+        'LPO submitted for HOD approval. The authorised HOD approvers have been notified.'
+    );
+}
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -516,178 +519,208 @@ class StoreLpoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function approval(
-        Request $request,
-        StoreLpo $storeLpo
-    ): RedirectResponse {
-        $validated = $request->validate([
-            'action' => [
-                'required',
-                Rule::in(['approve', 'return', 'reject']),
-            ],
-            'comments' => [
-                'nullable',
-                'string',
-                'max:2000',
-            ],
+
+public function approval(
+    Request $request,
+    StoreLpo $storeLpo
+): RedirectResponse {
+    $validated = $request->validate([
+        'action' => [
+            'required',
+            Rule::in(['approve', 'return', 'reject']),
+        ],
+        'comments' => [
+            'required_if:action,return,reject',
+            'nullable',
+            'string',
+            'min:3',
+            'max:2000',
+        ],
+    ], [
+        'comments.required_if' =>
+            'Please provide an explanation when returning or rejecting an LPO.',
+        'comments.min' =>
+            'The explanation must contain at least 3 characters.',
+    ]);
+
+    $stage = strtoupper(trim(
+        (string) $storeLpo->approval_stage
+    ));
+
+    $status = strtoupper(trim(
+        (string) $storeLpo->status
+    ));
+
+    if (
+        $status !== 'PENDING' ||
+        !in_array($stage, ['HOD', 'MANAGEMENT'], true)
+    ) {
+        return back()->with(
+            'error',
+            'This LPO is not currently awaiting approval.'
+        );
+    }
+
+    if (!$this->canApproveStage($stage)) {
+        abort(
+            403,
+            'You are not authorised to approve this LPO at the current stage.'
+        );
+    }
+
+    $action = $validated['action'];
+    $comments = trim((string) ($validated['comments'] ?? ''));
+
+    DB::transaction(function () use (
+        $storeLpo,
+        $stage,
+        $action,
+        $comments
+    ) {
+        // Lock the LPO to prevent simultaneous approval actions.
+        $lpo = StoreLpo::query()
+            ->whereKey($storeLpo->id)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        if (
+            strtoupper(trim((string) $lpo->status)) !== 'PENDING' ||
+            strtoupper(trim((string) $lpo->approval_stage)) !== $stage
+        ) {
+            abort(
+                422,
+                'The LPO stage has changed. Refresh the page and try again.'
+            );
+        }
+
+        StoreLpoApproval::create([
+            'store_lpo_id' => $lpo->id,
+            'user_id' => auth()->id(),
+            'approval_stage' => strtolower($stage),
+            'action' => $action,
+            'comments' => $comments !== '' ? $comments : null,
+            'acted_at' => now(),
         ]);
 
-        $stage = strtoupper((string) $storeLpo->approval_stage);
-
-        if (!in_array($stage, ['HOD', 'MANAGEMENT'], true)) {
-            return back()->with(
-                'error',
-                'This LPO is not currently awaiting approval.'
-            );
-        }
-
-        if (!$this->canApproveStage($stage)) {
-            abort(403, 'You are not authorized to approve this LPO.');
-        }
-
-        $action = $validated['action'];
-
-        DB::transaction(function () use (
-            $storeLpo,
-            $stage,
-            $action,
-            $validated
-        ) {
-            StoreLpoApproval::create([
-                'store_lpo_id' => $storeLpo->id,
-                'user_id' => auth()->id(),
-                'approval_stage' => strtolower($stage),
-                'action' => $action,
-                'comments' => $validated['comments'] ?? null,
-                'acted_at' => now(),
-            ]);
-
-            if ($action === 'return') {
-                $storeLpo->update([
-                    'status' => 'RETURNED',
-                    'approval_stage' => strtolower($stage),
-                    'approved_by' => null,
-                    'approved_at' => null,
-                ]);
-
-                return;
-            }
-
-            if ($action === 'reject') {
-                $storeLpo->update([
-                    'status' => 'REJECTED',
-                    'approval_stage' => strtolower($stage),
-                    'approved_by' => null,
-                    'approved_at' => null,
-                ]);
-
-                return;
-            }
-
-            if ($stage === 'HOD') {
-                $storeLpo->update([
-                    'status' => 'PENDING',
-                    'approval_stage' => 'MANAGEMENT',
-                ]);
-
-                return;
-            }
-
-            $storeLpo->update([
-                'status' => 'APPROVED',
-                'approval_stage' => 'COMPLETED',
-                'approved_by' => auth()->id(),
-                'approved_at' => now(),
-            ]);
-        });
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOTIFY AFTER THE DATABASE TRANSACTION
-        |--------------------------------------------------------------------------
-        */
-
         if ($action === 'return') {
-            $this->notifyLpoCreator(
-                $storeLpo,
-                'store_lpo_returned',
-                'LPO Returned for Correction',
-                'LPO ' . $storeLpo->lpo_number .
-                    ' was returned for correction at the ' . $stage .
-                    ' stage.' .
-                    (!empty($validated['comments'])
-                        ? ' Reason: ' . $validated['comments']
-                        : '')
-            );
-        } elseif ($action === 'reject') {
-            $this->notifyLpoCreator(
-                $storeLpo,
-                'store_lpo_rejected',
-                'LPO Rejected',
-                'LPO ' . $storeLpo->lpo_number .
-                    ' was rejected at the ' . $stage . ' stage.' .
-                    (!empty($validated['comments'])
-                        ? ' Reason: ' . $validated['comments']
-                        : '')
-            );
-        } elseif ($action === 'approve' && $stage === 'HOD') {
+            $lpo->update([
+                'status' => 'RETURNED',
+                'approval_stage' => strtolower($stage),
+                'approved_by' => null,
+                'approved_at' => null,
+            ]);
+
+            return;
+        }
+
+        if ($action === 'reject') {
+            $lpo->update([
+                'status' => 'REJECTED',
+                'approval_stage' => strtolower($stage),
+                'approved_by' => null,
+                'approved_at' => null,
+            ]);
+
+            return;
+        }
+
+        if ($stage === 'HOD') {
+            $lpo->update([
+                'status' => 'PENDING',
+                'approval_stage' => 'MANAGEMENT',
+            ]);
+
+            return;
+        }
+
+        $lpo->update([
+            'status' => 'APPROVED',
+            'approval_stage' => 'COMPLETED',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+    });
+
+    // Reload the saved workflow state before building notifications.
+    $storeLpo->refresh();
+    $storeLpo->loadMissing('store');
+
+    if ($action === 'return') {
+        $this->notifyLpoCreator(
+            $storeLpo,
+            'store_lpo_returned',
+            'LPO Returned for Correction',
+            'LPO ' . $storeLpo->lpo_number .
+                ' was returned at the ' . $stage .
+                ' stage. Reason: ' . $comments
+        );
+    } elseif ($action === 'reject') {
+        $this->notifyLpoCreator(
+            $storeLpo,
+            'store_lpo_rejected',
+            'LPO Rejected',
+            'LPO ' . $storeLpo->lpo_number .
+                ' was rejected at the ' . $stage .
+                ' stage. Reason: ' . $comments
+        );
+    } elseif ($action === 'approve' && $stage === 'HOD') {
+        // Notify management approvers because they are next.
+        $this->notifyLpoUsers(
+            $storeLpo,
+            ['APPROVE STORE LPO - MANAGEMENT'],
+            'store_lpo_hod_approved',
+            'LPO Awaiting Management Approval',
+            'LPO ' . $storeLpo->lpo_number .
+                ' has been approved by HOD and requires management approval.'
+        );
+
+        // Notify the LPO initiator.
+        $this->notifyLpoCreator(
+            $storeLpo,
+            'store_lpo_hod_approved',
+            'LPO Approved by HOD',
+            'LPO ' . $storeLpo->lpo_number .
+                ' has passed HOD approval and has been forwarded to management.'
+        );
+    } elseif ($action === 'approve' && $stage === 'MANAGEMENT') {
+        // Notify the initiator of final approval.
+        $this->notifyLpoCreator(
+            $storeLpo,
+            'store_lpo_approved',
+            'LPO Fully Approved',
+            'LPO ' . $storeLpo->lpo_number .
+                ' has been approved by management and is ready for receiving.'
+        );
+
+        // Notify users authorised to receive into this particular store.
+        if ($storeLpo->store) {
+            $receivingPermission = 'RECEIVE ITEMS TO ' .
+                strtoupper(trim($storeLpo->store->name));
+
             $this->notifyLpoUsers(
                 $storeLpo,
-                [
-                    'APPROVE STORE LPO',
-                    'APPROVE STORE LPO - MANAGEMENT',
-                ],
-                'store_lpo_hod_approved',
-                'LPO Awaiting Management Approval',
+                [$receivingPermission],
+                'store_lpo_ready_for_receiving',
+                'Approved LPO Ready for Receiving',
                 'LPO ' . $storeLpo->lpo_number .
-                    ' has been approved by HOD and requires management approval.'
+                    ' has been approved. Items can now be received into ' .
+                    $storeLpo->store->name . '.'
             );
-
-            $this->notifyLpoCreator(
-                $storeLpo,
-                'store_lpo_hod_approved',
-                'LPO Approved by HOD',
-                'LPO ' . $storeLpo->lpo_number .
-                    ' has passed HOD approval and has been forwarded to management.'
-            );
-        } elseif ($action === 'approve' && $stage === 'MANAGEMENT') {
-            $this->notifyLpoCreator(
-                $storeLpo,
-                'store_lpo_approved',
-                'LPO Fully Approved',
-                'LPO ' . $storeLpo->lpo_number .
-                    ' has been approved by management and is ready for receiving.'
-            );
-
-            $storeLpo->loadMissing('store');
-
-            if ($storeLpo->store) {
-                $receivingPermission = 'RECEIVE ITEMS TO ' .
-                    strtoupper(trim($storeLpo->store->name));
-
-                $this->notifyLpoUsers(
-                    $storeLpo,
-                    [$receivingPermission],
-                    'store_lpo_ready_for_receiving',
-                    'Approved LPO Ready for Receiving',
-                    'LPO ' . $storeLpo->lpo_number .
-                        ' has been approved. Items can now be received into ' .
-                        $storeLpo->store->name . '.'
-                );
-            }
         }
-
-        $message = match ($action) {
-            'approve' => $stage === 'HOD'
-                ? 'LPO approved by HOD and forwarded for management approval.'
-                : 'LPO approved by management and is now available for receiving.',
-            'return' => 'LPO returned for correction.',
-            'reject' => 'LPO rejected.',
-            default => 'LPO approval action completed.',
-        };
-
-        return back()->with('success', $message);
     }
+
+    $message = match ($action) {
+        'approve' => $stage === 'HOD'
+            ? 'LPO approved by HOD and forwarded for management approval.'
+            : 'LPO approved by management and is now available for receiving.',
+        'return' => 'LPO returned for correction. The explanation has been recorded.',
+        'reject' => 'LPO rejected. The explanation has been recorded.',
+        default => 'LPO approval action completed.',
+    };
+
+    return back()->with('success', $message);
+}
+
 
     /*
     |--------------------------------------------------------------------------
@@ -695,92 +728,137 @@ class StoreLpoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    protected function notifyLpoUsers(
-        StoreLpo $storeLpo,
-        array $permissions,
-        string $event,
-        string $title,
-        string $message
-    ): void {
-        try {
-            $users = User::permission($permissions)
-                ->where('id', '!=', auth()->id())
-                ->get()
-                ->unique('id')
-                ->values();
+  
+protected function notifyLpoUsers(
+    StoreLpo $storeLpo,
+    array $permissions,
+    string $event,
+    string $title,
+    string $message
+): void {
+    try {
+        // Find users with any of the specified permissions.
+        $recipientIds = User::permission($permissions)
+            ->where('id', '!=', auth()->id())
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
 
-            if ($users->isEmpty()) {
-                return;
-            }
-
-            app(WorkflowNotificationService::class)->sendToUsers(
-                [
-                    'event' => $event,
-                    'title' => $title,
-                    'message' => $message,
-                    'url' => route('admin.store-lpos.show', $storeLpo),
-                    'icon' => asset('icons/teule-logo.png'),
-                    'priority' => 'normal',
-                    'metadata' => [
-                        'store_lpo_id' => $storeLpo->id,
-                        'lpo_number' => $storeLpo->lpo_number,
-                        'status' => $storeLpo->status,
-                        'approval_stage' => $storeLpo->approval_stage,
-                    ],
-                    'created_by' => auth()->id(),
-                ],
-                $users,
-                ['database', 'webpush']
-            );
-        } catch (\Throwable $exception) {
-            Log::error('Store LPO notification failed.', [
+        if (empty($recipientIds)) {
+            Log::warning('No authorised recipients found for LPO notification.', [
                 'lpo_id' => $storeLpo->id,
+                'lpo_number' => $storeLpo->lpo_number,
                 'event' => $event,
-                'error' => $exception->getMessage(),
+                'permissions' => $permissions,
             ]);
+
+            return;
         }
-    }
 
-    protected function notifyLpoCreator(
-        StoreLpo $storeLpo,
-        string $event,
-        string $title,
-        string $message
-    ): void {
-        try {
-            $creator = User::find($storeLpo->created_by);
-
-            if (!$creator || (int) $creator->id === (int) auth()->id()) {
-                return;
-            }
-
-            app(WorkflowNotificationService::class)->sendToUsers(
-                [
-                    'event' => $event,
-                    'title' => $title,
-                    'message' => $message,
-                    'url' => route('admin.store-lpos.show', $storeLpo),
-                    'icon' => asset('icons/teule-logo.png'),
-                    'priority' => 'normal',
-                    'metadata' => [
-                        'store_lpo_id' => $storeLpo->id,
-                        'lpo_number' => $storeLpo->lpo_number,
-                        'status' => $storeLpo->status,
-                        'approval_stage' => $storeLpo->approval_stage,
-                    ],
-                    'created_by' => auth()->id(),
+        $sent = app(WorkflowNotificationService::class)->send(
+            [
+                'event' => $event,
+                'title' => $title,
+                'message' => $message,
+                'url' => route('admin.store-lpos.show', $storeLpo),
+                'icon' => asset('icons/teule-logo.png'),
+                'priority' => 'normal',
+                'metadata' => [
+                    'store_lpo_id' => $storeLpo->id,
+                    'lpo_number' => $storeLpo->lpo_number,
+                    'status' => $storeLpo->status,
+                    'approval_stage' => $storeLpo->approval_stage,
                 ],
-                collect([$creator]),
-                ['database', 'webpush']
-            );
-        } catch (\Throwable $exception) {
-            Log::error('Store LPO creator notification failed.', [
-                'lpo_id' => $storeLpo->id,
-                'event' => $event,
-                'error' => $exception->getMessage(),
-            ]);
-        }
+                'created_by' => auth()->id(),
+            ],
+            $recipientIds,
+            ['database', 'webpush']
+        );
+
+        Log::info('LPO notification sent to authorised users.', [
+            'lpo_id' => $storeLpo->id,
+            'event' => $event,
+            'permissions' => $permissions,
+            'recipient_ids' => $recipientIds,
+            'recipient_count' => $sent,
+        ]);
+    } catch (\Throwable $exception) {
+        Log::error('Store LPO notification failed.', [
+            'lpo_id' => $storeLpo->id,
+            'event' => $event,
+            'permissions' => $permissions,
+            'error' => $exception->getMessage(),
+        ]);
     }
+}
+
+protected function notifyLpoCreator(
+    StoreLpo $storeLpo,
+    string $event,
+    string $title,
+    string $message
+): void {
+    try {
+        $creatorId = (int) $storeLpo->created_by;
+
+        // Do not send an alert to the person performing the action.
+        if (!$creatorId || $creatorId === (int) auth()->id()) {
+            return;
+        }
+
+        $creatorExists = User::query()
+            ->whereKey($creatorId)
+            ->exists();
+
+        if (!$creatorExists) {
+            Log::warning('LPO creator not found for notification.', [
+                'lpo_id' => $storeLpo->id,
+                'creator_id' => $creatorId,
+                'event' => $event,
+            ]);
+
+            return;
+        }
+
+        $sent = app(WorkflowNotificationService::class)->send(
+            [
+                'event' => $event,
+                'title' => $title,
+                'message' => $message,
+                'url' => route('admin.store-lpos.show', $storeLpo),
+                'icon' => asset('icons/teule-logo.png'),
+                'priority' => 'normal',
+                'metadata' => [
+                    'store_lpo_id' => $storeLpo->id,
+                    'lpo_number' => $storeLpo->lpo_number,
+                    'status' => $storeLpo->status,
+                    'approval_stage' => $storeLpo->approval_stage,
+                ],
+                'created_by' => auth()->id(),
+            ],
+            [$creatorId],
+            ['database', 'webpush']
+        );
+
+        Log::info('LPO creator notification sent.', [
+            'lpo_id' => $storeLpo->id,
+            'event' => $event,
+            'creator_id' => $creatorId,
+            'recipient_count' => $sent,
+        ]);
+    } catch (\Throwable $exception) {
+        Log::error('Store LPO creator notification failed.', [
+            'lpo_id' => $storeLpo->id,
+            'creator_id' => $storeLpo->created_by,
+            'event' => $event,
+            'error' => $exception->getMessage(),
+        ]);
+    }
+}
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -901,30 +979,27 @@ class StoreLpoController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    protected function canApproveStage(string $stage): bool
-    {
-        $user = auth()->user();
 
-        if (!$user) {
-            return false;
-        }
+protected function canApproveStage(string $stage): bool
+{
+    $user = auth()->user();
 
-        if ($stage === 'HOD') {
-            return $user->hasAnyPermission([
-                'APPROVE STORE LPO',
-                'APPROVE STORE LPO - HOD',
-            ]);
-        }
-
-        if ($stage === 'MANAGEMENT') {
-            return $user->hasAnyPermission([
-                'APPROVE STORE LPO',
-                'APPROVE STORE LPO - MANAGEMENT',
-            ]);
-        }
-
+    if (!$user) {
         return false;
     }
+
+    if ($stage === 'HOD') {
+        return $user->can('APPROVE STORE LPO - HOD');
+    }
+
+    if ($stage === 'MANAGEMENT') {
+        return $user->can('APPROVE STORE LPO - MANAGEMENT');
+    }
+
+    return false;
+}
+
+
 
     /*
     |--------------------------------------------------------------------------

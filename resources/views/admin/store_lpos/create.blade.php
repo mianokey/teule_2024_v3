@@ -23,7 +23,8 @@ $oldLpoItems = old('items', []);
 
 @endphp
 
-@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
 @endpush
 
 @section('content')
@@ -31,63 +32,60 @@ $oldLpoItems = old('items', []);
 <div class="store-requisition-page">
 
 
-{{-- ============================================================
-     PAGE HEADER
-     ============================================================ --}}
+    {{-- ============================================================
+    PAGE HEADER
+    ============================================================ --}}
 
-<div class="requisition-page-header">
+    <div class="requisition-page-header">
 
-    <div class="requisition-header-content">
+        <div class="requisition-header-content">
 
-        <div class="requisition-header-icon">
-            <i class="fas fa-file-invoice"></i>
-        </div>
-
-        <div>
-
-            <div class="requisition-breadcrumb">
-                <span>Stores</span>
-                <i class="fas fa-chevron-right"></i>
-                <span>Purchase Orders</span>
-                <i class="fas fa-chevron-right"></i>
-                <span>New LPO</span>
+            <div class="requisition-header-icon">
+                <i class="fas fa-file-invoice"></i>
             </div>
 
-            <h1 class="requisition-page-title">
-                Create LPO
-            </h1>
+            <div>
 
-            <p class="requisition-page-subtitle">
-                Create a new local purchase order for store supplies.
-            </p>
+                <div class="requisition-breadcrumb">
+                    <span>Stores</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Purchase Orders</span>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>New LPO</span>
+                </div>
+
+                <h1 class="requisition-page-title">
+                    Create LPO
+                </h1>
+
+                <p class="requisition-page-subtitle">
+                    Create a new local purchase order for store supplies.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="requisition-header-right">
+
+            <a href="{{ route('admin.store-lpos.index') }}" class="requisition-cancel-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </a>
 
         </div>
 
     </div>
 
-    <div class="requisition-header-right">
 
-        <a
-            href="{{ route('admin.store-lpos.index') }}"
-            class="requisition-cancel-button"
-        >
-            <i class="fas fa-arrow-left"></i>
-            <span>Back</span>
-        </a>
-
-    </div>
-
-</div>
+    <x-message></x-message>
 
 
-<x-message></x-message>
+    {{-- ============================================================
+    VALIDATION ERRORS
+    ============================================================ --}}
 
-
-{{-- ============================================================
-     VALIDATION ERRORS
-     ============================================================ --}}
-
-@if($errors->any())
+    @if($errors->any())
 
     <div class="requisition-state-panel requisition-notice-danger mb-3">
 
@@ -107,9 +105,9 @@ $oldLpoItems = old('items', []);
 
                     @foreach($errors->all() as $error)
 
-                        <li>
-                            {{ $error }}
-                        </li>
+                    <li>
+                        {{ $error }}
+                    </li>
 
                     @endforeach
 
@@ -121,214 +119,188 @@ $oldLpoItems = old('items', []);
 
     </div>
 
-@endif
+    @endif
 
 
-<form
-    method="POST"
-    action="{{ route('admin.store-lpos.store') }}"
-    id="lpoForm"
->
+    <form method="POST" action="{{ route('admin.store-lpos.store') }}" id="lpoForm">
 
-    @csrf
+        @csrf
 
 
-    {{-- ========================================================
-         LPO DETAILS
-         ======================================================== --}}
+        {{-- ========================================================
+        LPO DETAILS
+        ======================================================== --}}
 
-    <div class="requisition-section">
+        <div class="requisition-section">
 
-        <div class="requisition-section-header">
+            <div class="requisition-section-header">
 
-            <div class="requisition-section-heading">
+                <div class="requisition-section-heading">
 
-                <div class="requisition-section-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
+                    <div class="requisition-section-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
 
-                <div>
+                    <div>
 
-                    <h5>
-                        LPO Details
-                    </h5>
+                        <h5>
+                            LPO Details
+                        </h5>
 
-                    <p>
-                        Enter the supplier, store and purchase order dates.
-                    </p>
+                        <p>
+                            Enter the supplier, store and purchase order dates.
+                        </p>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
 
+            <div class="requisition-section-body">
 
-        <div class="requisition-section-body">
+                <div class="row">
 
-            <div class="row">
+                    {{-- SUPPLIER --}}
 
-                {{-- SUPPLIER --}}
+                    <div class="col-md-3">
 
-                <div class="col-md-3">
+                        <div class="requisition-detail-item">
 
-                    <div class="requisition-detail-item">
+                            <label class="requisition-detail-label">
 
-                        <label class="requisition-detail-label">
+                                Supplier
 
-                            Supplier
+                                <span class="text-danger">*</span>
 
-                            <span class="text-danger">*</span>
+                            </label>
 
-                        </label>
+                            <select name="supplier_id" class="form-control requisition-input" required>
 
-                        <select
-                            name="supplier_id"
-                            class="form-control requisition-input"
-                            required
-                        >
+                                <option value="">
+                                    Select supplier
+                                </option>
 
-                            <option value="">
-                                Select supplier
-                            </option>
+                                @foreach($suppliers as $supplier)
 
-                            @foreach($suppliers as $supplier)
-
-                                <option
-                                    value="{{ $supplier->id }}"
-                                    {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}
-                                >
+                                <option value="{{ $supplier->id }}" {{ old('supplier_id')==$supplier->id ? 'selected' :
+                                    '' }}
+                                    >
 
                                     {{ $supplier->name }}
 
                                     @if($supplier->supplier_code)
-                                        — {{ $supplier->supplier_code }}
+                                    — {{ $supplier->supplier_code }}
                                     @endif
 
                                 </option>
 
-                            @endforeach
+                                @endforeach
 
-                        </select>
+                            </select>
+
+                        </div>
 
                     </div>
 
-                </div>
 
+                    {{-- STORE --}}
 
-                {{-- STORE --}}
+                    <div class="col-md-3">
 
-                <div class="col-md-3">
+                        <div class="requisition-detail-item">
 
-                    <div class="requisition-detail-item">
+                            <label class="requisition-detail-label">
 
-                        <label class="requisition-detail-label">
+                                Store
 
-                            Store
+                                <span class="text-danger">*</span>
 
-                            <span class="text-danger">*</span>
+                            </label>
 
-                        </label>
+                            <select name="store_id" class="form-control requisition-input" required>
 
-                        <select
-                            name="store_id"
-                            class="form-control requisition-input"
-                            required
-                        >
+                                <option value="">
+                                    Select store
+                                </option>
 
-                            <option value="">
-                                Select store
-                            </option>
+                                @foreach($stores as $store)
 
-                            @foreach($stores as $store)
-
-                                <option
-                                    value="{{ $store->id }}"
-                                    {{ old('store_id') == $store->id ? 'selected' : '' }}
-                                >
+                                <option value="{{ $store->id }}" {{ old('store_id')==$store->id ? 'selected' : '' }}
+                                    >
 
                                     {{ $store->name }}
 
                                     @if($store->code)
-                                        — {{ $store->code }}
+                                    — {{ $store->code }}
                                     @endif
 
                                 </option>
 
-                            @endforeach
+                                @endforeach
 
-                        </select>
+                            </select>
 
-                    </div>
-
-                </div>
-
-
-                {{-- LPO DATE --}}
-
-                <div class="col-md-3">
-
-                    <div class="requisition-detail-item">
-
-                        <label class="requisition-detail-label">
-
-                            LPO Date
-
-                            <span class="text-danger">*</span>
-
-                        </label>
-
-                        <input
-                            type="date"
-                            name="lpo_date"
-                            value="{{ old('lpo_date', now()->format('Y-m-d')) }}"
-                            class="form-control requisition-input"
-                            required
-                        >
+                        </div>
 
                     </div>
 
-                </div>
 
+                    {{-- LPO DATE --}}
 
-                {{-- EXPECTED DELIVERY --}}
+                    <div class="col-md-3">
 
-                <div class="col-md-3">
+                        <div class="requisition-detail-item">
 
-                    <div class="requisition-detail-item">
+                            <label class="requisition-detail-label">
 
-                        <label class="requisition-detail-label">
-                            Expected Delivery Date
-                        </label>
+                                LPO Date
 
-                        <input
-                            type="date"
-                            name="expected_delivery_date"
-                            value="{{ old('expected_delivery_date') }}"
-                            class="form-control requisition-input"
-                        >
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <input type="date" name="lpo_date" value="{{ old('lpo_date', now()->format('Y-m-d')) }}"
+                                class="form-control requisition-input" required>
+
+                        </div>
 
                     </div>
 
-                </div>
+
+                    {{-- EXPECTED DELIVERY --}}
+
+                    <div class="col-md-3">
+
+                        <div class="requisition-detail-item">
+
+                            <label class="requisition-detail-label">
+                                Expected Delivery Date
+                            </label>
+
+                            <input type="date" name="expected_delivery_date" value="{{ old('expected_delivery_date') }}"
+                                class="form-control requisition-input">
+
+                        </div>
+
+                    </div>
 
 
-                {{-- NOTES --}}
+                    {{-- NOTES --}}
 
-                <div class="col-md-12">
+                    <div class="col-md-12">
 
-                    <div class="requisition-detail-item">
+                        <div class="requisition-detail-item">
 
-                        <label class="requisition-detail-label">
-                            Notes
-                        </label>
+                            <label class="requisition-detail-label">
+                                Notes
+                            </label>
 
-                        <textarea
-                            name="notes"
-                            rows="3"
-                            class="form-control requisition-input"
-                            placeholder="Optional notes or purchasing instructions..."
-                        >{{ old('notes') }}</textarea>
+                            <textarea name="notes" rows="3" class="form-control requisition-input"
+                                placeholder="Optional notes or purchasing instructions...">{{ old('notes') }}</textarea>
+
+                        </div>
 
                     </div>
 
@@ -338,32 +310,110 @@ $oldLpoItems = old('items', []);
 
         </div>
 
-    </div>
 
+        {{-- ========================================================
+        LPO ITEMS
+        ======================================================== --}}
 
-    {{-- ========================================================
-         LPO ITEMS
-         ======================================================== --}}
+        <div class="requisition-section">
 
-    <div class="requisition-section">
+            <div class="requisition-section-header">
 
-        <div class="requisition-section-header">
+                <div class="requisition-section-heading">
 
-            <div class="requisition-section-heading">
+                    <div class="requisition-section-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
 
-                <div class="requisition-section-icon">
-                    <i class="fas fa-boxes"></i>
+                    <div>
+
+                        <h5>
+                            LPO Items
+                        </h5>
+
+                        <p>
+                            Add the items and quantities being ordered.
+                        </p>
+
+                    </div>
+
                 </div>
 
-                <div>
+            </div>
 
-                    <h5>
-                        LPO Items
-                    </h5>
 
-                    <p>
-                        Add the items and quantities being ordered.
-                    </p>
+            <div class="requisition-section-body">
+
+                <div class="requisition-table-wrapper">
+
+                    <table class="table requisition-items-table" id="lpoItemsTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Item
+                                </th>
+
+                                <th>
+                                    Variant
+                                </th>
+
+                                <th>
+                                    Description
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Unit Price
+                                </th>
+
+                                <th>
+                                    Discount
+                                </th>
+
+                                <th>
+                                    Tax
+                                </th>
+
+                                <th>
+                                    Line Total
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="lpoItemsBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="lpo-add-item-row">
+
+                    <button type="button" class="requisition-add-button" id="addLpoItem">
+
+                        <i class="fas fa-plus"></i>
+
+                        Add Item
+
+                    </button>
 
                 </div>
 
@@ -372,83 +422,276 @@ $oldLpoItems = old('items', []);
         </div>
 
 
-        <div class="requisition-section-body">
+        {{-- ========================================================
+        TOTALS
+        ======================================================== --}}
 
-            <div class="requisition-table-wrapper">
+        <div class="requisition-section">
 
-                <table
-                    class="table requisition-items-table"
-                    id="lpoItemsTable"
-                >
+            <div class="requisition-section-header">
 
-                    <thead>
+                <div class="requisition-section-heading">
 
-                        <tr>
+                    <div class="requisition-section-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
 
-                            <th>
-                                #
-                            </th>
+                    <div>
 
-                            <th>
-                                Item
-                            </th>
+                        <h5>
+                            LPO Totals
+                        </h5>
 
-                            <th>
-                                Variant
-                            </th>
+                        <p>
+                            Review the purchase order totals before saving.
+                        </p>
 
-                            <th>
-                                Description
-                            </th>
+                    </div>
 
-                            <th>
-                                Quantity
-                            </th>
-
-                            <th>
-                                Unit Price
-                            </th>
-
-                            <th>
-                                Discount
-                            </th>
-
-                            <th>
-                                Tax
-                            </th>
-
-                            <th>
-                                Line Total
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="lpoItemsBody">
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
 
 
-            <div class="lpo-add-item-row">
+            <div class="requisition-section-body">
 
-                <button
-                    type="button"
-                    class="requisition-add-button"
-                    id="addLpoItem"
-                >
+                <div class="row">
 
-                    <i class="fas fa-plus"></i>
+                    <div class="col-md-6">
 
-                    Add Item
+                        <div class="requisition-detail-item">
+
+                            <label class="requisition-detail-label">
+                                Header Discount
+                            </label>
+
+                            <input type="number" name="discount" id="headerDiscount" value="{{ old('discount', 0) }}"
+                                min="0" step="0.01" class="form-control requisition-input">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="requisition-detail-item">
+
+                            <label class="requisition-detail-label">
+                                Header Tax
+                            </label>
+
+                            <input type="number" name="tax" id="headerTax" value="{{ old('tax', 0) }}" min="0"
+                                step="0.01" class="form-control requisition-input">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="lpo-totals">
+
+                    <div class="lpo-total-row">
+
+                        <span class="lpo-total-label">
+                            Items Subtotal
+                        </span>
+
+                        <span class="lpo-total-value" id="itemsSubtotal">
+                            KSh 0.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="lpo-total-row">
+
+                        <span class="lpo-total-label">
+                            Header Discount
+                        </span>
+
+                        <span class="lpo-total-value" id="displayHeaderDiscount">
+                            KSh 0.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="lpo-total-row">
+
+                        <span class="lpo-total-label">
+                            Header Tax
+                        </span>
+
+                        <span class="lpo-total-value" id="displayHeaderTax">
+                            KSh 0.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="lpo-total-row">
+
+                        <span class="lpo-total-label lpo-grand-total">
+                            Grand Total
+                        </span>
+
+                        <span class="lpo-total-value lpo-grand-total" id="grandTotal">
+                            KSh 0.00
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ========================================================
+        FORM ACTIONS
+        ======================================================== --}}
+
+        <div class="requisition-bottom-actions">
+
+            <div class="requisition-bottom-actions-left">
+
+                <a href="{{ route('admin.store-lpos.index') }}" class="requisition-cancel-button">
+
+                    <i class="fas fa-times"></i>
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+
+            <div class="requisition-bottom-actions-right">
+
+                <button type="submit" class="requisition-add-button">
+
+                    <i class="fas fa-save"></i>
+
+                    Save LPO
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+
+</div>
+
+{{-- ================================================================
+ITEM SELECTION MODAL
+Uses existing stores.css modal and table classes.
+================================================================ --}}
+
+<div class="modal fade stores-modal" id="itemSelectionModal" tabindex="-1" aria-labelledby="itemSelectionModalLabel"
+    aria-hidden="true">
+
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title" id="itemSelectionModalLabel">
+
+                    <i class="fas fa-boxes me-2"></i>
+
+                    Select Store Item
+
+                </h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+                    <input type="text" class="form-control" id="itemSearch" placeholder="Search item name or SKU..."
+                        autocomplete="off">
+
+                </div>
+
+
+                <div class="requisition-list-table-wrapper">
+
+                    <table class="table requisition-list-table" id="itemSelectionTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Item
+                                </th>
+
+                                <th>
+                                    SKU
+                                </th>
+
+                                <th>
+                                    Unit
+                                </th>
+
+                                <th>
+                                    Variants
+                                </th>
+
+                                <th class="text-end">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="itemSelectionBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div id="itemSelectionEmpty" class="text-center text-muted py-4" style="display:none;">
+
+                    <i class="fas fa-box-open fa-2x mb-2"></i>
+
+                    <div>
+                        No matching items found.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button type="button" class="requisition-cancel-button" data-bs-dismiss="modal">
+
+                    <i class="fas fa-times me-1"></i>
+
+                    Close
 
                 </button>
 
@@ -459,352 +702,10 @@ $oldLpoItems = old('items', []);
     </div>
 
 
-    {{-- ========================================================
-         TOTALS
-         ======================================================== --}}
-
-    <div class="requisition-section">
-
-        <div class="requisition-section-header">
-
-            <div class="requisition-section-heading">
-
-                <div class="requisition-section-icon">
-                    <i class="fas fa-calculator"></i>
-                </div>
-
-                <div>
-
-                    <h5>
-                        LPO Totals
-                    </h5>
-
-                    <p>
-                        Review the purchase order totals before saving.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="requisition-section-body">
-
-            <div class="row">
-
-                <div class="col-md-6">
-
-                    <div class="requisition-detail-item">
-
-                        <label class="requisition-detail-label">
-                            Header Discount
-                        </label>
-
-                        <input
-                            type="number"
-                            name="discount"
-                            id="headerDiscount"
-                            value="{{ old('discount', 0) }}"
-                            min="0"
-                            step="0.01"
-                            class="form-control requisition-input"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <div class="requisition-detail-item">
-
-                        <label class="requisition-detail-label">
-                            Header Tax
-                        </label>
-
-                        <input
-                            type="number"
-                            name="tax"
-                            id="headerTax"
-                            value="{{ old('tax', 0) }}"
-                            min="0"
-                            step="0.01"
-                            class="form-control requisition-input"
-                        >
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="lpo-totals">
-
-                <div class="lpo-total-row">
-
-                    <span class="lpo-total-label">
-                        Items Subtotal
-                    </span>
-
-                    <span
-                        class="lpo-total-value"
-                        id="itemsSubtotal"
-                    >
-                        KSh 0.00
-                    </span>
-
-                </div>
-
-
-                <div class="lpo-total-row">
-
-                    <span class="lpo-total-label">
-                        Header Discount
-                    </span>
-
-                    <span
-                        class="lpo-total-value"
-                        id="displayHeaderDiscount"
-                    >
-                        KSh 0.00
-                    </span>
-
-                </div>
-
-
-                <div class="lpo-total-row">
-
-                    <span class="lpo-total-label">
-                        Header Tax
-                    </span>
-
-                    <span
-                        class="lpo-total-value"
-                        id="displayHeaderTax"
-                    >
-                        KSh 0.00
-                    </span>
-
-                </div>
-
-
-                <div class="lpo-total-row">
-
-                    <span class="lpo-total-label lpo-grand-total">
-                        Grand Total
-                    </span>
-
-                    <span
-                        class="lpo-total-value lpo-grand-total"
-                        id="grandTotal"
-                    >
-                        KSh 0.00
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- ========================================================
-         FORM ACTIONS
-         ======================================================== --}}
-
-    <div class="requisition-bottom-actions">
-
-        <div class="requisition-bottom-actions-left">
-
-            <a
-                href="{{ route('admin.store-lpos.index') }}"
-                class="requisition-cancel-button"
-            >
-
-                <i class="fas fa-times"></i>
-
-                Cancel
-
-            </a>
-
-        </div>
-
-
-        <div class="requisition-bottom-actions-right">
-
-            <button
-                type="submit"
-                class="requisition-add-button"
-            >
-
-                <i class="fas fa-save"></i>
-
-                Save LPO
-
-            </button>
-
-        </div>
-
-    </div>
-
-</form>
-
-
-</div>
-
-{{-- ================================================================
-ITEM SELECTION MODAL
-Uses existing stores.css modal and table classes.
-================================================================ --}}
-
-<div
-    class="modal fade stores-modal"
-    id="itemSelectionModal"
-    tabindex="-1"
-    aria-labelledby="itemSelectionModalLabel"
-    aria-hidden="true"
->
-
-
-<div class="modal-dialog modal-xl modal-dialog-centered">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <h5
-                class="modal-title"
-                id="itemSelectionModalLabel"
-            >
-
-                <i class="fas fa-boxes me-2"></i>
-
-                Select Store Item
-
-            </h5>
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-            ></button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            <div class="mb-3">
-
-                <input
-                    type="text"
-                    class="form-control"
-                    id="itemSearch"
-                    placeholder="Search item name or SKU..."
-                    autocomplete="off"
-                >
-
-            </div>
-
-
-            <div class="requisition-list-table-wrapper">
-
-                <table
-                    class="table requisition-list-table"
-                    id="itemSelectionTable"
-                >
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                #
-                            </th>
-
-                            <th>
-                                Item
-                            </th>
-
-                            <th>
-                                SKU
-                            </th>
-
-                            <th>
-                                Unit
-                            </th>
-
-                            <th>
-                                Variants
-                            </th>
-
-                            <th class="text-end">
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="itemSelectionBody">
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-            <div
-                id="itemSelectionEmpty"
-                class="text-center text-muted py-4"
-                style="display:none;"
-            >
-
-                <i class="fas fa-box-open fa-2x mb-2"></i>
-
-                <div>
-                    No matching items found.
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="modal-footer">
-
-            <button
-                type="button"
-                class="requisition-cancel-button"
-                data-bs-dismiss="modal"
-            >
-
-                <i class="fas fa-times me-1"></i>
-
-                Close
-
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
 </div>
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
     const items = @json($lpoItemData);
 

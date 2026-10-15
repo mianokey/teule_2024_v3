@@ -420,266 +420,89 @@
     @endphp
 
 
-    @if($isPending)
+{{-- LPO APPROVAL PANEL --}}
+@if($storeLpo->status === 'PENDING')
 
-        <div class="requisition-section">
+    <div class="requisition-approval-panel">
 
-            <div class="requisition-section-header">
+        <div class="row align-items-center g-2">
 
-                <div class="requisition-section-heading">
-
-                    <div class="requisition-section-icon">
-
-                        <i class="fas fa-user-check"></i>
-
-                    </div>
-
-                    <div>
-
-                        <h5>
-                            Approval Actions
-                        </h5>
-
-                        <p>
-
-                            @if($isHodStage)
-
-                                This LPO is awaiting HOD approval.
-
-                            @elseif($isManagementStage)
-
-                                This LPO is awaiting Management approval.
-
-                            @else
-
-                                This LPO is awaiting approval.
-
-                            @endif
-
-                        </p>
-
-                    </div>
-
+            {{-- LEFT: TITLE AND STATUS --}}
+            <div class="col-md-6">
+                <div class="requisition-approval-panel-title mb-1">
+                    <i class="fas fa-user-check me-1"></i>
+                    @if($canTakeAction)
+                        Action Required: {{ $approvalStageLabel }}
+                    @else
+                        Awaiting {{ $approvalStageLabel }} Approval
+                    @endif
                 </div>
 
+                <div class="small">
+                    <strong>Status:</strong> {{ $storeLpo->status }}
+                    <span class="mx-2">|</span>
+                    <strong>Stage:</strong> {{ $approvalStageLabel }}
+                </div>
+
+                @unless($canTakeAction)
+                    <div class="small mt-1">
+                        Awaiting an authorised {{ $approvalStageLabel }} approver.
+                    </div>
+                @endunless
             </div>
 
-
-            <div class="requisition-section-body">
-
+            {{-- RIGHT: ACTION BUTTONS --}}
+            <div class="col-md-6 text-md-end">
                 @if($canTakeAction)
 
-                    <div class="requisition-notice requisition-notice-info mb-3">
-
-                        <strong>
-
-                            {{ $approvalStageLabel }}
-                            Approval Required
-
-                        </strong>
-
-                        <div>
-
-                            Review the LPO details and choose an action below.
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="requisition-bottom-actions">
-
-                        <div class="requisition-bottom-actions-left">
-
-                            <span>
-
-                                Current Stage:
-
-                                <strong>
-
-                                    {{ $approvalStageLabel }}
-
-                                </strong>
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="requisition-bottom-actions-right">
-
-
-                            {{-- =================================================
-                                 RETURN
-                                 ================================================= --}}
-
-                            <form
-                                method="POST"
-                                action="{{ route(
-                                    'admin.store-lpos.approval',
-                                    $storeLpo
-                                ) }}"
-                                style="display:inline-block;"
-                            >
-
-                                @csrf
-
-                                <input
-                                    type="hidden"
-                                    name="action"
-                                    value="return"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="requisition-cancel-button"
-                                    onclick="return confirm(
-                                        'Return this LPO to the initiator for correction?'
-                                    );"
-                                >
-
-                                    <i class="fas fa-undo me-1"></i>
-
-                                    Return
-
-                                </button>
-
-                            </form>
-
-
-                            {{-- =================================================
-                                 REJECT
-                                 ================================================= --}}
-
-                            <form
-                                method="POST"
-                                action="{{ route(
-                                    'admin.store-lpos.approval',
-                                    $storeLpo
-                                ) }}"
-                                style="display:inline-block;"
-                            >
-
-                                @csrf
-
-                                <input
-                                    type="hidden"
-                                    name="action"
-                                    value="reject"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="requisition-cancel-button"
-                                    onclick="return confirm(
-                                        'Reject this LPO? This action should only be used when the LPO should not proceed.'
-                                    );"
-                                >
-
-                                    <i class="fas fa-times me-1"></i>
-
-                                    Reject
-
-                                </button>
-
-                            </form>
-
-
-                            {{-- =================================================
-                                 APPROVE
-                                 ================================================= --}}
-
-                            <form
-                                method="POST"
-                                action="{{ route(
-                                    'admin.store-lpos.approval',
-                                    $storeLpo
-                                ) }}"
-                                style="display:inline-block;"
-                            >
-
-                                @csrf
-
-                                <input
-                                    type="hidden"
-                                    name="action"
-                                    value="approve"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="requisition-add-button"
-                                    onclick="return confirm(
-                                        'Approve this LPO?'
-                                    );"
-                                >
-
-                                    <i class="fas fa-check me-1"></i>
-
-                                    Approve
-
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </div>
-
-
-                @else
-
-                    {{-- =================================================
-                         USER DOES NOT HAVE APPROVAL PERMISSION
-                         ================================================= --}}
-
-                    <div class="requisition-notice requisition-notice-info">
-
-                        <strong>
-
-                            Awaiting
-                            {{ $approvalStageLabel }}
-                            Approval
-
-                        </strong>
-
-                        <div>
-
-                            This LPO is currently awaiting an authorized
-                            {{ $approvalStageLabel }} approver.
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="requisition-bottom-actions">
-
-                        <div class="requisition-bottom-actions-left">
-
-                            <span>
-
-                                Current Stage:
-
-                                <strong>
-
-                                    {{ $approvalStageLabel }}
-
-                                </strong>
-
-                            </span>
-
-                        </div>
+                    <div class="requisition-approval-actions justify-content-md-end">
+
+                        <form method="POST"
+                              action="{{ route('admin.store-lpos.approval', $storeLpo) }}"
+                              class="d-inline">
+                            @csrf
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit"
+                                    class="btn btn-sm btn-success"
+                                    onclick="return confirm('Approve this LPO?')">
+                                <i class="fas fa-check me-1"></i> Approve
+                            </button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ route('admin.store-lpos.approval', $storeLpo) }}"
+                              class="d-inline">
+                            @csrf
+                            <input type="hidden" name="action" value="return">
+                            <button type="submit"
+                                    class="btn btn-sm btn-warning"
+                                    onclick="return confirm('Return this LPO to the initiator for correction?')">
+                                <i class="fas fa-undo me-1"></i> Return
+                            </button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ route('admin.store-lpos.approval', $storeLpo) }}"
+                              class="d-inline">
+                            @csrf
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Reject this LPO? This action should only be used when the LPO should not proceed.')">
+                                <i class="fas fa-times me-1"></i> Reject
+                            </button>
+                        </form>
 
                     </div>
 
                 @endif
-
             </div>
 
         </div>
 
-    @endif
+    </div>
+
+@endif
 
 
 
