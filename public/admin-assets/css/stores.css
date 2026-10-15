@@ -3169,3 +3169,24 @@
         margin: 0 8px;
     }
 }
+
+/* Approved LPOs awaiting receipt into Stores */
+.requisition-list-table tbody tr.lpo-awaiting-receipt {
+    background-color: #fff3e0;
+}
+
+.requisition-list-table tbody tr.lpo-awaiting-receipt td {
+    border-color: #ffd39b;
+}
+
+
+/* Highlight approved LPOs awaiting Stores receipt */
+.requisition-list-table tbody tr.lpo-awaiting-receipt,
+.requisition-list-table tbody tr.lpo-awaiting-receipt > td {
+    background-color: #fff0e6 !important;
+}
+
+.requisition-list-table tbody tr.lpo-awaiting-receipt:hover,
+.requisition-list-table tbody tr.lpo-awaiting-receipt:hover > td {
+    background-color: #ffe2cf !important;
+}
