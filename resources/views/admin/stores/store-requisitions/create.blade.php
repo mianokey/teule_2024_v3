@@ -1,4 +1,3 @@
-blade
 @extends('layouts.admin')
 
 @push('styles')

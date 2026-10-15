@@ -201,16 +201,13 @@ public function edit(StoreReceipt $storeReceipt)
     $storeReceipt->load([
         'store',
         'supplier',
-
         'lpo.supplier',
         'lpo.store',
         'lpo.items.item.unit',
         'lpo.items.variant',
-
         'donation.donor',
         'donation.items.storeItem.unit',
         'donation.items.variant',
-
         'items.item.unit',
         'items.variant',
         'items.lpoItem',
@@ -250,13 +247,9 @@ public function edit(StoreReceipt $storeReceipt)
     /*
     |--------------------------------------------------------------------------
     | Donations
-    |
-    | Only IN_KIND donations that have NOT already been received into
-    | Stores are shown.
-    |
-    | IMPORTANT:
-    | The donation belonging to the current draft receipt is kept visible
-    | so that the user can continue editing the draft.
+    |--------------------------------------------------------------------------
+    | Only IN_KIND donations not already used by another receipt are shown.
+    | The donation attached to the current draft remains available.
     |--------------------------------------------------------------------------
     */
 
@@ -268,10 +261,6 @@ public function edit(StoreReceipt $storeReceipt)
         ])
         ->where('type', 'IN_KIND')
         ->where(function ($query) use ($storeReceipt) {
-
-            /*
-             * Donation has never been used by a Store Receipt
-             */
             $query->whereNotExists(function ($subQuery) {
                 $subQuery
                     ->selectRaw('1')
@@ -281,13 +270,6 @@ public function edit(StoreReceipt $storeReceipt)
                         'donations.id'
                     );
             })
-
-            /*
-             * OR it belongs to the current draft receipt.
-             *
-             * This allows the current draft donation to remain
-             * selectable while editing.
-             */
             ->orWhere('donations.id', $storeReceipt->donation_id);
         })
         ->orderByDesc('donation_date')
@@ -318,9 +300,6 @@ public function edit(StoreReceipt $storeReceipt)
     /*
     |--------------------------------------------------------------------------
     | Keep the current LPO available
-    |
-    | This is important if an LPO was previously selected on the receipt
-    | but its status has subsequently changed.
     |--------------------------------------------------------------------------
     */
 
@@ -390,9 +369,7 @@ public function edit(StoreReceipt $storeReceipt)
 
     /*
     |--------------------------------------------------------------------------
-    | Prepare simple JSON-safe store item data
-    |
-    | This is used by JavaScript in edit.blade.php.
+    | Prepare JSON-safe store item data
     |--------------------------------------------------------------------------
     */
 
@@ -400,9 +377,7 @@ public function edit(StoreReceipt $storeReceipt)
         ->map(function ($item) {
             return [
                 'id' => (int) $item->id,
-
                 'name' => (string) $item->name,
-
                 'sku' => (string) ($item->sku ?? ''),
 
                 'unit' => $item->unit
@@ -417,12 +392,8 @@ public function edit(StoreReceipt $storeReceipt)
                     ->map(function ($variant) {
                         return [
                             'id' => (int) $variant->id,
-
                             'name' => (string) $variant->name,
-
-                            'code' => (string) (
-                                $variant->code ?? ''
-                            ),
+                            'code' => (string) ($variant->code ?? ''),
                         ];
                     })
                     ->values()
@@ -435,8 +406,9 @@ public function edit(StoreReceipt $storeReceipt)
     /*
     |--------------------------------------------------------------------------
     | Prepare LPO data
-    |
-    | This includes the LPO header information and its individual items.
+    |--------------------------------------------------------------------------
+    | IMPORTANT: The LPO database column is ordered_quantity.
+    | We expose it to JavaScript using the key "quantity".
     |--------------------------------------------------------------------------
     */
 
@@ -465,6 +437,10 @@ public function edit(StoreReceipt $storeReceipt)
 
                 'items' => $lpo->items
                     ->map(function ($lpoItem) {
+                        $orderedQuantity = $lpoItem->getAttribute(
+                            'ordered_quantity'
+                        );
+
                         return [
                             'id' => (int) $lpoItem->id,
 
@@ -476,8 +452,8 @@ public function edit(StoreReceipt $storeReceipt)
                                 ? (int) $lpoItem->variant_id
                                 : null,
 
-                            'quantity' => $lpoItem->getAttribute('quantity') !== null
-                                ? (float) $lpoItem->getAttribute('quantity')
+                            'quantity' => $orderedQuantity !== null
+                                ? (float) $orderedQuantity
                                 : null,
                         ];
                     })
@@ -491,18 +467,11 @@ public function edit(StoreReceipt $storeReceipt)
     /*
     |--------------------------------------------------------------------------
     | Prepare existing receipt items
-    |
-    | These are the items currently saved against this draft receipt.
-    |
-    | We now also send the item name, SKU, unit and variant name directly
-    | to the Blade. This makes the existing receipt rows reliable even
-    | before JavaScript performs another item lookup.
     |--------------------------------------------------------------------------
     */
 
     $receiptItemData = $storeReceipt->items
         ->map(function ($receiptItem) {
-
             $storeItem = $receiptItem->item;
             $variant = $receiptItem->variant;
 
@@ -519,19 +488,11 @@ public function edit(StoreReceipt $storeReceipt)
                     ? (float) $receiptItem->quantity
                     : 0,
 
-                'notes' => (string) (
-                    $receiptItem->notes ?? ''
-                ),
+                'notes' => (string) ($receiptItem->notes ?? ''),
 
                 'lpo_item_id' => $receiptItem->lpo_item_id
                     ? (int) $receiptItem->lpo_item_id
                     : null,
-
-                /*
-                |--------------------------------------------------------------------------
-                | Item information
-                |--------------------------------------------------------------------------
-                */
 
                 'store_item_name' => $storeItem
                     ? (string) ($storeItem->name ?? '')
@@ -560,16 +521,6 @@ public function edit(StoreReceipt $storeReceipt)
     /*
     |--------------------------------------------------------------------------
     | Prepare donation data
-    |
-    | Each donation includes its donor information and all donation items.
-    |
-    | This allows the edit Blade to do:
-    |
-    | Donation selected
-    |       ↓
-    | Donation items loaded
-    |       ↓
-    | Goods received table populated
     |--------------------------------------------------------------------------
     */
 
@@ -608,13 +559,6 @@ public function edit(StoreReceipt $storeReceipt)
                                 ? (int) $donationItem->variant_id
                                 : null,
 
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Free-text item description from the
-                            | original donation record.
-                            |--------------------------------------------------------------------------
-                            */
-
                             'item' => (string) (
                                 $donationItem->item ?? ''
                             ),
@@ -634,12 +578,6 @@ public function edit(StoreReceipt $storeReceipt)
                             'notes' => (string) (
                                 $donationItem->notes ?? ''
                             ),
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Store item information
-                            |--------------------------------------------------------------------------
-                            */
 
                             'store_item_name' => $donationItem->storeItem
                                 ? (string) $donationItem->storeItem->name

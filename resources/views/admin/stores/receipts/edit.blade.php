@@ -944,7 +944,7 @@
                                     <td class="text-end">
 
                                         <button type="button"
-                                                class="requisition-list-action primary select-supplier-btn"
+                                                class="requisition-add-button primary select-supplier-btn"
                                                 data-supplier-id="{{ $supplier->id }}"
                                                 data-supplier-name="{{ $supplier->name }}"
                                                 data-supplier-code="{{ $supplier->supplier_code ?? '' }}"
@@ -1293,7 +1293,7 @@
                                     <td class="text-end">
 
                                         <button type="button"
-                                                class="requisition-list-action primary select-lpo-btn"
+                                                class="requisition-add-button primary select-lpo-btn"
                                                 data-lpo-id="{{ $lpo->id }}"
                                                 data-lpo-number="{{ $lpo->lpo_number }}"
                                                 data-supplier-id="{{ $lpo->supplier_id }}"
@@ -1671,7 +1671,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const lpoData = @json($lpoData ?? []);
     const donationData = @json($donationData ?? []);
     const receiptItemData = @json($receiptItemData ?? []);
-
     const oldItems = @json(old('items', []));
 
     const originalSource = @json($storeReceipt->source_type);
@@ -1683,30 +1682,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const purchaseSection = document.getElementById('purchaseSection');
     const donationSection = document.getElementById('donationSection');
-
     const purchaseItemsNotice = document.getElementById('purchaseItemsNotice');
     const donationItemsNotice = document.getElementById('donationItemsNotice');
+    const itemsSectionDescription = document.getElementById('itemsSectionDescription');
+    const itemsBody = document.getElementById('receiptItemsBody');
+    const itemsEmptyState = document.getElementById('itemsEmptyState');
+    const storeSelect = document.getElementById('store_id');
 
-    const itemsSectionDescription =
-        document.getElementById('itemsSectionDescription');
+    const supplierIdInput = document.getElementById('supplier_id');
+    const lpoIdInput = document.getElementById('store_lpo_id');
+    const donationIdInput = document.getElementById('donation_id');
 
-    const itemsBody =
-        document.getElementById('receiptItemsBody');
-
-    const itemsEmptyState =
-        document.getElementById('itemsEmptyState');
-
-    const storeSelect =
-        document.getElementById('store_id');
-
-    const supplierIdInput =
-        document.getElementById('supplier_id');
-
-    const lpoIdInput =
-        document.getElementById('store_lpo_id');
-
-    const donationIdInput =
-        document.getElementById('donation_id');
+    const productionItemsControls =
+        document.getElementById('productionItemsControls');
 
     const supplierModalElement =
         document.getElementById('supplierSelectionModal');
@@ -1717,36 +1705,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const donationModalElement =
         document.getElementById('donationSelectionModal');
 
-    const supplierModal =
-        supplierModalElement
-            ? bootstrap.Modal.getOrCreateInstance(supplierModalElement)
-            : null;
+    const supplierModal = supplierModalElement
+        ? bootstrap.Modal.getOrCreateInstance(supplierModalElement)
+        : null;
 
-    const lpoModal =
-        lpoModalElement
-            ? bootstrap.Modal.getOrCreateInstance(lpoModalElement)
-            : null;
+    const lpoModal = lpoModalElement
+        ? bootstrap.Modal.getOrCreateInstance(lpoModalElement)
+        : null;
 
-    const donationModal =
-        donationModalElement
-            ? bootstrap.Modal.getOrCreateInstance(donationModalElement)
-            : null;
+    const donationModal = donationModalElement
+        ? bootstrap.Modal.getOrCreateInstance(donationModalElement)
+        : null;
 
+    const supplierSearch = document.getElementById('supplierSearch');
+    const supplierStatusFilter =
+        document.getElementById('supplierStatusFilter');
+
+    const lpoSearch = document.getElementById('lpoSearch');
+    const lpoStatusFilter = document.getElementById('lpoStatusFilter');
+    const lpoSupplierFilter =
+        document.getElementById('lpoSupplierFilter');
+
+    const donationSearch = document.getElementById('donationSearch');
+
+    const productionItemSearch =
+        document.getElementById('productionItemSearch');
+
+    const productionItemSelectionModal =
+        document.getElementById('productionItemSelectionModal');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Source helpers
+    |--------------------------------------------------------------------------
+    */
+
+    function isProductionSource(source = sourceType.value) {
+        return source === 'FARM_SUPPLIES' ||
+               source === 'DAIRY_SUPPLIES';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | General helpers
+    |--------------------------------------------------------------------------
+    */
 
     function escapeHtml(value) {
-
         return String(value ?? '')
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
-
     }
 
 
     function formatNumber(value) {
-
         const number = parseFloat(value);
 
         if (Number.isNaN(number)) {
@@ -1756,39 +1773,31 @@ document.addEventListener('DOMContentLoaded', function () {
         return Number.isInteger(number)
             ? String(number)
             : number.toFixed(2).replace(/\.?0+$/, '');
-
     }
 
 
     function getItem(id) {
-
         return itemData.find(function (item) {
             return String(item.id) === String(id);
         });
-
     }
 
 
     function getLpo(id) {
-
         return lpoData.find(function (lpo) {
             return String(lpo.id) === String(id);
         });
-
     }
 
 
     function getDonation(id) {
-
         return donationData.find(function (donation) {
             return String(donation.id) === String(id);
         });
-
     }
 
 
     function getVariant(item, variantId) {
-
         if (!item || !Array.isArray(item.variants)) {
             return null;
         }
@@ -1796,12 +1805,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return item.variants.find(function (variant) {
             return String(variant.id) === String(variantId);
         }) || null;
-
     }
 
 
-    function selectedSupplierCard(id) {
+    /*
+    |--------------------------------------------------------------------------
+    | Selected supplier card
+    |--------------------------------------------------------------------------
+    */
 
+    function selectedSupplierCard(id) {
         const button = document.querySelector(
             '.select-supplier-btn[data-supplier-id="' + id + '"]'
         );
@@ -1810,36 +1823,46 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const supplierName =
-            button.dataset.supplierName || '';
+        const supplierName = button.dataset.supplierName || '';
+        const supplierCode = button.dataset.supplierCode || '';
+        const supplierContact = button.dataset.supplierContact || '';
 
-        const supplierCode =
-            button.dataset.supplierCode || '';
+        const title = document.getElementById('supplierPickerTitle');
+        const subtitle = document.getElementById('supplierPickerSubtitle');
+        const name = document.getElementById('selectedSupplierName');
+        const meta = document.getElementById('selectedSupplierMeta');
+        const card = document.getElementById('selectedSupplierCard');
 
-        const supplierContact =
-            button.dataset.supplierContact || '';
+        if (title) {
+            title.textContent = supplierName || 'Select Supplier';
+        }
 
-        document.getElementById('supplierPickerTitle').textContent =
-            supplierName || 'Select Supplier';
+        if (subtitle) {
+            subtitle.textContent = supplierCode || 'Choose supplier';
+        }
 
-        document.getElementById('supplierPickerSubtitle').textContent =
-            supplierCode || 'Choose supplier';
+        if (name) {
+            name.textContent = supplierName;
+        }
 
-        document.getElementById('selectedSupplierName').textContent =
-            supplierName;
+        if (meta) {
+            meta.textContent = supplierCode +
+                (supplierContact ? ' · ' + supplierContact : '');
+        }
 
-        document.getElementById('selectedSupplierMeta').textContent =
-            supplierCode +
-            (supplierContact ? ' · ' + supplierContact : '');
-
-        document.getElementById('selectedSupplierCard').style.display =
-            'flex';
-
+        if (card) {
+            card.style.display = 'flex';
+        }
     }
 
 
-    function selectedLpoCard(id) {
+    /*
+    |--------------------------------------------------------------------------
+    | Selected LPO card
+    |--------------------------------------------------------------------------
+    */
 
+    function selectedLpoCard(id) {
         const button = document.querySelector(
             '.select-lpo-btn[data-lpo-id="' + id + '"]'
         );
@@ -1848,47 +1871,50 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const lpoNumber =
-            button.dataset.lpoNumber || '';
+        const lpoNumber = button.dataset.lpoNumber || '';
+        const supplierName = button.dataset.supplierName || '';
+        const storeName = button.dataset.storeName || '';
+        const itemCount = button.dataset.items || '';
+        const status = button.dataset.status || '';
 
-        const supplierName =
-            button.dataset.supplierName || '';
+        const title = document.getElementById('lpoPickerTitle');
+        const subtitle = document.getElementById('lpoPickerSubtitle');
+        const number = document.getElementById('selectedLpoNumber');
+        const meta = document.getElementById('selectedLpoMeta');
+        const card = document.getElementById('selectedLpoCard');
 
-        const storeName =
-            button.dataset.storeName || '';
+        if (title) {
+            title.textContent = lpoNumber || 'Select LPO';
+        }
 
-        const itemCount =
-            button.dataset.items || '';
+        if (subtitle) {
+            subtitle.textContent = supplierName || 'Choose purchase order';
+        }
 
-        const status =
-            button.dataset.status || '';
+        if (number) {
+            number.textContent = lpoNumber;
+        }
 
-        document.getElementById('lpoPickerTitle').textContent =
-            lpoNumber || 'Select LPO';
+        if (meta) {
+            meta.textContent = supplierName +
+                ' · ' + storeName +
+                ' · ' + itemCount + ' item(s)' +
+                ' · ' + status;
+        }
 
-        document.getElementById('lpoPickerSubtitle').textContent =
-            supplierName || 'Choose purchase order';
-
-        document.getElementById('selectedLpoNumber').textContent =
-            lpoNumber;
-
-        document.getElementById('selectedLpoMeta').textContent =
-            supplierName +
-            ' · ' +
-            storeName +
-            ' · ' +
-            itemCount +
-            ' item(s) · ' +
-            status;
-
-        document.getElementById('selectedLpoCard').style.display =
-            'flex';
-
+        if (card) {
+            card.style.display = 'flex';
+        }
     }
 
 
-    function selectedDonationCard(id) {
+    /*
+    |--------------------------------------------------------------------------
+    | Selected donation card
+    |--------------------------------------------------------------------------
+    */
 
+    function selectedDonationCard(id) {
         const button = document.querySelector(
             '.select-donation-btn[data-donation-id="' + id + '"]'
         );
@@ -1897,118 +1923,246 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const donationNumber =
-            button.dataset.donationNumber || '';
+        const donationNumber = button.dataset.donationNumber || '';
+        const donorName = button.dataset.donorName || '';
+        const donorNumber = button.dataset.donorNumber || '';
+        const type = button.dataset.type || '';
+        const date = button.dataset.date || '';
 
-        const donorName =
-            button.dataset.donorName || '';
+        const title = document.getElementById('donationPickerTitle');
+        const subtitle = document.getElementById('donationPickerSubtitle');
+        const number = document.getElementById('selectedDonationNumber');
+        const meta = document.getElementById('selectedDonationMeta');
+        const card = document.getElementById('selectedDonationCard');
 
-        const donorNumber =
-            button.dataset.donorNumber || '';
+        if (title) {
+            title.textContent = donationNumber || 'Select Donation';
+        }
 
-        const type =
-            button.dataset.type || '';
+        if (subtitle) {
+            subtitle.textContent = donorName || 'Choose donor / donation';
+        }
 
-        const date =
-            button.dataset.date || '';
+        if (number) {
+            number.textContent = donationNumber;
+        }
 
-        document.getElementById('donationPickerTitle').textContent =
-            donationNumber || 'Select Donation';
+        if (meta) {
+            meta.textContent = donorName +
+                (donorNumber ? ' · ' + donorNumber : '') +
+                (type ? ' · ' + type : '') +
+                (date ? ' · ' + date : '');
+        }
 
-        document.getElementById('donationPickerSubtitle').textContent =
-            donorName || 'Choose donor / donation';
-
-        document.getElementById('selectedDonationNumber').textContent =
-            donationNumber;
-
-        document.getElementById('selectedDonationMeta').textContent =
-            donorName +
-            (donorNumber ? ' · ' + donorNumber : '') +
-            (type ? ' · ' + type : '') +
-            (date ? ' · ' + date : '');
-
-        document.getElementById('selectedDonationCard').style.display =
-            'flex';
-
+        if (card) {
+            card.style.display = 'flex';
+        }
     }
 
 
-    function clearPurchaseSelection() {
+    /*
+    |--------------------------------------------------------------------------
+    | Clear selections
+    |--------------------------------------------------------------------------
+    */
 
+    function clearPurchaseSelection() {
         supplierIdInput.value = '';
         lpoIdInput.value = '';
 
-        document.getElementById('selectedSupplierCard').style.display =
-            'none';
+        const supplierCard =
+            document.getElementById('selectedSupplierCard');
 
-        document.getElementById('selectedLpoCard').style.display =
-            'none';
+        const lpoCard =
+            document.getElementById('selectedLpoCard');
 
+        if (supplierCard) {
+            supplierCard.style.display = 'none';
+        }
+
+        if (lpoCard) {
+            lpoCard.style.display = 'none';
+        }
+
+        filterLpos();
     }
 
 
     function clearDonationSelection() {
-
         donationIdInput.value = '';
 
-        document.getElementById('selectedDonationCard').style.display =
-            'none';
+        const donationCard =
+            document.getElementById('selectedDonationCard');
 
+        if (donationCard) {
+            donationCard.style.display = 'none';
+        }
     }
 
-function updateSourceUI() {
-    const source = sourceType.value;
-    const isPurchase = source === 'PURCHASE';
-    const isDonation = source === 'DONATION';
-    const isProduction = isProductionSource(source);
 
-    purchaseSection.style.display = isPurchase ? '' : 'none';
-    donationSection.style.display = isDonation ? '' : 'none';
+    /*
+    |--------------------------------------------------------------------------
+    | Filter LPOs
+    |
+    | An LPO must match the supplier selected on the receipt.
+    | The supplier filter inside the LPO modal is an additional filter.
+    |--------------------------------------------------------------------------
+    */
 
-    purchaseItemsNotice.style.display = isPurchase ? '' : 'none';
-    donationItemsNotice.style.display = isDonation ? '' : 'none';
+    function filterLpos() {
+        const search = (lpoSearch?.value || '')
+            .toLowerCase()
+            .trim();
 
-    productionItemsControls.style.display = isProduction ? '' : 'none';
+        const status = (lpoStatusFilter?.value || '')
+            .toUpperCase();
 
-    if (isPurchase) {
-        itemsSectionDescription.textContent =
-            'Enter the quantities actually received against the selected LPO.';
+        const selectedSupplier = String(
+            supplierIdInput?.value || ''
+        );
 
-        clearDonationSelection();
-    } else if (isDonation) {
-        itemsSectionDescription.textContent =
-            'Donation items and quantities are taken directly from the donation record.';
+        const modalSupplier = String(
+            lpoSupplierFilter?.value || ''
+        );
 
-        clearPurchaseSelection();
-    } else if (isProduction) {
-        itemsSectionDescription.textContent =
-            'Select items from the master list and enter the quantities received from production.';
+        let visibleRows = 0;
 
-        clearDonationSelection();
-        clearPurchaseSelection();
-    } else {
-        itemsSectionDescription.textContent =
-            'Select a source to load or add the items.';
+        document.querySelectorAll('.lpo-selection-row').forEach(function (row) {
+            const searchable = [
+                row.dataset.lpoNumber,
+                row.dataset.supplier,
+                row.dataset.store
+            ].join(' ').toLowerCase();
+
+            const rowSupplier = String(row.dataset.supplierId || '');
+            const rowStatus = String(row.dataset.status || '').toUpperCase();
+
+            const matchesSearch =
+                !search || searchable.includes(search);
+
+            const matchesStatus =
+                !status || rowStatus === status;
+
+            // Do not show any LPO until a supplier has been selected.
+            const matchesSelectedSupplier =
+                selectedSupplier !== '' &&
+                rowSupplier === selectedSupplier;
+
+            // Optional supplier filter inside the LPO modal.
+            const matchesModalSupplier =
+                !modalSupplier || rowSupplier === modalSupplier;
+
+            const visible =
+                matchesSearch &&
+                matchesStatus &&
+                matchesSelectedSupplier &&
+                matchesModalSupplier;
+
+            row.style.display = visible ? '' : 'none';
+
+            if (visible) {
+                visibleRows++;
+            }
+        });
+
+        const emptyRow = document.getElementById('lpoSearchEmpty');
+
+        if (emptyRow) {
+            emptyRow.style.display = visibleRows === 0 ? '' : 'none';
+
+            const message = emptyRow.querySelector('td');
+
+            if (message) {
+                if (!selectedSupplier) {
+                    message.textContent =
+                        'Select a supplier on the receipt before choosing an LPO.';
+                } else {
+                    message.textContent =
+                        'No matching LPOs are available for this supplier.';
+                }
+            }
+        }
     }
-}
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update source sections
+    |--------------------------------------------------------------------------
+    */
+
+    function updateSourceUI() {
+        const source = sourceType.value;
+        const isPurchase = source === 'PURCHASE';
+        const isDonation = source === 'DONATION';
+        const isProduction = isProductionSource(source);
+
+        if (purchaseSection) {
+            purchaseSection.style.display = isPurchase ? '' : 'none';
+        }
+
+        if (donationSection) {
+            donationSection.style.display = isDonation ? '' : 'none';
+        }
+
+        if (purchaseItemsNotice) {
+            purchaseItemsNotice.style.display = isPurchase ? '' : 'none';
+        }
+
+        if (donationItemsNotice) {
+            donationItemsNotice.style.display = isDonation ? '' : 'none';
+        }
+
+        if (productionItemsControls) {
+            productionItemsControls.style.display =
+                isProduction ? '' : 'none';
+        }
+
+        if (isPurchase) {
+            itemsSectionDescription.textContent =
+                'Enter the quantities actually received against the selected LPO.';
+
+            clearDonationSelection();
+
+        } else if (isDonation) {
+            itemsSectionDescription.textContent =
+                'Donation items and quantities are taken directly from the donation record.';
+
+            clearPurchaseSelection();
+
+        } else if (isProduction) {
+            itemsSectionDescription.textContent =
+                'Select items from the master list and enter the quantities received from production.';
+
+            clearDonationSelection();
+            clearPurchaseSelection();
+
+        } else {
+            itemsSectionDescription.textContent =
+                'Select a source to load or add the items.';
+        }
+
+        filterLpos();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render receipt item rows
+    |--------------------------------------------------------------------------
+    */
 
     function renderRows(rows) {
-
         itemsBody.innerHTML = '';
 
         if (!rows.length) {
-
             itemsEmptyState.style.display = '';
-
             return;
-
         }
 
         itemsEmptyState.style.display = 'none';
 
         rows.forEach(function (row, index) {
-
             const item = getItem(row.store_item_id);
 
             const variant = getVariant(
@@ -2016,8 +2170,7 @@ function updateSourceUI() {
                 row.variant_id
             );
 
-            const isDonation =
-                sourceType.value === 'DONATION';
+            const isDonation = sourceType.value === 'DONATION';
 
             const lpoQuantity =
                 row.lpo_quantity !== undefined &&
@@ -2032,53 +2185,36 @@ function updateSourceUI() {
                     : '';
 
             const itemName =
-                item?.name ||
-                row.item_name ||
-                'Item';
+                item?.name || row.item_name || 'Item';
 
-            const sku =
-                item?.sku
-                    ? item.sku
-                    : '';
+            const sku = item?.sku || '';
+            const unit = item?.unit || row.unit || '';
+            const variantName = variant?.name || row.variant_name || '—';
+            const notes = row.notes || '';
 
-            const unit =
-                item?.unit
-                    ? item.unit
-                    : row.unit || '';
+            const lpoDisplay = isDonation
+                ? '—'
+                : formatNumber(lpoQuantity);
 
-            const variantName =
-                variant?.name ||
-                row.variant_name ||
-                '—';
-
-            const notes =
-                row.notes || '';
-
-            const lpoDisplay =
-                isDonation
-                    ? '—'
-                    : formatNumber(lpoQuantity);
-
-const quantityInput =
-    isDonation
-        ? `
-            <input type="number"
-                   class="form-control requisition-input text-end donation-quantity"
-                   name="items[${index}][quantity]"
-                   value="${escapeHtml(formatNumber(quantity))}"
-                   readonly
-                   tabindex="-1">
-          `
-        : `
-            <input type="number"
-                   step="0.01"
-                   min="0"
-                   class="form-control requisition-input text-end received-quantity"
-                   name="items[${index}][quantity]"
-                   value="${escapeHtml(quantity)}"
-                   data-max="${escapeHtml(lpoQuantity)}"
-                   required>
-          `;
+            const quantityInput = isDonation
+                ? `
+                    <input type="number"
+                           class="form-control requisition-input text-end donation-quantity"
+                           name="items[${index}][quantity]"
+                           value="${escapeHtml(formatNumber(quantity))}"
+                           readonly
+                           tabindex="-1">
+                  `
+                : `
+                    <input type="number"
+                           step="0.01"
+                           min="0"
+                           class="form-control requisition-input text-end received-quantity"
+                           name="items[${index}][quantity]"
+                           value="${escapeHtml(quantity)}"
+                           data-max="${escapeHtml(lpoQuantity)}"
+                           required>
+                  `;
 
             const hiddenFields = `
                 <input type="hidden"
@@ -2102,34 +2238,28 @@ const quantityInput =
                        placeholder="Optional">
             `;
 
-            const action =
-                isDonation
-                    ? `
-                        <span class="requisition-list-meta">
-                            <i class="fas fa-lock"></i>
-                        </span>
-                      `
-                    : `
-                        <button type="button"
-                                class="requisition-list-action remove-receipt-row">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                      `;
+            const action = isDonation
+                ? `
+                    <span class="requisition-list-meta">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                  `
+                : `
+                    <button type="button"
+                            class="requisition-list-action remove-receipt-row">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                  `;
 
             const rowHtml = `
                 <tr data-index="${index}">
-
                     <td>
                         ${index + 1}
                         ${hiddenFields}
                     </td>
 
                     <td>
-
-                        <strong>
-                            ${escapeHtml(itemName)}
-                        </strong>
-
+                        <strong>${escapeHtml(itemName)}</strong>
                         ${
                             sku
                                 ? `<div class="requisition-list-meta">
@@ -2137,16 +2267,11 @@ const quantityInput =
                                    </div>`
                                 : ''
                         }
-
                     </td>
 
-                    <td>
-                        ${escapeHtml(variantName)}
-                    </td>
+                    <td>${escapeHtml(variantName)}</td>
 
-                    <td>
-                        ${escapeHtml(unit || '—')}
-                    </td>
+                    <td>${escapeHtml(unit || '—')}</td>
 
                     <td class="text-end">
                         ${escapeHtml(lpoDisplay)}
@@ -2156,1026 +2281,753 @@ const quantityInput =
                         ${quantityInput}
                     </td>
 
-                    <td>
-                        ${notesInput}
-                    </td>
+                    <td>${notesInput}</td>
 
                     <td class="text-end">
                         ${action}
                     </td>
-
                 </tr>
             `;
 
-            itemsBody.insertAdjacentHTML(
-                'beforeend',
-                rowHtml
-            );
-
+            itemsBody.insertAdjacentHTML('beforeend', rowHtml);
         });
 
         bindRowEvents();
-
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Receipt item row events
+    |--------------------------------------------------------------------------
+    */
+
     function bindRowEvents() {
-
-        document
-            .querySelectorAll('.remove-receipt-row')
+        document.querySelectorAll('.remove-receipt-row')
             .forEach(function (button) {
-
                 button.addEventListener('click', function () {
-
-                    const row =
-                        this.closest('tr');
+                    const row = this.closest('tr');
 
                     if (row) {
                         row.remove();
                     }
 
                     renumberRows();
-
                 });
-
             });
 
-
-        document
-            .querySelectorAll('.received-quantity')
+        document.querySelectorAll('.received-quantity')
             .forEach(function (input) {
-
                 input.addEventListener('input', function () {
+                    const max = parseFloat(this.dataset.max);
+                    const value = parseFloat(this.value);
 
-                    const max =
-                        parseFloat(this.dataset.max);
-
-                    const value =
-                        parseFloat(this.value);
-
-                    if (!Number.isNaN(max) &&
+                    if (
+                        !Number.isNaN(max) &&
                         !Number.isNaN(value) &&
-                        value > max) {
-
+                        value > max
+                    ) {
                         this.value = max;
-
                     }
 
                     if (value < 0) {
                         this.value = 0;
                     }
-
                 });
-
             });
-
     }
 
 
     function renumberRows() {
-
-        document
-            .querySelectorAll('#receiptItemsBody tr')
+        document.querySelectorAll('#receiptItemsBody tr')
             .forEach(function (row, index) {
-
-                const numberCell =
-                    row.querySelector('td:first-child');
+                const numberCell = row.querySelector('td:first-child');
 
                 if (numberCell) {
+                    const hidden = numberCell.innerHTML
+                        .replace(/^[\s\S]*?(?=<input)/, '');
 
-                    const hidden =
-                        numberCell.innerHTML
-                            .replace(/^[\s\S]*?(?=<input)/, '');
-
-                    numberCell.innerHTML =
-                        (index + 1) + hidden;
-
+                    numberCell.innerHTML = (index + 1) + hidden;
                 }
 
                 row.querySelectorAll('[name]').forEach(function (input) {
-
-                    input.name =
-                        input.name.replace(
-                            /items\[\d+\]/,
-                            'items[' + index + ']'
-                        );
-
+                    input.name = input.name.replace(
+                        /items\[\d+\]/,
+                        'items[' + index + ']'
+                    );
                 });
-
             });
 
         if (!document.querySelector('#receiptItemsBody tr')) {
             itemsEmptyState.style.display = '';
         }
-
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load LPO items
+    |--------------------------------------------------------------------------
+    */
 
     function loadLpoItems(lpoId) {
-
-        const lpo =
-            getLpo(lpoId);
+        const lpo = getLpo(lpoId);
 
         if (!lpo) {
-
             renderRows([]);
-
             return;
-
         }
 
-        const rows =
-            lpo.items.map(function (lpoItem) {
-
-                const current =
-                    receiptItemData.find(function (receiptItem) {
-
-                        return String(receiptItem.lpo_item_id) ===
-                            String(lpoItem.id);
-
-                    });
-
-                return {
-
-                    store_item_id:
-                        lpoItem.store_item_id,
-
-                    variant_id:
-                        lpoItem.variant_id,
-
-                    quantity:
-                        current
-                            ? current.quantity
-                            : '',
-
-                    notes:
-                        current
-                            ? current.notes
-                            : '',
-
-                    lpo_item_id:
-                        lpoItem.id,
-
-                    lpo_quantity:
-                        lpoItem.quantity
-
-                };
-
+        const rows = (lpo.items || []).map(function (lpoItem) {
+            const current = receiptItemData.find(function (receiptItem) {
+                return String(receiptItem.lpo_item_id) ===
+                    String(lpoItem.id);
             });
 
-        renderRows(rows);
+            return {
+                store_item_id: lpoItem.store_item_id,
+                variant_id: lpoItem.variant_id,
 
+                quantity: current
+                    ? current.quantity
+                    : '',
+
+                notes: current
+                    ? current.notes
+                    : '',
+
+                lpo_item_id: lpoItem.id,
+                lpo_quantity: lpoItem.quantity
+            };
+        });
+
+        renderRows(rows);
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load donation items
+    |--------------------------------------------------------------------------
+    */
 
     function loadDonationItems(donationId) {
-
-        const donation =
-            getDonation(donationId);
+        const donation = getDonation(donationId);
 
         if (!donation) {
-
             renderRows([]);
-
             return;
-
         }
 
-        const rows =
-            donation.items.map(function (donationItem) {
-
-                const current =
-                    receiptItemData.find(function (receiptItem) {
-
-                        return String(receiptItem.store_item_id) ===
-                                String(donationItem.store_item_id) &&
-                               String(receiptItem.variant_id || '') ===
-                                String(donationItem.variant_id || '');
-
-                    });
-
-                return {
-
-                    store_item_id:
-                        donationItem.store_item_id,
-
-                    variant_id:
-                        donationItem.variant_id,
-
-                    quantity:
-                        donationItem.quantity,
-
-                    notes:
-                        current
-                            ? current.notes
-                            : donationItem.notes || '',
-
-                    lpo_item_id:
-                        '',
-
-                    lpo_quantity:
-                        ''
-
-                };
-
+        const rows = (donation.items || []).map(function (donationItem) {
+            const current = receiptItemData.find(function (receiptItem) {
+                return String(receiptItem.store_item_id) ===
+                        String(donationItem.store_item_id) &&
+                    String(receiptItem.variant_id || '') ===
+                        String(donationItem.variant_id || '');
             });
 
-        renderRows(rows);
+            return {
+                store_item_id: donationItem.store_item_id,
+                variant_id: donationItem.variant_id,
+                quantity: donationItem.quantity,
 
+                notes: current
+                    ? current.notes
+                    : donationItem.notes || '',
+
+                lpo_item_id: '',
+                lpo_quantity: ''
+            };
+        });
+
+        renderRows(rows);
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Load items already on the receipt
+    |--------------------------------------------------------------------------
+    */
+
     function loadInitialItems() {
-
         if (oldItems && Object.keys(oldItems).length) {
-
-            const rows =
-                Object.values(oldItems).map(function (row) {
-
-                    const matchingReceipt =
-                        receiptItemData.find(function (receiptItem) {
-
-                            return String(receiptItem.store_item_id) ===
-                                    String(row.store_item_id) &&
-                                   String(receiptItem.variant_id || '') ===
-                                    String(row.variant_id || '');
-
-                        });
-
-                    const lpo =
-                        getLpo(originalLpoId);
-
-                    let lpoQuantity = '';
-
-                    if (lpo && row.lpo_item_id) {
-
-                        const lpoItem =
-                            lpo.items.find(function (item) {
-
-                                return String(item.id) ===
-                                    String(row.lpo_item_id);
-
-                            });
-
-                        if (lpoItem) {
-                            lpoQuantity =
-                                lpoItem.quantity;
-                        }
-
+            const rows = Object.values(oldItems).map(function (row) {
+                const matchingReceipt = receiptItemData.find(
+                    function (receiptItem) {
+                        return String(receiptItem.store_item_id) ===
+                                String(row.store_item_id) &&
+                            String(receiptItem.variant_id || '') ===
+                                String(row.variant_id || '');
                     }
+                );
 
-                    return {
+                const lpo = getLpo(originalLpoId);
+                let lpoQuantity = '';
 
-                        store_item_id:
-                            row.store_item_id,
+                if (lpo && row.lpo_item_id) {
+                    const lpoItem = (lpo.items || []).find(
+                        function (item) {
+                            return String(item.id) ===
+                                String(row.lpo_item_id);
+                        }
+                    );
 
-                        variant_id:
-                            row.variant_id,
+                    if (lpoItem) {
+                        lpoQuantity = lpoItem.quantity;
+                    }
+                }
 
-                        quantity:
-                            row.quantity ??
-                            matchingReceipt?.quantity ??
-                            '',
+                return {
+                    store_item_id: row.store_item_id,
+                    variant_id: row.variant_id,
 
-                        notes:
-                            row.notes ??
-                            matchingReceipt?.notes ??
-                            '',
+                    quantity: row.quantity ??
+                        matchingReceipt?.quantity ??
+                        '',
 
-                        lpo_item_id:
-                            row.lpo_item_id || '',
+                    notes: row.notes ??
+                        matchingReceipt?.notes ??
+                        '',
 
-                        lpo_quantity:
-                            lpoQuantity
-
-                    };
-
-                });
+                    lpo_item_id: row.lpo_item_id || '',
+                    lpo_quantity: lpoQuantity
+                };
+            });
 
             renderRows(rows);
-
             return;
-
         }
 
-        if (sourceType.value === 'PURCHASE' &&
-            originalLpoId) {
-
+        if (sourceType.value === 'PURCHASE' && originalLpoId) {
             loadLpoItems(originalLpoId);
-
             return;
-
         }
 
-        if (sourceType.value === 'DONATION' &&
-            originalDonationId) {
-
+        if (sourceType.value === 'DONATION' && originalDonationId) {
             loadDonationItems(originalDonationId);
-
             return;
-
         }
 
         renderRows([]);
-
     }
 
 
-    sourceType.addEventListener(
-        'change',
-        function () {
+    /*
+    |--------------------------------------------------------------------------
+    | Source change
+    |--------------------------------------------------------------------------
+    */
 
-            updateSourceUI();
+    sourceType.addEventListener('change', function () {
+        updateSourceUI();
+        renderRows([]);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supplier selection
+    |--------------------------------------------------------------------------
+    */
+
+    document.querySelectorAll('.select-supplier-btn')
+        .forEach(function (button) {
+            button.addEventListener('click', function () {
+                const newSupplierId = String(
+                    this.dataset.supplierId || ''
+                );
+
+                const currentSupplierId = String(
+                    supplierIdInput.value || ''
+                );
+
+                // If the supplier changes, the previous LPO is no longer valid.
+                if (newSupplierId !== currentSupplierId) {
+                    lpoIdInput.value = '';
+
+                    const lpoCard =
+                        document.getElementById('selectedLpoCard');
+
+                    if (lpoCard) {
+                        lpoCard.style.display = 'none';
+                    }
+
+                    renderRows([]);
+                }
+
+                supplierIdInput.value = newSupplierId;
+
+                selectedSupplierCard(newSupplierId);
+
+                // Filter the LPO list immediately after supplier selection.
+                filterLpos();
+
+                if (supplierModal) {
+                    supplierModal.hide();
+                }
+            });
+        });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Change supplier
+    |--------------------------------------------------------------------------
+    */
+
+    const changeSupplierButton =
+        document.getElementById('changeSupplierButton');
+
+    if (changeSupplierButton) {
+        changeSupplierButton.addEventListener('click', function () {
+            // Clear the previous LPO and its item rows before changing supplier.
+            lpoIdInput.value = '';
+
+            const lpoCard =
+                document.getElementById('selectedLpoCard');
+
+            if (lpoCard) {
+                lpoCard.style.display = 'none';
+            }
 
             renderRows([]);
 
-        }
-    );
+            if (supplierModal) {
+                supplierModal.show();
+            }
+        });
+    }
 
 
-    document
-        .querySelectorAll('.select-supplier-btn')
+    /*
+    |--------------------------------------------------------------------------
+    | LPO selection
+    |--------------------------------------------------------------------------
+    */
+
+    document.querySelectorAll('.select-lpo-btn')
         .forEach(function (button) {
+            button.addEventListener('click', function () {
+                const lpoId = this.dataset.lpoId;
+                const supplierId = String(
+                    this.dataset.supplierId || ''
+                );
+                const storeId = this.dataset.storeId;
 
-            button.addEventListener(
-                'click',
-                function () {
-
-                    supplierIdInput.value =
-                        this.dataset.supplierId;
-
-                    selectedSupplierCard(
-                        this.dataset.supplierId
+                // Prevent selecting an LPO belonging to another supplier.
+                if (
+                    !supplierId ||
+                    supplierId !== String(supplierIdInput.value || '')
+                ) {
+                    alert(
+                        'Please select the supplier associated with this LPO first.'
                     );
 
-                    if (supplierModal) {
-                        supplierModal.hide();
-                    }
-
-                }
-            );
-
-        });
-
-
-    document
-        .getElementById('changeSupplierButton')
-        .addEventListener(
-            'click',
-            function () {
-
-                if (supplierModal) {
-                    supplierModal.show();
+                    filterLpos();
+                    return;
                 }
 
-            }
-        );
+                lpoIdInput.value = lpoId;
 
+                selectedLpoCard(lpoId);
 
-    document
-        .querySelectorAll('.select-lpo-btn')
-        .forEach(function (button) {
+                if (storeId && storeSelect) {
+                    const option = Array.from(
+                        storeSelect.options
+                    ).find(function (option) {
+                        return String(option.value) === String(storeId);
+                    });
 
-            button.addEventListener(
-                'click',
-                function () {
-
-                    const lpoId =
-                        this.dataset.lpoId;
-
-                    const supplierId =
-                        this.dataset.supplierId;
-
-                    const storeId =
-                        this.dataset.storeId;
-
-                    lpoIdInput.value =
-                        lpoId;
-
-                    supplierIdInput.value =
-                        supplierId || '';
-
-                    selectedLpoCard(lpoId);
-
-                    if (supplierId) {
-                        selectedSupplierCard(supplierId);
+                    if (option) {
+                        storeSelect.value = String(storeId);
                     }
-
-                    if (storeId) {
-
-                        const option =
-                            Array.from(
-                                storeSelect.options
-                            ).find(function (option) {
-
-                                return String(option.value) ===
-                                    String(storeId);
-
-                            });
-
-                        if (option) {
-                            storeSelect.value =
-                                String(storeId);
-                        }
-
-                    }
-
-                    loadLpoItems(lpoId);
-
-                    if (lpoModal) {
-                        lpoModal.hide();
-                    }
-
                 }
-            );
 
-        });
-
-
-    document
-        .getElementById('changeLpoButton')
-        .addEventListener(
-            'click',
-            function () {
+                loadLpoItems(lpoId);
 
                 if (lpoModal) {
-                    lpoModal.show();
+                    lpoModal.hide();
                 }
-
-            }
-        );
-
-
-    document
-        .querySelectorAll('.select-donation-btn')
-        .forEach(function (button) {
-
-            button.addEventListener(
-                'click',
-                function () {
-
-                    const donationId =
-                        this.dataset.donationId;
-
-                    donationIdInput.value =
-                        donationId;
-
-                    selectedDonationCard(
-                        donationId
-                    );
-
-                    loadDonationItems(
-                        donationId
-                    );
-
-                    if (donationModal) {
-                        donationModal.hide();
-                    }
-
-                }
-            );
-
+            });
         });
 
 
-    document
-        .getElementById('changeDonationButton')
-        .addEventListener(
-            'click',
-            function () {
+    /*
+    |--------------------------------------------------------------------------
+    | Change LPO
+    |--------------------------------------------------------------------------
+    */
+
+    const changeLpoButton =
+        document.getElementById('changeLpoButton');
+
+    if (changeLpoButton) {
+        changeLpoButton.addEventListener('click', function () {
+            if (!supplierIdInput.value) {
+                alert('Please select a supplier before choosing an LPO.');
+                return;
+            }
+
+            filterLpos();
+
+            if (lpoModal) {
+                lpoModal.show();
+            }
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Donation selection
+    |--------------------------------------------------------------------------
+    */
+
+    document.querySelectorAll('.select-donation-btn')
+        .forEach(function (button) {
+            button.addEventListener('click', function () {
+                const donationId = this.dataset.donationId;
+
+                donationIdInput.value = donationId;
+
+                selectedDonationCard(donationId);
+                loadDonationItems(donationId);
 
                 if (donationModal) {
-                    donationModal.show();
+                    donationModal.hide();
                 }
+            });
+        });
 
+
+    const changeDonationButton =
+        document.getElementById('changeDonationButton');
+
+    if (changeDonationButton) {
+        changeDonationButton.addEventListener('click', function () {
+            if (donationModal) {
+                donationModal.show();
             }
-        );
+        });
+    }
 
 
-    const supplierSearch =
-        document.getElementById('supplierSearch');
-
-    const supplierStatusFilter =
-        document.getElementById('supplierStatusFilter');
-
+    /*
+    |--------------------------------------------------------------------------
+    | Supplier search and status filter
+    |--------------------------------------------------------------------------
+    */
 
     function filterSuppliers() {
+        const search = (supplierSearch?.value || '')
+            .toLowerCase()
+            .trim();
 
-        const search =
-            (supplierSearch.value || '')
-                .toLowerCase()
-                .trim();
+        const status = (supplierStatusFilter?.value || '')
+            .toLowerCase();
 
-        const status =
-            (supplierStatusFilter.value || '')
-                .toLowerCase();
-
-        document
-            .querySelectorAll('.supplier-selection-row')
+        document.querySelectorAll('.supplier-selection-row')
             .forEach(function (row) {
+                const searchable = [
+                    row.dataset.name,
+                    row.dataset.code,
+                    row.dataset.contact,
+                    row.dataset.phone,
+                    row.dataset.email
+                ].join(' ').toLowerCase();
 
-                const searchable =
-                    [
-                        row.dataset.name,
-                        row.dataset.code,
-                        row.dataset.contact,
-                        row.dataset.phone,
-                        row.dataset.email
-                    ]
-                    .join(' ')
-                    .toLowerCase();
-
-                const rowStatus =
-                    row.dataset.status || '';
+                const rowStatus = row.dataset.status || '';
 
                 const matchesSearch =
-                    !search ||
-                    searchable.includes(search);
+                    !search || searchable.includes(search);
 
                 const matchesStatus =
-                    !status ||
-                    rowStatus === status;
+                    !status || rowStatus === status;
 
                 row.style.display =
-                    matchesSearch && matchesStatus
-                        ? ''
-                        : 'none';
-
+                    matchesSearch && matchesStatus ? '' : 'none';
             });
-
     }
 
 
     if (supplierSearch) {
-
-        supplierSearch.addEventListener(
-            'input',
-            filterSuppliers
-        );
-
+        supplierSearch.addEventListener('input', filterSuppliers);
     }
 
-
     if (supplierStatusFilter) {
-
         supplierStatusFilter.addEventListener(
             'change',
             filterSuppliers
         );
-
     }
 
 
-    const lpoSearch =
-        document.getElementById('lpoSearch');
-
-    const lpoStatusFilter =
-        document.getElementById('lpoStatusFilter');
-
-    const lpoSupplierFilter =
-        document.getElementById('lpoSupplierFilter');
-
-
-    function filterLpos() {
-
-        const search =
-            (lpoSearch.value || '')
-                .toLowerCase()
-                .trim();
-
-        const status =
-            (lpoStatusFilter.value || '')
-                .toUpperCase();
-
-        const supplier =
-            lpoSupplierFilter.value || '';
-
-        document
-            .querySelectorAll('.lpo-selection-row')
-            .forEach(function (row) {
-
-                const searchable =
-                    [
-                        row.dataset.lpoNumber,
-                        row.dataset.supplier,
-                        row.dataset.store
-                    ]
-                    .join(' ')
-                    .toLowerCase();
-
-                const matchesSearch =
-                    !search ||
-                    searchable.includes(search);
-
-                const matchesStatus =
-                    !status ||
-                    row.dataset.status === status;
-
-                const matchesSupplier =
-                    !supplier ||
-                    row.dataset.supplierId === supplier;
-
-                row.style.display =
-                    matchesSearch &&
-                    matchesStatus &&
-                    matchesSupplier
-                        ? ''
-                        : 'none';
-
-            });
-
-    }
-
+    /*
+    |--------------------------------------------------------------------------
+    | LPO search and filters
+    |--------------------------------------------------------------------------
+    */
 
     if (lpoSearch) {
-
-        lpoSearch.addEventListener(
-            'input',
-            filterLpos
-        );
-
+        lpoSearch.addEventListener('input', filterLpos);
     }
-
 
     if (lpoStatusFilter) {
-
-        lpoStatusFilter.addEventListener(
-            'change',
-            filterLpos
-        );
-
+        lpoStatusFilter.addEventListener('change', filterLpos);
     }
-
 
     if (lpoSupplierFilter) {
-
-        lpoSupplierFilter.addEventListener(
-            'change',
-            filterLpos
-        );
-
+        lpoSupplierFilter.addEventListener('change', filterLpos);
     }
 
 
-    const donationSearch =
-        document.getElementById('donationSearch');
-
+    /*
+    |--------------------------------------------------------------------------
+    | Donation search
+    |--------------------------------------------------------------------------
+    */
 
     if (donationSearch) {
+        donationSearch.addEventListener('input', function () {
+            const search = this.value.toLowerCase().trim();
+            const tableBody =
+                document.getElementById('donationSelectionTableBody');
 
-        donationSearch.addEventListener(
-            'input',
-            function () {
+            const emptyRow =
+                document.getElementById('donationSearchEmpty');
 
-                const search =
-                    this.value
-                        .toLowerCase()
-                        .trim();
-
-                document
-                    .querySelectorAll('.donation-selection-row')
-                    .forEach(function (row) {
-
-                        const searchable =
-                            [
-                                row.dataset.donationNumber,
-                                row.dataset.donorNumber,
-                                row.dataset.donorName,
-                                row.dataset.type,
-                                row.cells[4]?.textContent || ''
-                            ]
-                            .join(' ')
-                            .toLowerCase();
-
-                        row.style.display =
-                            !search ||
-                            searchable.includes(search)
-                                ? ''
-                                : 'none';
-
-                    });
-
+            if (!tableBody) {
+                return;
             }
-        );
 
+            const rows = tableBody.querySelectorAll(
+                'tr.donation-selection-row'
+            );
+
+            let visibleRows = 0;
+
+            rows.forEach(function (row) {
+                const searchable = [
+                    row.dataset.donationNumber,
+                    row.dataset.donorNumber,
+                    row.dataset.donorName,
+                    row.dataset.type,
+                    row.dataset.classification,
+                    row.dataset.date,
+                    row.cells[4]?.textContent || ''
+                ].join(' ').toLowerCase();
+
+                const matches =
+                    !search || searchable.includes(search);
+
+                row.style.display = matches ? '' : 'none';
+
+                if (matches) {
+                    visibleRows++;
+                }
+            });
+
+            if (emptyRow) {
+                emptyRow.style.display =
+                    visibleRows === 0 && search !== '' ? '' : 'none';
+            }
+        });
     }
 
 
-    document
-        .getElementById('receiptEditForm')
-        .addEventListener(
-            'submit',
-            function (event) {
+    /*
+    |--------------------------------------------------------------------------
+    | Validate receipt before submitting
+    |--------------------------------------------------------------------------
+    */
 
-                const source =
-                    sourceType.value;
+    const receiptEditForm =
+        document.getElementById('receiptEditForm');
 
-                const rows =
-                    Array.from(
-                        document.querySelectorAll(
-                            '#receiptItemsBody tr'
-                        )
-                    );
+    if (receiptEditForm) {
+        receiptEditForm.addEventListener('submit', function (event) {
+            const source = sourceType.value;
 
-                if (!rows.length) {
+            const rows = Array.from(
+                document.querySelectorAll('#receiptItemsBody tr')
+            );
 
+            if (!rows.length) {
+                event.preventDefault();
+
+                alert(
+                    'Please select the LPO or donation and ensure there is at least one item.'
+                );
+
+                return;
+            }
+
+
+            if (source === 'PURCHASE') {
+                if (!supplierIdInput.value) {
+                    event.preventDefault();
+
+                    alert('Please select a supplier.');
+
+                    return;
+                }
+
+                if (!lpoIdInput.value) {
+                    event.preventDefault();
+
+                    alert('Please select an LPO.');
+
+                    return;
+                }
+
+                const selectedLpo = getLpo(lpoIdInput.value);
+
+                if (
+                    !selectedLpo ||
+                    String(selectedLpo.supplier_id) !==
+                        String(supplierIdInput.value)
+                ) {
                     event.preventDefault();
 
                     alert(
-                        'Please select the LPO or donation and ensure there is at least one item.'
+                        'The selected LPO does not belong to the selected supplier. Please select the correct LPO.'
                     );
 
                     return;
-
                 }
 
+                let invalid = false;
 
-                if (source === 'PURCHASE') {
-
-                    if (!lpoIdInput.value) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Please select an LPO.'
-                        );
-
-                        return;
-
-                    }
-
-                    let invalid =
-                        false;
-
-                    document
-                        .querySelectorAll('.received-quantity')
-                        .forEach(function (input) {
-
-                            const value =
-                                parseFloat(input.value);
-
-                            const max =
-                                parseFloat(input.dataset.max);
-
-                            if (
-                                Number.isNaN(value) ||
-                                value <= 0 ||
-                                (!Number.isNaN(max) && value > max)
-                            ) {
-
-                                invalid = true;
-
-                            }
-
-                        });
-
-                    if (invalid) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Please enter a valid received quantity. It cannot be greater than the LPO quantity.'
-                        );
-
-                        return;
-
-                    }
-
-                }
-
-
-                if (source === 'DONATION') {
-
-                    if (!donationIdInput.value) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Please select a donation.'
-                        );
-
-                        return;
-
-                    }
-
-                    const donation =
-                        getDonation(
-                            donationIdInput.value
-                        );
-
-                    if (!donation) {
-                        return;
-                    }
-
-                    const donationItems =
-                        donation.items || [];
-
-                    if (
-                        rows.length !==
-                        donationItems.length
-                    ) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Donation items cannot be added or removed. They must match the selected donation.'
-                        );
-
-                        return;
-
-                    }
-
-                    let mismatch =
-                        false;
-
-                    rows.forEach(function (row, index) {
-
-                        const quantityInput =
-                            row.querySelector(
-                                '.donation-quantity'
-                            );
-
-                        if (!quantityInput) {
-                            mismatch = true;
-                            return;
-                        }
-
-                        const receivedQuantity =
-                            parseFloat(
-                                quantityInput.value
-                            );
-
-                        const donationItem =
-                            donationItems[index];
-
-                        if (!donationItem) {
-                            mismatch = true;
-                            return;
-                        }
+                document.querySelectorAll('.received-quantity')
+                    .forEach(function (input) {
+                        const value = parseFloat(input.value);
+                        const max = parseFloat(input.dataset.max);
 
                         if (
-                            receivedQuantity !==
-                            parseFloat(donationItem.quantity)
+                            Number.isNaN(value) ||
+                            value <= 0 ||
+                            (!Number.isNaN(max) && value > max)
                         ) {
-
-                            mismatch = true;
-
+                            invalid = true;
                         }
-
                     });
 
-                    if (mismatch) {
+                if (invalid) {
+                    event.preventDefault();
 
-                        event.preventDefault();
+                    alert(
+                        'Please enter a valid received quantity. It cannot be greater than the LPO quantity.'
+                    );
 
-                        alert(
-                            'Donation quantities must remain exactly as recorded in the donation.'
-                        );
+                    return;
+                }
+            }
 
-                        return;
 
-                    }
+            if (source === 'DONATION') {
+                if (!donationIdInput.value) {
+                    event.preventDefault();
 
+                    alert('Please select a donation.');
+
+                    return;
                 }
 
-            }
-        );
+                const donation = getDonation(donationIdInput.value);
 
+                if (!donation) {
+                    event.preventDefault();
+
+                    alert(
+                        'The selected donation could not be found. Please select it again.'
+                    );
+
+                    return;
+                }
+
+                const donationItems = donation.items || [];
+
+                if (rows.length !== donationItems.length) {
+                    event.preventDefault();
+
+                    alert(
+                        'Donation items cannot be added or removed. They must match the selected donation.'
+                    );
+
+                    return;
+                }
+
+                let mismatch = false;
+
+                rows.forEach(function (row, index) {
+                    const quantityInput =
+                        row.querySelector('.donation-quantity');
+
+                    if (!quantityInput) {
+                        mismatch = true;
+                        return;
+                    }
+
+                    const receivedQuantity =
+                        parseFloat(quantityInput.value);
+
+                    const donationItem = donationItems[index];
+
+                    if (!donationItem) {
+                        mismatch = true;
+                        return;
+                    }
+
+                    if (
+                        receivedQuantity !==
+                        parseFloat(donationItem.quantity)
+                    ) {
+                        mismatch = true;
+                    }
+                });
+
+                if (mismatch) {
+                    event.preventDefault();
+
+                    alert(
+                        'Donation quantities must remain exactly as recorded in the donation.'
+                    );
+
+                    return;
+                }
+            }
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initialise edit form
+    |--------------------------------------------------------------------------
+    */
 
     updateSourceUI();
 
-
     if (originalSupplierId) {
-        selectedSupplierCard(
-            originalSupplierId
-        );
+        selectedSupplierCard(originalSupplierId);
     }
 
-
-    if (originalLpoId &&
-        sourceType.value === 'PURCHASE') {
-
-        selectedLpoCard(
-            originalLpoId
-        );
-
+    if (originalLpoId && sourceType.value === 'PURCHASE') {
+        selectedLpoCard(originalLpoId);
     }
 
-
-    if (originalDonationId &&
-        sourceType.value === 'DONATION') {
-
-        selectedDonationCard(
-            originalDonationId
-        );
-
+    if (originalDonationId && sourceType.value === 'DONATION') {
+        selectedDonationCard(originalDonationId);
     }
 
+    // Apply the selected supplier filter when the page first loads.
+    filterLpos();
 
     loadInitialItems();
 
 });
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const searchInput = document.getElementById('donationSearch');
-    const tableBody = document.getElementById('donationSelectionTableBody');
-    const emptyRow = document.getElementById('donationSearchEmpty');
-
-    if (!searchInput || !tableBody) {
-        return;
-    }
-
-    searchInput.addEventListener('input', function () {
-
-        const searchTerm = this.value
-            .trim()
-            .toLowerCase();
-
-        const rows = tableBody.querySelectorAll(
-            'tr.donation-selection-row'
-        );
-
-        let visibleRows = 0;
-
-        rows.forEach(function (row) {
-
-            const donationNumber =
-                row.dataset.donationNumber || '';
-
-            const donorNumber =
-                row.dataset.donorNumber || '';
-
-            const donorName =
-                row.dataset.donorName || '';
-
-            const type =
-                row.dataset.type || '';
-
-            const classification =
-                row.dataset.classification || '';
-
-            const date =
-                row.dataset.date || '';
-
-            const searchableText = [
-                donationNumber,
-                donorNumber,
-                donorName,
-                type,
-                classification,
-                date
-            ].join(' ');
-
-            const matches =
-                searchTerm === '' ||
-                searchableText.includes(searchTerm);
-
-            if (matches) {
-
-                row.style.display = '';
-
-                visibleRows++;
-
-            } else {
-
-                row.style.display = 'none';
-
-            }
-
-        });
-
-        /*
-         * Show "No matching donations" only when the
-         * search actually produces zero results.
-         */
-        if (emptyRow) {
-
-            emptyRow.style.display =
-                visibleRows === 0 && searchTerm !== ''
-                    ? ''
-                    : 'none';
-
-        }
-
-    });
-
-});
-
-const productionItemsControls =
-    document.getElementById('productionItemsControls');
-
-const productionItemSearch =
-    document.getElementById('productionItemSearch');
-
-const productionItemSelectionModal =
-    document.getElementById('productionItemSelectionModal');
-
-function isProductionSource(source = sourceType.value) {
-    return source === 'FARM_SUPPLIES' ||
-           source === 'DAIRY_SUPPLIES';
-}
-
 
 </script>
 
