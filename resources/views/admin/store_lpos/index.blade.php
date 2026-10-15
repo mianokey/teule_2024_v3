@@ -2,7 +2,7 @@
 @extends('layouts.admin')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css?v=1.0.0')') }}">
 <style>
     /* Highlight the entire row for approved LPOs awaiting Stores receipt */
     .requisition-list-table tbody tr.lpo-awaiting-receipt > td {
