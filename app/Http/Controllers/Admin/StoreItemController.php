@@ -21,21 +21,69 @@ class StoreItemController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index()
-    {
-        $items = StoreItem::with([
+public function index(Request $request)
+{
+    $query = StoreItem::query()
+        ->with([
             'category',
             'unit',
-            'stocks.store',
-        ])
-            ->latest()
-            ->get();
+            'stocks',
+        ]);
 
-        return view(
-            'admin.stores.items.index',
-            compact('items')
-        );
+
+    if ($request->filled('search')) {
+        $search = trim($request->input('search'));
+
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', '%' . $search . '%')
+                ->orWhere('sku', 'like', '%' . $search . '%')
+                ->orWhere('description', 'like', '%' . $search . '%');
+        });
     }
+
+    if ($request->filled('category_id')) {
+        $query->where('category_id', $request->input('category_id'));
+    }
+
+    
+
+    if ($request->filled('item_type')) {
+        $allowedTypes = [
+            'CONSUMABLE',
+            'RETURNABLE',
+            'ASSET',
+        ];
+
+        if (in_array($request->input('item_type'), $allowedTypes, true)) {
+            $query->where('item_type', $request->input('item_type'));
+        }
+    }
+
+   
+
+    if ($request->input('status') === 'active') {
+        $query->where('is_active', true);
+    } elseif ($request->input('status') === 'inactive') {
+        $query->where('is_active', false);
+    }
+
+   
+
+    $items = $query
+        ->orderBy('name')
+        ->paginate(20)
+        ->withQueryString();
+
+    $categories = \App\Models\StoreItemCategory::query()
+        ->orderBy('name')
+        ->get();
+
+    return view('admin.stores.items.index', compact(
+        'items',
+        'categories'
+    ));
+}
+
 
 
     /*
