@@ -1,1046 +1,694 @@
+
 @extends('layouts.admin')
 
-@push('styles') <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
 @endpush
 
 @section('content')
 
 @php
-/*
-|--------------------------------------------------------------------------
-| Variant data
-|--------------------------------------------------------------------------
-*/
-$variantData = $items->mapWithKeys(function ($item) {
-$variantList = [];
+    $status = strtolower(trim($storeRequisition->status ?? 'draft'));
+    $isReturned = $status === 'returned';
 
+    $requisitionType = old(
+        'requisition_type',
+        $storeRequisition->requisition_type ?? 'ITEM'
+    );
 
-    foreach ($item->variants as $variant) {
-        $variantList[] = [
-            'id' => $variant->id,
-            'name' => $variant->name,
-            'code' => $variant->code,
+    $sourceStoreId = old(
+        'source_store_id',
+        $storeRequisition->source_store_id
+    );
+
+    $destinationStoreId = old(
+        'destination_store_id',
+        $storeRequisition->destination_store_id
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | VARIANTS FOR JAVASCRIPT
+    |--------------------------------------------------------------------------
+    */
+
+    $variantData = $items->mapWithKeys(function ($item) {
+        return [
+            $item->id => $item->variants->map(function ($variant) {
+                return [
+                    'id' => $variant->id,
+                    'name' => $variant->name,
+                    'code' => $variant->code,
+                ];
+            })->values()->toArray(),
         ];
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | PREFILL EXISTING ITEMS
+    |--------------------------------------------------------------------------
+    | Old submitted input takes priority after a validation failure.
+    | Otherwise, load the saved items and their assigned children.
+    |--------------------------------------------------------------------------
+    */
+
+    if (is_array(old('items'))) {
+        $existingItems = collect(old('items'))->map(function ($item) {
+            return [
+                'store_item_id' => $item['store_item_id'] ?? '',
+                'variant_id' => $item['variant_id'] ?? '',
+                'requested_quantity' => $item['requested_quantity'] ?? '',
+                'notes' => $item['notes'] ?? '',
+                'child_ids' => array_values($item['child_ids'] ?? []),
+            ];
+        })->values();
+    } else {
+        $existingItems = $storeRequisition->items->map(function ($item) {
+            return [
+                'store_item_id' => $item->store_item_id,
+                'variant_id' => $item->variant_id,
+                'requested_quantity' => $item->requested_quantity,
+                'notes' => $item->notes,
+                'child_ids' => $item->children
+                    ->pluck('id')
+                    ->values()
+                    ->toArray(),
+            ];
+        })->values();
     }
-
-    return [
-        $item->id => $variantList,
-    ];
-})->toArray();
-
-/*
-|--------------------------------------------------------------------------
-| Existing requisition items
-|--------------------------------------------------------------------------
-*/
-$existingItems = $storeRequisition->items->map(function ($item) {
-    return [
-        'id' => $item->id,
-        'store_item_id' => $item->store_item_id,
-        'variant_id' => $item->variant_id,
-        'requested_quantity' => $item->requested_quantity,
-        'notes' => $item->notes,
-        'child_ids' => $item->children
-            ->pluck('id')
-            ->map(fn ($id) => (int) $id)
-            ->values()
-            ->toArray(),
-    ];
-})->values()->toArray();
-
-/*
-|--------------------------------------------------------------------------
-| Existing request type
-|--------------------------------------------------------------------------
-*/
-$requisitionType = old(
-    'requisition_type',
-    $storeRequisition->requisition_type ?? 'ITEM'
-);
-
-/*
-|--------------------------------------------------------------------------
-| Existing stores
-|--------------------------------------------------------------------------
-*/
-$sourceStoreId = old(
-    'source_store_id',
-    $storeRequisition->source_store_id
-);
-
-$destinationStoreId = old(
-    'destination_store_id',
-    $storeRequisition->destination_store_id
-);
-
-
 @endphp
 
-<div class="store-requisition-page">
+<div class="container-fluid requisition-page store-requisition-page">
 
+    {{-- =====================================================
+         PAGE HEADER
+         ====================================================== --}}
 
-{{-- ============================================================
-    PAGE HEADER
-============================================================= --}}
-<div class="requisition-page-header">
-
-    <div class="requisition-header-content">
-
-        <div class="requisition-header-icon">
-            <i class="fa fa-clipboard-list"></i>
-        </div>
-
+    <div class="requisition-page-header">
         <div>
-            <div class="requisition-breadcrumb">
-                Stores
-                <span>/</span>
-                Requisitions
-                <span>/</span>
-                Edit
+            <div class="text-muted mb-1">
+                <small>
+                    <a href="{{ route('admin.stores.store-requisitions.index') }}">
+                        Stores
+                    </a>
+                    /
+                    <a href="{{ route('admin.stores.store-requisitions.index') }}">
+                        Requisitions
+                    </a>
+                    / Edit
+                </small>
             </div>
 
-            <h1 class="requisition-page-title">
-                Edit Requisition
-            </h1>
+            <div class="requisition-title-row">
+                <h1 class="requisition-page-title">
+                    Edit Store Requisition
+                </h1>
 
-            <p class="requisition-page-subtitle">
-                {{ $storeRequisition->requisition_number }}
-                &nbsp;—&nbsp;
-                Update your draft requisition.
-            </p>
+                <span class="requisition-status
+                    {{ $isReturned
+                        ? 'requisition-status-returned'
+                        : 'requisition-status-draft' }}">
+                    {{ $isReturned ? 'Returned' : ucfirst($status) }}
+                </span>
+            </div>
+
+            <div class="requisition-number">
+                Requisition No:
+                <strong>{{ $storeRequisition->requisition_number }}</strong>
+            </div>
         </div>
 
+        <div class="requisition-page-actions">
+            <a href="{{ route('admin.stores.store-requisitions.show', $storeRequisition) }}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-eye me-1"></i>
+                View Requisition
+            </a>
+
+            <a href="{{ route('admin.stores.store-requisitions.index') }}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>
+                Back to Requisitions
+            </a>
+        </div>
     </div>
 
-    <div class="requisition-header-right">
+    <x-message />
 
-        <span class="requisition-draft-badge">
-            <span class="requisition-status-dot"></span>
-            Draft
-        </span>
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <strong>Please correct the following errors:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        <span
-            class="requisition-help-icon"
-            title="You can edit this requisition because it has not yet been submitted."
-        >
-            <i class="fa fa-question"></i>
-        </span>
+    @if ($isReturned)
+        <div class="requisition-notice requisition-notice-info">
+            <i class="fas fa-undo-alt"></i>
+            <div>
+                <strong>This requisition was returned for correction.</strong>
+                Please review the saved information, make the necessary changes,
+                and select <strong>Resubmit Requisition</strong> to send it back
+                through the HOD approval stage.
+            </div>
+        </div>
+    @endif
 
-    </div>
+    {{-- =====================================================
+         EDIT FORM
+         ====================================================== --}}
 
-</div>
+    <form id="requisitionForm"
+          method="POST"
+          action="{{ route('admin.stores.store-requisitions.update', $storeRequisition) }}">
 
+        @csrf
+        @method('PUT')
 
-{{-- ============================================================
-    MESSAGES
-============================================================= --}}
-<x-message></x-message>
+        {{-- =====================================================
+             REQUEST SETUP
+             ====================================================== --}}
 
+        <section class="requisition-section">
 
-{{-- ============================================================
-    MAIN FORM
-============================================================= --}}
-<form
-    id="requisitionForm"
-    method="POST"
-    action="{{ route('admin.stores.store-requisitions.update', $storeRequisition) }}"
->
-
-    @csrf
-    @method('PUT')
-
-
-    {{-- ========================================================
-        REQUEST TYPE / STORES
-    ========================================================= --}}
-    <section class="requisition-section">
-
-        <div class="requisition-section-header">
-
-            <div class="requisition-section-heading">
-
-                <div class="requisition-section-icon">
-                    <i class="fa fa-exchange-alt"></i>
-                </div>
-
+            <div class="requisition-section-header">
                 <div>
-                    <h5>
+                    <div class="requisition-section-title">
+                        <i class="fas fa-sliders-h me-1"></i>
                         Request Setup
-                    </h5>
+                    </div>
 
-                    <p>
-                        Choose the transaction type and the stores involved.
-                    </p>
+                    <div class="requisition-section-subtitle">
+                        Requisition type and stores involved.
+                    </div>
                 </div>
-
             </div>
 
-        </div>
+            <div class="requisition-section-body">
+                <div class="row g-3">
 
+                    <div class="col-md-4">
+                        <label for="requisition_type" class="form-label">
+                            Request Type <span class="text-danger">*</span>
+                        </label>
 
-        <div class="requisition-details-body">
-
-            <div class="row">
-
-                {{-- =================================================
-                    REQUEST TYPE
-                ================================================== --}}
-                <div class="col-md-4 mb-3 mb-md-0">
-
-                    <label
-                        for="requisition_type"
-                        class="requisition-field-label"
-                    >
-                        Request Type
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <select
-                        name="requisition_type"
-                        id="requisition_type"
-                        class="form-select requisition-table-input requisition-input"
-                        required
-                    >
-                        <option
-                            value="ITEM"
-                            {{ $requisitionType === 'ITEM' ? 'selected' : '' }}
-                        >
-                            Item Issue
-                        </option>
-
-                        <option
-                            value="TRANSFER"
-                            {{ $requisitionType === 'TRANSFER' ? 'selected' : '' }}
-                        >
-                            Stock Transfer
-                        </option>
-                    </select>
-
-                    <div class="small text-muted mt-1">
-                        Item Issue is for normal consumption.
-                        Transfer moves stock between stores.
-                    </div>
-
-                    @error('requisition_type')
-                        <div class="text-danger small mt-1">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-
-                {{-- =================================================
-                    SOURCE STORE
-                ================================================== --}}
-                <div class="col-md-4 mb-3 mb-md-0">
-
-                    <label
-                        for="source_store_id"
-                        class="requisition-field-label"
-                    >
-                        Source Store
-                        <span class="required-mark">*</span>
-                    </label>
-
-                    <select
-                        name="source_store_id"
-                        id="source_store_id"
-                        class="form-select requisition-table-input requisition-input"
-                        required
-                    >
-
-                        <option value="">
-                            Select source store
-                        </option>
-
-                        @foreach($stores as $store)
-
-                            <option
-                                value="{{ $store->id }}"
-                                {{ (string) $sourceStoreId === (string) $store->id ? 'selected' : '' }}
-                            >
-                                {{ $store->name }}
-                                @if($store->code)
-                                    ({{ $store->code }})
-                                @endif
+                        <select name="requisition_type"
+                                id="requisition_type"
+                                class="form-select @error('requisition_type') is-invalid @enderror"
+                                required>
+                            <option value="ITEM"
+                                {{ $requisitionType === 'ITEM' ? 'selected' : '' }}>
+                                Item Requisition
                             </option>
 
-                        @endforeach
-
-                    </select>
-
-                    <div class="small text-muted mt-1">
-                        Stock will be issued from this store.
-                    </div>
-
-                    @error('source_store_id')
-                        <div class="text-danger small mt-1">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-
-                {{-- =================================================
-                    DESTINATION STORE
-                ================================================== --}}
-                <div
-                    class="col-md-4"
-                    id="destinationStoreWrapper"
-                >
-
-                    <label
-                        for="destination_store_id"
-                        class="requisition-field-label"
-                    >
-                        Destination Store
-                        <span
-                            id="destinationRequiredMark"
-                            class="required-mark"
-                        >
-                            *
-                        </span>
-                    </label>
-
-                    <select
-                        name="destination_store_id"
-                        id="destination_store_id"
-                        class="form-select requisition-table-input requisition-input"
-                    >
-
-                        <option value="">
-                            Select destination store
-                        </option>
-
-                        @foreach($stores as $store)
-
-                            <option
-                                value="{{ $store->id }}"
-                                {{ (string) $destinationStoreId === (string) $store->id ? 'selected' : '' }}
-                            >
-                                {{ $store->name }}
-                                @if($store->code)
-                                    ({{ $store->code }})
-                                @endif
+                            <option value="TRANSFER"
+                                {{ $requisitionType === 'TRANSFER' ? 'selected' : '' }}>
+                                Store Transfer
                             </option>
+                        </select>
 
-                        @endforeach
-
-                    </select>
-
-                    <div class="small text-muted mt-1">
-                        Required only for stock transfers.
+                        @error('requisition_type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    @error('destination_store_id')
-                        <div class="text-danger small mt-1">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                    <div class="col-md-4">
+                        <label for="source_store_id" class="form-label">
+                            Source Store <span class="text-danger">*</span>
+                        </label>
+
+                        <select name="source_store_id"
+                                id="source_store_id"
+                                class="form-select @error('source_store_id') is-invalid @enderror"
+                                required>
+                            <option value="">Select source store</option>
+
+                            @foreach ($stores as $store)
+                                <option value="{{ $store->id }}"
+                                    {{ (string) $sourceStoreId === (string) $store->id ? 'selected' : '' }}>
+                                    {{ $store->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('source_store_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4" id="destinationStoreWrapper">
+                        <label for="destination_store_id" class="form-label">
+                            Destination Store
+                            <span id="destinationRequired" class="text-danger">*</span>
+                        </label>
+
+                        <select name="destination_store_id"
+                                id="destination_store_id"
+                                class="form-select @error('destination_store_id') is-invalid @enderror">
+                            <option value="">Select destination store</option>
+
+                            @foreach ($stores as $store)
+                                <option value="{{ $store->id }}"
+                                    {{ (string) $destinationStoreId === (string) $store->id ? 'selected' : '' }}>
+                                    {{ $store->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <small class="text-muted">
+                            Required only for a store transfer.
+                        </small>
+
+                        @error('destination_store_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                 </div>
-
             </div>
+        </section>
 
-        </div>
+        {{-- =====================================================
+             REQUESTED ITEMS
+             ====================================================== --}}
 
-    </section>
+        <section class="requisition-section">
 
-
-    {{-- ========================================================
-        REQUESTED ITEMS
-    ========================================================= --}}
-    <section class="requisition-section">
-
-        <div class="requisition-section-header">
-
-            <div class="requisition-section-heading">
-
-                <div class="requisition-section-icon requisition-items-icon">
-                    <i class="fa fa-boxes"></i>
-                </div>
-
+            <div class="requisition-section-header">
                 <div>
-                    <h5>
+                    <div class="requisition-section-title">
+                        <i class="fas fa-boxes me-1"></i>
                         Requested Items
-                    </h5>
+                    </div>
 
-                    <p>
-                        Update the items required from Stores.
-                    </p>
+                    <div class="requisition-section-subtitle">
+                        Edit the items, variants, quantities and child assignments.
+                    </div>
                 </div>
 
+                <div class="d-flex align-items-center gap-2">
+                    <span class="requisition-item-count">
+                        <span id="itemCount">{{ $existingItems->count() }}</span>
+                        item(s)
+                    </span>
+
+                    <button type="button"
+                            id="addItemBtn"
+                            class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        Add Item
+                    </button>
+                </div>
             </div>
 
-            <span
-                id="itemCount"
-                class="requisition-count-badge"
-            >
-                0 items
-            </span>
+            <div class="table-responsive">
+                <table class="table requisition-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:45px;">#</th>
+                            <th style="min-width:210px;">Item</th>
+                            <th style="min-width:160px;">Variant</th>
+                            <th style="min-width:115px;">Quantity</th>
+                            <th style="min-width:75px;">UOM</th>
+                            <th style="min-width:160px;">For Child / Children</th>
+                            <th style="min-width:160px;">Notes</th>
+                            <th style="width:50px;"></th>
+                        </tr>
+                    </thead>
 
-        </div>
-
-
-        {{-- ====================================================
-            TABLE
-        ===================================================== --}}
-        <div class="requisition-table-wrapper">
-
-            <table class="table requisition-items-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th style="width: 45px;">
-                            #
-                        </th>
-
-                        <th style="min-width: 220px;">
-                            Item
-                        </th>
-
-                        <th style="min-width: 180px;">
-                            Variant
-                        </th>
-
-                        <th style="width: 120px;">
-                            Quantity
-                        </th>
-
-                        <th style="width: 100px;">
-                            UOM
-                        </th>
-
-                        <th style="min-width: 220px;">
-                            For Child/Children
-                        </th>
-
-                        <th style="min-width: 180px;">
-                            Notes
-                        </th>
-
-                        <th style="width: 50px;">
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="requisitionItemsContainer">
-                    {{-- Rows inserted by JavaScript --}}
-                </tbody>
-
-            </table>
-
-
-            {{-- =================================================
-                EMPTY STATE
-            ================================================== --}}
-            <div
-                id="emptyItemsState"
-                class="requisition-table-empty"
-            >
-
-                <div class="requisition-empty-icon">
-                    <i class="fa fa-box-open"></i>
-                </div>
-
-                <strong>
-                    No items added
-                </strong>
-
-                <span>
-                    Add an item to continue editing your requisition.
-                </span>
-
+                    <tbody id="itemsContainer">
+                        <tr id="emptyItemsRow"
+                            style="{{ $existingItems->isEmpty() ? '' : 'display:none;' }}">
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="fas fa-box-open d-block mb-2"></i>
+                                No items added. Select Add Item to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-        </div>
+        </section>
 
+        {{-- =====================================================
+             REQUEST DETAILS
+             ====================================================== --}}
 
-        {{-- ====================================================
-            ADD ITEM
-        ===================================================== --}}
-        <div class="requisition-add-item-area">
+        <section class="requisition-section">
 
-            <button
-                type="button"
-                id="addItemButton"
-                class="requisition-add-button"
-            >
-                <i class="fa fa-plus"></i>
-                Add Item
-            </button>
+            <div class="requisition-section-header">
+                <div>
+                    <div class="requisition-section-title">
+                        <i class="fas fa-clipboard-list me-1"></i>
+                        Request Details
+                    </div>
 
-        </div>
+                    <div class="requisition-section-subtitle">
+                        Department, purpose and supporting notes.
+                    </div>
+                </div>
+            </div>
 
-    </section>
+            <div class="requisition-section-body">
+                <div class="row g-3">
 
+                    <div class="col-md-6">
+                        <label for="department" class="form-label">
+                            Department <span class="text-danger">*</span>
+                        </label>
 
-    {{-- ========================================================
-        REQUEST DETAILS
-    ========================================================= --}}
-    <section class="requisition-section requisition-details-section">
+                        <input type="text"
+                               name="department"
+                               id="department"
+                               class="form-control @error('department') is-invalid @enderror"
+                               value="{{ old('department', $storeRequisition->department) }}"
+                               maxlength="255"
+                               required>
 
-        <div class="requisition-details-header">
+                        @error('department')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <strong>
-                Request Details
-            </strong>
+                    <div class="col-md-6">
+                        <label for="purpose" class="form-label">Purpose</label>
 
-            <span>
-                Update the department and purpose for this requisition.
-            </span>
+                        <textarea name="purpose"
+                                  id="purpose"
+                                  rows="3"
+                                  maxlength="2000"
+                                  class="form-control @error('purpose') is-invalid @enderror">{{ old('purpose', $storeRequisition->purpose) }}</textarea>
 
-        </div>
+                        @error('purpose')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
+                    <div class="col-12">
+                        <label for="submission_notes" class="form-label">
+                            Submission Notes
+                        </label>
 
-        <div class="requisition-details-body">
+                        <textarea name="submission_notes"
+                                  id="submission_notes"
+                                  rows="2"
+                                  maxlength="2000"
+                                  class="form-control @error('submission_notes') is-invalid @enderror"
+                                  placeholder="Additional information about this requisition...">{{ old('submission_notes', $storeRequisition->submission_notes) }}</textarea>
 
-            <div class="row">
-
-                {{-- =================================================
-                    DEPARTMENT
-                ================================================== --}}
-                <div class="col-md-6 mb-3 mb-md-0">
-
-                    <label
-                        for="department"
-                        class="requisition-field-label"
-                    >
-                        Department
-
-                        <span class="required-mark">
-                            *
-                        </span>
-                    </label>
-
-
-                    <input
-                        type="text"
-                        name="department"
-                        id="department"
-                        class="form-control requisition-input"
-                        value="{{ old('department', $storeRequisition->department) }}"
-                        placeholder="e.g. School, Children's Home, Administration"
-                        required
-                    >
-
-
-                    @error('department')
-                        <div class="text-danger small mt-1">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                        @error('submission_notes')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                 </div>
+            </div>
+        </section>
 
+        {{-- =====================================================
+             BOTTOM ACTIONS
+             ====================================================== --}}
 
-                {{-- =================================================
-                    PURPOSE
-                ================================================== --}}
-                <div class="col-md-6">
+        <div class="requisition-bottom-actions">
 
-                    <label
-                        for="purpose"
-                        class="requisition-field-label"
-                    >
-                        Purpose
+            <div class="requisition-bottom-actions-left">
+                <a href="{{ route('admin.stores.store-requisitions.show', $storeRequisition) }}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>
+                    Cancel
+                </a>
+            </div>
 
-                        <span class="required-mark">
-                            *
-                        </span>
-                    </label>
+            <div class="requisition-bottom-actions-right">
+                <button type="submit"
+                        id="saveRequisitionBtn"
+                        class="btn btn-primary">
+                    <i class="fas {{ $isReturned ? 'fa-paper-plane' : 'fa-save' }} me-1"></i>
 
-
-                    <textarea
-                        name="purpose"
-                        id="purpose"
-                        class="form-control requisition-input requisition-textarea"
-                        placeholder="Explain why these items are required."
-                        required
-                    >{{ old('purpose', $storeRequisition->purpose) }}</textarea>
-
-
-                    @error('purpose')
-                        <div class="text-danger small mt-1">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
+                    <span>
+                        {{ $isReturned ? 'Resubmit Requisition' : 'Save Changes' }}
+                    </span>
+                </button>
             </div>
 
         </div>
 
-    </section>
-
-
-    {{-- ========================================================
-        ACTION BAR
-    ========================================================= --}}
-    <div class="requisition-action-bar">
-
-        <a
-            href="{{ route('admin.stores.store-requisitions.index') }}"
-            class="requisition-cancel-button"
-        >
-            <i class="fa fa-arrow-left"></i>
-            Cancel
-        </a>
-
-
-        <div class="requisition-action-right">
-
-            <span class="requisition-action-hint">
-                Changes will remain in draft.
-            </span>
-
-
-            <button
-                type="submit"
-                class="requisition-save-button"
-            >
-                <i class="fa fa-save"></i>
-                Save Changes
-            </button>
-
-        </div>
-
-    </div>
-
-</form>
-
-
+    </form>
 </div>
 
-{{-- =================================================================
-ITEM ROW TEMPLATE
-================================================================= --}} <template id="itemRowTemplate">
 
+{{-- =========================================================
+     ITEM ROW TEMPLATE
+     ========================================================= --}}
 
-<tr
-    class="requisition-item-row"
-    data-row-index="__INDEX__"
->
+<template id="itemRowTemplate">
+    <tr class="requisition-item-row">
 
-    {{-- Number --}}
-    <td>
+        <td class="text-center">
+            <span class="row-number"></span>
+        </td>
 
-        <span class="requisition-row-number item-number">
-            1
-        </span>
+        <td>
+            <select class="form-select item-select"
+                    data-field="store_item_id"
+                    required>
+                <option value="">Select item</option>
 
-    </td>
+                @foreach ($items as $item)
+                    <option value="{{ $item->id }}"
+                            data-uom="{{ $item->unit?->name ?? '—' }}">
+                        {{ $item->name }}
+                        @if ($item->sku)
+                            ({{ $item->sku }})
+                        @endif
+                    </option>
+                @endforeach
+            </select>
+        </td>
 
+        <td>
+            <select class="form-select variant-select"
+                    data-field="variant_id">
+                <option value="">No variant</option>
+            </select>
+        </td>
 
-    {{-- Item --}}
-    <td>
+        <td>
+            <input type="number"
+                   class="form-control quantity-input"
+                   data-field="requested_quantity"
+                   min="0.001"
+                   step="0.001"
+                   required>
+        </td>
 
-        <select
-            name="items[__INDEX__][store_item_id]"
-            class="form-select requisition-table-input requisition-item-select"
-            required
-        >
+        <td>
+            <span class="requisition-uom uom-display">—</span>
+        </td>
 
-            <option value="">
-                Select item
-            </option>
-
-            @foreach($items as $item)
-
-                <option
-                    value="{{ $item->id }}"
-                    data-uom="{{ $item->unit?->name ?? '—' }}"
-                >
-                    {{ $item->name }}
-
-                    @if($item->sku)
-                        ({{ $item->sku }})
-                    @endif
-                </option>
-
-            @endforeach
-
-        </select>
-
-    </td>
-
-
-    {{-- Variant --}}
-    <td>
-
-        <select
-            name="items[__INDEX__][variant_id]"
-            class="form-select requisition-table-input requisition-variant-select"
-            disabled
-        >
-
-            <option value="">
-                No variant
-            </option>
-
-        </select>
-
-    </td>
-
-
-    {{-- Quantity --}}
-    <td>
-
-        <input
-            type="number"
-            name="items[__INDEX__][requested_quantity]"
-            class="form-control requisition-table-input requisition-quantity"
-            min="0.001"
-            step="0.001"
-            placeholder="0"
-            required
-        >
-
-    </td>
-
-
-    {{-- UOM --}}
-    <td>
-
-        <div class="requisition-uom-display">
-
-            <span class="uom-value requisition-uom">
-                —
-            </span>
-
-        </div>
-
-    </td>
-
-
-    {{-- Children --}}
-    <td>
-
-        <div class="requisition-child-assignment">
-
-            <button
-                type="button"
-                class="requisition-assign-child-button"
-                data-action="assign-children"
-            >
-
-                <i class="fa fa-user-plus"></i>
-
-                <span class="child-assignment-label">
-                    + Assign
-                </span>
-
+        <td>
+            <button type="button"
+                    class="requisition-child-button assign-children-btn">
+                <i class="fas fa-users me-1"></i>
+                Assign Children
             </button>
 
-
-            <div class="requisition-selected-children">
-
-                <span class="requisition-no-child-label">
-                    General
-                </span>
-
+            <div class="requisition-child-summary child-summary">
+                General
             </div>
 
+            <div class="requisition-child-badges child-badges"></div>
 
-            <div class="requisition-child-inputs">
-            </div>
+            <div class="child-inputs"></div>
+        </td>
 
-        </div>
+        <td>
+            <input type="text"
+                   class="form-control notes-input"
+                   data-field="notes"
+                   maxlength="1000"
+                   placeholder="Optional notes">
+        </td>
 
-    </td>
+        <td class="text-center">
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger remove-item-btn"
+                    title="Remove item">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
 
-
-    {{-- Notes --}}
-    <td>
-
-        <input
-            type="text"
-            name="items[__INDEX__][notes]"
-            class="form-control requisition-table-input"
-            placeholder="Optional"
-        >
-
-    </td>
-
-
-    {{-- Remove --}}
-    <td class="text-center">
-
-        <button
-            type="button"
-            class="requisition-row-remove requisition-remove-item"
-            title="Remove item"
-        >
-
-            <i class="fa fa-trash"></i>
-
-        </button>
-
-    </td>
-
-</tr>
-
-
+    </tr>
 </template>
 
-{{-- =================================================================
-ASSIGN CHILDREN MODAL
-================================================================= --}}
 
-<div
-    class="modal fade requisition-child-modal"
-    id="assignChildrenModal"
-    tabindex="-1"
-    aria-hidden="true"
->
+{{-- =========================================================
+     CHILD ASSIGNMENT MODAL
+     ========================================================= --}}
 
+<div class="modal fade"
+     id="assignChildrenModal"
+     tabindex="-1"
+     aria-labelledby="assignChildrenModalLabel"
+     aria-hidden="true">
 
-<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
 
-    <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="assignChildrenModalLabel">
+                        Assign Children
+                    </h5>
 
-        <div class="modal-header">
+                    <small class="text-muted">
+                        Select the children this item is intended for.
+                    </small>
+                </div>
 
-            <div>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
 
-                <h5 class="modal-title mb-1">
-                    Assign Item to Child/Children
-                </h5>
+            <div class="modal-body">
 
-                <div class="requisition-modal-subtitle">
-                    Select one or more children for this item.
+                <div class="mb-3">
+                    <input type="search"
+                           id="childSearch"
+                           class="form-control"
+                           placeholder="Search children by name...">
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">
+                        <span id="selectedChildrenCount">0</span> selected
+                    </small>
+
+                    <button type="button"
+                            id="clearChildrenBtn"
+                            class="btn btn-sm btn-outline-secondary">
+                        Clear Selection
+                    </button>
+                </div>
+
+                <div class="requisition-child-list" id="childrenList">
+
+                    @foreach ($children as $child)
+                        <label class="requisition-child-option child-option"
+                               data-child-name="{{ strtolower($child->name) }}">
+
+                            <input type="checkbox"
+                                   class="form-check-input child-checkbox"
+                                   value="{{ $child->id }}"
+                                   data-name="{{ $child->name }}">
+
+                            <span>
+                                <span class="requisition-child-option-name d-block">
+                                    {{ $child->name }}
+                                </span>
+
+                                @if (!empty($child->admission_number))
+                                    <span class="requisition-child-option-meta">
+                                        {{ $child->admission_number }}
+                                    </span>
+                                @endif
+                            </span>
+                        </label>
+                    @endforeach
+
+                    <div id="noChildrenFound"
+                         class="text-center text-muted p-3"
+                         style="display:none;">
+                        No children match your search.
+                    </div>
+
                 </div>
 
             </div>
 
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
 
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-            ></button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            {{-- Search --}}
-            <div class="requisition-child-search">
-
-                <i class="fa fa-search"></i>
-
-                <input
-                    type="text"
-                    id="childSearchInput"
-                    class="form-control requisition-input"
-                    placeholder="Search children..."
-                >
-
-            </div>
-
-
-            {{-- Children list --}}
-            <div
-                id="childSelectionList"
-                class="requisition-child-selection-list"
-            >
-
-                @forelse($children as $child)
-
-                    <label
-                        class="requisition-child-option"
-                        data-child-name="{{ strtolower($child->name) }}"
-                    >
-
-                        <input
-                            type="checkbox"
-                            class="requisition-child-checkbox"
-                            value="{{ $child->id }}"
-                            data-child-name="{{ $child->name }}"
-                        >
-
-                        <span class="requisition-child-checkmark">
-                            <i class="fa fa-check"></i>
-                        </span>
-
-                        <span class="requisition-child-name">
-                            {{ $child->name }}
-                        </span>
-
-                    </label>
-
-                @empty
-
-                    <div class="requisition-no-children-found">
-                        No children found.
-                    </div>
-
-                @endforelse
-
+                <button type="button"
+                        id="assignSelectedChildrenBtn"
+                        class="btn btn-primary">
+                    <i class="fas fa-check me-1"></i>
+                    Apply Selection
+                </button>
             </div>
 
         </div>
-
-
-        <div class="modal-footer">
-
-            <span
-                id="selectedChildrenCount"
-                class="requisition-selected-count"
-            >
-                0 selected
-            </span>
-
-
-            <button
-                type="button"
-                class="requisition-cancel-button"
-                data-bs-dismiss="modal"
-            >
-                Cancel
-            </button>
-
-
-            <button
-                type="button"
-                id="assignSelectedChildren"
-                class="requisition-save-button"
-            >
-
-                <i class="fa fa-check"></i>
-                Assign Selected
-
-            </button>
-
-        </div>
-
     </div>
-
 </div>
 
-
-</div>
 
 @push('scripts')
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
 
-    /*
-    |--------------------------------------------------------------------------
-    | ELEMENTS
-    |--------------------------------------------------------------------------
-    */
+    const variantData = @json($variantData);
+    const existingItems = @json($existingItems);
 
-    const form =
-        document.getElementById('requisitionForm');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const emptyItemsRow = document.getElementById('emptyItemsRow');
+    const itemRowTemplate = document.getElementById('itemRowTemplate');
 
-    const itemsContainer =
-        document.getElementById(
-            'requisitionItemsContainer'
-        );
+    const addItemBtn = document.getElementById('addItemBtn');
+    const itemCount = document.getElementById('itemCount');
 
-    const emptyItemsState =
-        document.getElementById(
-            'emptyItemsState'
-        );
+    const requisitionType = document.getElementById('requisition_type');
+    const sourceStore = document.getElementById('source_store_id');
+    const destinationStore = document.getElementById('destination_store_id');
+    const destinationStoreWrapper = document.getElementById('destinationStoreWrapper');
+    const destinationRequired = document.getElementById('destinationRequired');
 
-    const addItemButton =
-        document.getElementById(
-            'addItemButton'
-        );
+    const requisitionForm = document.getElementById('requisitionForm');
+    const saveButton = document.getElementById('saveRequisitionBtn');
 
-    const itemCount =
-        document.getElementById(
-            'itemCount'
-        );
-
-    const itemRowTemplate =
-        document.getElementById(
-            'itemRowTemplate'
-        );
-
-    const assignChildrenModalElement =
-        document.getElementById(
-            'assignChildrenModal'
-        );
-
-    const requisitionType =
-        document.getElementById(
-            'requisition_type'
-        );
-
-    const sourceStore =
-        document.getElementById(
-            'source_store_id'
-        );
-
-    const destinationStore =
-        document.getElementById(
-            'destination_store_id'
-        );
-
-    const destinationStoreWrapper =
-        document.getElementById(
-            'destinationStoreWrapper'
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATA
-    |--------------------------------------------------------------------------
-    */
-
-    const variants =
-        @json($variantData);
-
-    const existingItems =
-        @json($existingItems);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATE
-    |--------------------------------------------------------------------------
-    */
+    const modalElement = document.getElementById('assignChildrenModal');
+    const childSearch = document.getElementById('childSearch');
+    const childrenList = document.getElementById('childrenList');
+    const noChildrenFound = document.getElementById('noChildrenFound');
+    const selectedChildrenCount = document.getElementById('selectedChildrenCount');
 
     let rowIndex = 0;
+    let activeRow = null;
+    let modalInstance = null;
 
-    let currentChildAssignmentRow = null;
-
-    let assignChildrenModal = null;
-
+    if (window.bootstrap && modalElement) {
+        modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | CHILD MODAL
+    | UPDATE EMPTY STATE AND ROW NUMBERS
     |--------------------------------------------------------------------------
     */
 
-    if (
-        assignChildrenModalElement &&
-        typeof bootstrap !== 'undefined'
-    ) {
+    function updateItemRows() {
+        const rows = itemsContainer.querySelectorAll('.requisition-item-row');
 
-        assignChildrenModal =
-            new bootstrap.Modal(
-                assignChildrenModalElement
-            );
+        rows.forEach(function (row, index) {
+            row.querySelector('.row-number').textContent = index + 1;
+        });
 
+        itemCount.textContent = rows.length;
+        emptyItemsRow.style.display = rows.length ? 'none' : '';
+
+        return rows;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1048,1274 +696,332 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    function updateRequestTypeUI()
-    {
-        if (
-            !requisitionType ||
-            !destinationStore ||
-            !destinationStoreWrapper
-        ) {
-            return;
-        }
+    function updateDestinationStore() {
+        const isTransfer = requisitionType.value === 'TRANSFER';
 
-        const isTransfer =
-            requisitionType.value === 'TRANSFER';
+        destinationStoreWrapper.style.display = isTransfer ? '' : 'none';
+        destinationStore.required = isTransfer;
+        destinationRequired.style.display = isTransfer ? '' : 'none';
 
-
-        if (isTransfer) {
-
-            destinationStoreWrapper.style.display =
-                '';
-
-            destinationStore.required =
-                true;
-
-        } else {
-
-            destinationStoreWrapper.style.display =
-                '';
-
-            destinationStore.required =
-                false;
-
-            destinationStore.value =
-                '';
-
-        }
-
-
-        updateDestinationOptions();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PREVENT SAME SOURCE / DESTINATION
-    |--------------------------------------------------------------------------
-    */
-
-    function updateDestinationOptions()
-    {
-        if (
-            !sourceStore ||
-            !destinationStore
-        ) {
-            return;
-        }
-
-        const sourceId =
-            sourceStore.value;
-
-
-        Array.from(
-            destinationStore.options
-        ).forEach(function (option) {
-
-            if (!option.value) {
-                option.disabled = false;
-                return;
-            }
-
-            option.disabled =
-                sourceId &&
-                String(option.value) ===
-                String(sourceId);
-
-        });
-
-
-        if (
-            destinationStore.value &&
-            String(destinationStore.value) ===
-            String(sourceId)
-        ) {
-
+        if (!isTransfer) {
             destinationStore.value = '';
-
         }
     }
 
+    function validateDifferentStores() {
+        const isTransfer = requisitionType.value === 'TRANSFER';
 
-    if (requisitionType) {
-
-        requisitionType.addEventListener(
-            'change',
-            function () {
-                updateRequestTypeUI();
-            }
-        );
-
-    }
-
-
-    if (sourceStore) {
-
-        sourceStore.addEventListener(
-            'change',
-            function () {
-                updateDestinationOptions();
-            }
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL REQUEST TYPE STATE
-    |--------------------------------------------------------------------------
-    */
-
-    updateRequestTypeUI();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE ITEM COUNT
-    |--------------------------------------------------------------------------
-    */
-
-    function updateItemCount()
-    {
-        const rows =
-            itemsContainer.querySelectorAll(
-                '.requisition-item-row'
-            );
-
-        const count =
-            rows.length;
-
-
-        itemCount.textContent =
-            count === 1
-                ? '1 item'
-                : count + ' items';
-
-
-        emptyItemsState.style.display =
-            count === 0
-                ? 'flex'
-                : 'none';
-
-
-        rows.forEach(function (row, index) {
-
-            const numberCell =
-                row.querySelector(
-                    '.item-number'
-                );
-
-            if (numberCell) {
-
-                numberCell.textContent =
-                    index + 1;
-
-            }
-
-        });
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE UOM
-    |--------------------------------------------------------------------------
-    */
-
-    function updateUom(row)
-    {
-        const itemSelect =
-            row.querySelector(
-                '.requisition-item-select'
-            );
-
-        const uomElement =
-            row.querySelector(
-                '.requisition-uom'
-            );
-
+        destinationStore.setCustomValidity('');
 
         if (
-            !itemSelect ||
-            !uomElement
+            isTransfer &&
+            sourceStore.value &&
+            destinationStore.value &&
+            sourceStore.value === destinationStore.value
         ) {
-            return;
-        }
-
-
-        const selectedOption =
-            itemSelect.options[
-                itemSelect.selectedIndex
-            ];
-
-
-        if (
-            selectedOption &&
-            selectedOption.value
-        ) {
-
-            uomElement.textContent =
-                selectedOption.dataset.uom ||
-                '—';
-
-        } else {
-
-            uomElement.textContent =
-                '—';
-
+            destinationStore.setCustomValidity(
+                'The source and destination stores must be different.'
+            );
         }
     }
 
+    requisitionType.addEventListener('change', updateDestinationStore);
+
+    sourceStore.addEventListener('change', validateDifferentStores);
+    destinationStore.addEventListener('change', validateDifferentStores);
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE VARIANTS
+    | VARIANTS
     |--------------------------------------------------------------------------
     */
 
-    function updateVariantOptions(
-        row,
-        selectedVariantId = null
-    ) {
+    function populateVariants(row, selectedVariantId) {
+        const itemSelect = row.querySelector('.item-select');
+        const variantSelect = row.querySelector('.variant-select');
 
-        const itemSelect =
-            row.querySelector(
-                '.requisition-item-select'
-            );
+        const itemId = itemSelect.value;
+        const variants = variantData[itemId] || [];
 
-        const variantSelect =
-            row.querySelector(
-                '.requisition-variant-select'
-            );
+        variantSelect.innerHTML = '';
 
+        const noVariantOption = document.createElement('option');
+        noVariantOption.value = '';
+        noVariantOption.textContent = 'No variant';
+        variantSelect.appendChild(noVariantOption);
 
-        if (
-            !itemSelect ||
-            !variantSelect
-        ) {
-            return;
-        }
+        variants.forEach(function (variant) {
+            const option = document.createElement('option');
 
+            option.value = variant.id;
 
-        const itemId =
-            itemSelect.value;
-
-
-        variantSelect.innerHTML =
-            '<option value="">No variant</option>';
-
-
-        if (!itemId) {
-
-            variantSelect.disabled =
-                true;
-
-            return;
-        }
-
-
-        const itemVariants =
-            variants[itemId] || [];
-
-
-        if (itemVariants.length === 0) {
-
-            variantSelect.disabled =
-                true;
-
-            return;
-        }
-
-
-        itemVariants.forEach(function (variant) {
-
-            const option =
-                document.createElement(
-                    'option'
-                );
-
-
-            option.value =
-                variant.id;
-
-
-            option.textContent =
-                variant.name +
-                (
-                    variant.code
-                        ? ' (' + variant.code + ')'
-                        : ''
-                );
-
+            option.textContent = variant.code
+                ? variant.name + ' (' + variant.code + ')'
+                : variant.name;
 
             if (
-                selectedVariantId &&
-                String(selectedVariantId) ===
-                String(variant.id)
+                selectedVariantId !== null &&
+                selectedVariantId !== undefined &&
+                String(selectedVariantId) === String(variant.id)
             ) {
-
-                option.selected =
-                    true;
-
+                option.selected = true;
             }
 
-
-            variantSelect.appendChild(
-                option
-            );
-
+            variantSelect.appendChild(option);
         });
 
-
-        variantSelect.disabled =
-            false;
+        if (
+            selectedVariantId &&
+            !variants.some(function (variant) {
+                return String(variant.id) === String(selectedVariantId);
+            })
+        ) {
+            variantSelect.value = '';
+        }
     }
-
 
     /*
     |--------------------------------------------------------------------------
-    | DISPLAY ASSIGNED CHILDREN
+    | UNIT OF MEASURE
     |--------------------------------------------------------------------------
     */
 
-    function displayAssignedChildren(row)
-    {
-        const selectedContainer =
-            row.querySelector(
-                '.requisition-selected-children'
-            );
+    function updateUom(row) {
+        const itemSelect = row.querySelector('.item-select');
+        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        const uomDisplay = row.querySelector('.uom-display');
 
-        const label =
-            row.querySelector(
-                '.child-assignment-label'
-            );
+        uomDisplay.textContent =
+            selectedOption && selectedOption.dataset.uom
+                ? selectedOption.dataset.uom
+                : '—';
+    }
 
-        const inputsContainer =
-            row.querySelector(
-                '.requisition-child-inputs'
-            );
+    /*
+    |--------------------------------------------------------------------------
+    | CHILD ASSIGNMENTS
+    |--------------------------------------------------------------------------
+    */
 
+    function getSelectedChildren(row) {
+        const inputs = row.querySelectorAll(
+            '.child-inputs input[name$="[child_ids][]"]'
+        );
 
-        if (
-            !selectedContainer ||
-            !inputsContainer
-        ) {
-            return;
-        }
+        return Array.from(inputs).map(function (input) {
+            return String(input.value);
+        });
+    }
 
+    function renderChildAssignments(row, childIds) {
+        const inputContainer = row.querySelector('.child-inputs');
+        const badgeContainer = row.querySelector('.child-badges');
+        const summary = row.querySelector('.child-summary');
 
-        const selectedIds =
-            Array.from(
-                inputsContainer.querySelectorAll(
-                    'input[name$="[child_ids][]"]'
-                )
-            ).map(function (input) {
+        inputContainer.innerHTML = '';
+        badgeContainer.innerHTML = '';
 
-                return String(
-                    input.value
-                );
+        const uniqueIds = Array.from(
+            new Set((childIds || []).map(String))
+        );
 
+        uniqueIds.forEach(function (childId) {
+            const hiddenInput = document.createElement('input');
+
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'items[' + row.dataset.index + '][child_ids][]';
+            hiddenInput.value = childId;
+
+            inputContainer.appendChild(hiddenInput);
+
+            const checkbox = Array.from(
+                modalElement.querySelectorAll('.child-checkbox')
+            ).find(function (element) {
+                return String(element.value) === childId;
             });
 
+            if (checkbox) {
+                const badge = document.createElement('span');
+                badge.className = 'requisition-child-badge';
+                badge.textContent = checkbox.dataset.name || 'Selected child';
 
-        selectedContainer.innerHTML =
-            '';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NO CHILD ASSIGNED
-        |--------------------------------------------------------------------------
-        */
-
-        if (selectedIds.length === 0) {
-
-            const general =
-                document.createElement(
-                    'span'
-                );
-
-            general.className =
-                'requisition-no-child-label';
-
-            general.textContent =
-                'General';
-
-            selectedContainer.appendChild(
-                general
-            );
-
-
-            if (label) {
-
-                label.textContent =
-                    '+ Assign';
-
+                badgeContainer.appendChild(badge);
             }
-
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHILDREN ASSIGNED
-        |--------------------------------------------------------------------------
-        */
-
-        selectedIds.forEach(function (childId) {
-
-            const checkbox =
-                document.querySelector(
-                    '.requisition-child-checkbox[value="' +
-                    childId +
-                    '"]'
-                );
-
-
-            if (!checkbox) {
-                return;
-            }
-
-
-            const childName =
-                checkbox.dataset.childName ||
-                'Child';
-
-
-            const badge =
-                document.createElement(
-                    'span'
-                );
-
-            badge.className =
-                'requisition-child-badge';
-
-            badge.textContent =
-                childName;
-
-
-            selectedContainer.appendChild(
-                badge
-            );
-
         });
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE BUTTON LABEL
-        |--------------------------------------------------------------------------
-        */
-
-        if (label) {
-
-            label.textContent =
-                selectedIds.length === 1
-                    ? '1 Child'
-                    : selectedIds.length +
-                        ' Children';
-
+        if (uniqueIds.length === 0) {
+            summary.textContent = 'General';
+        } else if (uniqueIds.length === 1) {
+            summary.textContent = '1 child assigned';
+        } else {
+            summary.textContent = uniqueIds.length + ' children assigned';
         }
     }
 
+    function updateModalSelectedCount() {
+        const count = modalElement.querySelectorAll(
+            '.child-checkbox:checked'
+        ).length;
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADD ITEM ROW
-    |--------------------------------------------------------------------------
-    */
+        selectedChildrenCount.textContent = count;
+    }
 
-    function addItemRow(data = null)
-    {
-        const currentIndex =
-            rowIndex;
+    function filterChildren() {
+        const query = childSearch.value.trim().toLowerCase();
+        let visibleCount = 0;
 
+        modalElement.querySelectorAll('.child-option').forEach(function (option) {
+            const name = option.dataset.childName || '';
+            const visible = name.includes(query);
 
-        let html =
-            itemRowTemplate.innerHTML;
+            option.style.display = visible ? '' : 'none';
 
+            if (visible) {
+                visibleCount++;
+            }
+        });
 
-        html =
-            html.replace(
-                /__INDEX__/g,
-                currentIndex
-            );
+        noChildrenFound.style.display = visibleCount ? 'none' : '';
+    }
 
-
-        itemsContainer.insertAdjacentHTML(
-            'beforeend',
-            html
-        );
-
-
-        const row =
-            itemsContainer.lastElementChild;
-
-
-        if (!row) {
+    function openChildAssignment(row) {
+        if (!modalInstance) {
+            alert('The child assignment modal could not be opened. Please check that Bootstrap JavaScript is loaded.');
             return;
         }
 
+        activeRow = row;
 
-        row.dataset.rowIndex =
-            currentIndex;
+        const assignedIds = getSelectedChildren(row);
 
+        modalElement.querySelectorAll('.child-checkbox').forEach(function (checkbox) {
+            checkbox.checked = assignedIds.includes(String(checkbox.value));
+        });
 
-        /*
-        |--------------------------------------------------------------------------
-        | ELEMENTS
-        |--------------------------------------------------------------------------
-        */
+        childSearch.value = '';
+        filterChildren();
+        updateModalSelectedCount();
 
-        const itemSelect =
-            row.querySelector(
-                '.requisition-item-select'
-            );
+        modalInstance.show();
+    }
 
-        const variantSelect =
-            row.querySelector(
-                '.requisition-variant-select'
-            );
+    childSearch.addEventListener('input', filterChildren);
 
-        const quantityInput =
-            row.querySelector(
-                '.requisition-quantity'
-            );
+    modalElement.addEventListener('change', function (event) {
+        if (event.target.classList.contains('child-checkbox')) {
+            updateModalSelectedCount();
+        }
+    });
 
+    document.getElementById('clearChildrenBtn').addEventListener('click', function () {
+        modalElement.querySelectorAll('.child-checkbox').forEach(function (checkbox) {
+            checkbox.checked = false;
+        });
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOAD EXISTING DATA
-        |--------------------------------------------------------------------------
-        */
+        updateModalSelectedCount();
+    });
 
-        if (data) {
+    document.getElementById('assignSelectedChildrenBtn').addEventListener('click', function () {
+        if (!activeRow) {
+            return;
+        }
 
-            itemSelect.value =
-                data.store_item_id || '';
+        const selectedIds = Array.from(
+            modalElement.querySelectorAll('.child-checkbox:checked')
+        ).map(function (checkbox) {
+            return String(checkbox.value);
+        });
 
+        renderChildAssignments(activeRow, selectedIds);
 
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADD AN ITEM ROW
+    |--------------------------------------------------------------------------
+    */
+
+    function addItemRow(data) {
+        data = data || {};
+
+        const fragment = itemRowTemplate.content.cloneNode(true);
+        const row = fragment.querySelector('.requisition-item-row');
+
+        row.dataset.index = rowIndex;
+
+        const itemSelect = row.querySelector('.item-select');
+        const variantSelect = row.querySelector('.variant-select');
+        const quantityInput = row.querySelector('.quantity-input');
+        const notesInput = row.querySelector('.notes-input');
+
+        itemSelect.name = 'items[' + rowIndex + '][store_item_id]';
+        variantSelect.name = 'items[' + rowIndex + '][variant_id]';
+        quantityInput.name = 'items[' + rowIndex + '][requested_quantity]';
+        notesInput.name = 'items[' + rowIndex + '][notes]';
+
+        itemSelect.value = data.store_item_id || '';
+
+        populateVariants(row, data.variant_id || '');
+        updateUom(row);
+
+        quantityInput.value =
+            data.requested_quantity !== null &&
+            data.requested_quantity !== undefined
+                ? data.requested_quantity
+                : '';
+
+        notesInput.value = data.notes || '';
+
+        renderChildAssignments(row, data.child_ids || []);
+
+        itemSelect.addEventListener('change', function () {
+            populateVariants(row, '');
             updateUom(row);
+        });
 
+        row.querySelector('.assign-children-btn').addEventListener('click', function () {
+            openChildAssignment(row);
+        });
 
-            updateVariantOptions(
-                row,
-                data.variant_id || null
-            );
+        row.querySelector('.remove-item-btn').addEventListener('click', function () {
+            row.remove();
+            updateItemRows();
+        });
 
-
-            quantityInput.value =
-                data.requested_quantity ?? '';
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | NOTES
-            |--------------------------------------------------------------------------
-            */
-
-            const actualNotesInput =
-                row.querySelector(
-                    'input[name="items[' +
-                    currentIndex +
-                    '][notes]"]'
-                );
-
-
-            if (actualNotesInput) {
-
-                actualNotesInput.value =
-                    data.notes || '';
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHILD ASSIGNMENTS
-            |--------------------------------------------------------------------------
-            */
-
-            const inputsContainer =
-                row.querySelector(
-                    '.requisition-child-inputs'
-                );
-
-
-            if (
-                inputsContainer &&
-                Array.isArray(data.child_ids)
-            ) {
-
-                data.child_ids.forEach(
-                    function (childId) {
-
-                        const input =
-                            document.createElement(
-                                'input'
-                            );
-
-
-                        input.type =
-                            'hidden';
-
-
-                        input.name =
-                            'items[' +
-                            currentIndex +
-                            '][child_ids][]';
-
-
-                        input.value =
-                            childId;
-
-
-                        inputsContainer.appendChild(
-                            input
-                        );
-
-                    }
-                );
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | DISPLAY CHILDREN
-            |--------------------------------------------------------------------------
-            */
-
-            displayAssignedChildren(row);
-
-        } else {
-
-            updateUom(row);
-
-            updateVariantOptions(row);
-
-            displayAssignedChildren(row);
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ITEM CHANGE
-        |--------------------------------------------------------------------------
-        */
-
-        if (itemSelect) {
-
-            itemSelect.addEventListener(
-                'change',
-                function () {
-
-                    updateUom(row);
-
-                    updateVariantOptions(row);
-
-                }
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | REMOVE
-        |--------------------------------------------------------------------------
-        */
-
-        const removeButton =
-            row.querySelector(
-                '.requisition-remove-item'
-            );
-
-
-        if (removeButton) {
-
-            removeButton.addEventListener(
-                'click',
-                function () {
-
-                    row.remove();
-
-                    updateItemCount();
-
-                }
-            );
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ASSIGN CHILDREN
-        |--------------------------------------------------------------------------
-        */
-
-        const assignButton =
-            row.querySelector(
-                '[data-action="assign-children"]'
-            );
-
-
-        if (assignButton) {
-
-            assignButton.addEventListener(
-                'click',
-                function () {
-
-                    openChildAssignmentModal(
-                        row
-                    );
-
-                }
-            );
-
-        }
-
+        itemsContainer.appendChild(fragment);
 
         rowIndex++;
 
-        updateItemCount();
+        updateItemRows();
     }
 
+    addItemBtn.addEventListener('click', function () {
+        addItemRow({
+            store_item_id: '',
+            variant_id: '',
+            requested_quantity: '',
+            notes: '',
+            child_ids: []
+        });
+    });
 
     /*
     |--------------------------------------------------------------------------
-    | ADD ITEM BUTTON
+    | RESTORE SAVED ROWS
     |--------------------------------------------------------------------------
     */
 
-    if (addItemButton) {
-
-        addItemButton.addEventListener(
-            'click',
-            function () {
-
-                addItemRow();
-
-            }
-        );
-
+    if (Array.isArray(existingItems) && existingItems.length > 0) {
+        existingItems.forEach(function (item) {
+            addItemRow(item);
+        });
+    } else {
+        addItemRow();
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN CHILD ASSIGNMENT MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    function openChildAssignmentModal(row)
-    {
-        if (!assignChildrenModal) {
-            return;
-        }
-
-
-        currentChildAssignmentRow =
-            row;
-
-
-        const inputsContainer =
-            row.querySelector(
-                '.requisition-child-inputs'
-            );
-
-
-        const selectedIds = [];
-
-
-        if (inputsContainer) {
-
-            const existingInputs =
-                inputsContainer.querySelectorAll(
-                    'input[name$="[child_ids][]"]'
-                );
-
-
-            existingInputs.forEach(
-                function (input) {
-
-                    selectedIds.push(
-                        String(
-                            input.value
-                        )
-                    );
-
-                }
-            );
-
-        }
-
-
-        const checkboxes =
-            document.querySelectorAll(
-                '.requisition-child-checkbox'
-            );
-
-
-        checkboxes.forEach(
-            function (checkbox) {
-
-                checkbox.checked =
-                    selectedIds.includes(
-                        String(
-                            checkbox.value
-                        )
-                    );
-
-            }
-        );
-
-
-        updateSelectedChildrenCount();
-
-
-        const searchInput =
-            document.getElementById(
-                'childSearchInput'
-            );
-
-
-        if (searchInput) {
-
-            searchInput.value =
-                '';
-
-            filterChildren();
-
-        }
-
-
-        assignChildrenModal.show();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER CHILDREN
-    |--------------------------------------------------------------------------
-    */
-
-    function filterChildren()
-    {
-        const searchInput =
-            document.getElementById(
-                'childSearchInput'
-            );
-
-
-        const search =
-            searchInput
-                ? searchInput.value
-                    .toLowerCase()
-                    .trim()
-                : '';
-
-
-        const options =
-            document.querySelectorAll(
-                '.requisition-child-option'
-            );
-
-
-        let visibleCount = 0;
-
-
-        options.forEach(
-            function (option) {
-
-                const childName =
-                    option.dataset.childName ||
-                    '';
-
-
-                const visible =
-                    childName.includes(
-                        search
-                    );
-
-
-                option.style.display =
-                    visible
-                        ? 'flex'
-                        : 'none';
-
-
-                if (visible) {
-                    visibleCount++;
-                }
-
-            }
-        );
-
-
-        let noResults =
-            document.querySelector(
-                '.requisition-no-children-found'
-            );
-
-
-        if (
-            visibleCount === 0 &&
-            options.length > 0
-        ) {
-
-            if (!noResults) {
-
-                noResults =
-                    document.createElement(
-                        'div'
-                    );
-
-                noResults.className =
-                    'requisition-no-children-found';
-
-                noResults.textContent =
-                    'No children match your search.';
-
-
-                const selectionList =
-                    document.getElementById(
-                        'childSelectionList'
-                    );
-
-
-                if (selectionList) {
-
-                    selectionList.appendChild(
-                        noResults
-                    );
-
-                }
-
-            }
-
-
-            noResults.style.display =
-                'block';
-
-        } else if (noResults) {
-
-            if (options.length > 0) {
-
-                noResults.style.display =
-                    'none';
-
-            }
-
-        }
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHILD SEARCH
-    |--------------------------------------------------------------------------
-    */
-
-    const childSearchInput =
-        document.getElementById(
-            'childSearchInput'
-        );
-
-
-    if (childSearchInput) {
-
-        childSearchInput.addEventListener(
-            'input',
-            function () {
-
-                filterChildren();
-
-            }
-        );
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SELECTED CHILD COUNT
-    |--------------------------------------------------------------------------
-    */
-
-    function updateSelectedChildrenCount()
-    {
-        const selected =
-            document.querySelectorAll(
-                '.requisition-child-checkbox:checked'
-            );
-
-
-        const count =
-            selected.length;
-
-
-        const countElement =
-            document.getElementById(
-                'selectedChildrenCount'
-            );
-
-
-        if (countElement) {
-
-            countElement.textContent =
-                count === 1
-                    ? '1 selected'
-                    : count + ' selected';
-
-        }
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECKBOX EVENTS
-    |--------------------------------------------------------------------------
-    */
-
-    document
-        .querySelectorAll(
-            '.requisition-child-checkbox'
-        )
-        .forEach(
-            function (checkbox) {
-
-                checkbox.addEventListener(
-                    'change',
-                    function () {
-
-                        updateSelectedChildrenCount();
-
-                    }
-                );
-
-            }
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ASSIGN SELECTED CHILDREN
-    |--------------------------------------------------------------------------
-    */
-
-    const assignSelectedChildren =
-        document.getElementById(
-            'assignSelectedChildren'
-        );
-
-
-    if (assignSelectedChildren) {
-
-        assignSelectedChildren.addEventListener(
-            'click',
-            function () {
-
-                if (!currentChildAssignmentRow) {
-                    return;
-                }
-
-
-                const selected =
-                    Array.from(
-                        document.querySelectorAll(
-                            '.requisition-child-checkbox:checked'
-                        )
-                    );
-
-
-                const selectedChildren =
-                    selected.map(
-                        function (checkbox) {
-
-                            return {
-
-                                id:
-                                    checkbox.value,
-
-                                name:
-                                    checkbox.dataset.childName
-
-                            };
-
-                        }
-                    );
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | DISPLAY CHILDREN
-                |--------------------------------------------------------------------------
-                */
-
-                const selectedChildrenContainer =
-                    currentChildAssignmentRow.querySelector(
-                        '.requisition-selected-children'
-                    );
-
-
-                if (selectedChildrenContainer) {
-
-                    selectedChildrenContainer.innerHTML =
-                        '';
-
-
-                    if (
-                        selectedChildren.length === 0
-                    ) {
-
-                        const general =
-                            document.createElement(
-                                'span'
-                            );
-
-
-                        general.className =
-                            'requisition-no-child-label';
-
-
-                        general.textContent =
-                            'General';
-
-
-                        selectedChildrenContainer.appendChild(
-                            general
-                        );
-
-                    } else {
-
-                        selectedChildren.forEach(
-                            function (child) {
-
-                                const badge =
-                                    document.createElement(
-                                        'span'
-                                    );
-
-
-                                badge.className =
-                                    'requisition-child-badge';
-
-
-                                badge.textContent =
-                                    child.name;
-
-
-                                selectedChildrenContainer.appendChild(
-                                    badge
-                                );
-
-                            }
-                        );
-
-                    }
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | BUTTON LABEL
-                |--------------------------------------------------------------------------
-                */
-
-                const label =
-                    currentChildAssignmentRow.querySelector(
-                        '.child-assignment-label'
-                    );
-
-
-                if (label) {
-
-                    if (
-                        selectedChildren.length === 0
-                    ) {
-
-                        label.textContent =
-                            '+ Assign';
-
-                    } else {
-
-                        label.textContent =
-                            selectedChildren.length === 1
-                                ? '1 Child'
-                                : selectedChildren.length +
-                                    ' Children';
-
-                    }
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | HIDDEN INPUTS
-                |--------------------------------------------------------------------------
-                */
-
-                const inputsContainer =
-                    currentChildAssignmentRow.querySelector(
-                        '.requisition-child-inputs'
-                    );
-
-
-                if (inputsContainer) {
-
-                    inputsContainer.innerHTML =
-                        '';
-
-
-                    const currentRowIndex =
-                        currentChildAssignmentRow.dataset.rowIndex;
-
-
-                    selectedChildren.forEach(
-                        function (child) {
-
-                            const input =
-                                document.createElement(
-                                    'input'
-                                );
-
-
-                            input.type =
-                                'hidden';
-
-
-                            input.name =
-                                'items[' +
-                                currentRowIndex +
-                                '][child_ids][]';
-
-
-                            input.value =
-                                child.id;
-
-
-                            inputsContainer.appendChild(
-                                input
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                assignChildrenModal.hide();
-
-            }
-        );
-
-    }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -2323,123 +1029,80 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    if (form) {
+    requisitionForm.addEventListener('submit', function (event) {
+        const rows = updateItemRows();
 
-        form.addEventListener(
-            'submit',
-            function (event) {
+        validateDifferentStores();
 
-                const rows =
-                    itemsContainer.querySelectorAll(
-                        '.requisition-item-row'
-                    );
+        if (rows.length === 0) {
+            event.preventDefault();
+            alert('Please add at least one item to the requisition.');
+            return;
+        }
 
+        if (
+            requisitionType.value === 'TRANSFER' &&
+            !destinationStore.value
+        ) {
+            event.preventDefault();
+            destinationStore.reportValidity();
+            return;
+        }
 
-                /*
-                |--------------------------------------------------------------
-                | At least one item
-                |--------------------------------------------------------------
-                */
+        if (
+            requisitionType.value === 'TRANSFER' &&
+            sourceStore.value === destinationStore.value
+        ) {
+            event.preventDefault();
+            destinationStore.setCustomValidity(
+                'The source and destination stores must be different.'
+            );
+            destinationStore.reportValidity();
+            return;
+        }
 
-                if (rows.length === 0) {
+        for (const row of rows) {
+            const itemSelect = row.querySelector('.item-select');
+            const quantityInput = row.querySelector('.quantity-input');
 
-                    event.preventDefault();
-
-                    alert(
-                        'Please add at least one item to the requisition.'
-                    );
-
-                    return;
-
-                }
-
-
-                /*
-                |--------------------------------------------------------------
-                | Transfer destination
-                |--------------------------------------------------------------
-                */
-
-                if (
-                    requisitionType &&
-                    requisitionType.value === 'TRANSFER'
-                ) {
-
-                    if (
-                        !destinationStore ||
-                        !destinationStore.value
-                    ) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Please select a destination store for a stock transfer.'
-                        );
-
-                        if (destinationStore) {
-                            destinationStore.focus();
-                        }
-
-                        return;
-
-                    }
-
-
-                    if (
-                        sourceStore &&
-                        sourceStore.value ===
-                        destinationStore.value
-                    ) {
-
-                        event.preventDefault();
-
-                        alert(
-                            'Source and destination stores cannot be the same.'
-                        );
-
-                        destinationStore.focus();
-
-                        return;
-
-                    }
-
-                }
-
+            if (!itemSelect.value) {
+                event.preventDefault();
+                itemSelect.reportValidity();
+                return;
             }
-        );
 
-    }
+            if (
+                !quantityInput.value ||
+                Number(quantityInput.value) < 0.001
+            ) {
+                event.preventDefault();
+                quantityInput.reportValidity();
+                return;
+            }
+        }
 
+        if (saveButton) {
+            saveButton.disabled = true;
+
+            const label = saveButton.querySelector('span');
+
+            if (label) {
+                label.textContent = 'Saving...';
+            }
+        }
+    });
 
     /*
     |--------------------------------------------------------------------------
-    | INITIAL LOAD
+    | INITIAL DISPLAY
     |--------------------------------------------------------------------------
     */
 
-    if (existingItems.length > 0) {
-
-        existingItems.forEach(
-            function (item) {
-
-                addItemRow(item);
-
-            }
-        );
-
-    } else {
-
-        addItemRow();
-
-    }
-
-
-    updateItemCount();
-
+    updateDestinationStore();
+    validateDifferentStores();
+    updateItemRows();
 });
-
 </script>
-
 @endpush
 
 @endsection

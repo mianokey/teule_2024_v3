@@ -538,36 +538,41 @@
                                     {{-- =================================================
                                          APPROVED ACTIONS
                                          ================================================= --}}
-                                    @if(
-                                        $status === 'approved' &&
-                                        !$hasFulfillment
-                                    )
+                                  
+@if(
+    $status === 'approved' &&
+    !$hasFulfillment
+)
+    <form
+        method="POST"
+        action="{{ route(
+            'admin.stores.store-requisitions.cancel',
+            $requisition
+        ) }}"
+        class="d-inline"
+        onsubmit="return confirm(
+            'Cancel this approved requisition? This should only be done if it has not been fulfilled.'
+        );"
+    >
+        @csrf
 
-                                        <form
-                                            method="POST"
-                                            action="{{ route(
-                                                'admin.stores.store-requisitions.cancel',
-                                                $requisition
-                                            ) }}"
-                                            class="d-inline"
-                                            onsubmit="return confirm(
-                                                'Cancel this approved requisition? This should only be done if it has not been fulfilled.'
-                                            );"
-                                        >
+        <input
+            type="hidden"
+            name="cancellation_reason"
+            value="Cancelled by the requesting user."
+        >
 
-                                            @csrf
+        <button
+            type="submit"
+            class="requisition-list-action warning"
+            title="Cancel requisition"
+        >
+            <i class="fa fa-ban"></i>
+        </button>
+    </form>
+@endif
 
-                                            <button
-                                                type="submit"
-                                                class="requisition-list-action warning"
-                                                title="Cancel requisition"
-                                            >
-                                                <i class="fa fa-ban"></i>
-                                            </button>
 
-                                        </form>
-
-                                    @endif
 
 
                                     {{-- =================================================

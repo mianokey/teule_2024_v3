@@ -103,43 +103,52 @@ class StoreRequisitionController extends Controller
     /**
      * Show the edit requisition form.
      */
-    public function edit(StoreRequisition $storeRequisition)
-    {
-        if ((int) $storeRequisition->requested_by !== (int) auth()->id()) {
-            abort(403);
-        }
 
-        if (!in_array($storeRequisition->status, ['draft', 'returned'], true)) {
-            return redirect()
-                ->route('admin.stores.store-requisitions.show', $storeRequisition)
-                ->with('error', 'Only draft or returned requisitions can be edited.');
-        }
-
-        $items = StoreItem::with([
-            'unit',
-            'variants',
-        ])
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        $children = Child::orderBy('name')->get();
-
-        $stores = Store::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        $storeRequisition->load([
-            'items.item',
-            'items.variant',
-            'items.children',
-        ]);
-
-        return view(
-            'admin.stores.store-requisitions.edit',
-            compact('storeRequisition', 'items', 'children', 'stores')
-        );
+public function edit(StoreRequisition $storeRequisition)
+{
+    if ((int) $storeRequisition->requested_by !== (int) auth()->id()) {
+        abort(403);
     }
+
+    if (!in_array($storeRequisition->status, ['draft', 'returned'], true)) {
+        return redirect()
+            ->route('admin.stores.store-requisitions.show', $storeRequisition)
+            ->with('error', 'Only draft or returned requisitions can be edited.');
+    }
+
+    $items = StoreItem::with([
+        'unit',
+        'variants',
+    ])
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $children = Child::orderBy('name')->get();
+
+    $stores = Store::where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $storeRequisition->load([
+        'items.item.unit',
+        'items.item.variants',
+        'items.variant',
+        'items.children',
+    ]);
+
+    return view(
+        'admin.stores.store-requisitions.edit',
+        compact(
+            'storeRequisition',
+            'items',
+            'children',
+            'stores'
+        )
+    );
+}
+
+
 
     /**
      * Update an existing draft/returned requisition.
@@ -1038,70 +1047,90 @@ class StoreRequisitionController extends Controller
     /**
      * Cancel a requisition.
      */
-    public function cancel(
-        Request $request,
-        StoreRequisition $storeRequisition
-    ) {
-        $request->validate([
-            'cancellation_reason' => [
-                'required',
-                'string',
-                'max:1000',
-            ],
-        ]);
 
-        if (in_array(
-            $storeRequisition->status,
-            ['cancelled', 'closed', 'completed'],
-            true
-        )) {
-            return back()->with(
-                'error',
-                'This requisition can no longer be cancelled.'
-            );
-        }
+public function cancel(
+    Request $request,
+    StoreRequisition $storeRequisition
+) {
+    $validated = $request->validate([
+        'cancellation_reason' => [
+            'required',
+            'string',
+            'max:1000',
+        ],
+    ]);
 
-        // Capture the stage before changing the requisition status.
-        $previousStagePermission = $this->getApprovalPermissionForStage(
-            $storeRequisition
+    if (in_array(
+        $storeRequisition->status,
+        ['cancelled', 'closed', 'completed'],
+        true
+    )) {
+        return back()->with(
+            'error',
+            'This requisition can no longer be cancelled.'
         );
-
-        $storeRequisition->update([
-            'status' => 'cancelled',
-
-            'submission_notes' => trim(
-                (
-                    $storeRequisition->submission_notes
-                        ? $storeRequisition->submission_notes . "\n\n"
-                        : ''
-                ) .
-                'Cancellation reason: ' .
-                $request->cancellation_reason
-            ),
-        ]);
-
-        // Inform the approvers at the stage where the requisition was cancelled.
-        if ($previousStagePermission) {
-            $this->notifyRequisitionStage(
-                $storeRequisition,
-                $previousStagePermission,
-                [
-                    'event' => 'store_requisition_cancelled',
-                    'title' => 'Store Requisition Cancelled',
-                    'message' => 'Requisition ' .
-                        $storeRequisition->requisition_number .
-                        ' has been cancelled. Reason: ' .
-                        $request->cancellation_reason,
-                    'priority' => 'normal',
-                ],
-                false
-            );
-        }
-
-        return redirect()
-            ->route('admin.stores.store-requisitions.show', $storeRequisition)
-            ->with('success', 'Store requisition cancelled successfully.');
     }
+
+    // Capture the approval stage before changing the status.
+    $previousStagePermission = $this->getApprovalPermissionForStage(
+        $storeRequisition
+    );
+
+    // Preserve the existing notes and append the cancellation reason.
+    $existingNotes = trim($storeRequisition->submission_notes ?? '');
+    $reason = trim($validated['cancellation_reason']);
+
+    $updatedNotes = $existingNotes !== ''
+        ? $existingNotes . "\n\nCancellation reason: " . $reason
+        : 'Cancellation reason: ' . $reason;
+
+    // Explicitly update and save the model.
+    $storeRequisition->status = 'cancelled';
+    $storeRequisition->submission_notes = $updatedNotes;
+    $storeRequisition->save();
+
+    // Reload the saved record from the database.
+    $storeRequisition->refresh();
+
+    // Verify that the status was actually persisted.
+    if ($storeRequisition->status !== 'cancelled') {
+        return back()->with(
+            'error',
+            'The cancellation status could not be saved. Please check the database status column.'
+        );
+    }
+
+    // Notify approvers at the stage where the requisition was cancelled.
+    if ($previousStagePermission) {
+        $this->notifyRequisitionStage(
+            $storeRequisition,
+            $previousStagePermission,
+            [
+                'event' => 'store_requisition_cancelled',
+                'title' => 'Store Requisition Cancelled',
+                'message' => 'Requisition ' .
+                    $storeRequisition->requisition_number .
+                    ' has been cancelled. Reason: ' .
+                    $reason,
+                'priority' => 'normal',
+            ],
+            false
+        );
+    }
+
+    return redirect()
+        ->route(
+            'admin.stores.store-requisitions.show',
+            $storeRequisition
+        )
+        ->with(
+            'success',
+            'Store requisition cancelled successfully.'
+        );
+}
+
+
+
 
     /*
     |--------------------------------------------------------------------------
