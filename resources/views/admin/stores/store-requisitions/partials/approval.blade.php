@@ -1,83 +1,96 @@
-@if($showApprovalActions && $canApproveCurrentStage)
+{{-- REQUISITION APPROVAL PANEL --}}
+@if($showApprovalActions)
 
     <div class="requisition-approval-panel">
 
-        <div class="requisition-approval-panel-title">
+        <div class="row align-items-center g-2">
 
-            <i class="fas fa-user-check me-1"></i>
+            {{-- LEFT: TITLE AND STATUS --}}
+            <div class="col-md-6">
 
-            Action Required:
-            {{ $stageLabel }}
+                <div class="requisition-approval-panel-title mb-1">
+                    <i class="fas fa-user-check me-1"></i>
 
-        </div>
+                    @if($canApproveCurrentStage)
+                        Action Required: {{ $stageLabel }}
+                    @else
+                        Awaiting {{ $stageLabel }} Approval
+                    @endif
+                </div>
 
+                <div class="small">
+                    <strong>Status:</strong>
+                    {{ $storeRequisition->status }}
 
-        <div class="requisition-approval-actions">
+                    <span class="mx-2">|</span>
 
-            {{-- =====================================================
-                 APPROVE
-                 ===================================================== --}}
+                    <strong>Stage:</strong>
+                    {{ $stageLabel }}
+                </div>
 
-            <form
-                method="POST"
-                action="{{ route(
-                    'admin.stores.store-requisitions.approve',
-                    $storeRequisition
-                ) }}"
-                class="d-inline"
-            >
+                @unless($canApproveCurrentStage)
+                    <div class="small mt-1">
+                        Awaiting an authorised {{ $stageLabel }} approver.
+                    </div>
+                @endunless
 
-                @csrf
+            </div>
 
-                <button
-                    type="submit"
-                    class="btn btn-sm btn-success"
-                    onclick="return confirm('Approve this requisition?')"
-                >
+            {{-- RIGHT: ACTION BUTTONS --}}
+            <div class="col-md-6 text-md-end">
 
-                    <i class="fas fa-check me-1"></i>
+                @if($canApproveCurrentStage)
 
-                    Approve
+                    <div class="requisition-approval-actions justify-content-md-end">
 
-                </button>
+                        {{-- APPROVE --}}
+                        <form
+                            method="POST"
+                            action="{{ route(
+                                'admin.stores.store-requisitions.approve',
+                                $storeRequisition
+                            ) }}"
+                            class="d-inline"
+                        >
+                            @csrf
 
-            </form>
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-success"
+                                onclick="return confirm('Approve this requisition?')"
+                            >
+                                <i class="fas fa-check me-1"></i>
+                                Approve
+                            </button>
+                        </form>
 
+                        {{-- SEND BACK --}}
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#sendBackModal"
+                        >
+                            <i class="fas fa-undo me-1"></i>
+                            Send Back
+                        </button>
 
-            {{-- =====================================================
-                 SEND BACK
-                 ===================================================== --}}
+                        {{-- REJECT --}}
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rejectModal"
+                        >
+                            <i class="fas fa-times me-1"></i>
+                            Reject
+                        </button>
 
-            <button
-                type="button"
-                class="btn btn-sm btn-warning"
-                data-bs-toggle="modal"
-                data-bs-target="#sendBackModal"
-            >
+                    </div>
 
-                <i class="fas fa-undo me-1"></i>
+                @endif
 
-                Send Back
-
-            </button>
-
-
-            {{-- =====================================================
-                 REJECT
-                 ===================================================== --}}
-
-            <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                data-bs-toggle="modal"
-                data-bs-target="#rejectModal"
-            >
-
-                <i class="fas fa-times me-1"></i>
-
-                Reject
-
-            </button>
+            </div>
 
         </div>
 

@@ -18,18 +18,34 @@ class DonationController extends Controller
     /**
      * Display all donations.
      */
-    public function index()
-    {
-        $donations = Donation::with([
-            'donor',
-            'receivedBy',
-        ])
-            ->latest('donation_date')
-            ->latest('id')
-            ->get();
+    
+public function index()
+{
+    $donations = Donation::with([
+        'donor',
+        'receivedBy',
+    ])
+        ->addSelect([
+            'posted_store_receipts_count' => \Illuminate\Support\Facades\DB::table('store_receipts')
+                ->selectRaw('COUNT(*)')
+                ->whereColumn('store_receipts.donation_id', 'donations.id')
+                ->where('store_receipts.source_type', 'DONATION')
+                ->where('store_receipts.status', 'POSTED'),
 
-        return view('admin.donations.index', compact('donations'));
-    }
+            'draft_store_receipts_count' => \Illuminate\Support\Facades\DB::table('store_receipts')
+                ->selectRaw('COUNT(*)')
+                ->whereColumn('store_receipts.donation_id', 'donations.id')
+                ->where('store_receipts.source_type', 'DONATION')
+                ->where('store_receipts.status', 'DRAFT'),
+        ])
+        ->latest('donation_date')
+        ->latest('id')
+        ->get();
+
+    return view('admin.donations.index', compact('donations'));
+}
+
+
 
     /**
      * Show the form for creating a donation.

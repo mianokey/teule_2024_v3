@@ -2151,6 +2151,16 @@ document.addEventListener('DOMContentLoaded', function () {
         rows.forEach(function (row, index) {
             const item = getItem(row.store_item_id);
 
+
+            console.log('Donation/store item lookup:', {
+    store_item_id: row.store_item_id,
+    matched_item: item,
+    available_item_ids: itemData.map(function (item) {
+        return item.id;
+    })
+});
+
+
             const variant = getVariant(
                 item,
                 row.variant_id
@@ -2170,8 +2180,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     ? row.quantity
                     : '';
 
-            const itemName =
-                item?.name || row.item_name || 'Item';
+           
+const itemName =
+    item?.name ||
+    row.store_item_name ||
+    row.item_name ||
+    row.name ||
+    'Item';
+
+    
 
             const sku = item?.sku || '';
             const unit = item?.unit || row.unit || '';
@@ -2397,38 +2414,55 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    function loadDonationItems(donationId) {
-        const donation = getDonation(donationId);
 
-        if (!donation) {
-            renderRows([]);
-            return;
-        }
 
-        const rows = (donation.items || []).map(function (donationItem) {
-            const current = receiptItemData.find(function (receiptItem) {
-                return String(receiptItem.store_item_id) ===
-                        String(donationItem.store_item_id) &&
-                    String(receiptItem.variant_id || '') ===
-                        String(donationItem.variant_id || '');
-            });
+function loadDonationItems(donationId) {
+    const donation = getDonation(donationId);
 
-            return {
-                store_item_id: donationItem.store_item_id,
-                variant_id: donationItem.variant_id,
-                quantity: donationItem.quantity,
+    if (!donation) {
+        renderRows([]);
+        return;
+    }
 
-                notes: current
-                    ? current.notes
-                    : donationItem.notes || '',
+    const rows = (donation.items || []).map(function (donationItem) {
+        const storeItemId = donationItem.store_item_id ?? '';
 
-                lpo_item_id: '',
-                lpo_quantity: ''
-            };
+        const current = receiptItemData.find(function (receiptItem) {
+            return String(receiptItem.store_item_id ?? '') ===
+                    String(storeItemId) &&
+                String(receiptItem.variant_id ?? '') ===
+                    String(donationItem.variant_id ?? '');
         });
 
-        renderRows(rows);
-    }
+        return {
+            store_item_id: storeItemId,
+            variant_id: donationItem.variant_id ?? '',
+
+            store_item_name:
+                donationItem.store_item_name ||
+                donationItem.item ||
+                '',
+
+            quantity: donationItem.quantity ?? '',
+
+            unit: donationItem.unit || '',
+            variant_name: donationItem.variant_name || '',
+
+            notes: current
+                ? current.notes
+                : donationItem.notes || '',
+
+            lpo_item_id: '',
+            lpo_quantity: ''
+        };
+    });
+
+    console.log('Donation items passed to renderRows:', rows);
+
+    renderRows(rows);
+}
+
+
 
 
     /*

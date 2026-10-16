@@ -654,21 +654,6 @@
         @endif
 
 
-        {{-- =====================================================
-             PAGINATION
-             ===================================================== --}}
-        @if($requisitions->hasPages())
-
-            <div class="requisition-pagination">
-
-                {{ $requisitions->appends(
-                    request()->except('page')
-                )->links() }}
-
-            </div>
-
-        @endif
-
     </div>
 
 </div>
