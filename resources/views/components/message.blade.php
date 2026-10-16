@@ -1,20 +1,19 @@
- <!-- Success Message -->
- <div class="">
- @if(session('success'))
- <div class="alert alert-success">
-     {{ session('success') }}
- </div>
-@endif
-<!-- End Success Message -->
+    @if($errors->any())
+        <div class="requisition-state-panel requisition-notice-danger mb-3">
+            <div class="requisition-state-main">
+                <div class="requisition-state-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
 
-<!-- Error Div -->
-@if ($errors->any())
- <div class="alert alert-danger">
-     <ul>
-         @foreach ($errors->all() as $error)
-             <li>{{ $error }}</li>
-         @endforeach
-     </ul>
- </div>
-@endif
-<!-- End Error Div -->
+                <div class="requisition-state-text">
+                    <strong>Please correct the following errors:</strong>
+
+                    <ul class="mb-0 mt-2">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    @endif

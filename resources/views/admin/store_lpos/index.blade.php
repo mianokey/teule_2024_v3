@@ -3,16 +3,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/stores.css?v=2.0.0') }}">
-<style>
-    /* Highlight the entire row for approved LPOs awaiting Stores receipt */
-    .requisition-list-table tbody tr.lpo-awaiting-receipt > td {
-        background-color: #fff0e6 !important;
-    }
 
-    .requisition-list-table tbody tr.lpo-awaiting-receipt:hover > td {
-        background-color: #ffe2cf !important;
-    }
-</style>
 @endpush
 
 @section('content')

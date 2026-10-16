@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\StoreReceipt;
 use App\Models\StoreStock;
 use App\Models\StoreStockMovement;
+use App\Models\StoreLpo;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -172,6 +173,78 @@ class StoreReceiptPostingService
             $storeReceipt->update([
                 'status' => 'POSTED',
             ]);
+
+            /*
+|--------------------------------------------------------------------------
+| Recalculate LPO receiving progress
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $storeReceipt->source_type === 'PURCHASE'
+    && $storeReceipt->store_lpo_id
+) {
+    $lpo = StoreLpo::query()
+        ->lockForUpdate()
+        ->with('items')
+        ->find($storeReceipt->store_lpo_id);
+
+    if ($lpo) {
+        $allFullyReceived = true;
+        $anyReceived = false;
+
+        foreach ($lpo->items as $lpoItem) {
+            $receivedQuantity = (float) DB::table('store_receipt_items')
+                ->join(
+                    'store_receipts',
+                    'store_receipts.id',
+                    '=',
+                    'store_receipt_items.store_receipt_id'
+                )
+                ->where(
+                    'store_receipts.store_lpo_id',
+                    $lpo->id
+                )
+                ->where('store_receipts.status', 'POSTED')
+                ->where(
+                    'store_receipt_items.store_lpo_item_id',
+                    $lpoItem->id
+                )
+                ->sum('store_receipt_items.quantity');
+
+            $orderedQuantity = (float) $lpoItem->ordered_quantity;
+
+            $lpoItem->update([
+                'received_quantity' => $receivedQuantity,
+            ]);
+
+            if ($receivedQuantity > 0) {
+                $anyReceived = true;
+            }
+
+            if (
+                $receivedQuantity + 0.000001
+                < $orderedQuantity
+            ) {
+                $allFullyReceived = false;
+            }
+        }
+
+        if ($allFullyReceived && $lpo->items->isNotEmpty()) {
+            $lpo->update([
+                'status' => 'FULLY_RECEIVED',
+            ]);
+        } elseif ($anyReceived) {
+            $lpo->update([
+                'status' => 'PARTIALLY_RECEIVED',
+            ]);
+        } else {
+            $lpo->update([
+                'status' => 'APPROVED',
+            ]);
+        }
+    }
+}
 
 
             return $storeReceipt->fresh([

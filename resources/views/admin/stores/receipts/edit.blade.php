@@ -44,20 +44,6 @@
 
     <x-message></x-message>
 
-    @if($errors->any())
-        <div class="requisition-notice requisition-notice-danger mb-3">
-            <div>
-                <strong>Please correct the following:</strong>
-
-                <ul class="mb-0 mt-2">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    @endif
-
     <div class="requisition-state-panel">
         <div class="requisition-state-main">
             <div class="requisition-state-icon">
