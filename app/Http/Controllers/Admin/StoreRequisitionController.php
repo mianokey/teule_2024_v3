@@ -10,6 +10,7 @@ use App\Models\StoreItem;
 use App\Models\StoreItemVariant;
 use App\Models\StoreRequisition;
 use App\Models\StoreRequisitionApproval;
+use App\Models\StoreStock;
 use App\Models\User;
 use App\Services\WorkflowNotificationService;
 use Illuminate\Http\Request;
@@ -73,32 +74,60 @@ class StoreRequisitionController extends Controller
     /**
      * Show the create requisition form.
      */
-    public function create()
-    {
-        $items = StoreItem::with([
-            'variants',
-            'unit',
+
+public function create()
+{
+    $items = StoreItem::with([
+        'variants',
+        'unit',
+    ])
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    // Load current stock balances for each item.
+    // Balances are kept separately for each store.
+    $stockBalances = StoreStock::query()
+        ->select([
+            'store_id',
+            'store_item_id',
+            'quantity',
         ])
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
+        ->whereNull('variant_id')
+        ->get()
+        ->groupBy('store_item_id');
 
-        $children = Child::orderBy('name', 'asc')->get();
-
-        $departments = Department::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        $stores = Store::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'admin.stores.store-requisitions.create',
-            compact('items', 'children', 'stores', 'departments')
+    // Attach the aggregate balance to each item.
+    // This is the total across stores, so it is for display only
+    // until the user selects a specific store.
+    foreach ($items as $item) {
+        $item->current_balance = (float) (
+            $stockBalances->get($item->id, collect())
+                ->sum('quantity')
         );
     }
+
+    $children = Child::orderBy('name', 'asc')->get();
+
+    $departments = Department::where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $stores = Store::query()
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    return view(
+        'admin.stores.store-requisitions.create',
+        compact(
+            'items',
+            'children',
+            'stores',
+            'departments'
+        )
+    );
+}
 
     /**
      * Show the edit requisition form.

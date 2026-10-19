@@ -615,228 +615,301 @@
     {{-- ============================================================
          ITEM SELECTION MODAL
     ============================================================ --}}
-    <div
-        class="modal fade"
-        id="storeItemSelectionModal"
-        tabindex="-1"
-        aria-hidden="true"
-    >
 
+<div
+    class="modal fade"
+    id="storeItemSelectionModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div
+        class="modal-dialog modal-dialog-centered modal-lg"
+        style="max-width:720px;"
+    >
         <div
-            class="modal-dialog modal-dialog-centered modal-lg"
-            style="max-width:720px;"
+            class="modal-content border-0 shadow"
+            style="overflow:hidden;"
         >
 
-            <div
-                class="modal-content border-0 shadow"
-                style="overflow:hidden;"
-            >
+            {{-- HEADER --}}
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1">
+                        Select Store Item
+                    </h5>
 
-                <div class="modal-header">
-
-                    <div>
-
-                        <h5 class="modal-title mb-1">
-                            Select Store Item
-                        </h5>
-
-                        <div class="requisition-modal-subtitle">
-                            Search and select an item.
-                        </div>
-
+                    <div class="requisition-modal-subtitle">
+                        Search and select an item.
                     </div>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-
                 </div>
 
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
 
-                <div class="modal-body">
+            {{-- BODY --}}
+            <div class="modal-body">
 
-                    {{-- SEARCH --}}
+                {{-- SEARCH --}}
+                <div
+                    style="
+                        display:flex;
+                        align-items:center;
+                        gap:8px;
+                        width:100%;
+                        margin-bottom:12px;
+                    "
+                >
+                    <i
+                        class="fa fa-search"
+                        style="
+                            flex:0 0 auto;
+                            color:#6c757d;
+                        "
+                    ></i>
+
+                    <input
+                        type="text"
+                        id="storeItemSearch"
+                        class="form-control requisition-input"
+                        placeholder="Search item, SKU or unit..."
+                        autocomplete="off"
+                        style="
+                            width:1%;
+                            flex:1 1 auto;
+                        "
+                    >
+                </div>
+
+                {{-- ITEM LIST --}}
+                <div
+                    id="storeItemSelectionList"
+                    style="
+                        width:100%;
+                        max-height:52vh;
+                        overflow-y:auto;
+                        overflow-x:hidden;
+                        border:1px solid #e9ecef;
+                        border-radius:5px;
+                    "
+                >
+
+                    {{-- COLUMN HEADINGS --}}
                     <div
                         style="
                             display:flex;
                             align-items:center;
-                            gap:8px;
+                            gap:10px;
                             width:100%;
-                            margin-bottom:12px;
+                            box-sizing:border-box;
+                            padding:10px 12px;
+                            background:#f8f9fa;
+                            border-bottom:1px solid #dee2e6;
+                            position:sticky;
+                            top:0;
+                            z-index:2;
+                            font-size:11px;
+                            font-weight:700;
+                            color:#495057;
+                            text-transform:uppercase;
                         "
                     >
+                        <span style="flex:0 0 18px;"></span>
 
-                        <i
-                            class="fa fa-search"
+                        <span
                             style="
-                                flex:0 0 auto;
-                                color:#6c757d;
+                                flex:1 1 35%;
+                                min-width:0;
                             "
-                        ></i>
+                        >
+                            Item
+                        </span>
 
-                        <input
-                            type="text"
-                            id="storeItemSearch"
-                            class="form-control requisition-input"
-                            placeholder="Search item, SKU or unit..."
-                            autocomplete="off"
+                        <span
                             style="
-                                width:1%;
-                                flex:1 1 auto;
+                                flex:0 0 18%;
+                                min-width:0;
+                            "
+                        >
+                            SKU
+                        </span>
+
+                        <span
+                            style="
+                                flex:0 0 20%;
+                                min-width:0;
+                                text-align:right;
+                            "
+                        >
+                            Balance
+                        </span>
+
+                        <span
+                            style="
+                                flex:0 0 15%;
+                                min-width:0;
+                                text-align:right;
+                            "
+                        >
+                            Unit
+                        </span>
+                    </div>
+
+                    @forelse($items as $item)
+
+                        @php
+                            $currentBalance = (float) (
+                                $item->current_balance ?? 0
+                            );
+                        @endphp
+
+                        <label
+                            class="store-item-option"
+                            data-item-name="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . ($item->unit?->name ?? '')) }}"
+                            style="
+                                display:flex;
+                                align-items:center;
+                                gap:10px;
+                                width:100%;
+                                min-width:0;
+                                box-sizing:border-box;
+                                padding:9px 12px;
+                                margin:0;
+                                border-bottom:1px solid #eeeeee;
+                                cursor:pointer;
+                                overflow:hidden;
                             "
                         >
 
-                    </div>
-
-
-                    {{-- ITEM LIST --}}
-                    <div
-                        id="storeItemSelectionList"
-                        style="
-                            width:100%;
-                            max-height:52vh;
-                            overflow-y:auto;
-                            overflow-x:hidden;
-                            border:1px solid #e9ecef;
-                            border-radius:5px;
-                        "
-                    >
-
-                        @forelse($items as $item)
-
-                            <label
-                                class="store-item-option"
-                                data-item-name="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . ($item->unit?->name ?? '')) }}"
+                            {{-- SELECTION --}}
+                            <input
+                                type="radio"
+                                name="selected_store_item"
+                                class="store-item-radio"
+                                value="{{ $item->id }}"
+                                data-item-name="{{ $item->name }}"
+                                data-sku="{{ $item->sku ?? '' }}"
+                                data-uom="{{ $item->unit?->name ?? '—' }}"
+                                data-current-balance="{{ $currentBalance }}"
                                 style="
-                                    display:flex;
-                                    align-items:center;
-                                    gap:10px;
-                                    width:100%;
-                                    min-width:0;
-                                    box-sizing:border-box;
-                                    padding:9px 12px;
+                                    flex:0 0 18px;
+                                    width:18px;
+                                    height:18px;
                                     margin:0;
-                                    border-bottom:1px solid #eeeeee;
-                                    cursor:pointer;
-                                    overflow:hidden;
                                 "
                             >
 
-                                <input
-                                    type="radio"
-                                    name="selected_store_item"
-                                    class="store-item-radio"
-                                    value="{{ $item->id }}"
-                                    data-item-name="{{ $item->name }}"
-                                    data-sku="{{ $item->sku ?? '' }}"
-                                    data-uom="{{ $item->unit?->name ?? '—' }}"
+                            {{-- ITEM NAME --}}
+                            <span
+                                style="
+                                    flex:1 1 35%;
+                                    min-width:0;
+                                    overflow:hidden;
+                                "
+                            >
+                                <strong
                                     style="
-                                        flex:0 0 18px;
-                                        width:18px;
-                                        height:18px;
-                                        margin:0;
-                                    "
-                                >
-
-
-                                {{-- ITEM --}}
-                                <span
-                                    style="
-                                        flex:1 1 45%;
-                                        min-width:0;
-                                        overflow:hidden;
-                                    "
-                                >
-
-                                    <strong
-                                        style="
-                                            display:block;
-                                            overflow:hidden;
-                                            text-overflow:ellipsis;
-                                            white-space:nowrap;
-                                        "
-                                    >
-                                        {{ $item->name }}
-                                    </strong>
-
-                                </span>
-
-
-                                {{-- SKU --}}
-                                <span
-                                    style="
-                                        flex:0 0 22%;
-                                        min-width:0;
+                                        display:block;
                                         overflow:hidden;
                                         text-overflow:ellipsis;
                                         white-space:nowrap;
-                                        color:#6c757d;
-                                        font-size:12px;
+                                        font-size:13px;
                                     "
+                                    title="{{ $item->name }}"
                                 >
-                                    {{ $item->sku ?: '—' }}
-                                </span>
+                                    {{ $item->name }}
+                                </strong>
+                            </span>
 
+                            {{-- SKU --}}
+                            <span
+                                style="
+                                    flex:0 0 18%;
+                                    min-width:0;
+                                    overflow:hidden;
+                                    text-overflow:ellipsis;
+                                    white-space:nowrap;
+                                    color:#6c757d;
+                                    font-size:12px;
+                                "
+                                title="{{ $item->sku ?: '—' }}"
+                            >
+                                {{ $item->sku ?: '—' }}
+                            </span>
 
-                                {{-- UNIT --}}
-                                <span
-                                    style="
-                                        flex:0 0 18%;
-                                        min-width:0;
-                                        overflow:hidden;
-                                        text-overflow:ellipsis;
-                                        white-space:nowrap;
-                                        color:#6c757d;
-                                        font-size:12px;
-                                        text-align:right;
-                                    "
-                                >
-                                    {{ $item->unit?->name ?? '—' }}
-                                </span>
+                            {{-- CURRENT BALANCE --}}
+                            <span
+                                style="
+                                    flex:0 0 20%;
+                                    min-width:0;
+                                    overflow:hidden;
+                                    text-overflow:ellipsis;
+                                    white-space:nowrap;
+                                    text-align:right;
+                                    font-size:12px;
+                                    font-weight:700;
+                                    color:{{ $currentBalance > 0 ? '#00096A' : '#dc3545' }};
+                                "
+                                title="Current stock balance"
+                            >
+                                {{ number_format($currentBalance, 2) }}
+                            </span>
 
-                            </label>
+                            {{-- UNIT --}}
+                            <span
+                                style="
+                                    flex:0 0 15%;
+                                    min-width:0;
+                                    overflow:hidden;
+                                    text-overflow:ellipsis;
+                                    white-space:nowrap;
+                                    color:#6c757d;
+                                    font-size:12px;
+                                    text-align:right;
+                                "
+                                title="{{ $item->unit?->name ?? '—' }}"
+                            >
+                                {{ $item->unit?->name ?? '—' }}
+                            </span>
 
-                        @empty
+                        </label>
 
-                            <div class="requisition-table-empty">
+                    @empty
 
-                                <div class="requisition-empty-icon">
-                                    <i class="fa fa-cube"></i>
-                                </div>
-
-                                <p>
-                                    No store items found.
-                                </p>
-
+                        <div class="requisition-table-empty">
+                            <div class="requisition-empty-icon">
+                                <i class="fa fa-cube"></i>
                             </div>
 
-                        @endforelse
+                            <p>
+                                No store items found.
+                            </p>
+                        </div>
 
-                    </div>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="requisition-cancel-button"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
+                    @endforelse
 
                 </div>
 
             </div>
 
-        </div>
+            {{-- FOOTER --}}
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="requisition-cancel-button"
+                    data-bs-dismiss="modal"
+                >
+                    Cancel
+                </button>
+            </div>
 
+        </div>
     </div>
+</div>
 
 
     {{-- ============================================================
