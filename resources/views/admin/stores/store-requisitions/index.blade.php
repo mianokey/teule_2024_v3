@@ -285,13 +285,33 @@
 
                         @php
 
-                            $status = strtolower(
-                                (string) ($requisition->status ?? 'draft')
-                            );
+$status = strtolower(
+    (string) ($requisition->status ?? 'draft')
+);
 
-                            $statusLabel = ucfirst(
-                                str_replace('_', ' ', $status)
-                            );
+$approvalStage = strtolower(
+    (string) ($requisition->approval_stage ?? 'hod')
+);
+
+$stageLabels = [
+    'hod'        => 'HOD',
+    'management' => 'Management',
+    'stores'     => 'Stores',
+];
+
+$statusLabel = ucfirst(
+    str_replace('_', ' ', $status)
+);
+
+// Show the current approval stage for pending requests.
+if (in_array($status, ['pending', 'submitted'], true)) {
+    $stageLabel = $stageLabels[$approvalStage]
+        ?? ucfirst(str_replace('_', ' ', $approvalStage));
+
+    $statusLabel = 'Pending ' . $stageLabel;
+}
+
+
 
                             $fulfillmentStatus = strtolower(
                                 (string) (
