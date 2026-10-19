@@ -621,6 +621,49 @@
         @endif
 
 
+@if($donations->total() > 0)
+
+    <div class="stores-pagination-section">
+
+        <div class="stores-pagination-info">
+
+            <div class="stores-pagination-info-icon">
+                <i class="fa fa-layer-group"></i>
+            </div>
+
+            <div class="stores-pagination-info-text">
+
+                <span class="stores-pagination-info-label">
+                    Showing donations
+                </span>
+
+                <strong>
+                    {{ $donations->firstItem() ?? 0 }}
+                    –
+                    {{ $donations->lastItem() ?? 0 }}
+                </strong>
+
+                <span class="stores-pagination-info-total">
+                    of {{ number_format($donations->total()) }} total
+                </span>
+
+            </div>
+
+        </div>
+
+        @if($donations->hasPages())
+
+            <div class="stores-pagination-controls">
+                {{ $donations->onEachSide(2)->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
+
+        @endif
+
+    </div>
+
+@endif
+
+
     </div>
 
 

@@ -659,6 +659,52 @@
         @endif
 
 
+{{-- =====================================================
+     PAGINATION
+     ===================================================== --}}
+
+@if($requisitions->total() > 0)
+
+    <div class="stores-pagination-section">
+
+        <div class="stores-pagination-info">
+
+            <div class="stores-pagination-info-icon">
+                <i class="fa fa-layer-group"></i>
+            </div>
+
+            <div class="stores-pagination-info-text">
+
+                <span class="stores-pagination-info-label">
+                    Showing requisitions
+                </span>
+
+                <strong>
+                    {{ $requisitions->firstItem() ?? 0 }}
+                    –
+                    {{ $requisitions->lastItem() ?? 0 }}
+                </strong>
+
+                <span class="stores-pagination-info-total">
+                    of {{ number_format($requisitions->total()) }} total
+                </span>
+
+            </div>
+
+        </div>
+
+        @if($requisitions->hasPages())
+
+            <div class="stores-pagination-controls">
+                {{ $requisitions->onEachSide(2)->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
+
+        @endif
+
+    </div>
+
+@endif
+
     </div>
 
 </div>

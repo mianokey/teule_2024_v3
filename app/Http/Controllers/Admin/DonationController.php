@@ -19,6 +19,7 @@ class DonationController extends Controller
      * Display all donations.
      */
     
+
 public function index()
 {
     $donations = Donation::with([
@@ -40,7 +41,8 @@ public function index()
         ])
         ->latest('donation_date')
         ->latest('id')
-        ->get();
+        ->paginate(10)
+        ->withQueryString();
 
     return view('admin.donations.index', compact('donations'));
 }

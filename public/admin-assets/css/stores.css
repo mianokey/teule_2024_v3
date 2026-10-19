@@ -3190,3 +3190,358 @@
 .requisition-list-table tbody tr.lpo-awaiting-receipt:hover > td {
     background-color: #ffe2cf !important;
 }
+
+/* ============================================================
+   STORES PAGINATION
+   Consistent Teule Kenya stores module styling
+   ============================================================ */
+
+.stores-pagination-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 20px 22px;
+    margin-top: 0;
+    border-top: 1px solid #e8ebf2;
+    background: #ffffff;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Record range */
+
+.stores-pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.stores-pagination-info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: rgba(0, 9, 106, 0.07);
+    color: #00096A;
+    font-size: 15px;
+}
+
+.stores-pagination-info-text {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 5px;
+    color: #475467;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.stores-pagination-info-label {
+    color: #667085;
+}
+
+.stores-pagination-info-text strong {
+    color: #00096A;
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.stores-pagination-info-total {
+    color: #667085;
+}
+
+/* Pagination container */
+
+.stores-pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.stores-pagination-controls nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+.stores-pagination-controls nav > div {
+    max-width: 100%;
+}
+
+/* Laravel Bootstrap pagination layout */
+
+.stores-pagination-controls .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+}
+
+/* Individual page buttons */
+
+.stores-pagination-controls .page-item {
+    margin: 0;
+}
+
+.stores-pagination-controls .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid #e1e6ef;
+    border-radius: 9px !important;
+    background: #ffffff;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: none;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+/* Hover state */
+
+.stores-pagination-controls .page-item:not(.active):not(.disabled)
+.page-link:hover {
+    color: #00096A;
+    background: #f0f2ff;
+    border-color: #c8ceef;
+    transform: translateY(-1px);
+    z-index: 1;
+}
+
+/* Active page */
+
+.stores-pagination-controls .page-item.active .page-link {
+    color: #ffffff;
+    background: #00096A;
+    border-color: #00096A;
+    box-shadow: 0 3px 8px rgba(0, 9, 106, 0.18);
+    cursor: default;
+}
+
+/* Disabled previous/next */
+
+.stores-pagination-controls .page-item.disabled .page-link {
+    color: #b8c0cc;
+    background: #f8f9fb;
+    border-color: #e8ebf1;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Laravel pagination ellipsis */
+
+.stores-pagination-controls .page-item.disabled span.page-link {
+    background: transparent;
+    border-color: transparent;
+    color: #98a2b3;
+}
+
+/* Focus accessibility */
+
+.stores-pagination-controls .page-link:focus-visible {
+    outline: 3px solid rgba(239, 71, 0, 0.25);
+    outline-offset: 2px;
+    z-index: 2;
+}
+
+/* Laravel pagination summary text, when present */
+
+.stores-pagination-controls nav p {
+    margin: 0;
+    color: #667085;
+    font-size: 12px;
+}
+
+/* ============================================================
+   RESPONSIVE PAGINATION
+   ============================================================ */
+
+@media (max-width: 767.98px) {
+
+    .stores-pagination-section {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+        padding: 17px 15px;
+    }
+
+    .stores-pagination-info {
+        width: 100%;
+    }
+
+    .stores-pagination-controls {
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 2px 0 5px;
+    }
+
+    .stores-pagination-controls nav {
+        width: 100%;
+    }
+
+    .stores-pagination-controls .pagination {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .stores-pagination-controls .page-link {
+        min-width: 35px;
+        height: 35px;
+        padding: 0 9px;
+        font-size: 12px;
+    }
+
+}
+
+@media (max-width: 380px) {
+
+    .stores-pagination-section {
+        padding: 14px 12px;
+    }
+
+    .stores-pagination-info-icon {
+        flex-basis: 35px;
+        width: 35px;
+        height: 35px;
+    }
+
+    .stores-pagination-controls .pagination {
+        gap: 4px;
+    }
+
+    .stores-pagination-controls .page-link {
+        min-width: 32px;
+        height: 33px;
+        padding: 0 7px;
+    }
+
+}
+/* Donations pagination */
+.donations-pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.donations-pagination nav {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.donations-pagination nav > div:first-child {
+    margin-right: auto;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.donations-pagination nav > div:last-child {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.donations-pagination .pagination {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.donations-pagination .page-item {
+    margin: 0;
+}
+
+.donations-pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #00096A;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: none;
+    transition: all 0.2s ease;
+}
+
+.donations-pagination .page-link:hover {
+    background: #f1f5f9;
+    border-color: #00096A;
+    color: #00096A;
+}
+
+.donations-pagination .page-item.active .page-link {
+    background: #00096A;
+    border-color: #00096A;
+    color: #fff;
+    z-index: 1;
+}
+
+.donations-pagination .page-item.disabled .page-link {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.donations-pagination .page-link:focus {
+    box-shadow: 0 0 0 3px rgba(0, 9, 106, 0.12);
+}
+
+@media (max-width: 576px) {
+    .donations-pagination {
+        justify-content: center;
+    }
+
+    .donations-pagination nav {
+        justify-content: center;
+    }
+
+    .donations-pagination nav > div:first-child {
+        width: 100%;
+        margin: 0 0 12px;
+        text-align: center;
+    }
+
+    .donations-pagination nav > div:last-child {
+        justify-content: center;
+    }
+}
