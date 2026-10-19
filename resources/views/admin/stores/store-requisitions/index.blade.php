@@ -147,6 +147,13 @@
                             </option>
 
                             <option
+                                value="returned"
+                                @selected(request('status') === 'returned')
+                            >
+                                Returned
+                            </option>
+
+                            <option
                                 value="draft"
                                 @selected(request('status') === 'draft')
                             >
