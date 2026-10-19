@@ -232,10 +232,7 @@
                             Type
                         </th>
 
-                        <th style="min-width:160px;">
-                            Stores Receiving
-                        </th>
-
+                       
 
                         <th style="min-width:150px;">
                             Amount / Value
@@ -246,11 +243,15 @@
                         </th>
 
                         <th style="min-width:120px;">
+                            Type
+                        </th>
+
+                        <th style="min-width:120px;">
                             Source
                         </th>
 
                         <th style="min-width:130px;">
-                            Status
+                            Store receiving Status
                         </th>
 
                         <th style="width:110px;">

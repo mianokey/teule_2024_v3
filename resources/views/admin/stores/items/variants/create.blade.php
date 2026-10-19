@@ -1,3 +1,4 @@
+
 @extends('layouts.admin')
 
 @push('styles')
@@ -10,7 +11,7 @@
 
     {{-- ============================================================
          PAGE HEADER
-         ============================================================ --}}
+    ============================================================ --}}
 
     <div class="requisition-page-header">
 
@@ -23,7 +24,6 @@
             <div>
 
                 <div class="requisition-breadcrumb">
-
                     <span>Stores</span>
                     <span>/</span>
                     <span>Store Items</span>
@@ -33,7 +33,6 @@
                     <span>Variants</span>
                     <span>/</span>
                     <span>Add</span>
-
                 </div>
 
                 <h1 class="requisition-page-title">
@@ -41,7 +40,7 @@
                 </h1>
 
                 <p class="requisition-page-subtitle">
-                    Add a variant for {{ $storeItem->name }}.
+                    Add a variant for {{ $storeItem->name }} and optionally record its opening stock.
                 </p>
 
             </div>
@@ -51,11 +50,9 @@
         <div class="requisition-header-right">
 
             <a href="{{ route('admin.store-item-variants.index', $storeItem) }}"
-               class="requisition-list-action primary">
-
+               class="requisition-save-button primary">
                 <i class="fa fa-list"></i>
                 Variants
-
             </a>
 
         </div>
@@ -65,20 +62,23 @@
 
     {{-- ============================================================
          MESSAGES
-         ============================================================ --}}
+    ============================================================ --}}
 
     <x-message></x-message>
 
 
     {{-- ============================================================
          VARIANT FORM
-         ============================================================ --}}
+    ============================================================ --}}
 
     <form method="POST"
           action="{{ route('admin.store-item-variants.store', $storeItem) }}">
 
         @csrf
 
+        {{-- ========================================================
+             VARIANT DETAILS
+        ======================================================== --}}
 
         <div class="requisition-section">
 
@@ -91,19 +91,15 @@
                     </div>
 
                     <div>
-
                         <h5>Variant Details</h5>
-
                         <p>
                             Enter the details for this item variant.
                         </p>
-
                     </div>
 
                 </div>
 
             </div>
-
 
             <div class="requisition-details-body">
 
@@ -111,7 +107,7 @@
 
                     {{-- VARIANT NAME --}}
 
-                    <div class="col-lg-8 col-md-7 mb-3">
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-3">
 
                         <div class="requisition-form-group">
 
@@ -132,11 +128,9 @@
                                    required>
 
                             @error('name')
-
                                 <div class="requisition-field-help text-danger">
                                     {{ $message }}
                                 </div>
-
                             @enderror
 
                         </div>
@@ -146,7 +140,7 @@
 
                     {{-- VARIANT CODE --}}
 
-                    <div class="col-lg-4 col-md-5 mb-3">
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-3">
 
                         <div class="requisition-form-group">
 
@@ -169,11 +163,95 @@
                             </div>
 
                             @error('code')
-
                                 <div class="requisition-field-help text-danger">
                                     {{ $message }}
                                 </div>
+                            @enderror
 
+                        </div>
+
+                    </div>
+
+
+                    {{-- STORE --}}
+
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="store_id"
+                                   class="requisition-field-label">
+
+                                Opening Stock Store
+
+                            </label>
+
+                            <select name="store_id"
+                                    id="store_id"
+                                    class="requisition-input @error('store_id') is-invalid @enderror">
+
+                                <option value="">
+                                    Select store
+                                </option>
+
+                                @foreach($stores as $store)
+
+                                    <option value="{{ $store->id }}"
+                                        @selected(old('store_id') == $store->id)>
+
+                                        {{ $store->name }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                            <div class="requisition-field-help">
+                                Select the store receiving the opening stock.
+                            </div>
+
+                            @error('store_id')
+                                <div class="requisition-field-help text-danger">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- OPENING QUANTITY --}}
+
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-12 mb-3">
+
+                        <div class="requisition-form-group">
+
+                            <label for="opening_stock"
+                                   class="requisition-field-label">
+
+                                Opening Quantity
+
+                            </label>
+
+                            <input type="number"
+                                   name="opening_stock"
+                                   id="opening_stock"
+                                   min="0"
+                                   step="0.001"
+                                   value="{{ old('opening_stock', '0.000') }}"
+                                   class="requisition-input @error('opening_stock') is-invalid @enderror"
+                                   placeholder="e.g. 50.000">
+
+                            <div class="requisition-field-help">
+                                Enter 0 if no opening stock is being recorded.
+                            </div>
+
+                            @error('opening_stock')
+                                <div class="requisition-field-help text-danger">
+                                    {{ $message }}
+                                </div>
                             @enderror
 
                         </div>
@@ -183,7 +261,7 @@
 
                     {{-- DESCRIPTION --}}
 
-                    <div class="col-12 mb-3">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-12 mb-3">
 
                         <div class="requisition-form-group">
 
@@ -196,16 +274,14 @@
 
                             <textarea name="description"
                                       id="description"
-                                      rows="4"
+                                      rows="3"
                                       class="requisition-input @error('description') is-invalid @enderror"
                                       placeholder="Optional description">{{ old('description') }}</textarea>
 
                             @error('description')
-
                                 <div class="requisition-field-help text-danger">
                                     {{ $message }}
                                 </div>
-
                             @enderror
 
                         </div>
@@ -221,7 +297,7 @@
 
         {{-- ========================================================
              FORM ACTIONS
-             ======================================================== --}}
+        ======================================================== --}}
 
         <div class="requisition-bottom-actions">
 

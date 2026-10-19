@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Store;
 use App\Models\StoreItem;
 use App\Models\StoreItemVariant;
 use Illuminate\Http\Request;
@@ -23,13 +24,21 @@ class StoreItemVariantController extends Controller
         );
     }
 
-    public function create(StoreItem $storeItem)
-    {
-        return view(
-            'admin.stores.items.variants.create',
-            compact('storeItem')
-        );
-    }
+
+public function create(StoreItem $storeItem)
+{
+    $stores = Store::query()
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    return view(
+        'admin.stores.items.variants.create',
+        compact('storeItem', 'stores')
+    );
+}
+
+
 
     public function store(Request $request, StoreItem $storeItem)
     {
