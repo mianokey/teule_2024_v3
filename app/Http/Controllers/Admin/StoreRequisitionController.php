@@ -310,6 +310,8 @@ public function edit(StoreRequisition $storeRequisition)
                 'submission_notes' => $validated['submission_notes'] ?? null,
                 'requisition_type' => $validated['requisition_type'],
                 'source_store_id' => $validated['source_store_id'],
+                'status'=>'pending',
+                'approval_stage'=>'hod',
 
                 'destination_store_id' =>
                     $validated['requisition_type'] === 'TRANSFER'
