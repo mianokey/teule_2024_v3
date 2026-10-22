@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\StoreStockController;
 use App\Http\Controllers\Admin\StoreRequisitionController;
 use App\Http\Controllers\Admin\StoreFulfillmentController;
 use App\Http\Controllers\Admin\StoreLpoController;
+use App\Http\Controllers\Admin\StoreReportController;
 use App\Http\Controllers\Admin\StoreStockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\WorkflowNotificationController;
@@ -180,6 +181,11 @@ Route::patch('stores/{store}/toggle-status', [StoreController::class, 'toggleSta
 Route::resource('store-items', StoreItemController::class)->parameters(['store-items' => 'storeItem'])->names('admin.store-items');
 
 Route::patch('store-items/{storeItem}/toggle-status', [StoreItemController::class, 'toggleStatus'])->name('admin.store-items.toggle-status');
+
+
+// Stores - Reports
+Route::get('store-reports', [StoreReportController::class, 'index'])->name('admin.store-reports.index');
+Route::get('store-reports/export/{format}', [StoreReportController::class, 'export'])->where('format', 'pdf|xlsx|csv')->name('admin.store-reports.export');
 
 
 // Workflow Notifications

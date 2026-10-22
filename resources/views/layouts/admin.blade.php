@@ -287,27 +287,6 @@
 
 
 
-
-                                {{-- REQUISITION APPROVALS --}}
-
-                                @if(
-                                auth()->user()->can('APPROVE STORE REQUISITIONS') ||
-                                auth()->user()->can('APPROVE STORE REQUISITIONS - HOD') ||
-                                auth()->user()->can('APPROVE STORE REQUISITIONS - MANAGEMENT') ||
-                                auth()->user()->can('APPROVE STORE REQUISITIONS - STORES')
-                                )
-
-                                <li>
-                                    <a href="{{ route('admin.stores.store-requisitions.index') }}" class="svg-icon">
-
-                                        <i class="fa fa-check-square-o"></i>
-                                        <span>Requisition Approvals</span>
-
-                                    </a>
-                                </li>
-
-                                @endif
-
                                 {{-- =================================================
                                 LOCAL PURCHASE ORDERS (LPOs)
                                 ================================================= --}}
@@ -321,7 +300,7 @@
 
                                     <a href="{{ route('admin.store-lpos.index') }}" class="svg-icon">
 
-                                        <i class="fa fa-file-text-o"></i>
+                                        <i class="fa fa-file"></i>
                                         <span>Local Purchase Orders</span>
 
                                     </a>
@@ -364,7 +343,7 @@
                                 <li>
                                     <a href="{{ route('admin.stores.index') }}" class="svg-icon">
 
-                                        <i class="fa fa-building-o"></i>
+                                        <i class="fa fa-building"></i>
                                         <span>Stores</span>
 
                                     </a>
@@ -477,6 +456,14 @@
                                 @endcan
 
 
+                                @can('VIEW STORE REPORTS')
+                                <li>
+                                    <a href="{{ route('admin.store-reports.index') }}" class="svg-icon">
+                                        <i class="fa fa-chart-bar"></i>
+                                        <span>Store Reports</span>
+                                    </a>
+                                </li>
+                                @endcan
 
                             </ul>
 
