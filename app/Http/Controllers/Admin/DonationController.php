@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 use App\Services\DonationThankYouService;
 use App\Models\StoreItem;
 use App\Models\StoreItemVariant;
+use App\Models\StoreReceipt;
+use App\Models\StoreStock;
+use App\Models\StoreStockMovement;
+use App\Services\WorkflowNotificationService;
+use Illuminate\Validation\ValidationException;
 
 class DonationController extends Controller
 {
@@ -269,132 +274,459 @@ if ($validated['type'] === 'in_kind') {
     public function edit(Donation $donation)
     {
         $donors = Donor::orderBy('name')->get();
+        
+        $storeItems = StoreItem::with([
+            'unit',
+            'variants' => function ($query) {
+                $query->where('is_active', true)
+                    ->orderBy('name');
+            },
+        ])
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
 
         $donation->load('items');
 
         return view(
             'admin.donations.edit',
-            compact('donation', 'donors')
+            compact('donation', 'donors', 'storeItems')
         );
     }
 
     /**
      * Update a donation.
      */
-    public function update(Request $request, Donation $donation)
-    {
-        $validated = $request->validate([
-            'donor_id'          => 'nullable|exists:donors,id',
-            'type'              => 'required|in:cash,in_kind',
-            'classification'    => 'required|in:donation,payment,refund,other,unclassified',
-            'source'            => 'nullable|in:manual,mpesa,bank,other',
-            'amount'            => 'nullable|numeric|min:0',
-            'currency'          => 'required|string|size:3',
-            'donation_date'     => 'required|date',
-            'purpose'           => 'nullable|string|max:255',
-            'reference'         => 'nullable|string|max:255',
-            'payment_reference' => 'nullable|string|max:255',
-            'description'       => 'nullable|string|max:2000',
-            'notes'             => 'nullable|string|max:2000',
+    public function update(
+    Request $request,
+    Donation $donation,
+    WorkflowNotificationService $notificationService
+) {
+    $validated = $request->validate([
+        'donor_id'          => 'nullable|exists:donors,id',
+        'type'              => 'required|in:cash,in_kind',
+        'classification'    => 'required|in:donation,payment,refund,other,unclassified',
+        'source'            => 'nullable|in:manual,mpesa,bank,other',
+        'amount'            => 'nullable|numeric|min:0',
+        'currency'          => 'required|string|size:3',
+        'donation_date'     => 'required|date',
+        'purpose'           => 'nullable|string|max:255',
+        'reference'         => 'nullable|string|max:255',
+        'payment_reference' => 'nullable|string|max:255',
+        'description'       => 'nullable|string|max:2000',
+        'notes'             => 'nullable|string|max:2000',
 
-            'items'                   => 'nullable|array',
-            'items.*.item'            => 'required_with:items|string|max:255',
-            'items.*.quantity'        => 'nullable|numeric|min:0',
-            'items.*.unit'            => 'nullable|string|max:100',
-            'items.*.estimated_value' => 'nullable|numeric|min:0',
-            'items.*.condition'       => 'nullable|string|max:100',
-            'items.*.notes'           => 'nullable|string|max:1000',
-        ]);
+        'items'                   => 'nullable|array',
+        'items.*.item'            => 'required_with:items|string|max:255',
+        'items.*.store_item_id'   => 'nullable|integer|exists:store_items,id',
+        'items.*.variant_id'      => 'nullable|integer|exists:store_item_variants,id',
+        'items.*.quantity'        => 'nullable|numeric|min:0',
+        'items.*.unit'            => 'nullable|string|max:100',
+        'items.*.estimated_value' => 'nullable|numeric|min:0',
+        'items.*.condition'       => 'nullable|string|max:100',
+        'items.*.notes'           => 'nullable|string|max:1000',
+    ]);
 
-        /*
+    /*
     |--------------------------------------------------------------------------
-    | Cash
-    |--------------------------------------------------------------------------
-    */
-
-        if ($validated['type'] === 'cash') {
-
-            if (
-                $validated['classification'] === 'donation' &&
-                ($validated['amount'] ?? 0) <= 0
-            ) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'amount' => 'Please enter the cash donation amount.',
-                    ]);
-            }
-
-            $validated['source'] =
-                $validated['source'] ?? 'manual';
-        }
-
-        /*
-    |--------------------------------------------------------------------------
-    | In-Kind
+    | Cash donations
     |--------------------------------------------------------------------------
     */
 
-        if ($validated['type'] === 'in_kind') {
-
-            $items = $validated['items'] ?? [];
-
-            if (count($items) === 0) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'items' => 'Please add at least one item for an in-kind donation.',
-                    ]);
-            }
-
-            /*
-        |--------------------------------------------------------------------------
-        | Calculate total estimated value on the server.
-        |--------------------------------------------------------------------------
-        */
-
-            $totalEstimatedValue = collect($items)->sum(function ($item) {
-                return (float) ($item['estimated_value'] ?? 0);
-            });
-
-            $validated['amount'] = $totalEstimatedValue;
-
-            // In-kind donations are manually received for now.
-            $validated['source'] = 'manual';
-
-            // These don't apply to in-kind donations.
-            $validated['reference'] = null;
-            $validated['payment_reference'] = null;
+    if ($validated['type'] === 'cash') {
+        if (
+            $validated['classification'] === 'donation' &&
+            ($validated['amount'] ?? 0) <= 0
+        ) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'amount' => 'Please enter the cash donation amount.',
+                ]);
         }
 
-        DB::transaction(function () use ($validated, $donation) {
-
-            $items = $validated['items'] ?? [];
-
-            unset($validated['items']);
-
-            $donation->update($validated);
-
-            /*
-        |--------------------------------------------------------------------------
-        | Replace existing in-kind items.
-        |--------------------------------------------------------------------------
-        */
-
-            $donation->items()->delete();
-
-            foreach ($items as $item) {
-
-                $item['donation_id'] = $donation->id;
-
-                DonationItem::create($item);
-            }
-        });
-
-        return redirect()
-            ->route('admin.donations.show', $donation)
-            ->with('success', 'Donation updated successfully.');
+        $validated['source'] = $validated['source'] ?? 'manual';
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | In-kind donations
+    |--------------------------------------------------------------------------
+    */
+
+    if ($validated['type'] === 'in_kind') {
+        $items = $validated['items'] ?? [];
+
+        if (count($items) === 0) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'items' => 'Please add at least one item for an in-kind donation.',
+                ]);
+        }
+
+        $validated['amount'] = collect($items)->sum(
+            fn ($item) => (float) ($item['estimated_value'] ?? 0)
+        );
+
+        $validated['source'] = 'manual';
+        $validated['reference'] = null;
+        $validated['payment_reference'] = null;
+    }
+
+    $items = $validated['items'] ?? [];
+    unset($validated['items']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update donation and reconcile any posted donation receipt
+    |--------------------------------------------------------------------------
+    */
+
+    $result = DB::transaction(function () use (
+        $validated,
+        $items,
+        $donation
+    ) {
+        // Lock the donation while updating its items.
+        $lockedDonation = Donation::query()
+            ->whereKey($donation->id)
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        // Preserve the existing items before replacing them.
+        $oldItems = $lockedDonation->items()->get();
+
+        // Only a POSTED donation receipt has affected store stock.
+        $receipt = StoreReceipt::query()
+            ->where('donation_id', $lockedDonation->id)
+            ->where('source_type', 'DONATION')
+            ->where('status', 'POSTED')
+            ->lockForUpdate()
+            ->first();
+
+        $adjustments = [];
+
+        if ($receipt) {
+            /*
+             * A received in-kind donation cannot be converted to cash
+             * through this edit because that would require reversing
+             * the donation's inventory completely.
+             */
+            if ($validated['type'] !== 'in_kind') {
+                throw ValidationException::withMessages([
+                    'type' => 'This donation has already been received into Stores. It cannot be changed to cash through this edit.',
+                ]);
+            }
+
+            /*
+             * Both the existing and new donation items must map to
+             * actual inventory items so that stock is never adjusted
+             * using free-text descriptions.
+             */
+            foreach ($oldItems as $oldItem) {
+                if (
+                    empty($oldItem->store_item_id) ||
+                    $oldItem->quantity === null
+                ) {
+                    throw ValidationException::withMessages([
+                        'items' => 'An existing donation item is not mapped to a store item. Correct its inventory mapping before editing this received donation.',
+                    ]);
+                }
+            }
+
+            foreach ($items as $index => $item) {
+                if (empty($item['store_item_id'])) {
+                    throw ValidationException::withMessages([
+                        "items.$index.store_item_id" =>
+                            'Select the store item for every item in this received donation.',
+                    ]);
+                }
+
+                if (!array_key_exists('quantity', $item) ||
+                    $item['quantity'] === null) {
+                    throw ValidationException::withMessages([
+                        "items.$index.quantity" =>
+                            'Enter a quantity for every item in this received donation.',
+                    ]);
+                }
+
+                // Confirm that the selected variant belongs to the item.
+                if (!empty($item['variant_id'])) {
+                    $variantBelongsToItem = DB::table('store_item_variants')
+                        ->where('id', $item['variant_id'])
+                        ->where('store_item_id', $item['store_item_id'])
+                        ->exists();
+
+                    if (!$variantBelongsToItem) {
+                        throw ValidationException::withMessages([
+                            "items.$index.variant_id" =>
+                                'The selected variant does not belong to the selected store item.',
+                        ]);
+                    }
+                }
+            }
+
+            /*
+             * Aggregate quantities by store item and variant.
+             * This also handles duplicate lines for the same inventory
+             * item without producing incorrect stock differences.
+             */
+            $aggregateItems = function ($rows) {
+                $totals = [];
+
+                foreach ($rows as $row) {
+                    $itemId = (int) (
+                        is_array($row)
+                            ? $row['store_item_id']
+                            : $row->store_item_id
+                    );
+
+                    $rawVariantId = is_array($row)
+                        ? ($row['variant_id'] ?? null)
+                        : $row->variant_id;
+
+                    $variantId = !empty($rawVariantId)
+                        ? (int) $rawVariantId
+                        : null;
+
+                    $rawQuantity = is_array($row)
+                        ? ($row['quantity'] ?? 0)
+                        : $row->quantity;
+
+                    $quantity = (float) $rawQuantity;
+
+                    $key = $itemId . ':' . ($variantId ?? 'null');
+
+                    if (!isset($totals[$key])) {
+                        $totals[$key] = [
+                            'store_item_id' => $itemId,
+                            'variant_id' => $variantId,
+                            'quantity' => 0.0,
+                        ];
+                    }
+
+                    $totals[$key]['quantity'] += $quantity;
+                }
+
+                return $totals;
+            };
+
+            $oldTotals = $aggregateItems($oldItems);
+            $newTotals = $aggregateItems($items);
+
+            $keys = array_unique(array_merge(
+                array_keys($oldTotals),
+                array_keys($newTotals)
+            ));
+
+            // Process stock rows in a consistent order.
+            sort($keys);
+
+            foreach ($keys as $key) {
+                $oldLine = $oldTotals[$key] ?? null;
+                $newLine = $newTotals[$key] ?? null;
+
+                $oldQuantity = $oldLine['quantity'] ?? 0.0;
+                $newQuantity = $newLine['quantity'] ?? 0.0;
+
+                $variation = round(
+                    $newQuantity - $oldQuantity,
+                    3
+                );
+
+                if (abs($variation) < 0.0005) {
+                    continue;
+                }
+
+                $line = $newLine ?? $oldLine;
+
+                $stockQuery = StoreStock::query()
+                    ->where('store_id', $receipt->store_id)
+                    ->where('store_item_id', $line['store_item_id']);
+
+                if ($line['variant_id'] === null) {
+                    $stockQuery->whereNull('variant_id');
+                } else {
+                    $stockQuery->where(
+                        'variant_id',
+                        $line['variant_id']
+                    );
+                }
+
+                $stock = $stockQuery
+                    ->lockForUpdate()
+                    ->first();
+
+                /*
+                 * Positive adjustments may create a missing stock row.
+                 * Negative adjustments must act on an existing row.
+                 */
+                if (!$stock && $variation < 0) {
+                    throw ValidationException::withMessages([
+                        'items' =>
+                            'Cannot reduce stock because the corresponding stock record is missing. No changes have been saved.',
+                    ]);
+                }
+
+                if (!$stock) {
+                    $stock = StoreStock::create([
+                        'store_id' => $receipt->store_id,
+                        'store_item_id' => $line['store_item_id'],
+                        'variant_id' => $line['variant_id'],
+                        'quantity' => 0,
+                        'last_movement_at' => null,
+                    ]);
+
+                    // Lock the newly created row before adjusting it.
+                    $stock = StoreStock::query()
+                        ->whereKey($stock->id)
+                        ->lockForUpdate()
+                        ->firstOrFail();
+                }
+
+                $currentStock = (float) $stock->quantity;
+                $newStock = round(
+                    $currentStock + $variation,
+                    3
+                );
+
+                if ($newStock < -0.0005) {
+                    throw ValidationException::withMessages([
+                        'items' =>
+                            'This edit would make stock negative for store item ID '
+                            . $line['store_item_id']
+                            . '. Current balance: '
+                            . number_format($currentStock, 3)
+                            . '. Required adjustment: '
+                            . number_format($variation, 3)
+                            . '. No changes have been saved.',
+                    ]);
+                }
+
+                if ($newStock < 0) {
+                    $newStock = 0;
+                }
+
+                $stock->forceFill([
+                    'quantity' => $newStock,
+                    'last_movement_at' => now(),
+                ])->save();
+
+                $movementNotes =
+                    'Donation edited. Donation ID: '
+                    . $lockedDonation->id
+                    . '. Receipt ID: '
+                    . $receipt->id
+                    . '. Previous donation quantity: '
+                    . number_format($oldQuantity, 3)
+                    . '. Updated donation quantity: '
+                    . number_format($newQuantity, 3)
+                    . '. Stock variation: '
+                    . number_format($variation, 3)
+                    . '.';
+
+                StoreStockMovement::forceCreate([
+                    'store_id' => $stock->store_id,
+                    'store_item_id' => $stock->store_item_id,
+                    'variant_id' => $stock->variant_id,
+                    'movement_type' => 'ADJUSTMENT',
+                    'quantity' => $variation,
+                    'balance_after' => $newStock,
+                    'reference_type' => StoreStock::class,
+                    'reference_id' => $stock->id,
+                    'created_by' => auth()->id(),
+                    'notes' => $movementNotes,
+                ]);
+
+                $adjustments[] = [
+                    'store_item_id' => $line['store_item_id'],
+                    'variant_id' => $line['variant_id'],
+                    'previous_quantity' => $oldQuantity,
+                    'updated_quantity' => $newQuantity,
+                    'variation' => $variation,
+                    'balance_after' => $newStock,
+                ];
+            }
+        }
+
+        /*
+         * Save the donation and replace its item records only after
+         * stock reconciliation has passed all checks.
+         */
+        $lockedDonation->update($validated);
+
+        $lockedDonation->items()->delete();
+
+        foreach ($items as $item) {
+            $item['donation_id'] = $lockedDonation->id;
+
+            DonationItem::create($item);
+        }
+
+        return [
+            'donation_id' => $lockedDonation->id,
+            'receipt_id' => $receipt?->id,
+            'adjustments' => $adjustments,
+        ];
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notify Stores after the database transaction commits
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        $result['receipt_id'] !== null &&
+        count($result['adjustments']) > 0
+    ) {
+        try {
+            $itemCount = count($result['adjustments']);
+
+            $notificationService->sendToPermission(
+                [
+                    'event' => 'donation.stock_adjusted',
+                    'title' => 'Received Donation Modified',
+                    'message' =>
+                        'Donation #' . $result['donation_id']
+                        . ' was modified after receipt into Stores. '
+                        . $itemCount
+                        . ' inventory item(s) had their stock adjusted.',
+                    'url' => route(
+                        'admin.donations.show',
+                        $result['donation_id']
+                    ),
+                    'icon' => 'package',
+                    'priority' => 'high',
+                    'metadata' => [
+                        'donation_id' => $result['donation_id'],
+                        'receipt_id' => $result['receipt_id'],
+                        'adjustments' => $result['adjustments'],
+                    ],
+                    'created_by' => auth()->id(),
+                ],
+                'MANAGE STORE STOCK',
+                ['database', 'webpush']
+            );
+        } catch (\Throwable $exception) {
+            // Do not undo a committed stock reconciliation if
+            // notification delivery encounters an error.
+            report($exception);
+        }
+    }
+
+    return redirect()
+        ->route('admin.donations.show', $donation)
+        ->with(
+            'success',
+            count($result['adjustments']) > 0
+                ? 'Donation updated successfully. Store stock has been reconciled and the Stores team notified.'
+                : 'Donation updated successfully.'
+        );
+}
+
 
     public function resendThankYou(
         Request $request,
