@@ -364,7 +364,7 @@
     $sourceStockByKey = collect();
 
     if (
-        $isApproved &&
+        // $isApproved &&
         $storeRequisition->source_store_id
     ) {
 

@@ -85,26 +85,45 @@ public function create()
         ->orderBy('name')
         ->get();
 
-    // Load current stock balances for each item.
-    // Balances are kept separately for each store.
-    $stockBalances = StoreStock::query()
+    // Load stock records for all stores and variants.
+    $stockRows = StoreStock::query()
         ->select([
             'store_id',
             'store_item_id',
+            'variant_id',
             'quantity',
         ])
-        ->whereNull('variant_id')
-        ->get()
-        ->groupBy('store_item_id');
+        ->get();
 
-    // Attach the aggregate balance to each item.
-    // This is the total across stores, so it is for display only
-    // until the user selects a specific store.
     foreach ($items as $item) {
-        $item->current_balance = (float) (
-            $stockBalances->get($item->id, collect())
-                ->sum('quantity')
+
+        // Base-item balances, excluding variant stock.
+        $item->store_balances = $stockRows
+            ->where('store_item_id', $item->id)
+            ->whereNull('variant_id')
+            ->groupBy('store_id')
+            ->map(function ($rows) {
+                return (float) $rows->sum('quantity');
+            })
+            ->all();
+
+        // Keep the existing property for compatibility.
+        $item->current_balance = (float) array_sum(
+            $item->store_balances
         );
+
+        // Give each variant its own per-store balance map.
+        foreach ($item->variants as $variant) {
+
+            $variant->store_balances = $stockRows
+                ->where('store_item_id', $item->id)
+                ->where('variant_id', $variant->id)
+                ->groupBy('store_id')
+                ->map(function ($rows) {
+                    return (float) $rows->sum('quantity');
+                })
+                ->all();
+        }
     }
 
     $children = Child::orderBy('name', 'asc')->get();
@@ -128,6 +147,7 @@ public function create()
         )
     );
 }
+
 
     /**
      * Show the edit requisition form.

@@ -1,3 +1,4 @@
+
 @extends('layouts.admin')
 
 @push('styles')
@@ -22,13 +23,11 @@
             <div>
 
                 <div class="requisition-breadcrumb">
-
                     <span>Stores</span>
                     <span>/</span>
                     <span>Requisitions</span>
                     <span>/</span>
                     <span>Create</span>
-
                 </div>
 
                 <h1 class="requisition-page-title">
@@ -43,15 +42,11 @@
 
         </div>
 
-
         <div class="requisition-header-right">
 
             <span class="requisition-draft-badge">
-
                 <span class="requisition-status-dot"></span>
-
                 Draft
-
             </span>
 
             <span
@@ -65,9 +60,7 @@
 
     </div>
 
-
     <x-message></x-message>
-
 
     {{-- ============================================================
          REQUISITION FORM
@@ -82,10 +75,7 @@
 
             @csrf
 
-
-            {{-- ====================================================
-                 TRANSACTION VALUES
-            ===================================================== --}}
+            {{-- TRANSACTION VALUES --}}
             <input
                 type="hidden"
                 name="requisition_type"
@@ -107,10 +97,7 @@
                 value="{{ old('destination_store_id') }}"
             >
 
-
-            {{-- ====================================================
-                 REQUESTED ITEMS
-            ===================================================== --}}
+            {{-- REQUESTED ITEMS --}}
             <div class="requisition-section">
 
                 <div class="requisition-section-header">
@@ -122,19 +109,14 @@
                         </div>
 
                         <div>
-
-                            <h5>
-                                Requested Items
-                            </h5>
+                            <h5>Requested Items</h5>
 
                             <p>
                                 Add the items and quantities required.
                             </p>
-
                         </div>
 
                     </div>
-
 
                     <div class="requisition-header-right">
 
@@ -151,7 +133,6 @@
 
                 </div>
 
-
                 <div class="requisition-details-body">
 
                     <div class="requisition-list-table-wrapper">
@@ -159,52 +140,23 @@
                         <table class="requisition-list-table">
 
                             <thead>
-
                                 <tr>
-
-                                    <th style="width:45px;">
-                                        #
-                                    </th>
-
-                                    <th style="min-width:220px;">
-                                        Item
-                                    </th>
-
-                                    <th style="min-width:140px;">
-                                        Variant
-                                    </th>
-
-                                    <th style="width:120px;">
-                                        Quantity
-                                    </th>
-
-                                    <th style="width:90px;">
-                                        Unit
-                                    </th>
-
-                                    <th style="min-width:240px;">
-                                        Child
-                                    </th>
-
-                                    <th style="min-width:170px;">
-                                        Notes
-                                    </th>
-
-                                    <th style="width:55px;">
-                                    </th>
-
+                                    <th style="width:45px;">#</th>
+                                    <th style="min-width:220px;">Item</th>
+                                    <th style="min-width:140px;">Variant</th>
+                                    <th style="width:120px;">Quantity</th>
+                                    <th style="width:90px;">Unit</th>
+                                    <th style="min-width:240px;">Child</th>
+                                    <th style="min-width:170px;">Notes</th>
+                                    <th style="width:55px;"></th>
                                 </tr>
-
                             </thead>
 
-
-                            <tbody id="requisitionItemsBody">
-                            </tbody>
+                            <tbody id="requisitionItemsBody"></tbody>
 
                         </table>
 
                     </div>
-
 
                     <div
                         id="emptyItemsMessage"
@@ -235,10 +187,7 @@
 
             </div>
 
-
-            {{-- ====================================================
-                 REQUEST DETAILS
-            ===================================================== --}}
+            {{-- REQUEST DETAILS --}}
             <div class="requisition-section">
 
                 <div class="requisition-section-header">
@@ -250,21 +199,16 @@
                         </div>
 
                         <div>
-
-                            <h5>
-                                Request Details
-                            </h5>
+                            <h5>Request Details</h5>
 
                             <p>
                                 Provide additional information about this request.
                             </p>
-
                         </div>
 
                     </div>
 
                 </div>
-
 
                 <div class="requisition-details-body">
 
@@ -298,7 +242,6 @@
                                         @foreach($departments as $department)
 
                                             @php
-
                                                 $departmentValue =
                                                     is_object($department)
                                                         ? (
@@ -308,7 +251,6 @@
                                                             ?? ''
                                                         )
                                                         : $department;
-
                                             @endphp
 
                                             @if($departmentValue !== '')
@@ -331,7 +273,6 @@
                             </div>
 
                         </div>
-
 
                         {{-- PURPOSE --}}
                         <div class="col-lg-6 col-md-6 mb-3">
@@ -365,10 +306,7 @@
 
             </div>
 
-
-            {{-- ====================================================
-                 BOTTOM ACTIONS
-            ===================================================== --}}
+            {{-- BOTTOM ACTIONS --}}
             <div class="requisition-bottom-actions">
 
                 <a
@@ -379,7 +317,6 @@
                     Cancel
                 </a>
 
-
                 <button
                     type="button"
                     id="changeTransactionSetup"
@@ -388,7 +325,6 @@
                     <i class="fa fa-exchange-alt"></i>
                     Change Transaction
                 </button>
-
 
                 <button
                     type="button"
@@ -405,7 +341,6 @@
 
     </div>
 
-
     {{-- ============================================================
          ITEM ROW TEMPLATE
     ============================================================ --}}
@@ -418,11 +353,8 @@
 
             {{-- NUMBER --}}
             <td>
-                <strong class="item-number">
-                    1
-                </strong>
+                <strong class="item-number">1</strong>
             </td>
-
 
             {{-- ITEM --}}
             <td>
@@ -472,7 +404,6 @@
 
             </td>
 
-
             {{-- VARIANT --}}
             <td>
 
@@ -481,15 +412,10 @@
                     class="form-select form-select-sm requisition-table-input requisition-variant-select"
                     disabled
                 >
-
-                    <option value="">
-                        No variant
-                    </option>
-
+                    <option value="">No variant</option>
                 </select>
 
             </td>
-
 
             {{-- QUANTITY --}}
             <td>
@@ -506,80 +432,72 @@
 
             </td>
 
-
             {{-- UNIT --}}
-<td>
+            <td>
 
-    <div class="requisition-input">
+                <div class="requisition-input">
+                    <span class="requisition-uom">—</span>
+                </div>
 
-        <span class="requisition-uom">
-            —
-        </span>
-
-    </div>
-
-</td>
-
-
+            </td>
 
             {{-- CHILD --}}
-<td>
-    <div
-        class="requisition-child-assignment"
-        style="
-            width:100%;
-            min-width:0;
-            display:flex;
-            align-items:center;
-            gap:6px;
-        "
-    >
+            <td>
 
-        {{-- ASSIGN BUTTON --}}
-        <button
-            type="button"
-            class="requisition-add-button primary"
-            data-action="assign-children"
-            title="Assign this item to one or more children"
-            style="
-                flex:0 0 auto;
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                gap:5px;
-                white-space:nowrap;
-                margin:0;
-                padding:6px 10px;
-            "
-        >
-            <i class="fa fa-user-plus"></i>
-            Assign
-        </button>
+                <div
+                    class="requisition-child-assignment"
+                    style="
+                        width:100%;
+                        min-width:0;
+                        display:flex;
+                        align-items:center;
+                        gap:6px;
+                    "
+                >
 
-        {{-- CHILD FIELD --}}
-        <div
-            class="requisition-selected-children requisition-input"
-            title="General"
-            style="
-                flex:1 1 auto;
-                width:auto;
-                min-width:0;
-                overflow:hidden;
-                text-overflow:ellipsis;
-                white-space:nowrap;
-                cursor:default;
-            "
-        >
-            <span class="requisition-no-child-label">
-                General
-            </span>
-        </div>
+                    <button
+                        type="button"
+                        class="requisition-add-button primary"
+                        data-action="assign-children"
+                        title="Assign this item to one or more children"
+                        style="
+                            flex:0 0 auto;
+                            display:inline-flex;
+                            align-items:center;
+                            justify-content:center;
+                            gap:5px;
+                            white-space:nowrap;
+                            margin:0;
+                            padding:6px 10px;
+                        "
+                    >
+                        <i class="fa fa-user-plus"></i>
+                        Assign
+                    </button>
 
-        {{-- HIDDEN CHILD IDS --}}
-        <div class="requisition-child-inputs"></div>
+                    <div
+                        class="requisition-selected-children requisition-input"
+                        title="General"
+                        style="
+                            flex:1 1 auto;
+                            width:auto;
+                            min-width:0;
+                            overflow:hidden;
+                            text-overflow:ellipsis;
+                            white-space:nowrap;
+                            cursor:default;
+                        "
+                    >
+                        <span class="requisition-no-child-label">
+                            General
+                        </span>
+                    </div>
 
-    </div>
-</td>
+                    <div class="requisition-child-inputs"></div>
+
+                </div>
+
+            </td>
 
             {{-- NOTES --}}
             <td>
@@ -592,7 +510,6 @@
                 >
 
             </td>
-
 
             {{-- REMOVE --}}
             <td class="text-center">
@@ -610,8 +527,6 @@
         </tr>
 
     </template>
-
-
     {{-- ============================================================
          ITEM SELECTION MODAL
     ============================================================ --}}
@@ -759,138 +674,165 @@
                         </span>
                     </div>
 
-                    @forelse($items as $item)
+@forelse($items as $item)
 
-                        @php
-                            $currentBalance = (float) (
-                                $item->current_balance ?? 0
-                            );
-                        @endphp
+    @php
+        $hasVariants = $item->variants->isNotEmpty();
+        $itemBalances = $item->store_balances ?? [];
+        $initialBalance = (float) ($itemBalances[old('source_store_id')] ?? 0);
+    @endphp
 
-                        <label
-                            class="store-item-option"
-                            data-item-name="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . ($item->unit?->name ?? '')) }}"
-                            style="
-                                display:flex;
-                                align-items:center;
-                                gap:10px;
-                                width:100%;
-                                min-width:0;
-                                box-sizing:border-box;
-                                padding:9px 12px;
-                                margin:0;
-                                border-bottom:1px solid #eeeeee;
-                                cursor:pointer;
-                                overflow:hidden;
-                            "
+    <div
+        class="store-item-option"
+        data-item-option
+        data-item-id="{{ $item->id }}"
+        data-item-name="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . ($item->unit?->name ?? '')) }}"
+        data-has-variants="{{ $hasVariants ? '1' : '0' }}"
+        style="border-bottom:1px solid #eeeeee;"
+    >
+
+        <div
+            style="display:flex;align-items:center;gap:10px;padding:9px 12px;"
+        >
+
+            @if($hasVariants)
+
+                <button
+                    type="button"
+                    class="store-item-expand"
+                    aria-expanded="false"
+                    title="Show item variants"
+                    style="flex:0 0 18px;border:0;background:none;padding:0;color:#00096A;"
+                >
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+
+            @else
+
+                <input
+                    type="radio"
+                    name="selected_store_item"
+                    class="store-item-radio"
+                    value="{{ $item->id }}"
+                    data-item-name="{{ $item->name }}"
+                    data-sku="{{ $item->sku ?? '' }}"
+                    data-uom="{{ $item->unit?->name ?? '—' }}"
+                    data-store-balances='@json($itemBalances)'
+                    style="flex:0 0 18px;width:18px;height:18px;margin:0;"
+                >
+
+            @endif
+
+            <span style="flex:1 1 35%;min-width:0;overflow:hidden;">
+                <strong
+                    style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;"
+                    title="{{ $item->name }}"
+                >
+                    {{ $item->name }}
+                </strong>
+
+                @if($hasVariants)
+                    <small style="color:#6c757d;">{{ $item->variants->count() }} variants</small>
+                @endif
+            </span>
+
+            <span
+                style="flex:0 0 18%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6c757d;font-size:12px;"
+            >
+                {{ $item->sku ?: '—' }}
+            </span>
+
+            <span
+                data-item-balance
+                data-store-balances='@json($itemBalances)'
+                style="flex:0 0 20%;text-align:right;font-size:12px;font-weight:700;color:#00096A;"
+            >
+                {{ number_format($initialBalance, 2) }}
+            </span>
+
+            <span
+                style="flex:0 0 15%;color:#6c757d;font-size:12px;text-align:right;"
+            >
+                {{ $item->unit?->name ?? '—' }}
+            </span>
+
+        </div>
+
+        @if($hasVariants)
+
+            <div
+                class="store-item-variants"
+                style="display:none;padding:0 12px 8px 40px;background:#f8f9fc;"
+            >
+
+                @foreach($item->variants as $variant)
+
+                    @php
+                        $variantBalances = $variant->store_balances ?? [];
+                        $variantInitialBalance = (float) ($variantBalances[old('source_store_id')] ?? 0);
+                    @endphp
+
+                    <button
+                        type="button"
+                        class="store-variant-option"
+                        data-item-id="{{ $item->id }}"
+                        data-item-name="{{ $item->name }}"
+                        data-sku="{{ $item->sku ?? '' }}"
+                        data-uom="{{ $item->unit?->name ?? '—' }}"
+                        data-variant-id="{{ $variant->id }}"
+                        data-variant-name="{{ $variant->name }}"
+                        data-variant-code="{{ $variant->code ?? '' }}"
+                        data-store-balances='@json($variantBalances)'
+                        style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-bottom:1px solid #e5e7eb;background:transparent;text-align:left;cursor:pointer;"
+                    >
+
+                        <i class="fa fa-level-up-alt" style="color:#9ca3af;transform:rotate(90deg);"></i>
+
+                        <span style="flex:1;min-width:0;">
+                            <strong style="display:block;font-size:12px;">
+                                {{ $variant->name }}
+                            </strong>
+
+                            @if($variant->code)
+                                <small style="color:#6c757d;">
+                                    {{ $variant->code }}
+                                </small>
+                            @endif
+                        </span>
+
+                        <span
+                            data-variant-balance
+                            data-store-balances='@json($variantBalances)'
+                            style="font-size:12px;font-weight:700;color:{{ $variantInitialBalance > 0 ? '#00096A' : '#dc3545' }};"
                         >
+                            {{ number_format($variantInitialBalance, 2) }}
+                        </span>
 
-                            {{-- SELECTION --}}
-                            <input
-                                type="radio"
-                                name="selected_store_item"
-                                class="store-item-radio"
-                                value="{{ $item->id }}"
-                                data-item-name="{{ $item->name }}"
-                                data-sku="{{ $item->sku ?? '' }}"
-                                data-uom="{{ $item->unit?->name ?? '—' }}"
-                                data-current-balance="{{ $currentBalance }}"
-                                style="
-                                    flex:0 0 18px;
-                                    width:18px;
-                                    height:18px;
-                                    margin:0;
-                                "
-                            >
+                        <span style="font-size:11px;color:#00096A;">
+                            Select
+                        </span>
 
-                            {{-- ITEM NAME --}}
-                            <span
-                                style="
-                                    flex:1 1 35%;
-                                    min-width:0;
-                                    overflow:hidden;
-                                "
-                            >
-                                <strong
-                                    style="
-                                        display:block;
-                                        overflow:hidden;
-                                        text-overflow:ellipsis;
-                                        white-space:nowrap;
-                                        font-size:13px;
-                                    "
-                                    title="{{ $item->name }}"
-                                >
-                                    {{ $item->name }}
-                                </strong>
-                            </span>
+                    </button>
 
-                            {{-- SKU --}}
-                            <span
-                                style="
-                                    flex:0 0 18%;
-                                    min-width:0;
-                                    overflow:hidden;
-                                    text-overflow:ellipsis;
-                                    white-space:nowrap;
-                                    color:#6c757d;
-                                    font-size:12px;
-                                "
-                                title="{{ $item->sku ?: '—' }}"
-                            >
-                                {{ $item->sku ?: '—' }}
-                            </span>
+                @endforeach
 
-                            {{-- CURRENT BALANCE --}}
-                            <span
-                                style="
-                                    flex:0 0 20%;
-                                    min-width:0;
-                                    overflow:hidden;
-                                    text-overflow:ellipsis;
-                                    white-space:nowrap;
-                                    text-align:right;
-                                    font-size:12px;
-                                    font-weight:700;
-                                    color:{{ $currentBalance > 0 ? '#00096A' : '#dc3545' }};
-                                "
-                                title="Current stock balance"
-                            >
-                                {{ number_format($currentBalance, 2) }}
-                            </span>
+            </div>
 
-                            {{-- UNIT --}}
-                            <span
-                                style="
-                                    flex:0 0 15%;
-                                    min-width:0;
-                                    overflow:hidden;
-                                    text-overflow:ellipsis;
-                                    white-space:nowrap;
-                                    color:#6c757d;
-                                    font-size:12px;
-                                    text-align:right;
-                                "
-                                title="{{ $item->unit?->name ?? '—' }}"
-                            >
-                                {{ $item->unit?->name ?? '—' }}
-                            </span>
+        @endif
 
-                        </label>
+    </div>
 
-                    @empty
+@empty
 
-                        <div class="requisition-table-empty">
-                            <div class="requisition-empty-icon">
-                                <i class="fa fa-cube"></i>
-                            </div>
+    <div class="requisition-table-empty">
+        <div class="requisition-empty-icon">
+            <i class="fa fa-cube"></i>
+        </div>
 
-                            <p>
-                                No store items found.
-                            </p>
-                        </div>
+        <p>No store items found.</p>
+    </div>
 
-                    @endforelse
+@endforelse
 
                 </div>
 
@@ -1498,8 +1440,7 @@
                             <option value="">
                                 Select destination store
                             </option>
-
-                            @foreach($stores as $store)
+                                                        @foreach($stores as $store)
 
                                 <option value="{{ $store->id }}">
                                     {{ $store->name }}
@@ -1741,6 +1682,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
+    updateStoreItemBalances();
+
 
     setupDestinationStore.addEventListener(
         'change',
@@ -1839,6 +1782,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'source_store_id'
                 ).value = setupSourceStore.value;
 
+                updateStoreItemBalances();
 
                 document.getElementById(
                     'destination_store_id'
@@ -1947,8 +1891,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const number =
                     row.querySelector('.item-number');
-
-                if (number) {
+                                    if (number) {
 
                     number.textContent =
                         index + 1;
@@ -2015,6 +1958,98 @@ document.addEventListener('DOMContentLoaded', function () {
             'storeItemSearch'
         );
 
+        /* ============================================================
+   STORE-SPECIFIC ITEM AND VARIANT BALANCES
+============================================================ */
+
+function getSelectedSourceStoreId() {
+    return (
+        document.getElementById('source_store_id').value ||
+        document.getElementById('setup_source_store_id').value ||
+        ''
+    ).toString();
+}
+
+
+function readStoreBalances(element) {
+    try {
+        return JSON.parse(
+            element.dataset.storeBalances || '{}'
+        );
+    } catch (error) {
+        return {};
+    }
+}
+
+
+function updateStoreItemBalances() {
+    const storeId = getSelectedSourceStoreId();
+
+    document
+        .querySelectorAll('[data-item-balance], [data-variant-balance]')
+        .forEach(function (element) {
+            const balances = readStoreBalances(element);
+            const balance = Number(balances[storeId] || 0);
+
+            element.textContent = balance.toLocaleString(
+                undefined,
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+            element.style.color =
+                balance > 0 ? '#00096A' : '#dc3545';
+        });
+}
+
+
+/* ============================================================
+   EXPAND AND COLLAPSE VARIANT LISTS
+============================================================ */
+
+document.addEventListener('click', function (event) {
+    const button = event.target.closest('.store-item-expand');
+
+    if (!button) {
+        return;
+    }
+
+    const itemOption = button.closest('[data-item-option]');
+
+    if (!itemOption) {
+        return;
+    }
+
+    const variants = itemOption.querySelector(
+        '.store-item-variants'
+    );
+
+    if (!variants) {
+        return;
+    }
+
+    const isExpanded =
+        button.getAttribute('aria-expanded') === 'true';
+
+    variants.style.display =
+        isExpanded ? 'none' : 'block';
+
+    button.setAttribute(
+        'aria-expanded',
+        isExpanded ? 'false' : 'true'
+    );
+
+    const icon = button.querySelector('i');
+
+    if (icon) {
+        icon.className = isExpanded
+            ? 'fa fa-chevron-right'
+            : 'fa fa-chevron-down';
+    }
+});
+
 
     itemsBody.addEventListener(
         'click',
@@ -2073,6 +2108,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 });
 
+                updateStoreItemBalances();
+
+document
+    .querySelectorAll('[data-item-option]')
+    .forEach(function (option) {
+        option.style.display = 'block';
+    });
+
 
             itemSelectionModal.show();
 
@@ -2084,196 +2127,297 @@ document.addEventListener('DOMContentLoaded', function () {
        ITEM SEARCH
     ============================================================ */
 
-    storeItemSearch.addEventListener(
-        'input',
-        function () {
+storeItemSearch.addEventListener('input', function () {
+    const search = this.value.trim().toLowerCase();
 
-            const search =
-                this.value
-                    .trim()
-                    .toLowerCase();
+    document
+        .querySelectorAll('[data-item-option]')
+        .forEach(function (option) {
+            const itemName =
+                option.dataset.itemName || '';
 
+            const variantNames = Array.from(
+                option.querySelectorAll('.store-variant-option')
+            ).map(function (variant) {
+                return (
+                    (variant.dataset.variantName || '') +
+                    ' ' +
+                    (variant.dataset.variantCode || '')
+                ).toLowerCase();
+            });
 
-            document
-                .querySelectorAll(
-                    '.store-item-option'
-                )
-                .forEach(function (option) {
+            const itemMatches =
+                itemName.includes(search);
 
-                    const name =
-                        option.dataset.itemName || '';
-
-
-                    option.style.display =
-                        name.includes(search)
-                            ? 'flex'
-                            : 'none';
-
+            const variantMatches =
+                variantNames.some(function (name) {
+                    return name.includes(search);
                 });
 
-        }
-    );
+            option.style.display =
+                itemMatches || variantMatches
+                    ? 'block'
+                    : 'none';
+
+            // When searching for a variant, expand its parent.
+            if (
+                !itemMatches &&
+                variantMatches
+            ) {
+                const variants = option.querySelector(
+                    '.store-item-variants'
+                );
+
+                const expandButton = option.querySelector(
+                    '.store-item-expand'
+                );
+
+                if (variants && expandButton) {
+                    variants.style.display = 'block';
+
+                    expandButton.setAttribute(
+                        'aria-expanded',
+                        'true'
+                    );
+
+                    const icon = expandButton.querySelector('i');
+
+                    if (icon) {
+                        icon.className =
+                            'fa fa-chevron-down';
+                    }
+                }
+            }
+        });
+});
 
 
     /* ============================================================
        ITEM SELECTED
     ============================================================ */
 
-document.addEventListener(
-    'change',
-    function (event) {
+    document.addEventListener(
+        'change',
+        function (event) {
 
-        if (
-            !event.target.classList.contains(
-                'store-item-radio'
-            )
-        ) {
-            return;
-        }
-
-
-        if (!activeItemRow) {
-            return;
-        }
+            if (
+                !event.target.classList.contains(
+                    'store-item-radio'
+                )
+            ) {
+                return;
+            }
 
 
-        const radio =
-            event.target;
+            if (!activeItemRow) {
+                return;
+            }
 
 
-        const itemId =
-            radio.value;
+            const radio =
+                event.target;
 
 
-        const itemName =
-            radio.dataset.itemName || '';
+            const itemId =
+                radio.value;
 
 
-        const sku =
-            radio.dataset.sku || '';
+            const itemName =
+                radio.dataset.itemName || '';
 
 
-        const uom =
-            radio.dataset.uom || '—';
+            const sku =
+                radio.dataset.sku || '';
 
 
-        const hiddenInput =
-            activeItemRow.querySelector(
-                '.requisition-item-id'
-            );
+            const uom =
+                radio.dataset.uom || '—';
 
 
-        const itemLabel =
-            activeItemRow.querySelector(
-                '.requisition-item-label'
-            );
+            const hiddenInput =
+                activeItemRow.querySelector(
+                    '.requisition-item-id'
+                );
 
 
-        const uomElement =
-            activeItemRow.querySelector(
-                '.requisition-uom'
-            );
+            const itemLabel =
+                activeItemRow.querySelector(
+                    '.requisition-item-label'
+                );
 
 
-        const variantSelect =
-            activeItemRow.querySelector(
-                '.requisition-variant-select'
-            );
+            const uomElement =
+                activeItemRow.querySelector(
+                    '.requisition-uom'
+                );
 
 
-        /* ====================================================
-           SAVE SELECTED ITEM
-        ==================================================== */
-
-        hiddenInput.value =
-            itemId;
+            const variantSelect =
+                activeItemRow.querySelector(
+                    '.requisition-variant-select'
+                );
 
 
-        itemLabel.textContent =
-            sku
-                ? itemName + ' (' + sku + ')'
-                : itemName;
+            /* ====================================================
+               SAVE SELECTED ITEM
+            ==================================================== */
+
+            hiddenInput.value =
+                itemId;
 
 
-        itemLabel.title =
-            sku
-                ? itemName + ' (' + sku + ')'
-                : itemName;
+            itemLabel.textContent =
+                sku
+                    ? itemName + ' (' + sku + ')'
+                    : itemName;
 
 
-        uomElement.textContent =
-            uom;
+            itemLabel.title =
+                sku
+                    ? itemName + ' (' + sku + ')'
+                    : itemName;
 
 
-        /* ====================================================
-           LOAD VARIANTS
-        ==================================================== */
-
-        variantSelect.innerHTML =
-            '<option value="">No variant</option>';
+            uomElement.textContent =
+                uom;
 
 
-        variantSelect.disabled =
-            true;
+            /* ====================================================
+               LOAD VARIANTS
+            ==================================================== */
 
 
-        if (
-            Array.isArray(
-                variantData[itemId]
-            ) &&
-            variantData[itemId].length
-        ) {
+variantSelect.innerHTML =
+    '<option value="">No variant</option>';
 
-            variantData[itemId]
-                .forEach(function (variant) {
+variantSelect.disabled = true;
+variantSelect.required = false;
+variantSelect.setCustomValidity('');
 
-                    const option =
-                        document.createElement(
-                            'option'
-                        );
+if (
+    Array.isArray(variantData[itemId]) &&
+    variantData[itemId].length
+) {
+    variantSelect.innerHTML =
+        '<option value="">Select variant</option>';
+
+    variantData[itemId].forEach(function (variant) {
+        const option = document.createElement('option');
+
+        option.value = String(variant.id);
+
+        option.textContent = variant.code
+            ? variant.name + ' (' + variant.code + ')'
+            : variant.name;
+
+        variantSelect.appendChild(option);
+    });
+
+    variantSelect.disabled = false;
+    variantSelect.required = true;
+}
+
+            /* ====================================================
+               CLOSE ITEM SELECTION MODAL
+            ==================================================== */
+
+            itemSelectionModal.hide();
 
 
-                    option.value =
-                        variant.id;
-
-
-                    option.textContent =
-                        variant.code
-                            ? variant.name +
-                              ' (' +
-                              variant.code +
-                              ')'
-                            : variant.name;
-
-
-                    variantSelect.appendChild(
-                        option
-                    );
-
-                });
-
-
-            variantSelect.disabled =
-                false;
+            /*
+             * Make sure Bootstrap has time to complete
+             * the modal closing animation.
+             */
+            activeItemRow = null;
 
         }
+    );
 
+    /* ============================================================
+   VARIANT SELECTED — FILL ITEM AND VARIANT AUTOMATICALLY
+============================================================ */
 
-        /* ====================================================
-           CLOSE ITEM SELECTION MODAL
-        ==================================================== */
+document.addEventListener('click', function (event) {
+    const button = event.target.closest(
+        '.store-variant-option'
+    );
 
-        itemSelectionModal.hide();
-
-
-        /*
-         * Make sure Bootstrap has time to complete
-         * the modal closing animation.
-         */
-        activeItemRow = null;
-
+    if (!button) {
+        return;
     }
-);
+
+    if (!activeItemRow) {
+        return;
+    }
+
+    const itemId = button.dataset.itemId;
+    const itemName = button.dataset.itemName || '';
+    const sku = button.dataset.sku || '';
+    const uom = button.dataset.uom || '—';
+    const variantId = button.dataset.variantId;
+    const variantName = button.dataset.variantName || '';
+    const variantCode = button.dataset.variantCode || '';
+
+    const itemIdInput = activeItemRow.querySelector(
+        '.requisition-item-id'
+    );
+
+    const itemLabel = activeItemRow.querySelector(
+        '.requisition-item-label'
+    );
+
+    const uomElement = activeItemRow.querySelector(
+        '.requisition-uom'
+    );
+
+    const variantSelect = activeItemRow.querySelector(
+        '.requisition-variant-select'
+    );
+
+    // Fill the item field.
+    itemIdInput.value = itemId;
+
+    itemLabel.textContent = sku
+        ? itemName + ' (' + sku + ')'
+        : itemName;
+
+    itemLabel.title = itemLabel.textContent;
+
+    uomElement.textContent = uom;
+
+    // Fill the variant dropdown with this item's variants.
+    variantSelect.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select variant';
+
+    variantSelect.appendChild(placeholder);
+
+    (variantData[itemId] || []).forEach(function (variant) {
+        const option = document.createElement('option');
+
+        option.value = String(variant.id);
+
+        option.textContent = variant.code
+            ? variant.name + ' (' + variant.code + ')'
+            : variant.name;
+
+        variantSelect.appendChild(option);
+    });
+
+    // Automatically select the clicked variant.
+    variantSelect.disabled = false;
+    variantSelect.required = true;
+    variantSelect.value = String(variantId);
+    variantSelect.setCustomValidity('');
+
+    // Close the picker after both fields have been populated.
+    itemSelectionModal.hide();
+
+    activeItemRow = null;
+});
+
 
     /* ============================================================
        REMOVE ITEM
@@ -2428,7 +2572,6 @@ document.addEventListener(
     /* ============================================================
        CHILD SEARCH
     ============================================================ */
-
     childSearchInput.addEventListener(
         'input',
         function () {
@@ -2437,7 +2580,6 @@ document.addEventListener(
                 this.value
                     .trim()
                     .toLowerCase();
-
 
             document
                 .querySelectorAll(
@@ -2448,9 +2590,8 @@ document.addEventListener(
                     const name =
                         option.dataset.childName || '';
 
-
                     option.style.display =
-                        name.includes(search)
+                        name.toLowerCase().includes(search)
                             ? 'flex'
                             : 'none';
 
@@ -2662,6 +2803,11 @@ document.addEventListener(
                     this;
 
 
+                    if (!requisitionForm.checkValidity()) {
+    requisitionForm.reportValidity();
+    return;
+}
+
                 button.disabled =
                     true;
 
@@ -2782,4 +2928,3 @@ document.addEventListener(
 </script>
 
 @endsection
-
