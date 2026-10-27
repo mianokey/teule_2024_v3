@@ -3545,3 +3545,91 @@
         justify-content: center;
     }
 }
+
+
+/* ============================================================
+   DONATION RECEIPT DOWNLOAD TOAST
+   ============================================================ */
+
+.receipt-download-toast {
+    position: fixed;
+    top: 22px;
+    right: 22px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(370px, calc(100vw - 32px));
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #e5eaf1;
+    border-left: 4px solid #00096A;
+    border-radius: 10px;
+    box-shadow: 0 10px 35px rgba(0, 9, 106, 0.16);
+    color: #304967;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition:
+        opacity .22s ease,
+        transform .22s ease,
+        visibility .22s ease;
+}
+
+.receipt-download-toast.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.receipt-download-toast.is-error {
+    border-left-color: #dc3545;
+}
+
+.receipt-download-toast .receipt-toast-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #eef4ff;
+    color: #00096A;
+    font-size: 16px;
+}
+
+.receipt-download-toast.is-error .receipt-toast-icon {
+    background: #fff0f0;
+    color: #dc3545;
+}
+
+.receipt-download-toast .receipt-toast-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.receipt-download-toast .receipt-toast-message {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #687b95;
+}
+
+.js-receipt-download.is-downloading {
+    pointer-events: none;
+    opacity: .7;
+}
+
+.js-receipt-download .receipt-download-icon {
+    flex-shrink: 0;
+}
+
+@media (max-width: 575px) {
+    .receipt-download-toast {
+        top: 12px;
+        right: 12px;
+        width: calc(100vw - 24px);
+    }
+}
+

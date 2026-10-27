@@ -1,44 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
 
     <title>
-        Donation Receipt - {{ $donation->donation_number }}
+        Donation Receipt - {{ $donation->donation_number ?? 'DON-' . $donation->id }}
     </title>
 
     <style>
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAGE
-        |--------------------------------------------------------------------------
-        */
-
         @page {
-            margin: 20px;
+            size: A4 portrait;
+            margin: 8mm 11mm 8mm 11mm;
         }
 
         * {
             box-sizing: border-box;
         }
 
-        html,
         body {
             margin: 0;
             padding: 0;
+            background: #ffffff;
+            color: #222222;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+            line-height: 1.25;
         }
 
-        body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
-            color: #252525;
-            line-height: 1.3;
+        .receipt {
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
         }
 
-        table {
+        /* Security watermark */
+        .security-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.035;
+            overflow: hidden;
+        }
+
+        .security-pattern span {
+            position: absolute;
+            font-size: 40px;
+            font-weight: 700;
+            color: #00096A;
+            transform: rotate(-28deg);
+            white-space: nowrap;
+        }
+
+        .security-pattern span:nth-child(1) {
+            top: 12%;
+            left: 5%;
+        }
+
+        .security-pattern span:nth-child(2) {
+            top: 38%;
+            left: 35%;
+        }
+
+        .security-pattern span:nth-child(3) {
+            top: 65%;
+            left: 5%;
+        }
+
+        .security-pattern span:nth-child(4) {
+            top: 82%;
+            left: 40%;
+        }
+
+        /* Header */
+        .header {
+            display: table;
+            width: 100%;
+            border-bottom: 2px solid #00096A;
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+        }
+
+        .header-left,
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .header-left {
+            width: 60%;
+        }
+
+        .header-right {
+            width: 40%;
+            text-align: right;
+        }
+
+        .logo {
+            max-height: 48px;
+            max-width: 155px;
+        }
+
+        .organisation-name {
+            color: #00096A;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+
+        .organisation-subtitle {
+            color: #555555;
+            font-size: 8px;
+        }
+
+        .document-title {
+            color: #00096A;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .document-number {
+            font-size: 9px;
+            color: #555555;
+            margin-top: 2px;
+        }
+
+        /* Original four-column summary */
+        .summary {
+            display: table;
+            width: 100%;
+            margin-bottom: 6px;
+            border: 1px solid #d8dce5;
+            border-radius: 3px;
+            page-break-inside: avoid;
+        }
+
+        .summary-item {
+            display: table-cell;
+            width: 25%;
+            padding: 5px 7px;
+            border-right: 1px solid #d8dce5;
+            vertical-align: top;
+        }
+
+        .summary-item:last-child {
+            border-right: none;
+        }
+
+        .summary-label {
+            font-size: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #666666;
+            margin-bottom: 2px;
+        }
+
+        .summary-value {
+            font-size: 9px;
+            font-weight: 700;
+            color: #00096A;
+            overflow-wrap: anywhere;
+        }
+
+        /* Sections */
+        .section {
+            margin-top: 6px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            color: #00096A;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid #d8dce5;
+            padding-bottom: 3px;
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+
+        /* Details */
+        .details {
+            width: 100%;
             border-collapse: collapse;
+            margin-bottom: 3px;
+        }
+
+        .details td {
+            padding: 2px 4px;
+            vertical-align: top;
+        }
+
+        .details .label {
+            width: 17%;
+            color: #666666;
+            font-size: 7.5px;
+            text-transform: uppercase;
+        }
+
+        .details .value {
+            width: 33%;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        /* Amount */
+        .amount-panel {
+            margin-top: 5px;
+            padding: 6px 8px;
+            border-left: 3px solid #00096A;
+            background: #f2f4fa;
+            page-break-inside: avoid;
+        }
+
+        .amount-label {
+            color: #00096A;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .amount-value {
+            color: #00096A;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .amount-note {
+            color: #666666;
+            font-size: 7px;
+            margin-top: 2px;
+        }
+
+        /* In-kind items */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3px;
+        }
+
+        .items-table th {
+            background: #00096A;
+            color: #ffffff;
+            font-size: 7.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            padding: 4px 4px;
+            border: 1px solid #00096A;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 3px 4px;
+            border: 1px solid #d8dce5;
+            vertical-align: top;
+            font-size: 8px;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background: #fafbfc;
         }
 
         .text-right {
@@ -50,1042 +275,766 @@
         }
 
         .muted {
-            color: #777;
+            color: #777777;
+            font-weight: 400;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | RECEIPT INNER PAGE MARGINS
-        |--------------------------------------------------------------------------
-        | This is the actual left/right breathing room for the receipt.
-        | Do NOT use width: 100% here.
-        |--------------------------------------------------------------------------
-        */
-
-        .receipt-container {
-            margin-left: 35px;
-            margin-right: 35px;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECURITY BACKGROUND
-        |--------------------------------------------------------------------------
-        */
-
-        .security-background {
-            position: fixed;
-            top: 170px;
-            left: -35px;
-            width: 850px;
-            height: 500px;
-            z-index: -10;
-            opacity: 0.045;
-            color: #00096A;
-            font-size: 18px;
-            font-weight: bold;
-            line-height: 75px;
-            transform: rotate(-28deg);
-            white-space: nowrap;
-        }
-
-        .security-background div {
-            word-spacing: 18px;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | HEADER
-        |--------------------------------------------------------------------------
-        */
-
-        .header {
-            width: 100%;
-            border-bottom: 3px solid #00096A;
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-        }
-
-        .header-table {
-            width: 100%;
-        }
-
-        .header-left {
-            width: 62%;
-            vertical-align: middle;
-        }
-
-        .header-right {
-            width: 38%;
-            vertical-align: middle;
-            text-align: right;
-        }
-
-        .organization-name {
-            font-size: 22px;
-            font-weight: bold;
-            color: #00096A;
-            letter-spacing: 0.4px;
-        }
-
-        .organization-subtitle {
-            font-size: 9px;
-            color: #666;
-            margin-top: 1px;
-        }
-
-        .receipt-title {
-            font-size: 17px;
-            font-weight: bold;
-            color: #00096A;
-            letter-spacing: 0.5px;
-        }
-
-        .receipt-number {
-            font-size: 9px;
-            color: #555;
+        /* Notes */
+        .notes {
+            border: 1px solid #d8dce5;
+            padding: 5px 7px;
             margin-top: 3px;
-        }
-
-        .receipt-number strong {
-            color: #00096A;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | QUICK SUMMARY STRIP
-        |--------------------------------------------------------------------------
-        */
-
-        .summary-strip {
-            width: 100%;
-            margin-bottom: 10px;
-            border: 1px solid #d7d9e3;
-            background: #f7f8fb;
-        }
-
-        .summary-strip td {
-            padding: 7px 9px;
-            vertical-align: middle;
-            border-right: 1px solid #d7d9e3;
-        }
-
-        .summary-strip td:last-child {
-            border-right: none;
-        }
-
-        .summary-label {
-            display: block;
-            color: #777;
-            font-size: 7.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 2px;
-        }
-
-        .summary-value {
-            display: block;
-            color: #222;
-            font-size: 9.5px;
-            font-weight: bold;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SECTIONS
-        |--------------------------------------------------------------------------
-        */
-
-        .section {
-            margin-bottom: 8px;
-            page-break-inside: avoid;
-        }
-
-        .section-title {
-            background: #00096A;
-            color: #fff;
-            padding: 5px 8px;
-            font-size: 8.5px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .section-body {
-            border: 1px solid #d9dce5;
-            border-top: none;
-            padding: 7px 8px;
             background: #ffffff;
+            min-height: 18px;
+            overflow-wrap: anywhere;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | DONOR
-        |--------------------------------------------------------------------------
-        */
-
-        .donor-compact {
-            width: 100%;
-        }
-
-        .donor-name {
-            width: 45%;
-            font-size: 12px;
-            font-weight: bold;
-            color: #00096A;
-        }
-
-        .donor-contact {
-            width: 55%;
-            text-align: right;
-            font-size: 9px;
-            color: #555;
-        }
-
-        .contact-divider {
-            color: #bbb;
-            padding: 0 5px;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DETAILS
-        |--------------------------------------------------------------------------
-        */
-
-        .details-table {
-            width: 100%;
-        }
-
-        .details-table td {
-            padding: 4px 6px;
-            border-bottom: 1px solid #eeeeee;
-            vertical-align: top;
-        }
-
-        .details-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .label {
-            width: 25%;
-            color: #777;
-            font-size: 8.5px;
-            font-weight: bold;
-        }
-
-        .value {
-            width: 25%;
-            font-size: 9px;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CASH AMOUNT
-        |--------------------------------------------------------------------------
-        */
-
-        .amount-box {
-            width: 100%;
-            border: 2px solid #00096A;
-            background: #fafbff;
-            padding: 9px 12px;
-            text-align: center;
-        }
-
-        .amount-label {
-            font-size: 7.5px;
-            text-transform: uppercase;
-            color: #777;
-            letter-spacing: 0.5px;
-        }
-
-        .amount-value {
-            font-size: 22px;
-            font-weight: bold;
-            color: #00096A;
-            margin-top: 2px;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | IN-KIND ITEMS
-        |--------------------------------------------------------------------------
-        */
-
-        .items-table {
-            width: 100%;
-        }
-
-        .items-table thead {
-            display: table-header-group;
-        }
-
-        .items-table th {
-            background: #f0f2f7;
-            color: #333;
-            border: 1px solid #d4d7df;
-            padding: 5px 6px;
-            font-size: 8px;
-            font-weight: bold;
-            text-align: left;
-        }
-
-        .items-table td {
-            border: 1px solid #e0e2e7;
-            padding: 4px 6px;
-            font-size: 8.5px;
-            vertical-align: middle;
-        }
-
-        .items-table .amount {
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .items-table tbody tr {
-            page-break-inside: avoid;
-        }
-
-        .total-row td {
-            background: #f7f8fb;
-            font-weight: bold;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DESCRIPTION / NOTES
-        |--------------------------------------------------------------------------
-        */
-
-        .note {
-            background: #fafafa;
-            border-left: 3px solid #EF4700;
-            padding: 6px 8px;
-            font-size: 8.5px;
-            page-break-inside: avoid;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ACKNOWLEDGEMENT
-        |--------------------------------------------------------------------------
-        */
-
+        /* Acknowledgement */
         .acknowledgement {
-            margin-top: 9px;
-            padding: 8px 10px;
-            border: 1px solid #d7d9e3;
-            background: #f8f9fc;
-            text-align: center;
-            color: #555;
-            font-size: 8.5px;
+            margin-top: 6px;
+            padding: 5px 7px;
+            border: 1px solid #d8dce5;
+            font-size: 8px;
+            color: #555555;
+            line-height: 1.3;
+            page-break-inside: avoid;
         }
 
         .acknowledgement strong {
             color: #00096A;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SIGNATURE
-        |--------------------------------------------------------------------------
-        */
-
-        .signature-table {
+        /* Signatures */
+        .signature-area {
             width: 100%;
-            margin-top: 12px;
+            display: table;
+            margin-top: 9px;
+            page-break-inside: avoid;
         }
 
-        .signature-table td {
+        .signature-column {
+            display: table-cell;
             width: 50%;
-            padding-right: 25px;
+            padding-right: 15px;
             vertical-align: bottom;
         }
 
+        .signature-column:last-child {
+            padding-right: 0;
+            padding-left: 15px;
+        }
+
         .signature-line {
-            border-top: 1px solid #777;
-            padding-top: 3px;
-            font-size: 7.5px;
-            color: #777;
+            border-bottom: 1px solid #555555;
+            height: 17px;
+            margin-bottom: 3px;
         }
 
+        .signature-label {
+            font-size: 7px;
+            color: #666666;
+            text-transform: uppercase;
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FOOTER
-        |--------------------------------------------------------------------------
-        */
+        /* QR code */
+        .qr-area {
+            text-align: center;
+            margin-top: 4px;
+        }
 
+        .qr-code {
+            width: 48px;
+            height: 48px;
+        }
+
+        .qr-caption {
+            font-size: 7px;
+            color: #666666;
+            margin-top: 1px;
+        }
+
+        /* Footer */
         .footer {
-            margin-top: 10px;
-            padding-top: 7px;
-            border-top: 1px solid #d8d8d8;
-            font-size: 7.5px;
-            color: #777;
-        }
-
-        .footer-table {
+            margin-top: 7px;
+            padding-top: 4px;
+            border-top: 1px solid #d8dce5;
+            display: table;
             width: 100%;
+            font-size: 7px;
+            color: #777777;
+            page-break-inside: avoid;
         }
 
-        .footer-left {
-            width: 55%;
+        .footer-left,
+        .footer-right {
+            display: table-cell;
+            vertical-align: top;
+            width: 50%;
         }
 
         .footer-right {
-            width: 45%;
             text-align: right;
         }
 
-        .footer-accent {
+        .navy {
             color: #00096A;
-            font-weight: bold;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRINT / PDF CONTROL
-        |--------------------------------------------------------------------------
-        */
-
-        .avoid-break {
-            page-break-inside: avoid;
+        .orange {
+            color: #EF4700;
         }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .receipt {
+                width: 100%;
+            }
+        }
+
+        .details {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 4px 0 6px;
+    border: 1px solid #00096A;
+}
+
+.details td {
+    box-sizing: border-box;
+    padding: 5px 6px;
+    vertical-align: middle;
+    border: 1px solid #DCE1EE;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
+.details .label {
+    width: 18%;
+    background-color: #E9ECF7;
+    color: #00096A;
+    font-weight: bold;
+    font-size: 7.5px;
+    border-left: 2px solid #00096A;
+}
+
+.details .value {
+    width: 32%;
+    background-color: #FFFFFF;
+    color: #252A35;
+    font-size: 8.5px;
+}
+
+/* Subtle navy accent on alternate rows */
+.details tr:nth-child(even) .label {
+    background-color: #DDE3F3;
+}
+
+/* Payment reference row */
+.details td[colspan="3"] {
+    background-color: #F8F9FC;
+}
 
     </style>
 </head>
 
-
 <body>
 
+@php
+    /*
+    |--------------------------------------------------------------------------
+    | Receipt values
+    |--------------------------------------------------------------------------
+    */
 
-    {{-- ============================================================
-         SECURITY BACKGROUND
-         ============================================================ --}}
+    $receiptNumber = $donation->donation_number
+        ?? ('DON-' . $donation->id);
 
-    <div class="security-background">
+    $donationDate = $donation->donation_date
+        ? \Carbon\Carbon::parse($donation->donation_date)->format('d M Y')
+        : '—';
 
-        <div>
-            TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT
+    $recordedDate = $donation->created_at
+        ? $donation->created_at->format('d M Y, H:i')
+        : '—';
+
+    $donationType = ucfirst(
+        str_replace('_', ' ', $donation->type ?? '—')
+    );
+
+    $donor = $donation->donor ?? null;
+
+    $isInKind = strtolower(
+        str_replace(['-', ' '], '_', $donation->type ?? '')
+    ) === 'in_kind';
+
+    $isInternalReceipt = strtolower(
+        (string) ($receiptType ?? 'donor')
+    ) === 'internal';
+
+    $items = $donation->items ?? collect();
+
+    $donationAmount = (float) ($donation->amount ?? 0);
+
+    $currency = $donation->currency ?? 'KES';
+
+    $estimatedTotal = 0;
+
+    foreach ($items as $item) {
+        $quantity = (float) ($item->quantity ?? 0);
+
+        $unitValue = (float) (
+            $item->estimated_value
+            ?? $item->unit_value
+            ?? 0
+        );
+
+        $lineValue = (float) (
+            $item->total_value
+            ?? ($quantity * $unitValue)
+        );
+
+        $estimatedTotal += $lineValue;
+    }
+
+    if ($estimatedTotal <= 0) {
+        $estimatedTotal = (float) (
+            $donation->estimated_value ?? 0
+        );
+    }
+
+    $logoPath = public_path('assets/img/logo.png');
+@endphp
+
+<div class="security-pattern">
+    <span>TEULE KENYA</span>
+    <span>TEULE KENYA</span>
+    <span>TEULE KENYA</span>
+    <span>TEULE KENYA</span>
+</div>
+
+<div class="receipt">
+
+    {{-- =========================================================
+         HEADER
+         ========================================================= --}}
+
+    <div class="header">
+
+        <div class="header-left">
+
+            
+                <img
+                    src="{{ $logoPath }}"
+                    class="logo"
+                    alt="Teule Kenya"
+                >
+           
+                <div class="organisation-name">
+                    TEULE KENYA
+                </div>
+            
+
+            
+
         </div>
 
-        <div>
-            OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA
-        </div>
+        <div class="header-right">
 
-        <div>
-            TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT
-        </div>
+            <div class="document-title">
+                Donation Receipt
+            </div>
 
-        <div>
-            OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA
-        </div>
+            <div class="document-number">
+                Receipt No:
+                <strong>{{ $receiptNumber }}</strong>
+            </div>
 
-        <div>
-            TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT
-        </div>
-
-        <div>
-            OFFICIAL DONATION RECEIPT • TEULE KENYA • OFFICIAL DONATION RECEIPT • TEULE KENYA
         </div>
 
     </div>
 
 
-    {{-- ============================================================
-         RECEIPT CONTAINER
-         ============================================================ --}}
+    {{-- =========================================================
+         ORIGINAL SUMMARY DETAILS
+         ========================================================= --}}
 
-    <div class="receipt-container">
+    <div class="summary">
 
+        <div class="summary-item">
 
-        {{-- ============================================================
-             HEADER
-             ============================================================ --}}
+            <div class="summary-label">
+                Donation Date
+            </div>
 
-        <div class="header">
-
-            <table class="header-table">
-
-                <tr>
-
-                    <td class="header-left">
-
-                        <div class="organization-name">
-                            TEULE KENYA
-                        </div>
-
-                        <div class="organization-subtitle">
-                            Chombo Cha Upendo — Vessel of Love
-                        </div>
-
-                        <div class="organization-subtitle">
-                            Loitokitok, Kajiado County, Kenya
-                        </div>
-
-                    </td>
-
-
-                    <td class="header-right">
-
-                        <div class="receipt-title">
-                            DONATION RECEIPT
-                        </div>
-
-                        <div class="receipt-number">
-
-                            Receipt No:
-
-                            <strong>
-                                {{ $donation->donation_number }}
-                            </strong>
-
-                        </div>
-
-                    </td>
-
-                </tr>
-
-            </table>
+            <div class="summary-value">
+                {{ $donationDate }}
+            </div>
 
         </div>
 
+        <div class="summary-item">
 
-        {{-- ============================================================
-             SUMMARY
-             ============================================================ --}}
+            <div class="summary-label">
+                Donation Type
+            </div>
 
-        <table class="summary-strip">
+            <div class="summary-value">
+                {{ $donationType }}
+            </div>
 
-            <tr>
+        </div>
 
-                <td style="width: 25%;">
+        <div class="summary-item">
 
-                    <span class="summary-label">
-                        Donation Date
-                    </span>
+            <div class="summary-label">
+                Recorded
+            </div>
 
-                    <span class="summary-value">
-                        {{ optional($donation->donation_date)->format('d M Y') }}
-                    </span>
+            <div class="summary-value">
+                {{ $recordedDate }}
+            </div>
 
-                </td>
+        </div>
 
+        <div class="summary-item">
 
-                <td style="width: 25%;">
+            <div class="summary-label">
+                Reference
+            </div>
 
-                    <span class="summary-label">
-                        Donation Type
-                    </span>
+            <div class="summary-value">
+                {{ $donation->reference ?? $receiptNumber }}
+            </div>
 
-                    <span class="summary-value">
+        </div>
 
-                        @if($donation->type === 'cash')
-
-                            Cash
-
-                        @elseif($donation->type === 'in_kind')
-
-                            In-Kind
-
-                        @else
-
-                            {{ ucfirst(str_replace('_', ' ', $donation->type ?? 'Donation')) }}
-
-                        @endif
-
-                    </span>
-
-                </td>
+    </div>
 
 
-                <td style="width: 25%;">
+    {{-- =========================================================
+         DONOR DETAILS
+         ========================================================= --}}
 
-                    <span class="summary-label">
-                        Recorded
-                    </span>
+    <div class="section">
 
-                    <span class="summary-value">
-                        {{ optional($donation->created_at)->format('d M Y, H:i') }}
-                    </span>
+        <div class="section-title">
+            Donor Details
+        </div>
 
-                </td>
+        <table class="details">
 
+            <tbody>
 
-                <td style="width: 25%;">
+                <tr>
+                    <td class="label">Donor Name</td>
 
-                    <span class="summary-label">
-                        Reference
-                    </span>
+                    <td class="value">
+                        {{ $donor->name ?? 'Anonymous / Not Specified' }}
+                    </td>
 
-                    <span class="summary-value">
-                        {{ $donation->donation_number }}
-                    </span>
+                    <td class="label">Donor Number</td>
 
-                </td>
+                    <td class="value">
+                        {{ $donor->donor_number ?? '—' }}
+                    </td>
+                </tr>
 
-            </tr>
+                <tr>
+                    <td class="label">Phone</td>
+
+                    <td class="value">
+                        {{ $donor->phone ?? $donor->phone_number ?? '—' }}
+                    </td>
+
+                    <td class="label">Email</td>
+
+                    <td class="value">
+                        {{ $donor->email ?? '—' }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="label">Address</td>
+
+                    <td class="value" colspan="3">
+                        {{ $donor->address ?? $donor->postal_address ?? '—' }}
+                    </td>
+                </tr>
+
+            </tbody>
 
         </table>
 
-
-        {{-- ============================================================
-             DONOR
-             ============================================================ --}}
-
-        @if($donation->donor)
-
-            <div class="section">
-
-                <div class="section-title">
-                    Donor
-                </div>
-
-                <div class="section-body">
-
-                    <table class="donor-compact">
-
-                        <tr>
-
-                            <td class="donor-name">
-
-                                {{ $donation->donor->name ?? 'Anonymous Donor' }}
-
-                            </td>
+    </div>
 
 
-                            <td class="donor-contact">
+    {{-- =========================================================
+         DONATION DETAILS
+         ========================================================= --}}
 
-                                @if($donation->donor->phone)
+    <div class="section">
 
-                                    {{ $donation->donor->phone }}
+        <div class="section-title">
+            Donation Details
+        </div>
 
-                                @endif
+<table class="details">
+    <colgroup>
+        <col style="width: 18%;">
+        <col style="width: 32%;">
+        <col style="width: 18%;">
+        <col style="width: 32%;">
+    </colgroup>
+    <tbody>
+        <tr>
+            <td class="label">Purpose</td>
+            <td class="value">{{ $donation->purpose ?? 'General Support' }}</td>
+
+            <td class="label">Classification</td>
+            <td class="value">
+                {{ ucfirst(str_replace('_', ' ', $donation->classification ?? '—')) }}
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">Received By</td>
+            <td class="value">{{ $donation->receivedBy->name ?? '—' }}</td>
+
+            <td class="label">Payment Method</td>
+            <td class="value">
+                {{ ucfirst(str_replace('_', ' ', $donation->payment_method ?? '—')) }}
+            </td>
+        </tr>
+
+        @if(!empty($donation->payment_reference))
+            <tr>
+                <td class="label">Payment Ref.</td>
+                <td class="value" colspan="3">
+                    {{ $donation->payment_reference }}
+                </td>
+            </tr>
+        @endif
+    </tbody>
+</table>
+
+    </div>
 
 
-                                @if($donation->donor->phone && $donation->donor->email)
+    {{-- =========================================================
+         CASH DONATION
+         ========================================================= --}}
 
-                                    <span class="contact-divider">
-                                        |
-                                    </span>
+    @if(!$isInKind)
 
-                                @endif
+        <div class="amount-panel">
 
-
-                                @if($donation->donor->email)
-
-                                    {{ $donation->donor->email }}
-
-                                @endif
-
-                            </td>
-
-                        </tr>
-
-                    </table>
-
-                </div>
-
+            <div class="amount-label">
+                Donation Amount
             </div>
 
-        @endif
+            <div class="amount-value">
+                {{ $currency }}
+                {{ number_format($donationAmount, 2) }}
+            </div>
+
+            @if($isInternalReceipt)
+                <div class="amount-note">
+                    Recorded donation value.
+                </div>
+            @endif
+
+        </div>
+
+    @endif
 
 
-        {{-- ============================================================
-             DONATION DETAILS
-             ============================================================ --}}
+    {{-- =========================================================
+         IN-KIND DONATION ITEMS
+         ========================================================= --}}
+
+    @if($isInKind)
 
         <div class="section">
 
             <div class="section-title">
-                Donation Details
+                Items Donated
             </div>
 
-            <div class="section-body">
+            <table class="items-table">
 
-                <table class="details-table">
-
+                <thead>
                     <tr>
+                        <th style="width: 6%;" class="text-center">#</th>
+                        <th style="width: 40%;">Item Description</th>
+                        <th style="width: 14%;" class="text-right">Quantity</th>
+                        <th style="width: 16%;">Unit</th>
 
-                        <td class="label">
-                            Purpose
-                        </td>
+                        @if($isInternalReceipt)
+                            <th style="width: 12%;" class="text-right">
+                                Unit Value
+                            </th>
 
-                        <td class="value">
-                            {{ $donation->purpose ?: 'General Support' }}
-                        </td>
-
-
-                        <td class="label">
-                            Source
-                        </td>
-
-                        <td class="value">
-
-                            {{ $donation->source
-                                ? ucfirst(str_replace('_', ' ', $donation->source))
-                                : '—'
-                            }}
-
-                        </td>
-
+                            <th style="width: 12%;" class="text-right">
+                                Total
+                            </th>
+                        @endif
                     </tr>
+                </thead>
 
+                <tbody>
 
-                    @if($donation->reference || $donation->payment_reference)
+                    @forelse($items as $index => $item)
+
+                        @php
+                            $itemQuantity = (float) ($item->quantity ?? 0);
+
+                            $itemUnitValue = (float) (
+                                $item->estimated_value
+                                ?? $item->unit_value
+                                ?? 0
+                            );
+
+                            $itemTotalValue = (float) (
+                                $item->total_value
+                                ?? ($itemQuantity * $itemUnitValue)
+                            );
+                        @endphp
 
                         <tr>
 
-                            <td class="label">
-                                Reference
+                            <td class="text-center">
+                                {{ $index + 1 }}
                             </td>
 
-                            <td class="value">
-                                {{ $donation->reference ?: '—' }}
+                            <td>
+                                <strong>
+                                     {{ $item->item ?? '—' }}
+                                    {{ $item->item ?? $item->name ?? $item->description ?? 'Donated item' }}
+                                </strong>
+
+                                @if(!empty($item->description) && !empty($item->item_name))
+                                    <div class="muted">
+                                        {{ $item->description }}
+                                    </div>
+                                @endif
                             </td>
 
-
-                            <td class="label">
-                                Payment Ref.
+                            <td class="text-right">
+                                {{ number_format($itemQuantity, 2) }}
                             </td>
 
-                            <td class="value">
-                                {{ $donation->payment_reference ?: '—' }}
+                            <td>
+                                {{ $item->unit ?? $item->unit_of_measure ?? '—' }}
                             </td>
 
-                        </tr>
-
-                    @endif
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        {{-- ============================================================
-             CASH
-             ============================================================ --}}
-
-        @if($donation->type === 'cash')
-
-            <div class="section">
-
-                <div class="section-title">
-                    Amount Received
-                </div>
-
-                <div class="section-body">
-
-                    <div class="amount-box">
-
-                        <div class="amount-label">
-                            Donation Amount
-                        </div>
-
-                        <div class="amount-value">
-
-                            {{ $donation->currency ?? 'KES' }}
-
-                            {{ number_format((float) $donation->amount, 2) }}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        @endif
-
-
-        {{-- ============================================================
-             IN-KIND
-             ============================================================ --}}
-
-        @if($donation->type === 'in_kind')
-
-            @php
-
-                $totalEstimatedValue = $donation->items->sum(
-                    fn ($item) => (float) ($item->estimated_value ?? 0)
-                );
-
-            @endphp
-
-
-            <div class="section">
-
-                <div class="section-title">
-                    In-Kind Donation
-                </div>
-
-                <div class="section-body">
-
-                    <table class="items-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th style="width: 38%;">
-                                    Item
-                                </th>
-
-                                <th style="width: 13%;">
-                                    Qty
-                                </th>
-
-                                <th style="width: 13%;">
-                                    Unit
-                                </th>
-
-                                <th style="width: 17%;">
-                                    Condition
-                                </th>
-
-                                <th style="width: 19%;" class="amount">
-                                    Est. Value
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            @forelse($donation->items as $item)
-
-                                <tr>
-
-                                    <td>
-                                        {{ $item->item ?? '—' }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item->quantity ?? '—' }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item->unit ?? '—' }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item->condition ?? '—' }}
-                                    </td>
-
-                                    <td class="amount">
-
-                                        {{ $donation->currency ?? 'KES' }}
-
-                                        {{ number_format((float) ($item->estimated_value ?? 0), 2) }}
-
-                                    </td>
-
-                                </tr>
-
-                            @empty
-
-                                <tr>
-
-                                    <td colspan="5" class="text-center">
-                                        No donation items recorded.
-                                    </td>
-
-                                </tr>
-
-                            @endforelse
-
-
-                            @if($donation->items->count())
-
-                                <tr class="total-row">
-
-                                    <td colspan="4" class="text-right">
-                                        Total Estimated Value
-                                    </td>
-
-                                    <td class="amount">
-
-                                        {{ $donation->currency ?? 'KES' }}
-
-                                        {{ number_format($totalEstimatedValue, 2) }}
-
-                                    </td>
-
-                                </tr>
+                            @if($isInternalReceipt)
+
+                                <td class="text-right">
+                                    {{ number_format($itemUnitValue, 2) }}
+                                </td>
+
+                                <td class="text-right">
+                                    {{ number_format($itemTotalValue, 2) }}
+                                </td>
 
                             @endif
 
-                        </tbody>
+                        </tr>
 
-                    </table>
+                    @empty
 
-                </div>
+                        <tr>
+                            <td
+                                colspan="{{ $isInternalReceipt ? 6 : 4 }}"
+                                class="text-center muted"
+                            >
+                                No individual items were recorded.
+                            </td>
+                        </tr>
 
-            </div>
+                    @endforelse
 
-        @endif
+                </tbody>
 
+                @if($isInternalReceipt && $items->count())
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-right">
+                                <strong>Estimated Total Value</strong>
+                            </td>
 
-        {{-- ============================================================
-             DESCRIPTION / NOTES
-             ============================================================ --}}
-
-        @if($donation->description || $donation->notes)
-
-            <div class="section">
-
-                <div class="section-title">
-                    Additional Information
-                </div>
-
-                <div class="section-body">
-
-                    @if($donation->description)
-
-                        <div class="note">
-
-                            <strong>
-                                Description:
-                            </strong>
-
-                            {!! nl2br(e($donation->description)) !!}
-
-                        </div>
-
-                    @endif
-
-
-                    @if($donation->notes)
-
-                        <div class="note" style="margin-top: 5px;">
-
-                            <strong>
-                                Notes:
-                            </strong>
-
-                            {!! nl2br(e($donation->notes)) !!}
-
-                        </div>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-        @endif
-
-
-        {{-- ============================================================
-             ACKNOWLEDGEMENT
-             ============================================================ --}}
-
-        <div class="acknowledgement">
-
-            <strong>
-                Thank you for supporting Teule Kenya.
-            </strong>
-
-            <br>
-
-            This receipt acknowledges the donation recorded under
-
-            <strong>
-                {{ $donation->donation_number }}
-            </strong>.
-
-        </div>
-
-
-        {{-- ============================================================
-             SIGNATURE
-             ============================================================ --}}
-
-        <table class="signature-table">
-
-            <tr>
-
-                <td>
-
-                    <div class="signature-line">
-                        Authorized Representative
-                    </div>
-
-                </td>
-
-
-                <td>
-
-                    <div class="signature-line">
-                        Date
-                    </div>
-
-                </td>
-
-            </tr>
-
-        </table>
-
-
-        {{-- ============================================================
-             FOOTER
-             ============================================================ --}}
-
-        <div class="footer">
-
-            <table class="footer-table">
-
-                <tr>
-
-                    <td class="footer-left">
-
-                        <span class="footer-accent">
-                            TEULE KENYA
-                        </span>
-
-                        &nbsp;|&nbsp;
-
-                        Chombo Cha Upendo — Vessel of Love
-
-                    </td>
-
-
-                    <td class="footer-right">
-
-                        Generated:
-
-                        {{ $generatedAt->format('d M Y, H:i:s') }}
-
-                    </td>
-
-                </tr>
+                            <td class="text-right">
+                                <strong>
+                                    {{ number_format($estimatedTotal, 2) }}
+                                </strong>
+                            </td>
+                        </tr>
+                    </tfoot>
+                @endif
 
             </table>
 
+            @if(!$isInternalReceipt)
+                <div class="amount-note" style="margin-top: 3px;">
+                    This receipt acknowledges the items listed above.
+                </div>
+            @endif
+
         </div>
 
+        @if($isInternalReceipt)
+
+            <div class="amount-panel">
+
+                <div class="amount-label">
+                    Estimated Donation Value
+                </div>
+
+                <div class="amount-value">
+                    {{ $currency }}
+                    {{ number_format($estimatedTotal, 2) }}
+                </div>
+
+                <div class="amount-note">
+                    For internal record and inventory valuation purposes.
+                </div>
+
+            </div>
+
+        @endif
+
+    @endif
+
+
+    {{-- =========================================================
+         NOTES
+         ========================================================= --}}
+
+    @if(!empty($donation->description) || !empty($donation->notes))
+
+        <div class="section">
+
+            <div class="section-title">
+                Notes
+            </div>
+
+            <div class="notes">
+                @if(!empty($donation->description))
+                    {{ $donation->description }}
+                @endif
+
+                @if(!empty($donation->description) && !empty($donation->notes))
+                    <br>
+                @endif
+
+                @if(!empty($donation->notes))
+                    {{ $donation->notes }}
+                @endif
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =========================================================
+         ACKNOWLEDGEMENT
+         ========================================================= --}}
+
+    <div class="acknowledgement">
+
+        <strong>Thank you for your generosity.</strong>
+
+        Teule Kenya gratefully acknowledges receipt of this
+        {{ $isInKind ? 'in-kind donation' : 'donation' }} in support of our mission
+        to restore hope and build futures for vulnerable children.
+
+        @if(!$isInKind)
+            This receipt confirms the amount recorded by Teule Kenya.
+        @else
+            This receipt confirms the donated items recorded above.
+        @endif
 
     </div>
 
-</body>
 
+    {{-- =========================================================
+         SIGNATURES
+         ========================================================= --}}
+
+    <div class="signature-area">
+
+        <div class="signature-column">
+
+            <div class="signature-line"></div>
+
+            <div class="signature-label">
+                Received By <span> <b> {{ $donation->receivedBy->name ?? 'Authorised Representative' }} </b> </span>
+            </div>
+
+        </div>
+
+        <div class="signature-column">
+
+            <div class="signature-line"></div>
+
+            <div class="signature-label">
+                Donor / Representative
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- =========================================================
+         QR CODE
+         ========================================================= --}}
+
+    @if(!empty($qrCodePath) && file_exists($qrCodePath))
+
+        <div class="qr-area">
+
+            <img
+                src="{{ $qrCodePath }}"
+                class="qr-code"
+                alt="Receipt verification QR code"
+            >
+
+            <div class="qr-caption">
+                Receipt verification
+            </div>
+
+        </div>
+
+    @endif
+
+
+    {{-- =========================================================
+         FOOTER
+         ========================================================= --}}
+
+    <div class="footer">
+
+        <div class="footer-left">
+            <strong class="navy">TEULE KENYA</strong>
+            <br>
+            Chombo Cha Upendo — Vessel of Love
+        </div>
+
+        <div class="footer-right">
+            Generated:
+            {{ isset($generatedAt) ? $generatedAt : now()->format('d M Y, H:i') }}
+            <br>
+            
+        </div>
+
+    </div>
+
+</div>
+
+</body>
 </html>

@@ -796,57 +796,264 @@ if ($validated['type'] === 'in_kind') {
     }
 
 
-    public function receipt(\App\Models\Donation $donation)
-    {
-        $donation->load([
-            'donor',
-            'items',
-            'receivedBy',
+
+/**
+ * Generate a donation receipt PDF.
+ */
+
+public function receipt(\App\Models\Donation $donation)
+{
+    $donation->load([
+        'donor',
+        'items',
+        'receivedBy',
+    ]);
+
+    // Supported receipt types: internal and donor.
+    $receiptType = request('type', 'internal');
+
+    if (!in_array($receiptType, ['internal', 'donor'], true)) {
+        $receiptType = 'internal';
+    }
+
+    // Encode the donation receipt number for the verification URL.
+    $encodedDonationNumber = rtrim(
+        strtr(
+            base64_encode($donation->donation_number),
+            '+/',
+            '-_'
+        ),
+        '='
+    );
+
+    // Generate the public verification URL.
+    $verificationUrl = route('donations.verify', [
+        'encodedDonationNumber' => $encodedDonationNumber,
+    ]);
+
+    $generatedAt = now();
+
+    // Generate a unique temporary QR code SVG file.
+    $qrDirectory = public_path('receipt-qr-temp');
+
+    if (!is_dir($qrDirectory) && !mkdir($qrDirectory, 0755, true) && !is_dir($qrDirectory)) {
+        throw new \RuntimeException(
+            'Unable to create the temporary receipt QR directory.'
+        );
+    }
+
+    $qrCodePath = $qrDirectory
+        . DIRECTORY_SEPARATOR
+        . 'receipt-'
+        . bin2hex(random_bytes(16))
+        . '.svg';
+
+    $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+        ->size(120)
+        ->margin(2)
+        ->errorCorrection('H')
+        ->generate($verificationUrl);
+
+    if (file_put_contents($qrCodePath, $qrSvg) === false) {
+        throw new \RuntimeException(
+            'Unable to generate the receipt QR code image.'
+        );
+    }
+
+    // Determine the receipt filename.
+    $typeLabel = $receiptType === 'donor'
+        ? 'Donor'
+        : 'Internal';
+
+    $filename = 'Donation-Receipt-'
+        . $donation->donation_number
+        . '-'
+        . $typeLabel
+        . '.pdf';
+
+    try {
+        // Render the receipt using Dompdf.
+$pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+    'admin.donations.receipt',
+    [
+        'donation' => $donation,
+        'generatedAt' => $generatedAt,
+        'receiptType' => $receiptType,
+        'verificationUrl' => $verificationUrl,
+        'qrCodePath' => $qrCodePath,
+    ]
+);
+
+
+        $pdf->setPaper('A4', 'portrait');
+
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
+            'defaultFont' => 'DejaVu Sans',
+            'chroot' => public_path(),
         ]);
 
-        /*
-    |--------------------------------------------------------------------------
-    | Receipt Type
-    |--------------------------------------------------------------------------
-    | internal = includes estimated values for in-kind donations
-    | donor    = excludes estimated values for in-kind donations
-    |--------------------------------------------------------------------------
-    */
+        // Render the PDF before deleting the QR image.
+        $pdfContent = $pdf->output();
 
-        $receiptType = request('type', 'internal');
-
-        // Only allow the two supported receipt types
-        if (!in_array($receiptType, ['internal', 'donor'], true)) {
-            $receiptType = 'internal';
+    } finally {
+        // Remove the temporary QR file after rendering.
+        if (is_file($qrCodePath)) {
+            unlink($qrCodePath);
         }
-
-        $generatedAt = now();
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-            'admin.donations.receipt',
-            [
-                'donation'   => $donation,
-                'generatedAt' => $generatedAt,
-                'receiptType' => $receiptType,
-            ]
-        );
-
-        /*
-    |--------------------------------------------------------------------------
-    | Filename
-    |--------------------------------------------------------------------------
-    */
-
-        $typeLabel = $receiptType === 'donor'
-            ? 'Donor'
-            : 'Internal';
-
-        $filename = 'Donation-Receipt-' .
-            $donation->donation_number .
-            '-' .
-            $typeLabel .
-            '.pdf';
-
-        return $pdf->download($filename);
     }
+
+$timestamp = now()->format('Ymd_His');
+
+$filename = pathinfo($filename, PATHINFO_FILENAME)
+    . '-'
+    . $timestamp
+    . '.pdf';
+
+return response($pdfContent, 200, [
+    'Content-Type' => 'application/pdf',
+    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+]);
+
+}
+
+
+
+/**
+ * Public donation receipt verification.
+ *
+ * Every visit requires mobile verification before showing details.
+ */
+public function verifyReceipt(string $encodedDonationNumber)
+{
+    $donationNumber = $this->decodeDonationNumber(
+        $encodedDonationNumber
+    );
+
+    $donation = \App\Models\Donation::with([
+        'donor',
+        'items',
+    ])->where(
+        'donation_number',
+        $donationNumber
+    )->firstOrFail();
+
+    return view('admin.donations.verify', [
+        'donation' => $donation,
+        'verified' => false,
+        'encodedDonationNumber' => $encodedDonationNumber,
+    ]);
+}
+
+
+/**
+ * Confirm the donor's registered mobile number.
+ */
+public function confirmReceipt(
+    \Illuminate\Http\Request $request,
+    string $encodedDonationNumber
+) {
+    $request->validate([
+        'mobile' => ['required', 'string', 'max:25'],
+    ]);
+
+    $donationNumber = $this->decodeDonationNumber(
+        $encodedDonationNumber
+    );
+
+    $donation = \App\Models\Donation::with([
+        'donor',
+        'items',
+    ])->where(
+        'donation_number',
+        $donationNumber
+    )->firstOrFail();
+
+    $donor = $donation->donor;
+
+    // Check common donor mobile-number column names.
+    $registeredMobile = $donor?->phone
+        ?? $donor?->phone_number
+        ?? $donor?->mobile
+        ?? $donor?->mobile_number;
+
+    if (
+        !$registeredMobile ||
+        $this->normalizeMobileNumber($request->input('mobile'))
+            !== $this->normalizeMobileNumber($registeredMobile)
+    ) {
+        return redirect()
+            ->route('donations.verify', [
+                'encodedDonationNumber' => $encodedDonationNumber,
+            ])
+            ->withInput()
+            ->with(
+                'verification_error',
+                'The mobile number does not match the number registered for this donation. Please check and try again.'
+            );
+    }
+
+    // Only a successful mobile-number match reveals the details.
+    return view('admin.donations.verify', [
+        'donation' => $donation,
+        'verified' => true,
+        'encodedDonationNumber' => $encodedDonationNumber,
+    ]);
+}
+
+
+/**
+ * Decode and validate the URL-safe receipt number.
+ */
+private function decodeDonationNumber(
+    string $encodedDonationNumber
+): string {
+    $base64 = strtr(
+        $encodedDonationNumber,
+        '-_',
+        '+/'
+    );
+
+    $base64 .= str_repeat(
+        '=',
+        (4 - strlen($base64) % 4) % 4
+    );
+
+    $donationNumber = base64_decode($base64, true);
+
+    if (
+        $donationNumber === false ||
+        !preg_match('/^DON-\d+$/', $donationNumber)
+    ) {
+        abort(404);
+    }
+
+    return $donationNumber;
+}
+
+
+/**
+ * Normalize Kenyan mobile numbers to allow common formats:
+ * 0712345678, 254712345678, and 712345678.
+ */
+private function normalizeMobileNumber(string $number): string
+{
+    $number = preg_replace('/\D+/', '', $number);
+
+    if (str_starts_with($number, '254') && strlen($number) === 12) {
+        return '0' . substr($number, 3);
+    }
+
+    if (
+        strlen($number) === 9 &&
+        preg_match('/^[17]/', $number)
+    ) {
+        return '0' . $number;
+    }
+
+    return $number;
+}
+
+
 }

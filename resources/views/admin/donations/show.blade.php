@@ -175,186 +175,183 @@ $pendingCommunications = $donation->communications
              RECEIPT DROPDOWN
              ===================================================== --}}
 
-        <div class="dropdown">
+<div class="dropdown">
 
-            <button
-                type="button"
-                class="requisition-add-button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                style="
-                    display:inline-flex;
-                    align-items:center;
-                    justify-content:center;
-                    gap:6px;
-                "
-            >
-                <i class="fa fa-file-pdf"></i>
-                Receipt
-                <i
-                    class="fa fa-chevron-down"
-                    style="font-size:10px;"
-                ></i>
-            </button>
+    <button
+        type="button"
+        class="requisition-add-button"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+        style="
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:6px;
+        "
+    >
+        <i class="fa fa-file-pdf"></i>
+        Receipt
+        <i class="fa fa-chevron-down" style="font-size:10px;"></i>
+    </button>
 
-            <div
-                class="dropdown-menu dropdown-menu-right"
-                style="
-                    min-width:280px;
-                    padding:6px;
-                "
-            >
+    <div
+        class="dropdown-menu dropdown-menu-right"
+        style="min-width:280px; padding:6px;"
+    >
 
-                <div
-                    style="
-                        padding:7px 10px;
-                        font-size:11px;
-                        font-weight:700;
-                        text-transform:uppercase;
-                        letter-spacing:.3px;
-                        color:#687b95;
-                    "
-                >
-                    <i class="fa fa-file-invoice mr-1"></i>
-                    Receipt Type
-                </div>
-
-
-                {{-- DONOR RECEIPT --}}
-
-                <a
-                    class="dropdown-item"
-                    href="{{ route('admin.donations.receipt', [
-                        'donation' => $donation,
-                        'type' => 'donor'
-                    ]) }}"
-                    target="_blank"
-                    style="
-                        display:flex;
-                        align-items:flex-start;
-                        gap:10px;
-                        padding:9px 10px;
-                        border-radius:6px;
-                        white-space:normal;
-                    "
-                >
-
-                    <span
-                        style="
-                            width:30px;
-                            height:30px;
-                            min-width:30px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            border-radius:6px;
-                            background:#eef4ff;
-                            color:#00096A;
-                        "
-                    >
-                        <i class="fa fa-user"></i>
-                    </span>
-
-                    <span>
-
-                        <span
-                            style="
-                                display:block;
-                                font-size:13px;
-                                font-weight:600;
-                                color:#304967;
-                            "
-                        >
-                            Donor Receipt
-                        </span>
-
-                        <span
-                            style="
-                                display:block;
-                                margin-top:2px;
-                                font-size:11px;
-                                line-height:1.35;
-                                color:#7a899d;
-                            "
-                        >
-                            Official copy for the donor.
-                            Estimated values for in-kind items are not shown.
-                        </span>
-
-                    </span>
-
-                </a>
-
-
-                {{-- INTERNAL RECEIPT --}}
-
-                <a
-                    class="dropdown-item"
-                    href="{{ route('admin.donations.receipt', [
-                        'donation' => $donation,
-                        'type' => 'internal'
-                    ]) }}"
-                    target="_blank"
-                    style="
-                        display:flex;
-                        align-items:flex-start;
-                        gap:10px;
-                        padding:9px 10px;
-                        border-radius:6px;
-                        white-space:normal;
-                    "
-                >
-
-                    <span
-                        style="
-                            width:30px;
-                            height:30px;
-                            min-width:30px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            border-radius:6px;
-                            background:#fff4e8;
-                            color:#EF4700;
-                        "
-                    >
-                        <i class="fa fa-building"></i>
-                    </span>
-
-                    <span>
-
-                        <span
-                            style="
-                                display:block;
-                                font-size:13px;
-                                font-weight:600;
-                                color:#304967;
-                            "
-                        >
-                            Internal Receipt
-                        </span>
-
-                        <span
-                            style="
-                                display:block;
-                                margin-top:2px;
-                                font-size:11px;
-                                line-height:1.35;
-                                color:#7a899d;
-                            "
-                        >
-                            Internal records copy.
-                            Includes estimated values for in-kind donations.
-                        </span>
-
-                    </span>
-
-                </a>
-
-            </div>
-
+        <div style="
+            padding:7px 10px;
+            font-size:11px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:.3px;
+            color:#687b95;
+        ">
+            <i class="fa fa-file-invoice mr-1"></i>
+            Receipt Type
         </div>
+
+        {{-- DONOR RECEIPT --}}
+
+        <a
+            class="dropdown-item js-receipt-download"
+            href="{{ route('admin.donations.receipt', [
+                'donation' => $donation,
+                'type' => 'donor'
+            ]) }}"
+            data-receipt-label="Donor Receipt"
+            style="
+                display:flex;
+                align-items:flex-start;
+                gap:10px;
+                padding:9px 10px;
+                border-radius:6px;
+                white-space:normal;
+            "
+        >
+
+            <span style="
+                width:30px;
+                height:30px;
+                min-width:30px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:6px;
+                background:#eef4ff;
+                color:#00096A;
+            ">
+                <i class="fa fa-user"></i>
+            </span>
+
+            <span style="flex:1; min-width:0;">
+
+                <span style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    gap:8px;
+                    font-size:13px;
+                    font-weight:600;
+                    color:#304967;
+                ">
+                    <span>Donor Receipt</span>
+
+                    <i
+                        class="fa fa-download receipt-download-icon"
+                        aria-hidden="true"
+                        style="color:#00096A;"
+                    ></i>
+                </span>
+
+                <span style="
+                    display:block;
+                    margin-top:2px;
+                    font-size:11px;
+                    line-height:1.35;
+                    color:#7a899d;
+                ">
+                    Official copy for the donor.
+                    Estimated values for in-kind items are not shown.
+                </span>
+
+            </span>
+
+        </a>
+
+        {{-- INTERNAL RECEIPT --}}
+
+        <a
+            class="dropdown-item js-receipt-download"
+            href="{{ route('admin.donations.receipt', [
+                'donation' => $donation,
+                'type' => 'internal'
+            ]) }}"
+            data-receipt-label="Internal Receipt"
+            style="
+                display:flex;
+                align-items:flex-start;
+                gap:10px;
+                padding:9px 10px;
+                border-radius:6px;
+                white-space:normal;
+            "
+        >
+
+            <span style="
+                width:30px;
+                height:30px;
+                min-width:30px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border-radius:6px;
+                background:#fff4e8;
+                color:#EF4700;
+            ">
+                <i class="fa fa-building"></i>
+            </span>
+
+            <span style="flex:1; min-width:0;">
+
+                <span style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    gap:8px;
+                    font-size:13px;
+                    font-weight:600;
+                    color:#304967;
+                ">
+                    <span>Internal Receipt</span>
+
+                    <i
+                        class="fa fa-download receipt-download-icon"
+                        aria-hidden="true"
+                        style="color:#EF4700;"
+                    ></i>
+                </span>
+
+                <span style="
+                    display:block;
+                    margin-top:2px;
+                    font-size:11px;
+                    line-height:1.35;
+                    color:#7a899d;
+                ">
+                    Internal records copy.
+                    Includes estimated values for in-kind donations.
+                </span>
+
+            </span>
+
+        </a>
+
+    </div>
+
+</div>
+
 
 
         {{-- =====================================================
@@ -1777,6 +1774,256 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
+
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const receiptLinks = document.querySelectorAll(
+        '.js-receipt-download'
+    );
+
+    let activeDownload = false;
+    let toastTimer = null;
+
+    /*
+     * Create the toast once.
+     */
+    const toast = document.createElement('div');
+
+    toast.className = 'receipt-download-toast';
+
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+
+    toast.innerHTML = `
+        <div class="receipt-toast-icon">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <div>
+            <div class="receipt-toast-title">Preparing receipt</div>
+            <div class="receipt-toast-message">
+                Please wait while your PDF is prepared.
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+
+    /*
+     * Show a toast message.
+     */
+    function showToast(title, message, type = 'loading') {
+
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+            toastTimer = null;
+        }
+
+        toast.classList.remove('is-error');
+
+        const icon = toast.querySelector('.receipt-toast-icon');
+        const titleElement = toast.querySelector('.receipt-toast-title');
+        const messageElement = toast.querySelector('.receipt-toast-message');
+
+        if (type === 'error') {
+
+            toast.classList.add('is-error');
+            icon.innerHTML = '<i class="fa fa-exclamation-circle"></i>';
+
+        } else if (type === 'success') {
+
+            icon.innerHTML = '<i class="fa fa-check-circle"></i>';
+
+        } else {
+
+            icon.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+        }
+
+        titleElement.textContent = title;
+        messageElement.textContent = message;
+
+        toast.classList.add('is-visible');
+
+        if (type !== 'loading') {
+            toastTimer = setTimeout(function () {
+                toast.classList.remove('is-visible');
+            }, type === 'error' ? 6000 : 3500);
+        }
+    }
+
+
+    /*
+     * Get the PDF filename from Content-Disposition.
+     */
+    function getFilename(response, fallback) {
+
+        const disposition = response.headers.get('Content-Disposition');
+
+        if (disposition) {
+
+            const utf8Match = disposition.match(
+                /filename\*=UTF-8''([^;]+)/i
+            );
+
+            if (utf8Match && utf8Match[1]) {
+
+                try {
+                    return decodeURIComponent(utf8Match[1]);
+                } catch (error) {
+                    // Use the regular filename fallback below.
+                }
+            }
+
+            const regularMatch = disposition.match(
+                /filename="?([^";]+)"?/i
+            );
+
+            if (regularMatch && regularMatch[1]) {
+                return regularMatch[1];
+            }
+        }
+
+        return fallback;
+    }
+
+
+    /*
+     * Download each receipt without opening a new tab.
+     */
+    receiptLinks.forEach(function (link) {
+
+        link.addEventListener('click', async function (event) {
+
+            event.preventDefault();
+
+            if (activeDownload) {
+                return;
+            }
+
+            activeDownload = true;
+
+            const url = link.href;
+            const label = link.dataset.receiptLabel || 'Receipt';
+
+            const icon = link.querySelector('.receipt-download-icon');
+            const originalIconClass = icon ? icon.className : '';
+
+            link.classList.add('is-downloading');
+            link.setAttribute('aria-busy', 'true');
+
+            if (icon) {
+                icon.className = 'fa fa-spinner fa-spin receipt-download-icon';
+            }
+
+            showToast(
+                'Downloading ' + label,
+                'Preparing your PDF. Please wait.',
+                'loading'
+            );
+
+            try {
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/pdf'
+                    },
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        'The server could not generate the receipt. HTTP ' +
+                        response.status
+                    );
+                }
+
+                const contentType = (
+                    response.headers.get('Content-Type') || ''
+                ).toLowerCase();
+
+                /*
+                 * A login page or error page must not be downloaded
+                 * and named as a PDF.
+                 */
+                if (
+                    !contentType.includes('application/pdf') &&
+                    !contentType.includes('application/octet-stream')
+                ) {
+                    throw new Error(
+                        'The server did not return a valid PDF. Please refresh the page and try again.'
+                    );
+                }
+
+                const blob = await response.blob();
+
+                if (!blob.size) {
+                    throw new Error('The generated receipt is empty.');
+                }
+
+                const fallbackFilename =
+                    label.replace(/[^a-z0-9]+/gi, '-') + '.pdf';
+
+                const filename = getFilename(
+                    response,
+                    fallbackFilename
+                );
+
+                const blobUrl = URL.createObjectURL(blob);
+                const downloadLink = document.createElement('a');
+
+                downloadLink.href = blobUrl;
+                downloadLink.download = filename;
+                downloadLink.style.display = 'none';
+
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                downloadLink.remove();
+
+                /*
+                 * Revoke the temporary URL after the browser has
+                 * had time to start processing the download.
+                 */
+                setTimeout(function () {
+                    URL.revokeObjectURL(blobUrl);
+                }, 10000);
+
+                showToast(
+                    'Download started',
+                    label + ' is being saved to your downloads.',
+                    'success'
+                );
+
+            } catch (error) {
+
+                console.error('Receipt download failed:', error);
+
+                showToast(
+                    'Download failed',
+                    error.message || 'Unable to download the receipt. Please try again.',
+                    'error'
+                );
+
+            } finally {
+
+                activeDownload = false;
+
+                link.classList.remove('is-downloading');
+                link.removeAttribute('aria-busy');
+
+                if (icon) {
+                    icon.className = originalIconClass;
+                }
+
+            }
+
+        });
+
+    });
 
 });
 </script>

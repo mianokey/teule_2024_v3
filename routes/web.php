@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\StoreReportController;
 use App\Http\Controllers\Admin\StoreStockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\WorkflowNotificationController;
+use App\Models\Donation;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +86,12 @@ Route::middleware(['web'])->group(function () {
     // M-PESA routes
     Route::post('/merch/mpesa/pay/{order}', [MerchandiseController::class,'mpesaPay'])->name('merch.mpesaPay');
     Route::post('/merch/mpesa/callback', [MerchandiseController::class,'mpesaCallback'])->name('merch.mpesaCallback');
-});
+
+
+// Keep your existing GET route if it is already defined.
+Route::get('/donations/verify/{encodedDonationNumber}', [DonationController::class, 'verifyReceipt'])->name('donations.verify');
+Route::post('/donations/verify/{encodedDonationNumber}/confirm',[DonationController::class, 'confirmReceipt'])->middleware('throttle:5,1')->name('donations.verify.confirm');
+
 
 Route::get('/careers/{slug}', function ($slug) {
     $jobs = include resource_path('data/jobs.php');
@@ -98,6 +104,7 @@ Route::get('/careers/{slug}', function ($slug) {
     return view('careers.job-detail', compact('job', 'slug'));
 })->name('careers.show');
 
+});
 
 
 // Auth routes
@@ -137,7 +144,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('donation-communications/{communication}/cancel', [ DonationCommunicationController::class,'cancel'])->name('admin.donation-communications.cancel');
     Route::post('donations/{donation}/resend-thank-you', [ DonationController::class, 'resendThankYou',])->name('admin.donations.resend-thank-you');
     Route::get('/donations/{donation}/receipt',[DonationController::class, 'receipt'])->name('admin.donations.receipt');
-// Stores - Item Categories
+
+
+    // Stores - Item Categories
 
 Route::resource('store-categories', StoreItemCategoryController::class)->parameters(['store-categories' => 'storeCategory'])->names('admin.store-categories');
 
@@ -296,11 +305,41 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 
+
+
+Route::get('/test-donation-receipt/{id}', function ($id) {
+    $donation = Donation::with([
+        'donor',
+        'items',
+        'receivedBy',
+    ])->findOrFail($id);
+
+    $generatedAt = now();
+
+    $encodedDonationNumber = rtrim(
+        strtr(
+            base64_encode($donation->donation_number),
+            '+/',
+            '-_'
+        ),
+        '='
+    );
+
+    $verificationUrl = route('donations.verify', [
+        'encodedDonationNumber' => $encodedDonationNumber,
+    ]);
+
+    return view('admin.donations.receipt', [
+        'donation' => $donation,
+        'generatedAt' => $generatedAt,
+        'verificationUrl' => $verificationUrl,
+        'receiptType' => 'internal',
+        'htmlPreview' => true,
+    ]);
+})->middleware('auth');
+
+
 Route::get('/home', function () {
     return redirect()->route('admin.index');
 })->middleware('auth')->name('home');
-
-
-
-
 
