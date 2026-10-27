@@ -18,7 +18,7 @@
 
     <link rel="shortcut icon" href="{{ asset('.../assets/img/logo.png') }}" />
     <link rel="stylesheet" href="{{ asset('admin-assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('admin-assets/css/backend.css?v=2.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('admin-assets/css/backend.css?v=2.1.0') }}">
     <link rel="stylesheet" href="{{ asset('admin-assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet"
         href="{{ asset('admin-assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
@@ -33,7 +33,7 @@
     <!-- Include Selectize CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('admin-assets/css/stores.css?v=2.0.1') }}">
-    <link rel="stylesheet" href="{{ asset('admin-assets/css/teule-admin.css?v=2.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('admin-assets/css/teule-admin.css?v=2.1.0') }}">
 
 
 
