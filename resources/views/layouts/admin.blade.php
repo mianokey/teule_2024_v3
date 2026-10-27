@@ -37,6 +37,209 @@
 
 
 
+
+    <style>
+        :root {
+            --teule-navy: #00096A;
+            --teule-orange: #EF4700;
+            --teule-ink: #18213b;
+            --teule-muted: #7c849b;
+            --teule-border: #e7eaf2;
+            --teule-surface: #ffffff;
+            --teule-soft: #f5f7fc;
+        }
+
+        /* Global navigation polish */
+        .mm-sidebar {
+            background: #fff;
+            border-right: 1px solid var(--teule-border);
+            box-shadow: 8px 0 30px rgba(0, 9, 106, .035);
+        }
+        .mm-sidebar-logo {
+            min-height: 78px;
+            padding: 15px 18px;
+            border-bottom: 1px solid #edf0f7;
+        }
+        .mm-sidebar-logo .header-logo img { max-height: 43px; object-fit: contain; }
+        .mm-sidebar-menu, .mm-sidebar .side-menu { padding: 12px 11px 22px; }
+        .mm-sidebar .side-menu > li { margin: 4px 0; }
+        .mm-sidebar .side-menu > li > a {
+            display: flex;
+            align-items: center;
+            min-height: 46px;
+            padding: 11px 13px;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: #5d6680;
+            font-size: 13px;
+            font-weight: 650;
+            transition: color .18s ease, background .18s ease, border-color .18s ease;
+        }
+        .mm-sidebar .side-menu > li > a > i:first-child,
+        .mm-sidebar .side-menu > li > a > i:first-child svg { flex: 0 0 22px; }
+        .mm-sidebar .side-menu > li > a .svg-icon { color: currentColor; }
+        .mm-sidebar .side-menu > li > a:hover,
+        .mm-sidebar .side-menu > li > a.active,
+        .mm-sidebar .side-menu > li > a[aria-expanded="true"] {
+            color: var(--teule-navy);
+            background: #f1f3fc;
+            border-color: #e5e9fb;
+        }
+        .mm-sidebar .side-menu > li > a.active { box-shadow: inset 3px 0 0 var(--teule-orange); }
+        .mm-sidebar .side-menu .submenu,
+        .mm-sidebar .side-menu > li > ul {
+            margin: 5px 0 10px 11px;
+            padding: 5px 0 5px 10px;
+            border-left: 1px solid #e5e9f3;
+        }
+        .mm-sidebar .side-menu .submenu li,
+        .mm-sidebar .side-menu > li > ul li { margin: 2px 0; }
+        .mm-sidebar .side-menu .submenu a,
+        .mm-sidebar .side-menu > li > ul a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 10px;
+            border-radius: 8px;
+            color: #69718a;
+            font-size: 12px;
+            transition: all .18s ease;
+        }
+        .mm-sidebar .side-menu .submenu a:hover,
+        .mm-sidebar .side-menu .submenu a.active,
+        .mm-sidebar .side-menu > li > ul a:hover,
+        .mm-sidebar .side-menu > li > ul a.active {
+            color: var(--teule-navy);
+            background: #f5f6fc;
+        }
+        .mm-sidebar .side-menu .submenu a.active,
+        .mm-sidebar .side-menu > li > ul a.active { font-weight: 750; }
+        .mm-sidebar .mm-arrow-right { margin-left: auto; font-size: 10px; }
+
+        .mm-top-navbar {
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid var(--teule-border);
+            box-shadow: 0 5px 24px rgba(0, 9, 106, .035);
+        }
+        .mm-navbar-custom { padding: 0 18px; }
+        .mm-navbar-logo .header-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .mm-navbar-logo .header-logo img { max-height: 38px; width: auto; object-fit: contain; }
+        .mm-navbar-logo .header-logo h4 { margin: 0; color: var(--teule-navy); font-size: 15px; letter-spacing: .35px; }
+        .mm-top-navbar .nav-item.nav-icon > a,
+        .mm-top-navbar .nav-item.nav-icon > button { transition: background .18s ease, color .18s ease; }
+
+        /* Account menu */
+        .teule-account-nav { position: relative; margin-left: 7px; }
+        .teule-account-trigger {
+            display: flex !important; align-items: center; gap: 10px;
+            min-height: 48px; padding: 5px 9px !important;
+            border: 1px solid var(--teule-border); border-radius: 12px;
+            background: #fff; color: var(--teule-navy) !important;
+            text-decoration: none !important; transition: all .18s ease;
+        }
+        .teule-account-trigger::after { display: none !important; }
+        .teule-account-trigger:hover,
+        .teule-account-nav.show .teule-account-trigger {
+            background: #f6f7fc; border-color: #cfd5ec; box-shadow: 0 4px 14px rgba(0,9,106,.07);
+        }
+        .teule-account-avatar {
+            position: relative; display: inline-flex; flex: 0 0 38px;
+            width: 38px; height: 38px; overflow: hidden; align-items: center; justify-content: center;
+            border-radius: 11px; background: linear-gradient(135deg, #00096A, #3548b8);
+            box-shadow: 0 3px 8px rgba(0,9,106,.16);
+        }
+        .teule-account-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+        .teule-account-initials {
+            display: flex; width: 100%; height: 100%; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; font-weight: 800; letter-spacing: .5px;
+        }
+        .teule-account-online { position: absolute; right: 0; bottom: 0; width: 10px; height: 10px; border: 2px solid #fff; border-radius: 50%; background: #20a56b; }
+        .teule-account-summary { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; line-height: 1.25; }
+        .teule-account-caption { color: #8188a0; font-size: 8px; font-weight: 800; letter-spacing: 1px; }
+        .teule-account-name { display: block; max-width: 145px; overflow: hidden; color: var(--teule-navy); font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+        .teule-account-role { display: block; max-width: 145px; overflow: hidden; color: var(--teule-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .teule-account-arrow { margin-left: 1px; color: #7b8298; font-size: 13px; transition: transform .2s ease; }
+        .teule-account-nav.show .teule-account-arrow { transform: rotate(180deg); }
+        .teule-account-menu {
+            position: absolute; right: 0; left: auto;
+            width: 320px; max-width: calc(100vw - 24px); margin-top: 10px !important; padding: 0;
+            overflow: hidden; border: 1px solid #e6e9f2; border-radius: 15px; background: #fff;
+            box-shadow: 0 16px 40px rgba(0,9,106,.16); z-index: 1060;
+        }
+        .teule-account-menu-top { padding: 17px; background: linear-gradient(135deg, #00096A, #182b91); border-bottom: 3px solid var(--teule-orange); }
+        .teule-account-profile { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .teule-account-avatar-lg { flex-basis: 52px; width: 52px; height: 52px; border: 2px solid rgba(255,255,255,.45); border-radius: 15px; }
+        .teule-account-details { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+        .teule-account-details strong { overflow: hidden; color: #fff; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+        .teule-account-details small { overflow: hidden; color: rgba(255,255,255,.75); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+        .teule-account-role-badge { align-self: flex-start; max-width: 100%; margin-top: 3px; padding: 3px 8px; overflow: hidden; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; background: rgba(255,255,255,.12); color: #fff; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .teule-account-menu-section { padding: 12px 10px 8px; }
+        .teule-account-section-label { display: block; padding: 0 9px 6px; color: #8a91a6; font-size: 9px; font-weight: 800; letter-spacing: 1.1px; }
+        .teule-account-item { display: flex; align-items: center; gap: 10px; padding: 10px 9px; border-radius: 9px; white-space: normal; }
+        .teule-account-item:hover { background: #f4f6fc; }
+        .teule-account-item-icon { display: flex; flex: 0 0 34px; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 10px; background: #eef1fc; color: var(--teule-navy); font-size: 18px; }
+        .teule-account-item-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px; }
+        .teule-account-item-copy strong { color: var(--teule-ink); font-size: 12px; font-weight: 750; }
+        .teule-account-item-copy small { color: var(--teule-muted); font-size: 10px; }
+        .teule-account-item-arrow { color: #a1a7b7; font-size: 12px; }
+        .teule-account-menu-footer { padding: 10px 12px 12px; border-top: 1px solid #edf0f6; background: #fbfcff; }
+        .teule-account-logout { display: flex; width: 100%; align-items: center; gap: 10px; padding: 9px; border: 1px solid #f3dcd5; border-radius: 10px; background: #fff8f5; text-align: left; }
+        .teule-account-logout:hover { background: #fff0e9; border-color: #efb9a7; }
+        .teule-account-logout-icon { display: flex; flex: 0 0 34px; width: 34px; height: 34px; align-items: center; justify-content: center; border-radius: 9px; background: #ffebe4; color: var(--teule-orange); font-size: 18px; }
+        .teule-account-logout-copy { display: flex; flex: 1; flex-direction: column; gap: 2px; }
+        .teule-account-logout-copy strong { color: #b63812; font-size: 12px; }
+        .teule-account-logout-copy small { color: #99766c; font-size: 10px; }
+        .teule-account-footer-note { display: flex; align-items: center; justify-content: center; gap: 5px; padding-top: 11px; color: #8c93a7; font-size: 10px; }
+
+        /* Notifications and search should remain usable on small screens. */
+        .workflow-notification-menu { max-width: calc(100vw - 20px); }
+        .workflow-notification-dropdown { position: relative; }
+        .workflow-notification-trigger { position: relative; }
+
+        /* Responsive navbar and menu behaviour */
+        @media (max-width: 1199.98px) {
+            .mm-navbar-custom { padding: 0 12px; }
+            .teule-account-summary { display: none; }
+            .teule-account-trigger { gap: 0; padding: 5px !important; border-color: transparent; background: transparent; }
+            .teule-account-trigger:hover, .teule-account-nav.show .teule-account-trigger { background: #f1f3fc; border-color: #e5e9fb; }
+            .teule-account-arrow { margin-left: 5px; }
+        }
+        @media (max-width: 991.98px) {
+            .mm-top-navbar { position: relative; z-index: 1030; }
+            .mm-navbar-custom .navbar { flex-wrap: wrap; gap: 5px; }
+            .mm-navbar-logo { flex: 1 1 auto; min-width: 0; }
+            .mm-navbar-logo .header-logo h4 { font-size: 13px; }
+            .mm-navbar-custom .navbar > .d-flex.align-items-center { margin-left: auto; }
+            .mm-navbar-custom #navbarSupportedContent { flex: 0 0 100%; width: 100%; padding: 8px 0 12px; border-top: 1px solid #edf0f7; }
+            .mm-navbar-custom #navbarSupportedContent .navbar-nav { display: flex; flex-direction: row; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
+            .mm-navbar-custom #navbarSupportedContent .nav-item { margin: 2px; }
+            .mm-navbar-custom #navbarSupportedContent .dropdown-menu { position: absolute; }
+            .teule-account-summary { display: flex; }
+            .teule-account-trigger { gap: 9px; padding: 5px 9px !important; border-color: var(--teule-border); background: #fff; }
+            .teule-account-name { max-width: 180px; }
+            .teule-account-role { max-width: 180px; }
+        }
+        @media (max-width: 575.98px) {
+            .mm-navbar-custom { padding: 0 9px; }
+            .mm-navbar-logo .header-logo img { max-height: 31px; }
+            .mm-navbar-logo .header-logo h4 { display: none; }
+            .mm-navbar-custom #navbarSupportedContent .navbar-nav { justify-content: space-between; gap: 4px; }
+            .mm-navbar-custom #navbarSupportedContent .nav-item { margin: 0; }
+            .teule-account-summary { display: none; }
+            .teule-account-trigger { min-height: 42px; padding: 3px !important; border: 0; }
+            .teule-account-avatar { width: 36px; height: 36px; flex-basis: 36px; }
+            .teule-account-arrow { display: none; }
+            .teule-account-menu { position: fixed !important; top: 66px !important; right: 10px !important; left: auto !important; width: min(320px, calc(100vw - 20px)); transform: none !important; }
+            .workflow-notification-menu { position: fixed !important; top: 66px !important; right: 10px !important; left: auto !important; width: min(370px, calc(100vw - 20px)); transform: none !important; }
+            .mm-sidebar .side-menu > li > a { min-height: 44px; }
+        }
+
+        /* Active page is highlighted by the small script at the bottom. */
+        .mm-sidebar .side-menu a.active { color: var(--teule-navy) !important; font-weight: 750 !important; }
+        .mm-sidebar .side-menu > li > a.active { background: #f1f3fc !important; border-color: #e5e9fb !important; box-shadow: inset 3px 0 0 var(--teule-orange); }
+        .mm-sidebar .side-menu .submenu a.active { background: #f5f6fc !important; }
+    </style>
+
 </head>
 
 <body class=" color-light ">
@@ -1190,207 +1393,7 @@
                                 </li>
 
 
-                                <li class="nav-item nav-icon dropdown">
-
-                                    <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton2"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
-                                        <svg class="svg-icon text-primary" id="mm-mail-2"
-                                            xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail">
-
-                                            <path
-                                                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                            </path>
-
-                                            <polyline points="22,6 12,13 2,6"></polyline>
-
-                                        </svg>
-
-                                        <span class="bg-primary"></span>
-
-                                    </a>
-
-                                    <div class="mm-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton2">
-
-                                        <div class="card shadow-none m-0 border-0">
-
-                                            <div class="card-body p-0">
-
-                                                <div class="cust-title p-3">
-
-                                                    <h5 class="mb-0">
-                                                        All Messages
-                                                    </h5>
-
-                                                </div>
-
-                                                <div class="p-3">
-
-                                                    <a href="#" class="mm-sub-card">
-
-                                                        <div class="media align-items-center">
-
-                                                            <div>
-
-                                                                <img class="avatar-40 rounded-small"
-                                                                    src="{{ asset('admin-assets/images/user/1.jpg') }}"
-                                                                    alt="01">
-
-                                                            </div>
-
-                                                            <div class="media-body ml-3">
-
-                                                                <h6 class="mb-0">
-                                                                    Barry Emma Watson
-                                                                    <small class="badge badge-success float-right">
-                                                                        New
-                                                                    </small>
-                                                                </h6>
-
-                                                                <small class="float-left font-size-12">
-                                                                    12:00 PM
-                                                                </small>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </a>
-
-                                                    <a href="#" class="mm-sub-card">
-
-                                                        <div class="media align-items-center">
-
-                                                            <div>
-
-                                                                <img class="avatar-40 rounded-small"
-                                                                    src="../assets/images/user/2.jpg" alt="02">
-
-                                                            </div>
-
-                                                            <div class="media-body ml-3">
-
-                                                                <h6 class="mb-0">
-                                                                    Lorem Ipsum Watson
-                                                                </h6>
-
-                                                                <small class="float-left font-size-12">
-                                                                    20 Apr
-                                                                </small>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </a>
-
-                                                    <a href="#" class="mm-sub-card">
-
-                                                        <div class="media align-items-center">
-
-                                                            <div>
-
-                                                                <img class="avatar-40 rounded-small"
-                                                                    src="../assets/images/user/3.jpg" alt="03">
-
-                                                            </div>
-
-                                                            <div class="media-body ml-3">
-
-                                                                <h6 class="mb-0">
-                                                                    Why do we use it?
-                                                                    <small class="badge badge-success float-right">
-                                                                        New
-                                                                    </small>
-                                                                </h6>
-
-                                                                <small class="float-left font-size-12">
-                                                                    1:24 PM
-                                                                </small>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </a>
-
-                                                    <a href="#" class="mm-sub-card">
-
-                                                        <div class="media align-items-center">
-
-                                                            <div>
-
-                                                                <img class="avatar-40 rounded-small"
-                                                                    src="../assets/images/user/4.jpg" alt="04">
-
-                                                            </div>
-
-                                                            <div class="media-body ml-3">
-
-                                                                <h6 class="mb-0">
-                                                                    Variations Passages
-                                                                    <small class="badge badge-success float-right">
-                                                                        New
-                                                                    </small>
-                                                                </h6>
-
-                                                                <small class="float-left font-size-12">
-                                                                    5:45 PM
-                                                                </small>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </a>
-
-                                                    <a href="#" class="mm-sub-card">
-
-                                                        <div class="media align-items-center">
-
-                                                            <div>
-
-                                                                <img class="avatar-40 rounded-small"
-                                                                    src="../assets/images/user/5.jpg" alt="05">
-
-                                                            </div>
-
-                                                            <div class="media-body ml-3">
-
-                                                                <h6 class="mb-0">
-                                                                    Lorem Ipsum generators
-                                                                </h6>
-
-                                                                <small class="float-left font-size-12">
-                                                                    1 day ago
-                                                                </small>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </a>
-
-                                                </div>
-
-                                                <a class="d-flex justify-content-center p-2 card-footer" href="#"
-                                                    role="button">
-
-                                                    View All
-
-                                                </a>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </li>
-
-                                <li class="nav-item nav-icon dropdown">
+<li class="nav-item nav-icon dropdown">
                                     <div class="dropdown workflow-notification-dropdown"
                                         id="workflowNotificationDropdown"
                                         data-feed-url="{{ route('workflow-notifications.feed') }}"
@@ -1507,120 +1510,120 @@
                                 </li>
 
 
-                                {{-- USER PROFILE --}}
-                                <li class="nav-item nav-icon dropdown">
+                                {{-- =========================================================
+                                     RESPONSIVE USER ACCOUNT MENU
+                                     Profile photo comes from user_details: key=img_url
+                                     ========================================================= --}}
+                                @php
+                                    $currentUser = auth()->user();
+                                    $userImageValue = \Illuminate\Support\Facades\DB::table('user_details')
+                                        ->where('user_id', $currentUser->id)
+                                        ->where('key', 'img_url')
+                                        ->value('value');
 
-                                    <a href="#" class="nav-item nav-icon dropdown-toggle pr-0 search-toggle"
-                                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
+                                    $userImageValue = is_string($userImageValue) ? trim($userImageValue) : '';
+                                    $userImageUrl = null;
 
-                                        <img src="{{ asset('admin-assets/images/user/1.jpg') }}"
-                                            class="img-fluid avatar-rounded" alt="user">
+                                    if ($userImageValue !== '') {
+                                        $userImageUrl = filter_var($userImageValue, FILTER_VALIDATE_URL)
+                                            ? $userImageValue
+                                            : asset(ltrim($userImageValue, '/'));
+                                    }
 
+                                    $userInitials = collect(preg_split('/\s+/', trim($currentUser->name ?? 'User')))
+                                        ->filter()
+                                        ->take(2)
+                                        ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+                                        ->implode('');
+
+                                    $userInitials = $userInitials ?: 'U';
+                                    $userRoleLabel = method_exists($currentUser, 'getRoleNames')
+                                        ? ($currentUser->getRoleNames()->first() ?? 'Team Member')
+                                        : 'Team Member';
+                                @endphp
+
+                                <li class="nav-item dropdown teule-account-nav">
+                                    <a href="#"
+                                       class="nav-link teule-account-trigger"
+                                       id="teuleAccountDropdown"
+                                       data-toggle="dropdown"
+                                       aria-haspopup="true"
+                                       aria-expanded="false">
+
+                                        <span class="teule-account-avatar">
+                                            @if($userImageUrl)
+                                                <img src="{{ $userImageUrl }}"
+                                                     alt="{{ $currentUser->name }}"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <span class="teule-account-initials" style="display:none;">{{ $userInitials }}</span>
+                                            @else
+                                                <span class="teule-account-initials">{{ $userInitials }}</span>
+                                            @endif
+                                            <span class="teule-account-online" aria-hidden="true"></span>
+                                        </span>
+
+                                        <span class="teule-account-summary">
+                                            <span class="teule-account-caption">SIGNED IN AS</span>
+                                            <span class="teule-account-name">{{ $currentUser->name ?? 'User' }}</span>
+                                            <span class="teule-account-role">{{ $userRoleLabel }}</span>
+                                        </span>
+
+                                        <i class="fa fa-chevron-down teule-account-arrow" aria-hidden="true"></i>
                                     </a>
 
-                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    <div class="dropdown-menu dropdown-menu-right teule-account-menu"
+                                         aria-labelledby="teuleAccountDropdown">
+                                        <div class="teule-account-menu-top">
+                                            <div class="teule-account-profile">
+                                                <span class="teule-account-avatar teule-account-avatar-lg">
+                                                    @if($userImageUrl)
+                                                        <img src="{{ $userImageUrl }}"
+                                                             alt="{{ $currentUser->name }}"
+                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                        <span class="teule-account-initials" style="display:none;">{{ $userInitials }}</span>
+                                                    @else
+                                                        <span class="teule-account-initials">{{ $userInitials }}</span>
+                                                    @endif
+                                                </span>
+                                                <div class="teule-account-details">
+                                                    <strong>{{ $currentUser->name ?? 'User' }}</strong>
+                                                    <small>{{ $currentUser->email ?? '' }}</small>
+                                                    <span class="teule-account-role-badge">{{ $userRoleLabel }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                        <li class="dropdown-item d-flex svg-icon">
+                                        <div class="teule-account-menu-section">
+                                            <span class="teule-account-section-label">ACCOUNT</span>
+                                            @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
+                                                <a class="dropdown-item teule-account-item" href="{{ route('profile.edit') }}">
+                                                    <span class="teule-account-item-icon"><i class="las la-user-circle"></i></span>
+                                                    <span class="teule-account-item-copy">
+                                                        <strong>My Profile</strong>
+                                                        <small>View or update your profile</small>
+                                                    </span>
+                                                    <i class="las la-angle-right teule-account-item-arrow"></i>
+                                                </a>
+                                            @endif
+                                        </div>
 
-                                            <svg class="svg-icon mr-0 text-primary" id="h-01-p" width="20"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-
-                                            </svg>
-
-                                            <a href="#">
-                                                My Profile
-                                            </a>
-
-                                        </li>
-
-                                        <li class="dropdown-item d-flex svg-icon">
-
-                                            <svg class="svg-icon mr-0 text-primary" id="h-02-p" width="20"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-
-                                            </svg>
-
-                                            <a href="#">
-                                                Edit Profile
-                                            </a>
-
-                                        </li>
-
-                                        <li class="dropdown-item d-flex svg-icon">
-
-                                            <svg class="svg-icon mr-0 text-primary" id="h-03-p" width="20"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426.756-1.756-1.543-2.37-2.37a1.724 1.724 0 00-2.572-1.065c-.426.94-2.193-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.572c-.94-1.543.826-2.193 2.37-2.37.996-.608 2.296-.07 2.572 1.065z" />
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-
-                                            </svg>
-
-                                            <a href="#">
-                                                Account Settings
-                                            </a>
-
-                                        </li>
-
-                                        <li class="dropdown-item d-flex svg-icon">
-
-                                            <svg class="svg-icon mr-0 text-primary" id="h-04-p" width="20"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-
-                                            </svg>
-
-                                            <a href="#">
-                                                Privacy Settings
-                                            </a>
-
-                                        </li>
-
-                                        <li class="dropdown-item d-flex svg-icon border-top">
-
-                                            <svg class="svg-icon mr-0 text-primary" id="h-05-p" width="20"
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-
-                                            </svg>
-
-                                            <a href="{{ route('logout') }}"
-                                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-
-                                                Logout
-
-                                            </a>
-
-                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                                style="display: none;">
-
+                                        <div class="teule-account-menu-footer">
+                                            <form action="{{ route('logout') }}" method="POST">
                                                 @csrf
-
+                                                <button type="submit" class="teule-account-logout">
+                                                    <span class="teule-account-logout-icon"><i class="fa fa-power-off"></i></span>
+                                                    <span class="teule-account-logout-copy">
+                                                        <strong>Sign out</strong>
+                                                        <small>End your current session</small>
+                                                    </span>
+                                                </button>
                                             </form>
-
-                                        </li>
-
-                                    </ul>
-
+                                            <div class="teule-account-footer-note">
+                                                <i class="fas fa-shield" aria-hidden="true"></i>
+                                                Teule Kenya Management System
+                                            </div>
+                                        </div>
+                                    </div>
                                 </li>
 
                             </ul>
@@ -1686,6 +1689,59 @@
 
 
 
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+            var menuLinks = document.querySelectorAll('.mm-sidebar .side-menu a[href]');
+            var bestMatch = null;
+            var bestLength = -1;
+
+            menuLinks.forEach(function (link) {
+                var rawHref = link.getAttribute('href');
+                if (!rawHref || rawHref.charAt(0) === '#') return;
+
+                try {
+                    var linkUrl = new URL(rawHref, window.location.origin);
+                    if (linkUrl.origin !== window.location.origin) return;
+                    var linkPath = linkUrl.pathname.replace(/\/$/, '') || '/';
+                    var matches = currentPath === linkPath ||
+                        (linkPath !== '/admin' && linkPath !== '/' && currentPath.indexOf(linkPath + '/') === 0);
+
+                    if (matches && linkPath.length > bestLength) {
+                        bestMatch = link;
+                        bestLength = linkPath.length;
+                    }
+                } catch (error) {
+                    // Ignore malformed or non-navigation hrefs.
+                }
+            });
+
+            if (bestMatch) {
+                bestMatch.classList.add('active');
+                var parent = bestMatch.parentElement;
+                while (parent && !parent.classList.contains('side-menu')) {
+                    if (parent.tagName === 'UL' && parent.classList.contains('collapse')) {
+                        parent.classList.add('show');
+                        var trigger = parent.previousElementSibling;
+                        if (trigger && trigger.matches('a[data-toggle="collapse"]')) {
+                            trigger.classList.remove('collapsed');
+                            trigger.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+
+            // Prevent a dropdown click from navigating to the page top.
+            document.querySelectorAll('#teuleAccountDropdown, #dropdownSearch').forEach(function (trigger) {
+                trigger.addEventListener('click', function (event) {
+                    event.preventDefault();
+                });
+            });
+        });
+    </script>
 
 </body>
 

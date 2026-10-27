@@ -3633,3 +3633,188 @@
     }
 }
 
+/* =========================================================
+   TEULE KENYA — MODERN LOGGED-IN USER MENU
+   ========================================================= */
+
+.teule-user-nav {
+    margin-left: 8px;
+}
+
+.teule-user-trigger {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px !important;
+    border: 1px solid rgba(0, 9, 106, 0.10);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #00096A !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.teule-user-trigger:hover,
+.teule-user-nav.show .teule-user-trigger {
+    background: #f2f4fc;
+    border-color: rgba(0, 9, 106, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 9, 106, 0.08);
+}
+
+.teule-user-trigger::after {
+    display: none !important;
+}
+
+.teule-user-avatar {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #00096A, #2639A5);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(0, 9, 106, 0.18);
+}
+
+.teule-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.3;
+    max-width: 180px;
+}
+
+.teule-user-label {
+    color: #7b829b;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+.teule-user-name {
+    max-width: 180px;
+    overflow: hidden;
+    color: #00096A;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.teule-user-chevron {
+    flex-shrink: 0;
+    color: #747b94;
+    transition: transform 0.2s ease;
+}
+
+.teule-user-nav.show .teule-user-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.teule-user-menu {
+    min-width: 265px;
+    margin-top: 10px !important;
+    padding: 8px;
+    border: 1px solid #e8eaf2;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 12px 35px rgba(0, 9, 106, 0.13);
+}
+
+.teule-user-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    background: #f4f6fc;
+    border-bottom: 2px solid #EF4700;
+}
+
+.teule-user-avatar-large {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    font-size: 19px;
+}
+
+.teule-user-menu-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.teule-user-menu-details strong {
+    overflow: hidden;
+    color: #00096A;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.teule-user-menu-details small {
+    overflow: hidden;
+    margin-top: 3px;
+    color: #7b829b;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.teule-user-menu .dropdown-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #333b53;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.teule-user-menu .dropdown-item:hover {
+    background: #f0f2fa;
+    color: #00096A;
+}
+
+.teule-user-menu .dropdown-item i {
+    color: #00096A;
+    font-size: 16px;
+}
+
+.teule-user-menu .dropdown-item:last-of-type i {
+    color: #EF4700;
+}
+
+@media (max-width: 576px) {
+    .teule-user-trigger {
+        gap: 7px;
+        padding: 5px 7px !important;
+    }
+
+    .teule-user-info {
+        max-width: 105px;
+    }
+
+    .teule-user-name {
+        max-width: 105px;
+        font-size: 11px;
+    }
+
+    .teule-user-label {
+        font-size: 8px;
+    }
+
+    .teule-user-avatar {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+    }
+
+    .teule-user-menu {
+        min-width: 245px;
+    }
+}
