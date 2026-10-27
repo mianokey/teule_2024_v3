@@ -71,7 +71,7 @@ public function index(Request $request)
 
     $items = $query
         ->orderBy('name')
-        ->paginate(20)
+        ->paginate(10)
         ->withQueryString();
 
     $categories = \App\Models\StoreItemCategory::query()
