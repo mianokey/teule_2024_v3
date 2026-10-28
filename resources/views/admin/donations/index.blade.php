@@ -63,91 +63,240 @@
 
 
 
-    {{-- =========================================================
-    SEARCH SECTION
-    ========================================================= --}}
-    <div class="requisition-section">
 
-        <div class="requisition-section-header">
+{{-- ADVANCED DONATION FILTERS --}}
+<div class="requisition-section donation-filters-section">
 
+    <details class="donation-filters-details"
+        {{ request()->hasAny(['search', 'date_from', 'date_to', 'donor_id', 'type', 'classification', 'source', 'amount_min', 'amount_max', 'currency', 'receiving_status']) ? 'open' : '' }}>
+
+        <summary class="requisition-section-header donation-filters-summary">
             <div class="requisition-section-heading">
-
                 <div class="requisition-section-icon">
-                    <i class="fa fa-search"></i>
+                    <i class="fa fa-filter"></i>
                 </div>
 
                 <div>
+                    <h5>Search & Filter Donations currently</h5>
+                    <p>Click to expand or collapse the donation filters.</p>
+                </div>
+            </div>
 
-                    <h5>
-                        Search Donations
-                    </h5>
+            <i class="fa fa-chevron-down donation-filters-chevron"></i>
+        </summary>
 
-                    <p>
-                        Search by donation number, donor, purpose, source, type or classification.
-                    </p>
+        <div class="requisition-details-body donation-filters-body">
 
+           <div class="requisition-section">
+
+ 
+
+    <div class="requisition-details-body">
+
+        <form method="GET" action="{{ route('admin.donations.index') }}">
+
+            {{-- General search --}}
+            <div class="row mb-3">
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Search</label>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        class="requisition-input"
+                        placeholder="Donation number, donor, purpose, source, type..."
+                    >
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Date From</label>
+                    <input
+                        type="date"
+                        name="date_from"
+                        value="{{ request('date_from') }}"
+                        class="requisition-input"
+                    >
+                </div>
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Date To</label>
+                    <input
+                        type="date"
+                        name="date_to"
+                        value="{{ request('date_to') }}"
+                        class="requisition-input"
+                    >
+                </div>
+                   <div class="col-md-2">
+                    <label class="requisition-field-label">Donor</label>
+                    <select name="donor_id" class="requisition-input">
+                        <option value="">All Donors</option>
+
+                        @foreach($donors as $donor)
+                            <option
+                                value="{{ $donor->id }}"
+                                @selected((string) request('donor_id') === (string) $donor->id)
+                            >
+                                {{ $donor->name }}
+                                @if($donor->donor_number)
+                                    ({{ $donor->donor_number }})
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Donation Type</label>
+                    <select name="type" class="requisition-input">
+                        <option value="">All Types</option>
+                        <option value="cash" @selected(request('type') === 'cash')>
+                            Cash
+                        </option>
+                        <option value="IN_KIND" @selected(request('type') === 'IN_KIND')>
+                            In-Kind
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Classification</label>
+                    <select name="classification" class="requisition-input">
+                        <option value="">All Classifications</option>
+
+                        @foreach([
+                            'donation' => 'Donation',
+                            'payment' => 'Payment',
+                            'refund' => 'Refund',
+                            'other' => 'Other',
+                            'unclassified' => 'Unclassified',
+                        ] as $value => $label)
+                            <option
+                                value="{{ $value }}"
+                                @selected(request('classification') === $value)
+                            >
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+
+            </div>
+
+
+            {{-- Amount, currency and receiving status --}}
+            <div class="row mb-3">
+
+                     <div class="col-md-2">
+                    <label class="requisition-field-label">Source</label>
+                    <select name="source" class="requisition-input">
+                        <option value="">All Sources</option>
+
+                        @foreach($sources as $source)
+                            <option
+                                value="{{ $source }}"
+                                @selected(request('source') === $source)
+                            >
+                                {{ ucfirst($source) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+
+
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Minimum Amount</label>
+                    <input
+                        type="number"
+                        name="amount_min"
+                        min="0"
+                        step="0.01"
+                        value="{{ request('amount_min') }}"
+                        class="requisition-input"
+                        placeholder="0.00"
+                    >
+                </div>
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Maximum Amount</label>
+                    <input
+                        type="number"
+                        name="amount_max"
+                        min="0"
+                        step="0.01"
+                        value="{{ request('amount_max') }}"
+                        class="requisition-input"
+                        placeholder="No limit"
+                    >
+                </div>
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Currency</label>
+                    <select name="currency" class="requisition-input">
+                        <option value="">All Currencies</option>
+
+                        @foreach($currencies as $currency)
+                            <option
+                                value="{{ $currency }}"
+                                @selected(request('currency') === $currency)
+                            >
+                                {{ $currency }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="requisition-field-label">Store Receiving Status</label>
+                    <select name="receiving_status" class="requisition-input">
+                        <option value="">All Statuses</option>
+                        <option value="received" @selected(request('receiving_status') === 'received')>
+                            Received in Stores
+                        </option>
+                        <option value="draft" @selected(request('receiving_status') === 'draft')>
+                            Receipt in Draft
+                        </option>
+                        <option value="not_received" @selected(request('receiving_status') === 'not_received')>
+                            Not Received
+                        </option>
+                        <option value="not_applicable" @selected(request('receiving_status') === 'not_applicable')>
+                            Not Applicable
+                        </option>
+                    </select>
                 </div>
 
             </div>
 
-        </div>
+            {{-- Actions --}}
+            <div class="d-flex flex-wrap justify-content-end" style="gap: 10px;">
 
+                <button type="submit" class="requisition-save-button">
+                    <i class="fa fa-search"></i>
+                    Apply Filters
+                </button>
+                  <a
+                    href="{{ route('admin.donations.index') }}"
+                    class="requisition-cancel-button"
+                    style="display:inline-flex;align-items:center;justify-content:center;gap:6px;"
+                >
+                    <i class="fa fa-times"></i>
+                    Clear Filters
+                </a>
 
-        <div class="requisition-details-body">
+            </div>
 
-            <form method="GET" action="{{ route('admin.donations.index') }}">
-
-                <div class="row">
-
-                    <div class="col-md-10">
-
-                        <label class="requisition-field-label">
-                            Search
-                        </label>
-
-                        <input type="text" name="search" value="{{ request('search') }}" class="requisition-input"
-                            placeholder="Search donation number, donor, purpose, source, type or classification...">
-
-                    </div>
-
-
-                    <div class="col-md-2" style="
-                            display:flex;
-                            align-items:flex-end;
-                            gap:8px;
-                        ">
-
-                        <button type="submit" class="requisition-save-button" style="width:100%;">
-                            <i class="fa fa-search"></i>
-                            Search
-                        </button>
-
-
-                        @if(request('search'))
-
-                        <a href="{{ route('admin.donations.index') }}" class="requisition-cancel-button"
-                            title="Clear search" style="
-                                    display:inline-flex;
-                                    align-items:center;
-                                    justify-content:center;
-                                    white-space:nowrap;
-                                ">
-                            <i class="fa fa-times"></i>
-                            Clear
-                        </a>
-
-                        @endif
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        </div>
+        </form>
 
     </div>
+</div>
 
+
+        </div>
+    </details>
+</div>
 
 
     {{-- =========================================================
@@ -156,52 +305,58 @@
     <div class="requisition-section">
 
 
-        {{-- =====================================================
-        SECTION HEADER
-        ===================================================== --}}
-        <div class="requisition-section-header">
-
-            <div class="requisition-section-heading">
-
-                <div class="requisition-section-icon">
-                    <i class="fa fa-hand-holding-heart"></i>
-                </div>
-
-                <div>
-
-                    <h5>
-                        Donation Records
-                    </h5>
-
-                    <p>
-
-                        @if(request('search'))
-
-                        Showing donations matching
-                        "<strong>{{ request('search') }}</strong>".
-
-                        @else
-
-                        View all recorded donations and their details.
-
-                        @endif
-
-                    </p>
-
-                </div>
-
-            </div>
 
 
-            <div class="requisition-count-badge">
+{{-- DONATION RECORDS HEADER AND EXPORT ACTIONS --}}
+<div class="requisition-section-header">
 
-                {{ $donations->count() }}
-
-                {{ $donations->count() === 1 ? 'Record' : 'Records' }}
-
-            </div>
-
+    <div class="requisition-section-heading">
+        <div class="requisition-section-icon">
+            <i class="fa fa-table"></i>
         </div>
+
+        <div>
+            <h5>Donation Records</h5>
+
+            <p>
+                {{ number_format($donations->total()) }}
+                {{ $donations->total() === 1 ? 'record' : 'records' }}
+                <span class="mx-1">·</span>
+                Generated {{ now()->format('d M Y, H:i') }}
+            </p>
+        </div>
+    </div>
+
+    {{-- EXPORT ACTIONS --}}
+    <div class="d-flex flex-wrap gap-2">
+
+        @foreach([
+            'pdf' => ['PDF', 'fa-file-pdf'],
+            'xlsx' => ['Excel', 'fa-file-excel'],
+            'csv' => ['CSV', 'fa-file-csv'],
+        ] as $format => $details)
+
+            <a
+                href="{{ route('admin.donations.export', array_merge(
+                    request()->except('page', 'format'),
+                    ['format' => $format]
+                )) }}"
+                class="{{ $format === 'xlsx'
+                    ? 'requisition-save-button'
+                    : 'requisition-cancel-button' }}"
+                style="display:inline-flex;align-items:center;gap:7px;"
+            >
+                <i class="fa {{ $details[1] }}"></i>
+                Export {{ $details[0] }}
+            </a>
+
+        @endforeach
+
+    </div>
+
+</div>
+
+
 
 
 

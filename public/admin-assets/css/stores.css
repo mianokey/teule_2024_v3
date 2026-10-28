@@ -1548,11 +1548,12 @@
 .requisition-page .btn,
 .store-requisition-page .btn {
     font-size: 11px;
+    min-height: 36px;
 }
 
 .requisition-page .btn-sm,
 .store-requisition-page .btn-sm {
-    padding: 5px 9px;
+    padding: 1px 9px;
     font-size: 10px;
 }
 
@@ -1763,7 +1764,7 @@
 
 .requisition-lpo-picker-icon {
     width: 40px;
-    height: 40px;
+    height: 30px;
     min-width: 40px;
 
     display: flex;
@@ -1961,7 +1962,7 @@
     width: 100%;
     min-height: 36px;
 
-    padding: 7px 10px;
+    padding: 10px 10px;
 
     border: 1px solid #dfe3e9;
     border-radius: 6px;
@@ -3818,3 +3819,100 @@
         min-width: 245px;
     }
 }
+
+
+/* Stores Reports: keep the item picker consistent with other inputs */
+#openReportItemPicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    text-align: left;
+    border: 1px solid var(--requisition-input-border, #ced4da);
+    border-radius: 6px;
+    background: var(--requisition-input-bg, #fff);
+    color: inherit;
+    box-sizing: border-box;
+}
+
+#openReportItemPicker .requisition-lpo-picker-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#openReportItemPicker .requisition-lpo-picker-text strong {
+    font-weight: 400;
+}
+
+#openReportItemPicker .requisition-lpo-picker-icon,
+#openReportItemPicker .requisition-lpo-picker-arrow {
+    flex-shrink: 0;
+}
+
+#reportSelectedItemsTooltip {
+    position: absolute;
+    z-index: 1080;
+    max-width: 320px;
+    padding: 10px 12px;
+    margin-top: 5px;
+    border-radius: 6px;
+    background: #212529;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    overflow-wrap: anywhere;
+    pointer-events: none;
+}
+
+#openReportItemPicker:hover + #reportSelectedItemsTooltip:not(:empty) {
+    display: block;
+}
+
+/* =========================================================
+   GLOBAL MODAL CLOSE BUTTON
+   ========================================================= */
+
+.btn-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background-color: #f1f3f5;
+    color: #495057;
+    font-size: 0;
+    opacity: 1;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Font Awesome close icon */
+.btn-close::before {
+    content: "\f00d";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 17px;
+    line-height: 1;
+}
+
+/* Hover effect */
+.btn-close:hover {
+    background-color: #00096A;
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+/* Keyboard accessibility */
+.btn-close:focus-visible {
+    outline: 2px solid #00096A;
+    outline-offset: 2px;
+    box-shadow: none;
+}
+

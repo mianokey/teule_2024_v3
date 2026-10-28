@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ReportAuditLog;
 use App\Models\Store;
 use App\Models\StoreItem;
+use App\Models\StoreItemVariant;
 use App\Models\StoreStock;
 use App\Models\StoreStockMovement;
 use App\Services\Reports\ReportExportService;
@@ -19,15 +20,33 @@ class StoreReportController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'report' => ['nullable', Rule::in(['current-stock', 'stock-movements'])],
+            'report' => [
+                'nullable',
+                Rule::in(['current-stock', 'stock-movements']),
+            ],
             'store_id' => ['nullable', 'integer', 'exists:stores,id'],
             'item_id' => ['nullable', 'integer', 'exists:store_items,id'],
-            'variant_id' => ['nullable', 'integer', 'exists:store_item_variants,id'],
+            'item_ids' => ['nullable', 'array'],
+            'item_ids.*' => [
+                'integer',
+                'distinct',
+                'exists:store_items,id',
+            ],
+            'variant_id' => [
+                'nullable',
+                'integer',
+                'exists:store_item_variants,id',
+            ],
             'movement_type' => [
                 'nullable',
                 Rule::in([
-                    'RECEIPT', 'ISSUE', 'RETURN_IN', 'RETURN_OUT',
-                    'TRANSFER_IN', 'TRANSFER_OUT', 'ADJUSTMENT',
+                    'RECEIPT',
+                    'ISSUE',
+                    'RETURN_IN',
+                    'RETURN_OUT',
+                    'TRANSFER_IN',
+                    'TRANSFER_OUT',
+                    'ADJUSTMENT',
                 ]),
             ],
             'date_from' => ['nullable', 'date'],
@@ -36,13 +55,24 @@ class StoreReportController extends Controller
 
         $report = $request->input('report', 'current-stock');
 
-        $stores = Store::where('is_active', true)->orderBy('name')->get();
-        $items = StoreItem::with('unit')->where('is_active', true)->orderBy('name')->get();
+        $stores = Store::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $items = StoreItem::with('unit')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $selectedItemIds = collect($this->selectedItemIds($request));
 
         $variants = collect();
 
-        if ($request->filled('item_id')) {
-            $variants = \App\Models\StoreItemVariant::where('store_item_id', $request->item_id)
+        if ($selectedItemIds->isNotEmpty()) {
+            $variants = StoreItemVariant::whereIn(
+                'store_item_id',
+                $selectedItemIds->all()
+            )
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get();
@@ -67,15 +97,33 @@ class StoreReportController extends Controller
         abort_unless(in_array($format, ['pdf', 'xlsx', 'csv'], true), 404);
 
         $request->validate([
-            'report' => ['required', Rule::in(['current-stock', 'stock-movements'])],
+            'report' => [
+                'required',
+                Rule::in(['current-stock', 'stock-movements']),
+            ],
             'store_id' => ['nullable', 'integer', 'exists:stores,id'],
             'item_id' => ['nullable', 'integer', 'exists:store_items,id'],
-            'variant_id' => ['nullable', 'integer', 'exists:store_item_variants,id'],
+            'item_ids' => ['nullable', 'array'],
+            'item_ids.*' => [
+                'integer',
+                'distinct',
+                'exists:store_items,id',
+            ],
+            'variant_id' => [
+                'nullable',
+                'integer',
+                'exists:store_item_variants,id',
+            ],
             'movement_type' => [
                 'nullable',
                 Rule::in([
-                    'RECEIPT', 'ISSUE', 'RETURN_IN', 'RETURN_OUT',
-                    'TRANSFER_IN', 'TRANSFER_OUT', 'ADJUSTMENT',
+                    'RECEIPT',
+                    'ISSUE',
+                    'RETURN_IN',
+                    'RETURN_OUT',
+                    'TRANSFER_IN',
+                    'TRANSFER_OUT',
+                    'ADJUSTMENT',
                 ]),
             ],
             'date_from' => ['nullable', 'date'],
@@ -83,6 +131,7 @@ class StoreReportController extends Controller
         ]);
 
         $report = $request->input('report');
+
         $title = $report === 'current-stock'
             ? 'Current Stock Report'
             : 'Stock Movement Report';
@@ -96,8 +145,13 @@ class StoreReportController extends Controller
             'report_title' => $title,
             'format' => $format,
             'filters' => $request->only([
-                'store_id', 'item_id', 'variant_id',
-                'movement_type', 'date_from', 'date_to',
+                'store_id',
+                'item_id',
+                'item_ids',
+                'variant_id',
+                'movement_type',
+                'date_from',
+                'date_to',
             ]),
             'date_from' => $request->input('date_from'),
             'date_to' => $request->input('date_to'),
@@ -113,10 +167,16 @@ class StoreReportController extends Controller
                 'rows' => $rows,
                 'generatedAt' => now(),
                 'filters' => $request->only([
-                    'date_from', 'date_to', 'store_id',
-                    'item_id', 'variant_id', 'movement_type',
+                    'date_from',
+                    'date_to',
+                    'store_id',
+                    'item_id',
+                    'item_ids',
+                    'variant_id',
+                    'movement_type',
                 ]),
-            ])->setPaper('a4', 'landscape')->download($filename . '.pdf');
+            ])->setPaper('a4', 'landscape')
+                ->download($filename . '.pdf');
         }
 
         return $exporter->download(
@@ -127,18 +187,43 @@ class StoreReportController extends Controller
         );
     }
 
+    private function selectedItemIds(Request $request): array
+    {
+        $itemIds = collect($request->input('item_ids', []))
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        // Support older links that still use item_id.
+        if (empty($itemIds) && $request->filled('item_id')) {
+            $itemIds = [(int) $request->input('item_id')];
+        }
+
+        return $itemIds;
+    }
+
     private function getRows(Request $request, string $report): Collection
     {
+        $itemIds = $this->selectedItemIds($request);
+
         if ($report === 'current-stock') {
             return StoreStock::with(['store', 'item.unit', 'variant'])
                 ->whereHas('store', fn ($q) => $q->where('is_active', true))
                 ->whereHas('item', fn ($q) => $q->where('is_active', true))
-                ->when($request->filled('store_id'),
-                    fn ($q) => $q->where('store_id', $request->store_id))
-                ->when($request->filled('item_id'),
-                    fn ($q) => $q->where('store_item_id', $request->item_id))
-                ->when($request->filled('variant_id'),
-                    fn ($q) => $q->where('variant_id', $request->variant_id))
+                ->when(
+                    $request->filled('store_id'),
+                    fn ($q) => $q->where('store_id', $request->store_id)
+                )
+                ->when(
+                    !empty($itemIds),
+                    fn ($q) => $q->whereIn('store_item_id', $itemIds)
+                )
+                ->when(
+                    $request->filled('variant_id'),
+                    fn ($q) => $q->where('variant_id', $request->variant_id)
+                )
                 ->orderBy('store_id')
                 ->orderBy('store_item_id')
                 ->get()
@@ -152,21 +237,46 @@ class StoreReportController extends Controller
                 ]);
         }
 
-        return StoreStockMovement::with(['store', 'item.unit', 'variant', 'creator'])
+        return StoreStockMovement::with([
+                'store',
+                'item.unit',
+                'variant',
+                'creator',
+            ])
             ->whereHas('store', fn ($q) => $q->where('is_active', true))
             ->whereHas('item', fn ($q) => $q->where('is_active', true))
-            ->when($request->filled('store_id'),
-                fn ($q) => $q->where('store_id', $request->store_id))
-            ->when($request->filled('item_id'),
-                fn ($q) => $q->where('store_item_id', $request->item_id))
-            ->when($request->filled('variant_id'),
-                fn ($q) => $q->where('variant_id', $request->variant_id))
-            ->when($request->filled('movement_type'),
-                fn ($q) => $q->where('movement_type', $request->movement_type))
-            ->when($request->filled('date_from'),
-                fn ($q) => $q->where('created_at', '>=', $request->date_from . ' 00:00:00'))
-            ->when($request->filled('date_to'),
-                fn ($q) => $q->where('created_at', '<=', $request->date_to . ' 23:59:59'))
+            ->when(
+                $request->filled('store_id'),
+                fn ($q) => $q->where('store_id', $request->store_id)
+            )
+            ->when(
+                !empty($itemIds),
+                fn ($q) => $q->whereIn('store_item_id', $itemIds)
+            )
+            ->when(
+                $request->filled('variant_id'),
+                fn ($q) => $q->where('variant_id', $request->variant_id)
+            )
+            ->when(
+                $request->filled('movement_type'),
+                fn ($q) => $q->where('movement_type', $request->movement_type)
+            )
+            ->when(
+                $request->filled('date_from'),
+                fn ($q) => $q->where(
+                    'created_at',
+                    '>=',
+                    $request->date_from . ' 00:00:00'
+                )
+            )
+            ->when(
+                $request->filled('date_to'),
+                fn ($q) => $q->where(
+                    'created_at',
+                    '<=',
+                    $request->date_to . ' 23:59:59'
+                )
+            )
             ->orderByDesc('created_at')
             ->get()
             ->map(fn ($movement) => [
@@ -188,10 +298,25 @@ class StoreReportController extends Controller
     private function headings(string $report): array
     {
         return $report === 'current-stock'
-            ? ['Store', 'Item', 'Variant', 'Unit', 'Current Stock', 'Last Movement']
+            ? [
+                'Store',
+                'Item',
+                'Variant',
+                'Unit',
+                'Current Stock',
+                'Last Movement',
+            ]
             : [
-                'Date', 'Store', 'Item', 'Variant', 'Movement Type',
-                'Quantity', 'Balance After', 'Reference', 'Recorded By', 'Notes',
+                'Date',
+                'Store',
+                'Item',
+                'Variant',
+                'Movement Type',
+                'Quantity',
+                'Balance After',
+                'Reference',
+                'Recorded By',
+                'Notes',
             ];
     }
 }

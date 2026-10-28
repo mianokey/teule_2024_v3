@@ -139,14 +139,14 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     //donation routes
     Route::resource('donors', DonorController::class) ->names('admin.donors'); 
-    Route::resource('donations', DonationController::class) ->names('admin.donations');
+    
     Route::get('donation-communications', [ DonationCommunicationController::class, 'index'])->name('admin.donation-communications.index');
     Route::get('donation-communications/{communication}', [ DonationCommunicationController::class,'show'])->name('admin.donation-communications.show');
     Route::post('donation-communications/{communication}/cancel', [ DonationCommunicationController::class,'cancel'])->name('admin.donation-communications.cancel');
     Route::post('donations/{donation}/resend-thank-you', [ DonationController::class, 'resendThankYou',])->name('admin.donations.resend-thank-you');
-    Route::get('/donations/{donation}/receipt',[DonationController::class, 'receipt'])->name('admin.donations.receipt');
-
-
+    Route::get('donations/{donation}/receipt',[DonationController::class, 'receipt'])->name('admin.donations.receipt');
+    Route::get('donations/export/{format}', [DonationController::class, 'export'])->where('format', 'pdf|xlsx|csv') ->name('admin.donations.export');
+    Route::resource('donations', DonationController::class) ->names('admin.donations');
     // Stores - Item Categories
 
 Route::resource('store-categories', StoreItemCategoryController::class)->parameters(['store-categories' => 'storeCategory'])->names('admin.store-categories');
@@ -318,37 +318,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 
-
-Route::get('/test-donation-receipt/{id}', function ($id) {
-    $donation = Donation::with([
-        'donor',
-        'items',
-        'receivedBy',
-    ])->findOrFail($id);
-
-    $generatedAt = now();
-
-    $encodedDonationNumber = rtrim(
-        strtr(
-            base64_encode($donation->donation_number),
-            '+/',
-            '-_'
-        ),
-        '='
-    );
-
-    $verificationUrl = route('donations.verify', [
-        'encodedDonationNumber' => $encodedDonationNumber,
-    ]);
-
-    return view('admin.donations.receipt', [
-        'donation' => $donation,
-        'generatedAt' => $generatedAt,
-        'verificationUrl' => $verificationUrl,
-        'receiptType' => 'internal',
-        'htmlPreview' => true,
-    ]);
-})->middleware('auth');
 
 
 Route::get('/home', function () {

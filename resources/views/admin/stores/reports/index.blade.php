@@ -157,38 +157,57 @@
 
                     </div>
 
+                    
 
-                    {{-- ITEM --}}
-                    <div class="col-lg-4 col-md-6">
 
-                        <label for="item_id" class="requisition-field-label">
-                            Item
-                        </label>
 
-                        <select
-                            name="item_id"
-                            id="item_id"
-                            class="requisition-input"
-                        >
 
-                            <option value="">
-                                All Items
-                            </option>
+{{-- MULTI-ITEM FILTER --}}
+<div class="col-lg-4 col-md-6">
 
-                            @foreach($items as $item)
+    <label class="requisition-field-label" for="openReportItemPicker">
+        Items
+    </label>
 
-                                <option
-                                    value="{{ $item->id }}"
-                                    @selected(request('item_id') == $item->id)
-                                >
-                                    {{ $item->name }}
-                                </option>
+    <button type="button"
+            id="openReportItemPicker"
+            class="requisition-lpo-picker requisition-input w-100"
+            style="height: 36px;"
+            title="All Items">
 
-                            @endforeach
+        <span class="requisition-lpo-picker-icon">
+            <i class="fa fa-search"></i>
+        </span>
 
-                        </select>
+        <span class="requisition-lpo-picker-text text-start">
+            <strong id="reportItemPickerLabel">All Items</strong>
+        </span>
 
-                    </div>
+        <span class="requisition-lpo-picker-arrow">
+            <i class="fa fa-chevron-down"></i>
+        </span>
+
+    </button>
+
+    {{-- Selected item names appear on hover --}}
+    <div id="reportSelectedItemsTooltip"
+         role="tooltip"
+         style="display:none;">
+    </div>
+
+    {{-- Required by JavaScript --}}
+    <div id="selectedReportItems" style="display:none;"></div>
+
+    <div id="reportItemHiddenInputs">
+        @foreach((array) request('item_ids', request('item_id') ? [request('item_id')] : []) as $selectedItemId)
+            <input type="hidden"
+                   name="item_ids[]"
+                   value="{{ $selectedItemId }}">
+        @endforeach
+    </div>
+
+</div>
+
 
 
                     {{-- VARIANT --}}
@@ -583,11 +602,12 @@
      ============================================================= --}}
 
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
 
+
+
     const report = document.getElementById('report');
-    const item = document.getElementById('item_id');
-    const variant = document.getElementById('variant_id');
 
     const movementFields = [
         document.getElementById('movement-type-field'),
@@ -597,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateReportFields() {
         const isMovementReport =
-            report.value === 'stock-movements';
+            report && report.value === 'stock-movements';
 
         movementFields.forEach(function (field) {
             if (field) {
@@ -607,21 +627,341 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    report.addEventListener('change', updateReportFields);
-    updateReportFields();
+    if (report) {
+        report.addEventListener('change', updateReportFields);
+        updateReportFields();
+    }
 
-    // Reload the report when the selected item changes.
-    // The controller will then load that item's variants.
-    item.addEventListener('change', function () {
-        if (variant) {
-            variant.value = '';
-        }
+    const modalElement =
+        document.getElementById('reportItemSelectionModal');
 
-        item.form.requestSubmit();
+    if (!modalElement) return;
+
+    const openButton =
+        document.getElementById('openReportItemPicker');
+
+    const searchInput =
+        document.getElementById('reportItemSearch');
+
+    const hiddenInputs =
+        document.getElementById('reportItemHiddenInputs');
+
+    const selectedContainer =
+        document.getElementById('selectedReportItems');
+
+    const pickerLabel =
+        document.getElementById('reportItemPickerLabel');
+
+    const selectedCount =
+        document.getElementById('reportSelectedItemCount');
+
+    const noResults =
+        document.getElementById('reportItemNoResults');
+
+    const modal = new bootstrap.Modal(modalElement);
+
+    const selectedItems = new Map();
+
+    const itemRows = Array.from(
+        document.querySelectorAll('.report-item-option')
+    );
+
+    // Restore selected items from the request.
+    hiddenInputs.querySelectorAll('input[name="item_ids[]"]')
+        .forEach(function (input) {
+            const id = String(input.value);
+            const row = itemRows.find(function (itemRow) {
+                return String(itemRow.dataset.itemId) === id;
+            });
+
+            if (row) {
+                selectedItems.set(id, {
+                    id: id,
+                    name: row.dataset.itemName
+                });
+            }
+        });
+
+    function escapeHtml(value) {
+        const element = document.createElement('div');
+        element.textContent = value || '';
+        return element.innerHTML;
+    }
+
+function renderSelectedItems() {
+    hiddenInputs.innerHTML = '';
+    selectedContainer.innerHTML = '';
+
+    const selectedNames = [];
+
+    selectedItems.forEach(function (item) {
+        const hidden = document.createElement('input');
+
+        hidden.type = 'hidden';
+        hidden.name = 'item_ids[]';
+        hidden.value = item.id;
+
+        hiddenInputs.appendChild(hidden);
+        selectedNames.push(item.name);
     });
 
+    if (selectedItems.size === 0) {
+        pickerLabel.textContent = 'All Items';
+    } else {
+        pickerLabel.textContent =
+            selectedItems.size + ' ' +
+            (selectedItems.size === 1 ? 'item selected' : 'items selected');
+    }
+
+    const tooltip = document.getElementById('reportSelectedItemsTooltip');
+
+    tooltip.textContent = selectedNames.length
+        ? selectedNames.join(', ')
+        : '';
+
+    tooltip.style.display = 'none';
+
+    selectedCount.textContent = selectedItems.size;
+
+    itemRows.forEach(function (row) {
+        const checkbox = row.querySelector('.report-item-checkbox');
+
+        if (checkbox) {
+            checkbox.checked = selectedItems.has(String(checkbox.value));
+        }
+    });
+}
+
+
+    function filterItems() {
+        const query = (searchInput.value || '').trim().toLowerCase();
+        let visible = 0;
+
+        itemRows.forEach(function (row) {
+            const matches =
+                (row.dataset.search || '').includes(query);
+
+            row.style.display = matches ? '' : 'none';
+
+            if (matches) visible++;
+        });
+
+        noResults.style.display = visible ? 'none' : 'block';
+    }
+
+    openButton.addEventListener('click', function () {
+        filterItems();
+        modal.show();
+
+        setTimeout(function () {
+            searchInput.focus();
+        }, 150);
+    });
+
+    searchInput.addEventListener('input', filterItems);
+
+    itemRows.forEach(function (row) {
+        const checkbox = row.querySelector('.report-item-checkbox');
+
+        checkbox.addEventListener('change', function () {
+            const id = String(this.value);
+
+            if (this.checked) {
+                selectedItems.set(id, {
+                    id: id,
+                    name: row.dataset.itemName
+                });
+            } else {
+                selectedItems.delete(id);
+            }
+
+            selectedCount.textContent = selectedItems.size;
+        });
+
+        row.addEventListener('click', function (event) {
+            if (event.target.closest('input')) return;
+
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+        });
+    });
+
+    document.getElementById('applyReportItemSelection')
+        .addEventListener('click', function () {
+            renderSelectedItems();
+            modal.hide();
+        });
+
+    document.getElementById('clearReportItemSelection')
+        .addEventListener('click', function () {
+            selectedItems.clear();
+
+            itemRows.forEach(function (row) {
+                row.querySelector('.report-item-checkbox').checked = false;
+            });
+
+            renderSelectedItems();
+        });
+
+    selectedContainer.addEventListener('click', function (event) {
+        const button = event.target.closest('.remove-report-item');
+
+        if (!button) return;
+
+        selectedItems.delete(String(button.dataset.itemId));
+        renderSelectedItems();
+    });
+
+    renderSelectedItems();
+    filterItems();
+
 });
+
 </script>
+
+
+{{-- REPORT ITEM SELECTION MODAL --}}
+<div class="modal fade"
+     id="reportItemSelectionModal"
+     tabindex="-1"
+     aria-labelledby="reportItemSelectionModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1"
+                        id="reportItemSelectionModalLabel">
+                        Select Report Items
+                    </h5>
+
+                    <div class="requisition-modal-subtitle">
+                        Search and tick all the items you want to include.
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">x</button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="requisition-child-search mb-3">
+                    <i class="fa fa-search"></i>
+
+                    <input type="text"
+                           id="reportItemSearch"
+                           class="form-control requisition-input"
+                           placeholder="Search items by name or code..."
+                           autocomplete="off">
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">
+                        <span id="reportSelectedItemCount">0</span> selected
+                    </span>
+
+                    <button type="button"
+                            id="clearReportItemSelection"
+                            class="requisition-cancel-button">
+                        Clear Selection
+                    </button>
+                </div>
+
+                <div class="requisition-list-table-wrapper">
+                    <table class="requisition-list-table">
+
+                        <thead>
+                            <tr>
+                                <th style="width:55px;">Select</th>
+                                <th>Item</th>
+                                <th>Code</th>
+                                <th>Unit</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="reportItemSelectionBody">
+
+                            @forelse($items as $item)
+
+                                @php
+                                    $unitName = $item->unit->code
+                                        ?? $item->unit->name
+                                        ?? '';
+                                @endphp
+
+                                <tr class="report-item-option"
+                                    data-item-id="{{ $item->id }}"
+                                    data-item-name="{{ $item->name }}"
+                                    data-search="{{ strtolower($item->name . ' ' . ($item->sku ?? '') . ' ' . $unitName) }}">
+
+                                    <td>
+                                        <input type="checkbox"
+                                               class="report-item-checkbox"
+                                               value="{{ $item->id }}"
+                                               aria-label="Select {{ $item->name }}">
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ $item->name }}</strong>
+                                    </td>
+
+                                    <td>{{ $item->sku ?? '—' }}</td>
+
+                                    <td>{{ $unitName ?: '—' }}</td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        No items available.
+                                    </td>
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div id="reportItemNoResults"
+                     class="requisition-no-children-found"
+                     style="display:none;">
+                    No items match your search.
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="requisition-cancel-button"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        id="applyReportItemSelection"
+                        class="requisition-save-button">
+                    <i class="fa fa-check"></i>
+                    Apply Selection
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
 

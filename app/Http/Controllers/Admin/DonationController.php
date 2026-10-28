@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Donation;
 use App\Models\DonationItem;
 use App\Models\Donor;
+use App\Models\ReportAuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,11 @@ use App\Models\StoreItemVariant;
 use App\Models\StoreReceipt;
 use App\Models\StoreStock;
 use App\Models\StoreStockMovement;
+use App\Services\Reports\ReportExportService;
 use App\Services\WorkflowNotificationService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class DonationController extends Controller
 {
@@ -25,32 +29,226 @@ class DonationController extends Controller
      */
     
 
-public function index()
+
+public function index(Request $request)
 {
-    $donations = Donation::with([
+    $request->validate([
+        'search' => ['nullable', 'string', 'max:255'],
+        'date_from' => ['nullable', 'date'],
+        'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        'donor_id' => ['nullable', 'integer', 'exists:donors,id'],
+        'type' => ['nullable', Rule::in(['cash', 'IN_KIND'])],
+        'classification' => [
+            'nullable',
+            Rule::in([
+                'donation',
+                'payment',
+                'refund',
+                'other',
+                'unclassified',
+            ]),
+        ],
+        'source' => ['nullable', 'string', 'max:255'],
+        'receiving_status' => [
+            'nullable',
+            Rule::in([
+                'received',
+                'draft',
+                'not_received',
+                'not_applicable',
+            ]),
+        ],
+        'amount_min' => ['nullable', 'numeric', 'min:0'],
+        'amount_max' => ['nullable', 'numeric', 'min:0', 'gte:amount_min'],
+        'currency' => ['nullable', 'string', 'max:10'],
+    ]);
+
+    $postedReceipt = DB::table('store_receipts')
+        ->selectRaw('COUNT(*)')
+        ->whereColumn('store_receipts.donation_id', 'donations.id')
+        ->where('store_receipts.source_type', 'DONATION')
+        ->where('store_receipts.status', 'POSTED');
+
+    $draftReceipt = DB::table('store_receipts')
+        ->selectRaw('COUNT(*)')
+        ->whereColumn('store_receipts.donation_id', 'donations.id')
+        ->where('store_receipts.source_type', 'DONATION')
+        ->where('store_receipts.status', 'DRAFT');
+
+    $query = Donation::with([
         'donor',
         'receivedBy',
     ])
         ->addSelect([
-            'posted_store_receipts_count' => \Illuminate\Support\Facades\DB::table('store_receipts')
-                ->selectRaw('COUNT(*)')
-                ->whereColumn('store_receipts.donation_id', 'donations.id')
-                ->where('store_receipts.source_type', 'DONATION')
-                ->where('store_receipts.status', 'POSTED'),
+            'posted_store_receipts_count' => $postedReceipt,
+            'draft_store_receipts_count' => $draftReceipt,
+        ]);
 
-            'draft_store_receipts_count' => \Illuminate\Support\Facades\DB::table('store_receipts')
-                ->selectRaw('COUNT(*)')
-                ->whereColumn('store_receipts.donation_id', 'donations.id')
-                ->where('store_receipts.source_type', 'DONATION')
-                ->where('store_receipts.status', 'DRAFT'),
-        ])
+    // General search
+    if ($request->filled('search')) {
+        $search = trim($request->input('search'));
+
+        $query->where(function ($q) use ($search) {
+            $q->where('donation_number', 'like', "%{$search}%")
+                ->orWhere('purpose', 'like', "%{$search}%")
+                ->orWhere('source', 'like', "%{$search}%")
+                ->orWhere('type', 'like', "%{$search}%")
+                ->orWhere('classification', 'like', "%{$search}%")
+                ->orWhere('currency', 'like', "%{$search}%")
+                ->orWhereHas('donor', function ($donorQuery) use ($search) {
+                    $donorQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('donor_number', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    // Donation date range
+    $query
+        ->when(
+            $request->filled('date_from'),
+            fn ($q) => $q->whereDate(
+                'donation_date',
+                '>=',
+                $request->input('date_from')
+            )
+        )
+        ->when(
+            $request->filled('date_to'),
+            fn ($q) => $q->whereDate(
+                'donation_date',
+                '<=',
+                $request->input('date_to')
+            )
+        );
+
+    // Donor
+    $query->when(
+        $request->filled('donor_id'),
+        fn ($q) => $q->where('donor_id', $request->input('donor_id'))
+    );
+
+    // Cash or in-kind
+    $query->when(
+        $request->filled('type'),
+        fn ($q) => $q->where(
+            'type',
+            $request->input('type') === 'cash' ? 'cash' : 'IN_KIND'
+        )
+    );
+
+    // Classification
+    $query->when(
+        $request->filled('classification'),
+        function ($q) use ($request) {
+            $classification = $request->input('classification');
+
+            if ($classification === 'unclassified') {
+                $q->where(function ($subQuery) {
+                    $subQuery->whereNull('classification')
+                        ->orWhere('classification', '');
+                });
+            } else {
+                $q->where('classification', $classification);
+            }
+        }
+    );
+
+    // Source
+    $query->when(
+        $request->filled('source'),
+        fn ($q) => $q->where('source', $request->input('source'))
+    );
+
+    // Amount range
+    $query
+        ->when(
+            $request->filled('amount_min'),
+            fn ($q) => $q->where(
+                'amount',
+                '>=',
+                $request->input('amount_min')
+            )
+        )
+        ->when(
+            $request->filled('amount_max'),
+            fn ($q) => $q->where(
+                'amount',
+                '<=',
+                $request->input('amount_max')
+            )
+        );
+
+    // Currency
+    $query->when(
+        $request->filled('currency'),
+        fn ($q) => $q->where('currency', $request->input('currency'))
+    );
+
+    // Store receiving status
+    $query->when(
+        $request->filled('receiving_status'),
+        function ($q) use ($request) {
+            $status = $request->input('receiving_status');
+
+            $hasPostedReceipt = function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('store_receipts')
+                    ->whereColumn('store_receipts.donation_id', 'donations.id')
+                    ->where('store_receipts.source_type', 'DONATION')
+                    ->where('store_receipts.status', 'POSTED');
+            };
+
+            $hasDraftReceipt = function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('store_receipts')
+                    ->whereColumn('store_receipts.donation_id', 'donations.id')
+                    ->where('store_receipts.source_type', 'DONATION')
+                    ->where('store_receipts.status', 'DRAFT');
+            };
+
+            if ($status === 'received') {
+                $q->whereExists($hasPostedReceipt);
+            } elseif ($status === 'draft') {
+                $q->whereNotExists($hasPostedReceipt)
+                    ->whereExists($hasDraftReceipt);
+            } elseif ($status === 'not_received') {
+                $q->whereNotExists($hasPostedReceipt)
+                    ->whereNotExists($hasDraftReceipt)
+                    ->whereRaw("UPPER(type) = ?", ['IN_KIND']);
+            } elseif ($status === 'not_applicable') {
+                $q->whereRaw("UPPER(type) != ?", ['IN_KIND']);
+            }
+        }
+    );
+
+    $donations = $query
         ->latest('donation_date')
         ->latest('id')
         ->paginate(10)
         ->withQueryString();
 
-    return view('admin.donations.index', compact('donations'));
+    $donors = Donor::orderBy('name')->get();
+
+    $sources = Donation::whereNotNull('source')
+        ->where('source', '!=', '')
+        ->distinct()
+        ->orderBy('source')
+        ->pluck('source');
+
+    $currencies = Donation::whereNotNull('currency')
+        ->where('currency', '!=', '')
+        ->distinct()
+        ->orderBy('currency')
+        ->pluck('currency');
+
+    return view('admin.donations.index', compact(
+        'donations',
+        'donors',
+        'sources',
+        'currencies'
+    ));
 }
+
 
 
 
@@ -1054,6 +1252,262 @@ private function normalizeMobileNumber(string $number): string
 
     return $number;
 }
+
+
+public function export(
+    Request $request,
+    string $format,
+    ReportExportService $exporter
+) {
+    abort_unless(in_array($format, ['pdf', 'xlsx', 'csv'], true), 404);
+
+    $request->validate([
+        'search' => ['nullable', 'string', 'max:255'],
+        'date_from' => ['nullable', 'date'],
+        'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        'donor_id' => ['nullable', 'integer', 'exists:donors,id'],
+        'type' => ['nullable', Rule::in(['cash', 'IN_KIND'])],
+        'classification' => [
+            'nullable',
+            Rule::in([
+                'donation',
+                'payment',
+                'refund',
+                'other',
+                'unclassified',
+            ]),
+        ],
+        'source' => ['nullable', 'string', 'max:255'],
+        'receiving_status' => [
+            'nullable',
+            Rule::in([
+                'received',
+                'draft',
+                'not_received',
+                'not_applicable',
+            ]),
+        ],
+        'amount_min' => ['nullable', 'numeric', 'min:0'],
+        'amount_max' => ['nullable', 'numeric', 'min:0', 'gte:amount_min'],
+        'currency' => ['nullable', 'string', 'max:10'],
+    ]);
+
+    $query = Donation::with('donor')
+        ->addSelect([
+            'posted_store_receipts_count' => DB::table('store_receipts')
+                ->selectRaw('COUNT(*)')
+                ->whereColumn('store_receipts.donation_id', 'donations.id')
+                ->where('store_receipts.source_type', 'DONATION')
+                ->where('store_receipts.status', 'POSTED'),
+
+            'draft_store_receipts_count' => DB::table('store_receipts')
+                ->selectRaw('COUNT(*)')
+                ->whereColumn('store_receipts.donation_id', 'donations.id')
+                ->where('store_receipts.source_type', 'DONATION')
+                ->where('store_receipts.status', 'DRAFT'),
+        ]);
+
+    if ($request->filled('search')) {
+        $search = trim($request->input('search'));
+
+        $query->where(function ($q) use ($search) {
+            $q->where('donation_number', 'like', "%{$search}%")
+                ->orWhere('purpose', 'like', "%{$search}%")
+                ->orWhere('source', 'like', "%{$search}%")
+                ->orWhere('type', 'like', "%{$search}%")
+                ->orWhere('classification', 'like', "%{$search}%")
+                ->orWhere('currency', 'like', "%{$search}%")
+                ->orWhereHas('donor', function ($donorQuery) use ($search) {
+                    $donorQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('donor_number', 'like', "%{$search}%");
+                });
+        });
+    }
+
+    $query
+        ->when(
+            $request->filled('date_from'),
+            fn ($q) => $q->whereDate(
+                'donation_date',
+                '>=',
+                $request->input('date_from')
+            )
+        )
+        ->when(
+            $request->filled('date_to'),
+            fn ($q) => $q->whereDate(
+                'donation_date',
+                '<=',
+                $request->input('date_to')
+            )
+        )
+        ->when(
+            $request->filled('donor_id'),
+            fn ($q) => $q->where('donor_id', $request->input('donor_id'))
+        )
+        ->when(
+            $request->filled('type'),
+            fn ($q) => $q->where(
+                'type',
+                $request->input('type') === 'cash' ? 'cash' : 'IN_KIND'
+            )
+        )
+        ->when(
+            $request->filled('classification'),
+            function ($q) use ($request) {
+                $classification = $request->input('classification');
+
+                if ($classification === 'unclassified') {
+                    $q->where(function ($subQuery) {
+                        $subQuery->whereNull('classification')
+                            ->orWhere('classification', '');
+                    });
+                } else {
+                    $q->where('classification', $classification);
+                }
+            }
+        )
+        ->when(
+            $request->filled('source'),
+            fn ($q) => $q->where('source', $request->input('source'))
+        )
+        ->when(
+            $request->filled('amount_min'),
+            fn ($q) => $q->where('amount', '>=', $request->input('amount_min'))
+        )
+        ->when(
+            $request->filled('amount_max'),
+            fn ($q) => $q->where('amount', '<=', $request->input('amount_max'))
+        )
+        ->when(
+            $request->filled('currency'),
+            fn ($q) => $q->where('currency', $request->input('currency'))
+        );
+
+    if ($request->filled('receiving_status')) {
+        $status = $request->input('receiving_status');
+
+        $posted = fn ($subQuery) => $subQuery
+            ->selectRaw('1')
+            ->from('store_receipts')
+            ->whereColumn('store_receipts.donation_id', 'donations.id')
+            ->where('store_receipts.source_type', 'DONATION')
+            ->where('store_receipts.status', 'POSTED');
+
+        $draft = fn ($subQuery) => $subQuery
+            ->selectRaw('1')
+            ->from('store_receipts')
+            ->whereColumn('store_receipts.donation_id', 'donations.id')
+            ->where('store_receipts.source_type', 'DONATION')
+            ->where('store_receipts.status', 'DRAFT');
+
+        if ($status === 'received') {
+            $query->whereExists($posted);
+        } elseif ($status === 'draft') {
+            $query->whereNotExists($posted)->whereExists($draft);
+        } elseif ($status === 'not_received') {
+            $query->whereNotExists($posted)
+                ->whereNotExists($draft)
+                ->whereRaw('UPPER(type) = ?', ['IN_KIND']);
+        } elseif ($status === 'not_applicable') {
+            $query->whereRaw('UPPER(type) != ?', ['IN_KIND']);
+        }
+    }
+
+    $donations = $query
+        ->latest('donation_date')
+        ->latest('id')
+        ->get();
+
+    $rows = $donations->map(function ($donation) {
+        $type = strtoupper((string) $donation->type);
+
+        if ($type !== 'IN_KIND') {
+            $receivingStatus = 'Not applicable';
+        } elseif (($donation->posted_store_receipts_count ?? 0) > 0) {
+            $receivingStatus = 'Received in stores';
+        } elseif (($donation->draft_store_receipts_count ?? 0) > 0) {
+            $receivingStatus = 'Receipt in Draft';
+        } else {
+            $receivingStatus = 'Not Received';
+        }
+
+        return [
+            'Donation Number' => $donation->donation_number,
+            'Date' => $donation->donation_date?->format('Y-m-d'),
+            'Donor' => $donation->donor?->name ?? 'Anonymous',
+            'Donor Number' => $donation->donor?->donor_number ?? '—',
+            'Type' => $donation->type,
+            'Amount' => $donation->amount,
+            'Currency' => $donation->currency,
+            'Purpose' => $donation->purpose ?? '—',
+            'Source' => $donation->source ?? '—',
+            'Classification' => $donation->classification ?? 'Unclassified',
+            'Store Receiving Status' => $receivingStatus,
+        ];
+    });
+
+    $headings = [
+        'Donation Number',
+        'Date',
+        'Donor',
+        'Donor Number',
+        'Type',
+        'Amount',
+        'Currency',
+        'Purpose',
+        'Source',
+        'Classification',
+        'Store Receiving Status',
+    ];
+
+    $filters = $request->only([
+        'search',
+        'date_from',
+        'date_to',
+        'donor_id',
+        'type',
+        'classification',
+        'source',
+        'receiving_status',
+        'amount_min',
+        'amount_max',
+        'currency',
+    ]);
+
+    ReportAuditLog::create([
+        'user_id' => $request->user()?->id,
+        'report_key' => 'donations.records',
+        'report_title' => 'Donations Report',
+        'format' => $format,
+        'filters' => $filters,
+        'date_from' => $request->input('date_from'),
+        'date_to' => $request->input('date_to'),
+        'row_count' => $rows->count(),
+    ]);
+
+    $filename = 'teule-donations-' . now()->format('Ymd-His');
+
+    if ($format === 'pdf') {
+        return Pdf::loadView('admin.donations.reports.pdf', [
+            'title' => 'Donations Report',
+            'headings' => $headings,
+            'rows' => $rows,
+            'generatedAt' => now(),
+            'filters' => $filters,
+        ])->setPaper('a4', 'landscape')
+            ->download($filename . '.pdf');
+    }
+
+    return $exporter->download(
+        $headings,
+        $rows->map(fn ($row) => array_values($row))->all(),
+        $filename,
+        $format
+    );
+}
+
+
 
 
 }
