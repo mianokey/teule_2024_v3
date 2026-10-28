@@ -105,7 +105,7 @@
                         </label>
 
                         <input type="text"
-                               class="form-control requisition-input"
+                               class="form-control form-control-sm requisition-input"
                                value="{{ $storeReceipt->receipt_number }}"
                                readonly>
                     </div>
@@ -190,7 +190,7 @@
                         <input type="date"
                                name="received_date"
                                id="received_date"
-                               class="form-control requisition-input"
+                               class="form-control form-control-sm requisition-input"
                                value="{{ old('received_date', $receivedDateValue) }}"
                                required>
                     </div>
@@ -2540,10 +2540,23 @@ function loadDonationItems(donationId) {
     |--------------------------------------------------------------------------
     */
 
-    sourceType.addEventListener('change', function () {
-        updateSourceUI();
-        renderRows([]);
-    });
+sourceType.addEventListener('change', function () {
+    alert('Source changed to: ' + sourceType.value);
+
+    updateSourceUI();
+    renderRows([]);
+
+    if (sourceType.value === 'DONATION') {
+        alert('Donation selected. Attempting to open the donations list.');
+
+        if (donationModal) {
+            donationModal.show();
+        } else {
+            alert('ERROR: Donation modal was not found or Bootstrap Modal is unavailable.');
+        }
+    }
+});
+
 
 
     /*
