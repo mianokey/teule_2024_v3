@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\StoreLpoController;
 use App\Http\Controllers\Admin\StoreReportController;
 use App\Http\Controllers\Admin\StoreStockAdjustmentController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WorkflowNotificationController;
 use App\Models\Donation;
 
@@ -265,6 +266,17 @@ Route::post('mpesa-transactions/{mpesaTransaction}/confirm',[MpesaTransactionCon
 Route::post( 'mpesa-transactions/{mpesaTransaction}/reject', [MpesaTransactionController::class, 'reject'])->name('admin.mpesa-transactions.reject');
 
 });
+
+Route::middleware(['auth'])->prefix('admin/profile')->name('admin.profile.')->group(function () {
+    Route::get('/', [UserProfileController::class, 'show'])->name('show');
+    Route::put('/details', [UserProfileController::class, 'updateDetails'])->name('details.update');
+    Route::put('/notification-sound', [UserProfileController::class, 'updateSound'])->name('sound.update');
+    Route::post('/password/otp', [UserProfileController::class, 'sendPasswordOtp'])->middleware('throttle:5,10')->name('password.otp.send');
+    Route::post('/password/otp/verify', [UserProfileController::class, 'verifyPasswordOtp'])->middleware('throttle:10,10')->name('password.otp.verify');
+    Route::put('/password', [UserProfileController::class, 'updatePassword'])->middleware('throttle:5,10')->name('password.update');
+});
+
+
 
 Route::middleware(['auth'])->prefix('admin/system')->group(function () {
     Route::get('/show', [AdminController::class, 'showSystemDetails'])->name('admin.system_details.index');

@@ -529,12 +529,49 @@
 
             </div>
 
-            <div class="requisition-scroll-hint">
-                <i class="fas fa-arrows-alt-h"></i>
-                <span>
-                    Scroll horizontally to view all LPO details.
-                </span>
+            @if($lpos->total() > 0)
+
+    <div class="stores-pagination-section">
+
+        <div class="stores-pagination-info">
+
+            <div class="stores-pagination-info-icon">
+                <i class="fa fa-layer-group"></i>
             </div>
+
+            <div class="stores-pagination-info-text">
+
+                <span class="stores-pagination-info-label">
+                    Showing requisitions
+                </span>
+
+                <strong>
+                    {{ $lpos->firstItem() ?? 0 }}
+                    –
+                    {{ $lpos->lastItem() ?? 0 }}
+                </strong>
+
+                <span class="stores-pagination-info-total">
+                    of {{ number_format($lpos->total()) }} total
+                </span>
+
+            </div>
+
+        </div>
+
+        @if($lpos->hasPages())
+
+            <div class="stores-pagination-controls">
+                {{ $lpos->onEachSide(2)->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
+
+        @endif
+
+    </div>
+
+@endif
+
+
 
 
         @else
