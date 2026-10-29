@@ -89,47 +89,70 @@ class DonationCommunicationSender
     /**
      * Send an email communication.
      */
-    protected function sendEmail(
-        DonationCommunication $communication
-    ): bool {
-        try {
-            $communication->update([
-                'status' => 'sending',
-                'error_message' => null,
-            ]);
 
-            $communication->loadMissing('donation');
+protected function sendEmail(
+    DonationCommunication $communication
+): bool {
+    try {
+        $communication->update([
+            'status' => 'sending',
+            'error_message' => null,
+        ]);
 
-            Mail::to($communication->recipient)
-                ->send(
-                    new DonationThankYouMail(
-                        $communication->donation
-                    )
-                );
+        $communication->loadMissing('donation');
 
-            $communication->update([
-                'status' => 'sent',
-                'sent_at' => now(),
-                'error_message' => null,
-            ]);
+        // Generate the actual donor receipt PDF.
+        $receipt = app(DonationReceiptPdf::class)->generate(
+            $communication->donation,
+            'donor'
+        );
 
-            return true;
-        } catch (Throwable $e) {
-            Log::error(
-                'Donation email failed.',
-                [
-                    'communication_id' => $communication->id,
-                    'recipient' => $communication->recipient,
-                    'error' => $e->getMessage(),
-                ]
-            );
+        // Create the thank-you email.
+        $email = new DonationThankYouMail(
+            $communication->donation
+        );
 
-            $communication->update([
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
+        // Attach the generated receipt PDF.
+        $email->attachData(
+            $receipt['content'],
+            $receipt['filename'],
+            [
+                'mime' => 'application/pdf',
+            ]
+        );
 
-            return false;
-        }
+        // Send the email and copy both recipients.
+        Mail::to($communication->recipient)
+            ->cc([
+                'rmo@teulekenya.org',
+                'antony@teulekenya.org',
+            ])
+            ->send($email);
+
+        $communication->update([
+            'status' => 'sent',
+            'sent_at' => now(),
+            'error_message' => null,
+        ]);
+
+        return true;
+
+    } catch (Throwable $e) {
+        Log::error(
+            'Donation email failed.',
+            [
+                'communication_id' => $communication->id,
+                'recipient' => $communication->recipient,
+                'error' => $e->getMessage(),
+            ]
+        );
+
+        $communication->update([
+            'status' => 'failed',
+            'error_message' => $e->getMessage(),
+        ]);
+
+        return false;
     }
+}
 }
