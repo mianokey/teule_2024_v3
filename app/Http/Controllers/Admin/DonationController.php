@@ -999,7 +999,7 @@ if ($validated['type'] === 'in_kind') {
  * Generate a donation receipt PDF.
  */
 
-public function receipt(\App\Models\Donation $donation)
+public function receipt(Donation $donation)
 {
     $donation->load([
         'donor',

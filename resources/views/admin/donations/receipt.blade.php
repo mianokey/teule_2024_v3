@@ -505,7 +505,7 @@
         );
     }
 
-    $logoPath = public_path('assets/img/logo.png');
+    $logoPath = public_path('assets/img/teule-logo-receipt.jpg');
 @endphp
 
 <div class="security-pattern">
