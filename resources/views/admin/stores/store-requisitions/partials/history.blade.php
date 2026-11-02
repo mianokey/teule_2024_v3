@@ -15,7 +15,7 @@
 
             <button
                 type="button"
-                class="btn btn-sm btn-outline-primary"
+                class="requisition-view-button btn-outline-primary"
                 data-bs-toggle="modal"
                 data-bs-target="#approvalHistoryModal"
             >
@@ -66,7 +66,7 @@
 
                 <button
                     type="button"
-                    class="btn btn-sm btn-outline-primary"
+                    class="requisition-view-button btn-outline-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#fulfillmentHistoryModal"
                 >

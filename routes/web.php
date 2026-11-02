@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DonorController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\DonationCommunicationController;
+use App\Http\Controllers\Admin\Finance\CostCentreBudgetController;
+use App\Http\Controllers\Admin\Finance\CostCentreController;
+use App\Http\Controllers\Admin\Finance\FinancePeriodController;
 use App\Http\Controllers\Admin\MpesaTransactionController;
 use App\Http\Controllers\Admin\StoreItemCategoryController;
 use App\Http\Controllers\Admin\StoreUnitController;
@@ -196,6 +199,44 @@ Route::patch('store-items/{storeItem}/toggle-status', [StoreItemController::clas
 // Stores - Reports
 Route::get('store-reports', [StoreReportController::class, 'index'])->name('admin.store-reports.index');
 Route::get('store-reports/export/{format}', [StoreReportController::class, 'export'])->where('format', 'pdf|xlsx|csv')->name('admin.store-reports.export');
+
+
+
+
+//finance routes
+   // Finance routes
+    Route::resource('finance/cost-centres', CostCentreController::class)->except(['show', 'destroy'])
+        ->names([
+            'index' => 'admin.finance.cost-centres.index',
+            'create' => 'admin.finance.cost-centres.create',
+            'store' => 'admin.finance.cost-centres.store',
+            'edit' => 'admin.finance.cost-centres.edit',
+            'update' => 'admin.finance.cost-centres.update',
+        ]);
+
+    Route::patch( 'finance/cost-centres/{costCentre}/toggle-status',[CostCentreController::class, 'toggleStatus'])->name('admin.finance.cost-centres.toggle-status');
+
+    // Finance Periods
+Route::get('finance/periods', [FinancePeriodController::class, 'index'])->name('admin.finance.periods.index');
+Route::get('finance/periods/create', [FinancePeriodController::class, 'create']) ->name('admin.finance.periods.create');
+Route::post('finance/periods', [FinancePeriodController::class, 'store'])->name('admin.finance.periods.store');
+Route::patch('finance/periods/{financePeriod}/close', [FinancePeriodController::class, 'close'])->name('admin.finance.periods.close');
+Route::patch('finance/periods/{financePeriod}/reopen', [FinancePeriodController::class, 'reopen'])->name('admin.finance.periods.reopen');
+
+
+// Finance Monthly Budgets
+Route::get('finance/budgets', [CostCentreBudgetController::class, 'index'])->name('admin.finance.budgets.index');
+Route::get('finance/budgets/create', [CostCentreBudgetController::class, 'create'])->name('admin.finance.budgets.create');
+Route::get('finance/budgets/{budget}', [CostCentreBudgetController::class, 'show'])->name('admin.finance.budgets.show');
+Route::post('finance/budgets', [CostCentreBudgetController::class, 'store'])->name('admin.finance.budgets.store');
+Route::get('finance/budgets/{budget}/edit', [CostCentreBudgetController::class, 'edit'])->name('admin.finance.budgets.edit');
+Route::put('finance/budgets/{budget}', [CostCentreBudgetController::class, 'update'])->name('admin.finance.budgets.update');
+
+// Monthly Budget Approval Workflow
+Route::post( 'finance/budgets/{budget}/submit',[CostCentreBudgetController::class, 'submit'])->name('admin.finance.budgets.submit');
+Route::post('finance/budgets/{budget}/approve', [CostCentreBudgetController::class, 'approve'])->name('admin.finance.budgets.approve');
+Route::post('finance/budgets/{budget}/send-back',[CostCentreBudgetController::class, 'sendBack'])->name('admin.finance.budgets.send-back');
+Route::post('finance/budgets/{budget}/reject',[CostCentreBudgetController::class, 'reject'])->name('admin.finance.budgets.reject');
 
 
 // Workflow Notifications

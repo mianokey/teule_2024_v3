@@ -6,7 +6,7 @@
 
             <a
                 href="{{ route('admin.stores.store-requisitions.index') }}"
-                class="btn btn-sm btn-outline-secondary"
+                class="requisition-cancel-button"
                 title="Back to requisitions"
             >
                 <i class="fas fa-arrow-left"></i>
@@ -40,7 +40,7 @@
 
         <button
             type="button"
-            class="btn btn-sm btn-outline-primary"
+            class="requisition-add-button btn-outline-primary"
             data-bs-toggle="modal"
             data-bs-target="#detailsModal"
         >
@@ -56,7 +56,7 @@
                     'admin.stores.store-requisitions.edit',
                     $storeRequisition
                 ) }}"
-                class="btn btn-sm btn-primary"
+                class="requisition-add-button btn-primary"
             >
                 <i class="fas fa-edit me-1"></i>
                 Edit
@@ -72,7 +72,7 @@
                     'admin.stores.store-requisitions.fulfillments.receipt',
                     $latestFulfillment
                 ) }}"
-                class="btn btn-sm btn-outline-primary"
+                class="requisition-add-button"
                 target="_blank"
             >
                 <i class="fas fa-file-pdf me-1"></i>

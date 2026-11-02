@@ -6,7 +6,7 @@
             href="{{ route(
                 'admin.stores.store-requisitions.index'
             ) }}"
-            class="btn btn-sm btn-outline-secondary"
+            class="requisition-cancel-button"
         >
             <i class="fas fa-arrow-left me-1"></i>
             Back to Requisitions
@@ -40,7 +40,7 @@
                     'admin.stores.store-requisitions.fulfillments.receipt',
                     $latestFulfillment
                 ) }}"
-                class="btn btn-sm btn-outline-primary"
+                class="requisition-add-button"
                 target="_blank"
             >
                 <i class="fas fa-file-pdf me-1"></i>

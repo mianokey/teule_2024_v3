@@ -932,7 +932,7 @@
 
                                 </i>
 
-                                <span class="ml-2">Petty Cash</span>
+                                <span class="ml-2">Finance</span>
 
                                 <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
                                 <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
@@ -951,17 +951,40 @@
 
                                 <li>
 
-                                    <a href="{{ route('admin.pettycash.index') }}" class="svg-icon">
+                                    <a href="{{ route('admin.finance.cost-centres.index') }}" class="svg-icon">
 
                                         <i class="fa fa-asterisk"></i>
 
-                                        <span>All Petty Cash</span>
+                                        <span>Cost Centres</span>
 
                                     </a>
 
                                 </li>
 
                                 @endif
+
+
+                                                                {{-- ALL PETTY CASH --}}
+                                @if(
+                                auth()->user()->can('VIEW PETTY CASH') ||
+                                auth()->user()->can('MANAGE PETTY CASH') ||
+                                auth()->user()->can('APPROVE PETTY CASH')
+                                )
+
+                                <li>
+
+                                    <a href="{{ route('admin.finance.periods.index') }}" class="svg-icon">
+
+                                        <i class="fa fa-asterisk"></i>
+
+                                        <span>Finance Periods</span>
+
+                                    </a>
+
+                                </li>
+
+                                @endif
+
 
 
                                 {{-- REQUEST --}}
