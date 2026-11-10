@@ -811,7 +811,6 @@
 
                             <td>
                                 <strong>
-                                     {{ $item->item ?? '—' }}
                                     {{ $item->item ?? $item->name ?? $item->description ?? 'Donated item' }}
                                 </strong>
 
