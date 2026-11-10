@@ -618,57 +618,75 @@
          DONOR DETAILS
          ========================================================= --}}
 
-    <div class="section">
+<div class="section">
 
-        <div class="section-title">
-            Donor Details
-        </div>
+    <div class="section-title">
+        Donor Details
+    </div>
 
-        <table class="details">
+    @php
+        $hasOrganisation = !empty($donor->organisation);
+    @endphp
 
-            <tbody>
+    <table class="details">
 
+        <tbody>
+
+            <tr>
+                <td class="label">
+                    {{ $hasOrganisation ? 'Organisation Name' : 'Donor Name' }}
+                </td>
+
+                <td class="value">
+                    {{ $hasOrganisation
+                        ? $donor->organisation
+                        : ($donor->name ?? 'Anonymous / Not Specified') }}
+                </td>
+
+                <td class="label">Donor Number</td>
+
+                <td class="value">
+                    {{ $donor->donor_number ?? '—' }}
+                </td>
+            </tr>
+
+            @if($hasOrganisation)
                 <tr>
-                    <td class="label">Donor Name</td>
-
-                    <td class="value">
-                        {{ $donor->name ?? 'Anonymous / Not Specified' }}
-                    </td>
-
-                    <td class="label">Donor Number</td>
-
-                    <td class="value">
-                        {{ $donor->donor_number ?? '—' }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="label">Phone</td>
-
-                    <td class="value">
-                        {{ $donor->phone ?? $donor->phone_number ?? '—' }}
-                    </td>
-
-                    <td class="label">Email</td>
-
-                    <td class="value">
-                        {{ $donor->email ?? '—' }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="label">Address</td>
+                    <td class="label">Contact Person</td>
 
                     <td class="value" colspan="3">
-                        {{ $donor->address ?? $donor->postal_address ?? '—' }}
+                        {{ $donor->name ?? '—' }}
                     </td>
                 </tr>
+            @endif
 
-            </tbody>
+            <tr>
+                <td class="label">Phone</td>
 
-        </table>
+                <td class="value">
+                    {{ $donor->phone ?? $donor->phone_number ?? '—' }}
+                </td>
 
-    </div>
+                <td class="label">Email</td>
+
+                <td class="value">
+                    {{ $donor->email ?? '—' }}
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label">Address</td>
+
+                <td class="value" colspan="3">
+                    {{ $donor->address ?? $donor->postal_address ?? '—' }}
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
 
 
     {{-- =========================================================
