@@ -625,7 +625,7 @@
     </div>
 
     @php
-        $hasOrganisation = !empty($donor->organisation);
+        $hasOrganisation = !empty($donor->organization);
     @endphp
 
     <table class="details">
