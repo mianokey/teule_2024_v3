@@ -639,7 +639,7 @@
 
                 <td class="value">
                     {{ $hasOrganisation
-                        ? $donor->organisation
+                        ? $donor->organization
                         : ($donor->name ?? 'Anonymous / Not Specified') }}
                 </td>
 
