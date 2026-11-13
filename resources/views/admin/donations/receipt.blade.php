@@ -480,30 +480,33 @@
 
     $currency = $donation->currency ?? 'KES';
 
-    $estimatedTotal = 0;
+$estimatedTotal = 0;
 
-    foreach ($items as $item) {
-        $quantity = (float) ($item->quantity ?? 0);
+foreach ($items as $item) {
 
-        $unitValue = (float) (
-            $item->estimated_value
-            ?? $item->unit_value
-            ?? 0
-        );
+    $quantity = (float) ($item->quantity ?? 0);
 
-        $lineValue = (float) (
-            $item->total_value
-            ?? ($donation->estimated_value)
-        );
+    $estimatedValue = (float) (
+        $item->estimated_value
+        ?? $item->unit_value
+        ?? 0
+    );
 
-        $estimatedTotal += $lineValue;
-    }
+    // Estimated value per unit
+    $unitValue = $quantity > 0
+        ? $estimatedValue / $quantity
+        : 0;
 
-    if ($estimatedTotal <= 0) {
-        $estimatedTotal = (float) (
-            $donation->estimated_value ?? 0
-        );
-    }
+    // Total value for this item
+    $lineValue = $unitValue * $quantity;
+
+    $estimatedTotal += $lineValue;
+}
+
+// Fallback where no item values were recorded
+if ($estimatedTotal <= 0) {
+    $estimatedTotal = (float) ($donation->estimated_value ?? 0);
+}
 
     $logoPath = public_path('assets/img/teule-logo-receipt.jpg');
 @endphp
@@ -806,27 +809,19 @@
 
                     @forelse($items as $index => $item)
 
-                        @php
-                            $itemQuantity = (float) ($item->quantity ?? 0);
+@php
+    $itemQuantity = (float) ($item->quantity ?? 0);
 
-                            $itemUnitValue = (float) (
-                                $item->estimated_value
-                                ?? $item->unit_value
-                                ?? 0
-                            );
+    $itemTotalValue = (float) (
+        $item->estimated_value
+        ?? $item->unit_value
+        ?? 0
+    );
 
-                            $itemTotalValue = (float) (
-                                $item->total_value
-                                ?? ($item->estimated_value ?? 0)
-                            );
-
-                            $itemQuantity = (float) ($item->quantity ?? 0);
-
-                            $itemUnitValue = $itemQuantity > 0
-                                ? (float) ($item->estimated_value ?? 0) / $itemQuantity
-                                : (float) ($item->unit_value ?? 0);
-
-                        @endphp
+    $itemUnitValue = $itemQuantity > 0
+        ? $itemTotalValue / $itemQuantity
+        : 0;
+@endphp
 
                         <tr>
 
