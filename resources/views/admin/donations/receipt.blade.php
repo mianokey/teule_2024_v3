@@ -817,8 +817,15 @@
 
                             $itemTotalValue = (float) (
                                 $item->total_value
-                                ?? ($itemQuantity * $itemUnitValue)
+                                ?? ($item->estimated_value ?? 0)
                             );
+
+                            $itemQuantity = (float) ($item->quantity ?? 0);
+
+                            $itemUnitValue = $itemQuantity > 0
+                                ? (float) ($item->estimated_value ?? 0) / $itemQuantity
+                                : (float) ($item->unit_value ?? 0);
+
                         @endphp
 
                         <tr>

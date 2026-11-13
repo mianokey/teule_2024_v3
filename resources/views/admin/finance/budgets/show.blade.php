@@ -106,7 +106,7 @@
     |--------------------------------------------------------------------------
     */
 
-    $showApprovalActions = $isPending;
+$showApprovalActions = $isPending;
 
 
     /*
