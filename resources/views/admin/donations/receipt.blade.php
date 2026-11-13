@@ -493,7 +493,7 @@
 
         $lineValue = (float) (
             $item->total_value
-            ?? ($donation->estimated_value ?? 0)
+            ?? ($donation->estimated_value)
         );
 
         $estimatedTotal += $lineValue;
