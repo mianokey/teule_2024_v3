@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WorkflowNotificationController;
 use App\Models\Donation;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /*
 |--------------------------------------------------------------------------
@@ -357,6 +358,29 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 });
 
+
+
+Route::view('/giving-tuesday', 'giving-tuesday.index')
+    ->name('giving-tuesday');
+
+
+Route::get('/giving-tuesday/qr-code', function () {
+
+    $qrCode = QrCode::format('svg')
+        ->size(600)
+        ->margin(2)
+        ->generate(route('giving-tuesday'));
+
+    $download = request()->boolean('download');
+
+    return response($qrCode, 200, [
+        'Content-Type' => 'image/svg+xml',
+        'Content-Disposition' => ($download ? 'attachment' : 'inline')
+            . '; filename="teule-giving-tuesday-qr.svg"',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+
+})->name('giving-tuesday.qr');
 
 
 
