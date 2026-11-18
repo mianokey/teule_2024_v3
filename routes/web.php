@@ -49,7 +49,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 // Public routes without authentication
 Route::middleware(['web'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::view('/giving-tuesday', 'giving-tuesday.index')->name('giving-tuesday');
+    Route::view('/', 'giving-tuesday.index')->name('giving-tuesday');
+    // Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/donate', [HomeController::class, 'donate'])->name('donate');
     Route::get('/blog', [HomeController::class, 'blog'])->name('blog');
     Route::get('/blog/show', [HomeController::class, 'blogshow'])->name('blogshow');
