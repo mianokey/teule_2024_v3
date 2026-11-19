@@ -116,7 +116,10 @@ Route::get('/careers/{slug}', function ($slug) {
 
 
 // Auth routes
-Auth::routes();
+Auth::routes([
+    'register' => false,
+]);
+
 
 // Authenticated routes
 Route::middleware(['auth'])->prefix('admin')->group(function () {
