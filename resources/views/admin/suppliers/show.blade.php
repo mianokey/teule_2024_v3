@@ -1,8 +1,7 @@
-
 @extends('layouts.admin')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
 @endpush
 
 @section('content')
@@ -10,8 +9,8 @@
 <div class="store-requisition-page">
 
     {{-- ============================================================
-         HEADER
-         ============================================================ --}}
+    HEADER
+    ============================================================ --}}
     <div class="requisition-page-header">
 
         <div class="requisition-header-content">
@@ -43,14 +42,12 @@
         <div class="requisition-header-right">
             <div class="requisition-page-actions">
 
-                <a href="{{ route('admin.suppliers.edit', $supplier) }}"
-                   class="requisition-add-button">
+                <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="requisition-add-button">
                     <i class="fas fa-edit"></i>
                     Edit
                 </a>
 
-                <a href="{{ route('admin.suppliers.index') }}"
-                   class="requisition-cancel-button">
+                <a href="{{ route('admin.suppliers.index') }}" class="requisition-cancel-button">
                     <i class="fas fa-arrow-left"></i>
                     Back
                 </a>
@@ -62,23 +59,23 @@
 
 
     {{-- ============================================================
-         FLASH MESSAGES
-         ============================================================ --}}
+    FLASH MESSAGES
+    ============================================================ --}}
     <x-message></x-message>
 
 
     {{-- ============================================================
-         SUPPLIER STATUS
-         ============================================================ --}}
+    SUPPLIER STATUS
+    ============================================================ --}}
     <div class="requisition-state-panel">
 
         <div class="requisition-state-main">
 
             <div class="requisition-state-icon">
                 @if($supplier->is_active)
-                    <i class="fas fa-check-circle"></i>
+                <i class="fas fa-check-circle"></i>
                 @else
-                    <i class="fas fa-ban"></i>
+                <i class="fas fa-ban"></i>
                 @endif
             </div>
 
@@ -100,32 +97,28 @@
 
             @if($supplier->is_active)
 
-                <form method="POST"
-                      action="{{ route('admin.suppliers.deactivate', $supplier) }}">
-                    @csrf
-                    @method('PATCH')
+            <form method="POST" action="{{ route('admin.suppliers.deactivate', $supplier) }}">
+                @csrf
+                @method('PATCH')
 
-                    <button type="submit"
-                            class="requisition-cancel-button"
-                            onclick="return confirm('Deactivate this supplier?')">
-                        <i class="fas fa-toggle-off"></i>
-                        Deactivate
-                    </button>
-                </form>
+                <button type="submit" class="requisition-cancel-button"
+                    onclick="return confirm('Deactivate this supplier?')">
+                    <i class="fas fa-toggle-off"></i>
+                    Deactivate
+                </button>
+            </form>
 
             @else
 
-                <form method="POST"
-                      action="{{ route('admin.suppliers.activate', $supplier) }}">
-                    @csrf
-                    @method('PATCH')
+            <form method="POST" action="{{ route('admin.suppliers.activate', $supplier) }}">
+                @csrf
+                @method('PATCH')
 
-                    <button type="submit"
-                            class="requisition-add-button">
-                        <i class="fas fa-toggle-on"></i>
-                        Activate
-                    </button>
-                </form>
+                <button type="submit" class="requisition-add-button">
+                    <i class="fas fa-toggle-on"></i>
+                    Activate
+                </button>
+            </form>
 
             @endif
 
@@ -135,8 +128,8 @@
 
 
     {{-- ============================================================
-         SUPPLIER DETAILS
-         ============================================================ --}}
+    SUPPLIER DETAILS
+    ============================================================ --}}
     <div class="requisition-section">
 
         <div class="requisition-section-header">
@@ -237,7 +230,21 @@
             </div>
 
 
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <div class="requisition-detail-item">
+                    <div class="requisition-detail-label">
+                        Supplier Category
+                    </div>
+
+                    <div class="requisition-detail-value">
+                        {{ $categories[$supplier->category] ?? ($supplier->category ?
+                        \Illuminate\Support\Str::headline($supplier->category) : '—') }}
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-4">
                 <div class="requisition-detail-item">
                     <div class="requisition-detail-label">
                         Payment Terms
@@ -250,7 +257,7 @@
             </div>
 
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="requisition-detail-item">
                     <div class="requisition-detail-label">
                         Address
@@ -268,8 +275,8 @@
 
 
     {{-- ============================================================
-         ACCOUNT SUMMARY
-         ============================================================ --}}
+    ACCOUNT SUMMARY
+    ============================================================ --}}
     <div class="requisition-section">
 
         <div class="requisition-section-header">
@@ -363,8 +370,8 @@
 
 
     {{-- ============================================================
-         ACCOUNT TRANSACTIONS
-         ============================================================ --}}
+    ACCOUNT TRANSACTIONS
+    ============================================================ --}}
     <div class="requisition-section">
 
         <div class="requisition-section-header">
@@ -395,95 +402,95 @@
 
         @if($supplier->accountTransactions->count())
 
-            <div class="requisition-list-table-wrapper">
+        <div class="requisition-list-table-wrapper">
 
-                <table class="requisition-list-table">
+            <table class="requisition-list-table">
 
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Reference</th>
-                            <th>Description</th>
-                            <th class="text-end">Debit</th>
-                            <th class="text-end">Credit</th>
-                            <th class="text-end">Balance</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Reference</th>
+                        <th>Description</th>
+                        <th class="text-end">Debit</th>
+                        <th class="text-end">Credit</th>
+                        <th class="text-end">Balance</th>
+                    </tr>
+                </thead>
 
-                    <tbody>
+                <tbody>
 
                     @foreach($supplier->accountTransactions as $transaction)
 
-                        <tr>
+                    <tr>
 
-                            <td>
-                                {{ optional($transaction->transaction_date)->format('d M Y') }}
-                            </td>
+                        <td>
+                            {{ optional($transaction->transaction_date)->format('d M Y') }}
+                        </td>
 
-                            <td>
-                                {{ $transaction->transaction_type ?: '—' }}
-                            </td>
+                        <td>
+                            {{ $transaction->transaction_type ?: '—' }}
+                        </td>
 
-                            <td>
-                                {{ $transaction->reference_number ?: '—' }}
-                            </td>
+                        <td>
+                            {{ $transaction->reference_number ?: '—' }}
+                        </td>
 
-                            <td>
-                                {{ $transaction->description ?: '—' }}
-                            </td>
+                        <td>
+                            {{ $transaction->description ?: '—' }}
+                        </td>
 
-                            <td class="text-end">
+                        <td class="text-end">
 
-                                @if((float) $transaction->debit > 0)
-                                    {{ number_format((float) $transaction->debit, 2) }}
-                                @else
-                                    —
-                                @endif
+                            @if((float) $transaction->debit > 0)
+                            {{ number_format((float) $transaction->debit, 2) }}
+                            @else
+                            —
+                            @endif
 
-                            </td>
+                        </td>
 
-                            <td class="text-end">
+                        <td class="text-end">
 
-                                @if((float) $transaction->credit > 0)
-                                    {{ number_format((float) $transaction->credit, 2) }}
-                                @else
-                                    —
-                                @endif
+                            @if((float) $transaction->credit > 0)
+                            {{ number_format((float) $transaction->credit, 2) }}
+                            @else
+                            —
+                            @endif
 
-                            </td>
+                        </td>
 
-                            <td class="text-end fw-semibold">
-                                {{ number_format((float) $transaction->balance, 2) }}
-                            </td>
+                        <td class="text-end fw-semibold">
+                            {{ number_format((float) $transaction->balance, 2) }}
+                        </td>
 
-                        </tr>
+                    </tr>
 
                     @endforeach
 
-                    </tbody>
+                </tbody>
 
-                </table>
+            </table>
 
-            </div>
+        </div>
 
         @else
 
-            <div class="requisition-table-empty">
+        <div class="requisition-table-empty">
 
-                <div class="requisition-empty-icon">
-                    <i class="fas fa-receipt"></i>
-                </div>
-
-                <h5>
-                    No account transactions
-                </h5>
-
-                <p>
-                    No supplier account transactions have been recorded yet.
-                </p>
-
+            <div class="requisition-empty-icon">
+                <i class="fas fa-receipt"></i>
             </div>
+
+            <h5>
+                No account transactions
+            </h5>
+
+            <p>
+                No supplier account transactions have been recorded yet.
+            </p>
+
+        </div>
 
         @endif
 
@@ -491,100 +498,98 @@
 
 
     {{-- ============================================================
-         NOTES
-         ============================================================ --}}
+    NOTES
+    ============================================================ --}}
     @if($supplier->notes)
 
-        <div class="requisition-section">
+    <div class="requisition-section">
 
-            <div class="requisition-section-header">
+        <div class="requisition-section-header">
 
-                <div class="requisition-section-heading">
+            <div class="requisition-section-heading">
 
-                    <span class="requisition-section-icon">
-                        <i class="fas fa-sticky-note"></i>
-                    </span>
+                <span class="requisition-section-icon">
+                    <i class="fas fa-sticky-note"></i>
+                </span>
 
-                    <div>
-                        <h5>Notes</h5>
-                        <p>Additional information about this supplier.</p>
-                    </div>
-
+                <div>
+                    <h5>Notes</h5>
+                    <p>Additional information about this supplier.</p>
                 </div>
 
             </div>
 
-            <div class="requisition-detail-value">
-                {!! nl2br(e($supplier->notes)) !!}
-            </div>
-
         </div>
+
+        <div class="requisition-detail-value">
+            {!! nl2br(e($supplier->notes)) !!}
+        </div>
+
+    </div>
 
     @endif
 
 
     {{-- ============================================================
-         DELETE SUPPLIER
-         ============================================================ --}}
+    DELETE SUPPLIER
+    ============================================================ --}}
     @if($supplier->accountTransactions->count() === 0)
 
-        <div class="requisition-section">
+    <div class="requisition-section">
 
-            <div class="requisition-section-header">
+        <div class="requisition-section-header">
 
-                <div class="requisition-section-heading text-danger">
+            <div class="requisition-section-heading text-danger">
 
-                    <span class="requisition-section-icon">
-                        <i class="fas fa-trash"></i>
-                    </span>
+                <span class="requisition-section-icon">
+                    <i class="fas fa-trash"></i>
+                </span>
 
-                    <div>
-                        <h5>Delete Supplier</h5>
-                        <p>
-                            Permanently remove this supplier record.
-                        </p>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="requisition-bottom-actions">
-
-                <div class="requisition-bottom-actions-left">
-
-                    <span class="text-muted small">
-                        Deletion will be blocked once this supplier is
-                        used for an LPO or account transaction.
-                    </span>
-
-                </div>
-
-                <div class="requisition-bottom-actions-right">
-
-                    <form method="POST"
-                          action="{{ route('admin.suppliers.destroy', $supplier) }}"
-                          onsubmit="return confirm('Are you sure you want to permanently delete this supplier?')">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit"
-                                class="btn btn-outline-danger">
-
-                            <i class="fas fa-trash"></i>
-                            Delete Supplier
-
-                        </button>
-
-                    </form>
-
+                <div>
+                    <h5>Delete Supplier</h5>
+                    <p>
+                        Permanently remove this supplier record.
+                    </p>
                 </div>
 
             </div>
 
         </div>
+
+
+        <div class="requisition-bottom-actions">
+
+            <div class="requisition-bottom-actions-left">
+
+                <span class="text-muted small">
+                    Deletion will be blocked once this supplier is
+                    used for an LPO or account transaction.
+                </span>
+
+            </div>
+
+            <div class="requisition-bottom-actions-right">
+
+                <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}"
+                    onsubmit="return confirm('Are you sure you want to permanently delete this supplier?')">
+
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit" class="btn btn-outline-danger">
+
+                        <i class="fas fa-trash"></i>
+                        Delete Supplier
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
 
     @endif
 

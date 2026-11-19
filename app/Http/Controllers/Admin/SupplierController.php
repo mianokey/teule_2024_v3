@@ -11,6 +11,53 @@ use Illuminate\Validation\Rule;
 class SupplierController extends Controller
 {
     /**
+     * Supplier categories used throughout the supplier module.
+     */
+    private function categories(): array
+    {
+        return [
+            'food_groceries' => 'Food & Groceries',
+            'stationery' => 'Stationery & Learning Materials',
+            'construction' => 'Construction & Building Materials',
+            'maintenance' => 'Repairs & Maintenance',
+            'ict_electronics' => 'ICT & Electronics',
+            'furniture_equipment' => 'Furniture & Equipment',
+            'medical_hygiene' => 'Medical & Hygiene Supplies',
+            'transport' => 'Transport & Vehicle Services',
+            'professional_services' => 'Professional Services',
+            'utilities' => 'Utilities',
+            'other' => 'Other',
+        ];
+    }
+
+    /**
+     * Supplier validation rules.
+     */
+    private function supplierRules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+
+            'category' => [
+                'required',
+                'string',
+                Rule::in(array_keys($this->categories())),
+            ],
+
+            'contact_person' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string'],
+            'tax_pin' => ['nullable', 'string', 'max:100'],
+            'payment_terms' => ['nullable', 'string', 'max:100'],
+            'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'opening_balance' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
      * Display suppliers.
      */
     public function index(Request $request)
@@ -18,6 +65,7 @@ class SupplierController extends Controller
         $query = Supplier::query()
             ->withCount('accountTransactions');
 
+        // General search.
         if ($request->filled('search')) {
             $search = trim($request->search);
 
@@ -31,12 +79,30 @@ class SupplierController extends Controller
             });
         }
 
-        if ($request->status === 'active') {
-            $query->where('is_active', true);
+        // Category filter.
+        if (
+            $request->filled('category') &&
+            array_key_exists($request->category, $this->categories())
+        ) {
+            $query->where('category', $request->category);
         }
 
-        if ($request->status === 'inactive') {
+        // Status filter.
+        if ($request->status === 'active') {
+            $query->where('is_active', true);
+        } elseif ($request->status === 'inactive') {
             $query->where('is_active', false);
+        }
+
+        // Payment terms filter.
+        if ($request->filled('payment_terms')) {
+            $paymentTerms = trim($request->payment_terms);
+
+            $query->where(
+                'payment_terms',
+                'like',
+                "%{$paymentTerms}%"
+            );
         }
 
         $suppliers = $query
@@ -44,7 +110,12 @@ class SupplierController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.suppliers.index', compact('suppliers'));
+        $categories = $this->categories();
+
+        return view(
+            'admin.suppliers.index',
+            compact('suppliers', 'categories')
+        );
     }
 
     /**
@@ -52,7 +123,9 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        return view('admin.suppliers.create');
+        $categories = $this->categories();
+
+        return view('admin.suppliers.create', compact('categories'));
     }
 
     /**
@@ -60,75 +133,13 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'contact_person' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-            ],
-
-            'address' => [
-                'nullable',
-                'string',
-            ],
-
-            'tax_pin' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'payment_terms' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'credit_limit' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'opening_balance' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'notes' => [
-                'nullable',
-                'string',
-            ],
-
-            'is_active' => [
-                'nullable',
-                'boolean',
-            ],
-        ]);
+        $validated = $request->validate($this->supplierRules());
 
         $supplier = DB::transaction(function () use ($validated, $request) {
             return Supplier::create([
                 'supplier_code' => $this->generateSupplierCode(),
                 'name' => $validated['name'],
+                'category' => $validated['category'],
                 'contact_person' => $validated['contact_person'] ?? null,
                 'phone' => $validated['phone'] ?? null,
                 'email' => $validated['email'] ?? null,
@@ -189,7 +200,12 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
-        return view('admin.suppliers.edit', compact('supplier'));
+        $categories = $this->categories();
+
+        return view(
+            'admin.suppliers.edit',
+            compact('supplier', 'categories')
+        );
     }
 
     /**
@@ -197,73 +213,11 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'contact_person' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-            ],
-
-            'address' => [
-                'nullable',
-                'string',
-            ],
-
-            'tax_pin' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'payment_terms' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'credit_limit' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'opening_balance' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-
-            'notes' => [
-                'nullable',
-                'string',
-            ],
-
-            'is_active' => [
-                'nullable',
-                'boolean',
-            ],
-        ]);
+        $validated = $request->validate($this->supplierRules());
 
         $supplier->update([
             'name' => $validated['name'],
+            'category' => $validated['category'],
             'contact_person' => $validated['contact_person'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'email' => $validated['email'] ?? null,
@@ -286,12 +240,9 @@ class SupplierController extends Controller
      */
     public function activate(Supplier $supplier)
     {
-        $supplier->update([
-            'is_active' => true,
-        ]);
+        $supplier->update(['is_active' => true]);
 
-        return back()
-            ->with('success', 'Supplier activated successfully.');
+        return back()->with('success', 'Supplier activated successfully.');
     }
 
     /**
@@ -299,41 +250,34 @@ class SupplierController extends Controller
      */
     public function deactivate(Supplier $supplier)
     {
-        $supplier->update([
-            'is_active' => false,
-        ]);
+        $supplier->update(['is_active' => false]);
 
-        return back()
-            ->with('success', 'Supplier deactivated successfully.');
+        return back()->with('success', 'Supplier deactivated successfully.');
     }
 
     /**
      * Delete supplier.
      *
-     * Suppliers with account transactions are protected.
+     * Suppliers with account transactions or LPO references are protected.
      */
     public function destroy(Supplier $supplier)
     {
         if ($supplier->accountTransactions()->exists()) {
-            return back()
-                ->with('error',
-                    'This supplier cannot be deleted because supplier account transactions already exist. Deactivate the supplier instead.'
-                );
+            return back()->with(
+                'error',
+                'This supplier cannot be deleted because supplier account transactions already exist. Deactivate the supplier instead.'
+            );
         }
 
-        /*
-         * If your StoreLpo model/table already references suppliers,
-         * prevent deletion when the supplier has been used by an LPO.
-         */
         if (
             DB::table('store_lpos')
                 ->where('supplier_id', $supplier->id)
                 ->exists()
         ) {
-            return back()
-                ->with('error',
-                    'This supplier cannot be deleted because it has already been used on an LPO. Deactivate the supplier instead.'
-                );
+            return back()->with(
+                'error',
+                'This supplier cannot be deleted because it has already been used on an LPO. Deactivate the supplier instead.'
+            );
         }
 
         $supplier->delete();
@@ -364,10 +308,7 @@ class SupplierController extends Controller
                 STR_PAD_LEFT
             );
 
-            $exists = Supplier::where(
-                'supplier_code',
-                $code
-            )->exists();
+            $exists = Supplier::where('supplier_code', $code)->exists();
 
             if ($exists) {
                 $nextNumber++;
@@ -377,4 +318,3 @@ class SupplierController extends Controller
         return $code;
     }
 }
-

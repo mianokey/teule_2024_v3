@@ -10,20 +10,22 @@ class Supplier extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'supplier_code',
-        'name',
-        'contact_person',
-        'phone',
-        'email',
-        'address',
-        'tax_pin',
-        'payment_terms',
-        'credit_limit',
-        'opening_balance',
-        'is_active',
-        'notes',
-    ];
+protected $fillable = [
+    'supplier_code',
+    'name',
+    'category',
+    'contact_person',
+    'phone',
+    'email',
+    'address',
+    'tax_pin',
+    'payment_terms',
+    'credit_limit',
+    'opening_balance',
+    'is_active',
+    'notes',
+];
+
 
     protected $casts = [
         'credit_limit' => 'decimal:2',

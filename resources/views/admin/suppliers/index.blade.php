@@ -1,22 +1,15 @@
+
 @extends('layouts.admin')
 
 @push('styles')
-
-
 <link rel="stylesheet" href="{{ asset('assets/css/stores.css') }}">
-
-
 @endpush
 
 @section('content')
 
 <div class="store-requisition-page">
 
-
-    {{-- ============================================================
-    PAGE HEADER
-    ============================================================ --}}
-
+    {{-- PAGE HEADER --}}
     <div class="requisition-page-header">
 
         <div class="requisition-header-content">
@@ -26,434 +19,488 @@
             </div>
 
             <div>
-
                 <div class="requisition-breadcrumb">
-
                     <span>Stores</span>
-
                     <i class="fas fa-chevron-right"></i>
-
                     <span>Suppliers</span>
-
                 </div>
 
-                <h1 class="requisition-page-title">
-                    Suppliers
-                </h1>
+                <h1 class="requisition-page-title">Suppliers</h1>
 
                 <p class="requisition-page-subtitle">
                     Manage suppliers used for purchasing and store LPOs.
                 </p>
-
             </div>
 
         </div>
 
         <div class="requisition-header-right">
-
-            <a href="{{ route('admin.suppliers.create') }}" class="requisition-add-button">
-
+            <a href="{{ route('admin.suppliers.create') }}"
+               class="requisition-add-button">
                 <i class="fas fa-plus"></i>
-
-                <span>
-                    Add Supplier
-                </span>
-
+                <span>Add Supplier</span>
             </a>
-
         </div>
 
     </div>
 
-
-    {{-- ============================================================
-    FLASH / SYSTEM MESSAGES
-    ============================================================ --}}
-
     <x-message></x-message>
 
 
-    {{-- ============================================================
-    SUPPLIERS SECTION
-    ============================================================ --}}
+{{-- ADVANCED SUPPLIER FILTERS --}}
+<div class="requisition-section donation-filters-section">
 
-    <div class="requisition-section">
+    <details class="donation-filters-details"
+        {{ request()->hasAny(['search', 'category', 'status', 'payment_terms']) ? 'open' : '' }}>
 
-        {{-- Section Header --}}
-
-        <div class="requisition-section-header">
+        <summary class="requisition-section-header donation-filters-summary">
 
             <div class="requisition-section-heading">
 
                 <div class="requisition-section-icon">
-
-                    <i class="fas fa-truck"></i>
-
+                    <i class="fa fa-filter"></i>
                 </div>
 
                 <div>
+                    <h5>Search & Filter Suppliers</h5>
+                    <p>Click to expand or collapse the supplier filters.</p>
+                </div>
 
-                    <h5>
-                        Suppliers
-                    </h5>
+            </div>
 
-                    <p>
-                        Suppliers available for purchasing and store LPOs.
-                    </p>
+            <i class="fa fa-chevron-down donation-filters-chevron"></i>
+
+        </summary>
+
+        <div class="requisition-details-body donation-filters-body">
+
+            <div class="requisition-section">
+
+                <div class="requisition-details-body">
+
+                    <form method="GET" action="{{ route('admin.suppliers.index') }}">
+
+                        {{-- GENERAL SEARCH --}}
+                        <div class="row mb-3">
+
+                            <div class="col-md-4">
+
+                                <label class="requisition-field-label">
+                                    Search
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="search"
+                                    value="{{ request('search') }}"
+                                    class="requisition-input"
+                                    placeholder="Supplier name, code, contact, phone, email or PIN"
+                                >
+
+                            </div>
+
+                            {{-- CATEGORY --}}
+                            <div class="col-md-3">
+
+                                <label class="requisition-field-label">
+                                    Supplier Category
+                                </label>
+
+                                <select name="category" class="requisition-input">
+
+                                    <option value="">All Categories</option>
+
+                                    @foreach($categories as $value => $label)
+
+                                        <option
+                                            value="{{ $value }}"
+                                            @selected(request('category') === $value)
+                                        >
+                                            {{ $label }}
+                                        </option>
+
+                                    @endforeach
+
+                                </select>
+
+                            </div>
+
+                            {{-- STATUS --}}
+                            <div class="col-md-2">
+
+                                <label class="requisition-field-label">
+                                    Status
+                                </label>
+
+                                <select name="status" class="requisition-input">
+
+                                    <option value="">All Statuses</option>
+
+                                    <option value="active"
+                                        @selected(request('status') === 'active')>
+                                        Active
+                                    </option>
+
+                                    <option value="inactive"
+                                        @selected(request('status') === 'inactive')>
+                                        Inactive
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            {{-- PAYMENT TERMS --}}
+                            <div class="col-md-3">
+
+                                <label class="requisition-field-label">
+                                    Payment Terms
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="payment_terms"
+                                    value="{{ request('payment_terms') }}"
+                                    class="requisition-input"
+                                    placeholder="Cash, 30 Days, 60 Days..."
+                                >
+
+                            </div>
+
+                        </div>
+
+                        {{-- ACTIONS --}}
+                        <div class="d-flex flex-wrap justify-content-end"
+                             style="gap: 10px;">
+
+                            <button type="submit"
+                                    class="requisition-save-button">
+
+                                <i class="fa fa-search"></i>
+                                Apply Filters
+
+                            </button>
+
+                            <a
+                                href="{{ route('admin.suppliers.index') }}"
+                                class="requisition-cancel-button"
+                                style="display:inline-flex;align-items:center;justify-content:center;gap:6px;"
+                            >
+
+                                <i class="fa fa-times"></i>
+                                Clear Filters
+
+                            </a>
+
+                        </div>
+
+                    </form>
 
                 </div>
 
             </div>
 
-            @if($suppliers->count())
+        </div>
 
-            <span class="requisition-count-badge">
+    </details>
 
-                {{ $suppliers->count() }}
+</div>
 
-                {{ $suppliers->count() === 1 ? 'Supplier' : 'Suppliers' }}
 
-            </span>
 
+    {{-- SUPPLIERS TABLE --}}
+    <div class="requisition-section">
+
+        <div class="requisition-section-header">
+
+            <div class="requisition-section-heading">
+                <div class="requisition-section-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+
+                <div>
+                    <h5>Suppliers</h5>
+                    <p>Suppliers available for purchasing and store LPOs.</p>
+                </div>
+            </div>
+
+            @if($suppliers->total())
+                <span class="requisition-count-badge">
+                    {{ $suppliers->total() }}
+                    {{ $suppliers->total() === 1 ? 'Supplier' : 'Suppliers' }}
+                </span>
             @endif
 
         </div>
 
-
-        {{-- ========================================================
-        SUPPLIER TABLE
-        ======================================================== --}}
-
         @if($suppliers->count())
 
-        <div class="requisition-list-table-wrapper">
+            <div class="requisition-list-table-wrapper">
+
+                <table class="requisition-list-table">
 
-            <table class="requisition-list-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Supplier</th>
+                            <th>Category</th>
+                            <th>Contact</th>
+                            <th>Payment Terms</th>
+                            <th>Credit Limit</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 
-                <thead>
+                    <tbody>
 
-                    <tr>
+                        @foreach($suppliers as $supplier)
 
-                        <th>
-                            #
-                        </th>
+                            <tr>
 
-                        <th>
-                            Supplier
-                        </th>
+                                {{-- NUMBER --}}
+                                <td>
+                                    <span class="requisition-list-row-number">
+                                        {{ $suppliers->firstItem() + $loop->index }}
+                                    </span>
+                                </td>
 
-                        <th>
-                            Contact
-                        </th>
+                                {{-- SUPPLIER --}}
+                                <td>
+                                    <div class="requisition-list-number">
 
-                        <th>
-                            Payment Terms
-                        </th>
+                                        <a href="{{ route('admin.suppliers.show', $supplier) }}">
+                                            {{ $supplier->name }}
+                                        </a>
 
-                        <th>
-                            Credit Limit
-                        </th>
+                                        <div class="requisition-list-meta">
+                                            {{ $supplier->supplier_code }}
+                                        </div>
 
-                        <th>
-                            Status
-                        </th>
+                                    </div>
+                                </td>
 
-                        <th>
-                            Actions
-                        </th>
+                                {{-- CATEGORY --}}
+                                <td>
+                                    @if($supplier->category && isset($categories[$supplier->category]))
 
-                    </tr>
+                                        <span class="requisition-list-purpose">
+                                            {{ $categories[$supplier->category] }}
+                                        </span>
 
-                </thead>
+                                    @elseif($supplier->category)
 
-                <tbody>
+                                        <span class="requisition-list-purpose">
+                                            {{ \Illuminate\Support\Str::headline($supplier->category) }}
+                                        </span>
 
-                    @foreach($suppliers as $supplier)
+                                    @else
 
-                    <tr>
+                                        <span class="requisition-list-time">
+                                            Not assigned
+                                        </span>
 
-                        {{-- =================================================
-                        ROW NUMBER
-                        ================================================= --}}
+                                    @endif
+                                </td>
 
-                        <td>
+                                {{-- CONTACT --}}
+                                <td>
 
-                            <span class="requisition-list-row-number">
+                                    @if($supplier->contact_person)
+                                        <div class="requisition-list-purpose">
+                                            {{ $supplier->contact_person }}
+                                        </div>
+                                    @endif
 
-                                {{ $suppliers->firstItem() + $loop->index }}
+                                    @if($supplier->phone)
+                                        <div class="requisition-list-time">
+                                            {{ $supplier->phone }}
+                                        </div>
+                                    @endif
 
-                            </span>
+                                    @if($supplier->email)
+                                        <div class="requisition-list-time">
+                                            {{ $supplier->email }}
+                                        </div>
+                                    @endif
 
-                        </td>
+                                    @if(!$supplier->contact_person && !$supplier->phone && !$supplier->email)
+                                        <span class="requisition-list-time">—</span>
+                                    @endif
 
+                                </td>
 
-                        {{-- =================================================
-                        SUPPLIER
-                        ================================================= --}}
+                                {{-- PAYMENT TERMS --}}
+                                <td>
+                                    @if($supplier->payment_terms)
 
-                        <td>
+                                        <span class="requisition-list-purpose">
+                                            {{ $supplier->payment_terms }}
+                                        </span>
 
-                            <div class="requisition-list-number">
+                                    @else
 
-                                <a href="{{ route(
-                                        'admin.suppliers.show',
-                                        $supplier
-                                    ) }}">
+                                        <span class="requisition-list-time">—</span>
 
-                                    {{ $supplier->name }}
+                                    @endif
+                                </td>
 
-                                </a>
+                                {{-- CREDIT LIMIT --}}
+                                <td>
+                                    <div class="requisition-list-purpose">
+                                        KES {{ number_format((float) $supplier->credit_limit, 2) }}
+                                    </div>
+                                </td>
 
-                                <div class="requisition-list-meta">
+                                {{-- STATUS --}}
+                                <td>
 
-                                    {{ $supplier->supplier_code }}
+                                    @if($supplier->is_active)
 
-                                </div>
+                                        <span class="requisition-list-status requisition-list-status-completed">
+                                            <span class="requisition-list-status-dot"></span>
+                                            Active
+                                        </span>
 
-                            </div>
+                                    @else
 
-                        </td>
+                                        <span class="requisition-list-status requisition-list-status-cancelled">
+                                            <span class="requisition-list-status-dot"></span>
+                                            Inactive
+                                        </span>
 
+                                    @endif
 
-                        {{-- =================================================
-                        CONTACT
-                        ================================================= --}}
+                                </td>
 
-                        <td>
+                                {{-- ACTIONS --}}
+                                <td>
 
-                            @if($supplier->contact_person)
+                                    <div class="requisition-list-actions">
 
-                            <div class="requisition-list-purpose">
+                                        <a href="{{ route('admin.suppliers.show', $supplier) }}"
+                                           class="requisition-list-action primary"
+                                           title="View Supplier"
+                                           aria-label="View Supplier">
 
-                                {{ $supplier->contact_person }}
+                                            <i class="fas fa-eye"></i>
 
-                            </div>
+                                        </a>
 
-                            @endif
+                                        <a href="{{ route('admin.suppliers.edit', $supplier) }}"
+                                           class="requisition-list-action"
+                                           title="Edit Supplier"
+                                           aria-label="Edit Supplier">
 
-                            @if($supplier->phone)
+                                            <i class="fas fa-edit"></i>
 
-                            <div class="requisition-list-time">
+                                        </a>
 
-                                {{ $supplier->phone }}
+                                    </div>
 
-                            </div>
+                                </td>
 
-                            @endif
+                            </tr>
 
-                            @if($supplier->email)
+                        @endforeach
 
-                            <div class="requisition-list-time">
+                    </tbody>
 
-                                {{ $supplier->email }}
-
-                            </div>
-
-                            @endif
-
-                            @if(
-                            !$supplier->contact_person &&
-                            !$supplier->phone &&
-                            !$supplier->email
-                            )
-
-                            <span class="requisition-list-time">
-                                —
-                            </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =================================================
-                        PAYMENT TERMS
-                        ================================================= --}}
-
-                        <td>
-
-                            @if($supplier->payment_terms)
-
-                            <span class="requisition-list-purpose">
-
-                                {{ $supplier->payment_terms }}
-
-                            </span>
-
-                            @else
-
-                            <span class="requisition-list-time">
-                                —
-                            </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =================================================
-                        CREDIT LIMIT
-                        ================================================= --}}
-
-                        <td>
-
-                            @if($supplier->credit_limit !== null)
-
-                            <div class="requisition-list-purpose">
-
-                                KES
-                                {{ number_format(
-                                (float) $supplier->credit_limit,
-                                2
-                                ) }}
-
-                            </div>
-
-                            @else
-
-                            <span class="requisition-list-time">
-                                —
-                            </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =================================================
-                        STATUS
-                        ================================================= --}}
-
-                        <td>
-
-                            @if($supplier->is_active)
-
-                            <span class="requisition-list-status requisition-list-status-completed">
-
-                                <span class="requisition-list-status-dot"></span>
-
-                                Active
-
-                            </span>
-
-                            @else
-
-                            <span class="requisition-list-status requisition-list-status-cancelled">
-
-                                <span class="requisition-list-status-dot"></span>
-
-                                Inactive
-
-                            </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =================================================
-                        ACTIONS
-                        ================================================= --}}
-
-                        <td>
-
-                            <div class="requisition-list-actions">
-
-                                {{-- View --}}
-
-                                <a href="{{ route(
-                                        'admin.suppliers.show',
-                                        $supplier
-                                    ) }}" class="requisition-list-action primary" title="View Supplier"
-                                    aria-label="View Supplier">
-
-                                    <i class="fas fa-eye"></i>
-
-                                </a>
-
-
-                                {{-- Edit --}}
-
-                                <a href="{{ route(
-                                        'admin.suppliers.edit',
-                                        $supplier
-                                    ) }}" class="requisition-list-action" title="Edit Supplier"
-                                    aria-label="Edit Supplier">
-
-                                    <i class="fas fa-edit"></i>
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    @endforeach
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        {{-- ========================================================
-        HORIZONTAL SCROLL HINT
-        ======================================================== --}}
-
-        <div class="requisition-scroll-hint">
-
-            <i class="fas fa-arrows-alt-h"></i>
-
-            <span>
-                Scroll horizontally to view all supplier details.
-            </span>
-
-        </div>
-
-
-
-        @else
-
-
-        {{-- ========================================================
-        EMPTY STATE
-        ======================================================== --}}
-
-        <div class="requisition-table-empty">
-
-            <div class="requisition-empty-icon">
-
-                <i class="fas fa-truck"></i>
+                </table>
 
             </div>
 
-            <h5>
-                No Suppliers Yet
-            </h5>
+            {{-- PAGINATION --}}
+{{-- SUPPLIERS PAGINATION --}}
+@if($suppliers->total() > 0)
 
-            <p>
-                No suppliers have been added to the Stores system yet.
-            </p>
+    <div class="stores-pagination-section">
 
-            <a href="{{ route('admin.suppliers.create') }}" class="requisition-add-button">
+        <div class="stores-pagination-info">
 
-                <i class="fas fa-plus"></i>
+            <div class="stores-pagination-info-icon">
+                <i class="fa fa-layer-group"></i>
+            </div>
 
-                <span>
-                    Add First Supplier
+            <div class="stores-pagination-info-text">
+
+                <span class="stores-pagination-info-label">
+                    Showing suppliers
                 </span>
 
-            </a>
+                <strong>
+                    {{ $suppliers->firstItem() ?? 0 }}
+                    –
+                    {{ $suppliers->lastItem() ?? 0 }}
+                </strong>
+
+                <span class="stores-pagination-info-total">
+                    of {{ number_format($suppliers->total()) }} total
+                </span>
+
+            </div>
 
         </div>
+
+        @if($suppliers->hasPages())
+
+            <div class="stores-pagination-controls">
+                {{ $suppliers->onEachSide(2)->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
 
         @endif
 
     </div>
 
+@endif
+
+
+        @else
+
+            {{-- EMPTY STATE --}}
+            <div class="requisition-table-empty">
+
+                <div class="requisition-empty-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+
+                <h5>No Suppliers Found</h5>
+
+                <p>
+                    @if(request()->hasAny(['search', 'category', 'status', 'payment_terms']))
+                        No suppliers match your selected filters.
+                    @else
+                        No suppliers have been added to the Stores system yet.
+                    @endif
+                </p>
+
+                @if(request()->hasAny(['search', 'category', 'status', 'payment_terms']))
+
+                    <a href="{{ route('admin.suppliers.index') }}"
+                       class="requisition-cancel-button">
+
+                        <i class="fas fa-undo"></i>
+                        Clear Filters
+
+                    </a>
+
+                @else
+
+                    <a href="{{ route('admin.suppliers.create') }}"
+                       class="requisition-add-button">
+
+                        <i class="fas fa-plus"></i>
+                        <span>Add First Supplier</span>
+
+                    </a>
+
+                @endif
+
+            </div>
+
+        @endif
+
+    </div>
 
 </div>
 
