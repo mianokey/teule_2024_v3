@@ -257,12 +257,12 @@
 
         <div class="di-export">
             <a href="{{ route('admin.donor-intelligence.export', array_merge(['format' => 'csv'], $queryFilters)) }}"
-               class="btn btn-outline-success">
+               class="requisition-add-button">
                 <i class="fas fa-file-csv"></i> Export CSV
             </a>
 
             <a href="{{ route('admin.donor-intelligence.export', array_merge(['format' => 'pdf'], $queryFilters)) }}"
-               class="btn btn-outline-danger" target="_blank">
+               class="requisition-add-button" target="_blank">
                 <i class="fas fa-file-pdf"></i> Export PDF
             </a>
         </div>
