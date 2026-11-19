@@ -306,6 +306,22 @@
 
                                 </li>
 
+
+<li class>
+    <a href="{{ route('admin.donor-intelligence.index') }}" class="svg-icon">
+        <i class>
+            <svg class="svg-icon" width="20"
+                xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 8h10M7 12h6m-8 8l3.5-3H17a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4v6a4 4 0 002 3.87V20z" />
+            </svg>
+        </i>
+        <span>C&P Dashboard</span>
+    </a>
+</li>
+
+
                             </ul>
 
                         </li>

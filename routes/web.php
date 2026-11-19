@@ -35,6 +35,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WorkflowNotificationController;
 use App\Models\Donation;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Http\Controllers\Admin\DonorIntelligenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -153,6 +154,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('donations/{donation}/receipt',[DonationController::class, 'receipt'])->name('admin.donations.receipt');
     Route::get('donations/export/{format}', [DonationController::class, 'export'])->where('format', 'pdf|xlsx|csv') ->name('admin.donations.export');
     Route::resource('donations', DonationController::class) ->names('admin.donations');
+
+
+    // Donor Intelligence Dashboard
+Route::get('donor-intelligence', [DonorIntelligenceController::class, 'index'])->name('admin.donor-intelligence.index');
+Route::get('donor-intelligence/export/{format}',[DonorIntelligenceController::class, 'export'])->where('format', 'pdf|csv')->name('admin.donor-intelligence.export');
+
+
     // Stores - Item Categories
 
 Route::resource('store-categories', StoreItemCategoryController::class)->parameters(['store-categories' => 'storeCategory'])->names('admin.store-categories');
