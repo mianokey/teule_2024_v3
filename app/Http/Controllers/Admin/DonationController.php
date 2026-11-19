@@ -999,121 +999,25 @@ if ($validated['type'] === 'in_kind') {
  * Generate a donation receipt PDF.
  */
 
-public function receipt(Donation $donation)
-{
-    $donation->load([
-        'donor',
-        'items',
-        'receivedBy',
-    ]);
 
-    // Supported receipt types: internal and donor.
+public function receipt(Donation $donation,\App\Services\DonationReceiptPdf $receiptPdf) {
     $receiptType = request('type', 'internal');
 
     if (!in_array($receiptType, ['internal', 'donor'], true)) {
         $receiptType = 'internal';
     }
 
-    // Encode the donation receipt number for the verification URL.
-    $encodedDonationNumber = rtrim(
-        strtr(
-            base64_encode($donation->donation_number),
-            '+/',
-            '-_'
-        ),
-        '='
+    $receipt = $receiptPdf->generate(
+        $donation,
+        $receiptType
     );
 
-    // Generate the public verification URL.
-    $verificationUrl = route('donations.verify', [
-        'encodedDonationNumber' => $encodedDonationNumber,
+    return response($receipt['content'], 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="'
+            . $receipt['filename']
+            . '"',
     ]);
-
-    $generatedAt = now();
-
-    // Generate a unique temporary QR code SVG file.
-    $qrDirectory = public_path('receipt-qr-temp');
-
-    if (!is_dir($qrDirectory) && !mkdir($qrDirectory, 0755, true) && !is_dir($qrDirectory)) {
-        throw new \RuntimeException(
-            'Unable to create the temporary receipt QR directory.'
-        );
-    }
-
-    $qrCodePath = $qrDirectory
-        . DIRECTORY_SEPARATOR
-        . 'receipt-'
-        . bin2hex(random_bytes(16))
-        . '.svg';
-
-    $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-        ->size(120)
-        ->margin(2)
-        ->errorCorrection('H')
-        ->generate($verificationUrl);
-
-    if (file_put_contents($qrCodePath, $qrSvg) === false) {
-        throw new \RuntimeException(
-            'Unable to generate the receipt QR code image.'
-        );
-    }
-
-    // Determine the receipt filename.
-    $typeLabel = $receiptType === 'donor'
-        ? 'Donor'
-        : 'Internal';
-
-    $filename = 'Donation-Receipt-'
-        . $donation->donation_number
-        . '-'
-        . $typeLabel
-        . '.pdf';
-
-    try {
-        // Render the receipt using Dompdf.
-$pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
-    'admin.donations.receipt',
-    [
-        'donation' => $donation,
-        'generatedAt' => $generatedAt,
-        'receiptType' => $receiptType,
-        'verificationUrl' => $verificationUrl,
-        'qrCodePath' => $qrCodePath,
-    ]
-);
-
-
-        $pdf->setPaper('A4', 'portrait');
-
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => false,
-            'defaultFont' => 'DejaVu Sans',
-            'chroot' => public_path(),
-        ]);
-
-        // Render the PDF before deleting the QR image.
-        $pdfContent = $pdf->output();
-
-    } finally {
-        // Remove the temporary QR file after rendering.
-        if (is_file($qrCodePath)) {
-            unlink($qrCodePath);
-        }
-    }
-
-$timestamp = now()->format('Ymd_His');
-
-$filename = pathinfo($filename, PATHINFO_FILENAME)
-    . '-'
-    . $timestamp
-    . '.pdf';
-
-return response($pdfContent, 200, [
-    'Content-Type' => 'application/pdf',
-    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-]);
-
 }
 
 

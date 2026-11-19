@@ -101,15 +101,16 @@ class DonationCommunicationSender
             $communication->loadMissing('donation');
 
             Mail::to($communication->recipient)
-                ->cc([
-                    'rmo@teulekenya.org',
-                    'antony@teulekenya.org',
-                ])
-                ->send(
-                    new DonationThankYouMail(
-                        $communication->donation
-                    )
-                );
+            ->cc([
+                'rmo@teulekenya.org',
+                'antony@teulekenya.org',
+            ])
+            ->send(
+                new DonationThankYouMail(
+                    $communication->donation
+                )
+            );
+    
 
             $communication->update([
                 'status' => 'sent',
