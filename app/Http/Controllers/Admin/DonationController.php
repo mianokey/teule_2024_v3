@@ -497,7 +497,6 @@ if ($validated['type'] === 'in_kind') {
      * Update a donation.
      */
 
-    
 public function update(
     Request $request,
     Donation $donation,
@@ -508,17 +507,17 @@ public function update(
         'type'              => 'required|in:cash,in_kind',
         'classification'    => 'required|in:donation,payment,refund,other,unclassified',
         'source'            => 'nullable|in:manual,mpesa,bank,other',
-        'amount'             => 'nullable|numeric|min:0',
-        'currency'           => 'required|string|size:3',
-        'donation_date'      => 'required|date',
-        'purpose'            => 'nullable|string|max:255',
-        'reference'          => 'nullable|string|max:255',
-        'payment_reference'  => 'nullable|string|max:255',
-        'description'        => 'nullable|string|max:2000',
-        'notes'              => 'nullable|string|max:2000',
+        'amount'            => 'nullable|numeric|min:0',
+        'currency'          => 'required|string|size:3',
+        'donation_date'     => 'required|date',
+        'purpose'           => 'nullable|string|max:255',
+        'reference'         => 'nullable|string|max:255',
+        'payment_reference' => 'nullable|string|max:255',
+        'description'       => 'nullable|string|max:2000',
+        'notes'             => 'nullable|string|max:2000',
 
         'items'                       => 'nullable|array',
-        'items.*.id'                  => 'nullable|integer|exists:donation_items,id',
+        'items.*.id'                  => 'nullable|integer',
         'items.*.item'                => 'required_with:items|string|max:255',
         'items.*.store_item_id'       => 'nullable|integer|exists:store_items,id',
         'items.*.variant_id'          => 'nullable|integer|exists:store_item_variants,id',
@@ -531,7 +530,7 @@ public function update(
 
     /*
     |--------------------------------------------------------------------------
-    | Cash donation validation
+    | Validate cash donations
     |--------------------------------------------------------------------------
     */
 
@@ -551,19 +550,13 @@ public function update(
         $validated['source'] = $validated['source'] ?? 'manual';
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Extract submitted items
-    |--------------------------------------------------------------------------
-    */
-
     $submittedItems = $validated['items'] ?? [];
 
     unset($validated['items']);
 
     /*
     |--------------------------------------------------------------------------
-    | Update donation and reconcile stock
+    | Database transaction
     |--------------------------------------------------------------------------
     */
 
@@ -573,6 +566,12 @@ public function update(
         $donation
     ) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Lock donation
+        |--------------------------------------------------------------------------
+        */
+
         $lockedDonation = Donation::query()
             ->whereKey($donation->id)
             ->lockForUpdate()
@@ -580,42 +579,41 @@ public function update(
 
         /*
         |--------------------------------------------------------------------------
-        | Load original donation items
+        | Load existing donation items
         |--------------------------------------------------------------------------
         */
 
-        $oldItems = $lockedDonation->items()->get();
+        $oldItems = $lockedDonation->items()
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('id');
 
         /*
         |--------------------------------------------------------------------------
-        | Build the complete updated item list.
-        |
-        | Existing items remain unless explicitly updated.
-        | Items without an ID are treated as NEW items.
+        | Find posted donation receipt
         |--------------------------------------------------------------------------
+        */
+
+        $receipt = StoreReceipt::query()
+            ->where('donation_id', $lockedDonation->id)
+            ->where('source_type', 'DONATION')
+            ->where('status', 'POSTED')
+            ->lockForUpdate()
+            ->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Synchronize submitted items with database items
+        |--------------------------------------------------------------------------
+        |
+        | Existing IDs = UPDATE
+        | Missing IDs = INSERT
+        | Existing IDs not submitted = DELETE
+        |
         */
 
         $finalItems = [];
-
-        foreach ($oldItems as $oldItem) {
-            $finalItems[$oldItem->id] = [
-                'id'              => $oldItem->id,
-                'item'            => $oldItem->item,
-                'store_item_id'   => $oldItem->store_item_id,
-                'variant_id'      => $oldItem->variant_id,
-                'quantity'        => $oldItem->quantity,
-                'unit'            => $oldItem->unit,
-                'estimated_value' => $oldItem->estimated_value,
-                'condition'       => $oldItem->condition,
-                'notes'           => $oldItem->notes,
-            ];
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Merge submitted items instead of replacing all existing items.
-        |--------------------------------------------------------------------------
-        */
+        $submittedIds = [];
 
         foreach ($submittedItems as $index => $item) {
 
@@ -625,42 +623,46 @@ public function update(
 
             if ($itemId) {
 
-                // Ensure this item belongs to this donation.
-                if (!isset($finalItems[$itemId])) {
+                $itemId = (int) $itemId;
+
+                if (!$oldItems->has($itemId)) {
                     throw ValidationException::withMessages([
                         "items.$index.id" =>
                             'This item does not belong to this donation.',
                     ]);
                 }
 
-                // Update the existing item without losing its identity.
-                $finalItems[$itemId] = array_merge(
-                    $finalItems[$itemId],
+                $submittedIds[] = $itemId;
+
+                $finalItems[] = array_merge(
+                    ['id' => $itemId],
                     $item
                 );
 
             } else {
 
-                // A new item is appended; existing items remain untouched.
-                $finalItems['new_' . $index] = array_merge([
-                    'id'              => null,
-                    'item'            => null,
-                    'store_item_id'   => null,
-                    'variant_id'      => null,
-                    'quantity'        => null,
-                    'unit'            => null,
-                    'estimated_value' => 0,
-                    'condition'       => null,
-                    'notes'           => null,
-                ], $item);
+                $finalItems[] = array_merge(
+                    ['id' => null],
+                    $item
+                );
             }
         }
 
-        $finalItems = array_values($finalItems);
+        /*
+        |--------------------------------------------------------------------------
+        | Calculate removed items
+        |--------------------------------------------------------------------------
+        */
+
+        $idsToDelete = $oldItems->keys()
+            ->map(fn ($id) => (int) $id)
+            ->diff($submittedIds)
+            ->values()
+            ->all();
 
         /*
         |--------------------------------------------------------------------------
-        | In-kind donation validation
+        | Calculate complete in-kind donation value
         |--------------------------------------------------------------------------
         */
 
@@ -684,24 +686,11 @@ public function update(
 
         /*
         |--------------------------------------------------------------------------
-        | Find the already posted store receipt
+        | Stock reconciliation
         |--------------------------------------------------------------------------
         */
-
-        $receipt = StoreReceipt::query()
-            ->where('donation_id', $lockedDonation->id)
-            ->where('source_type', 'DONATION')
-            ->where('status', 'POSTED')
-            ->lockForUpdate()
-            ->first();
 
         $adjustments = [];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Reconcile stock only for posted in-kind donations
-        |--------------------------------------------------------------------------
-        */
 
         if ($receipt) {
 
@@ -714,7 +703,26 @@ public function update(
 
             /*
             |--------------------------------------------------------------------------
-            | Validate all final items
+            | Validate original inventory mappings
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($oldItems as $oldItem) {
+
+                if (
+                    empty($oldItem->store_item_id) ||
+                    $oldItem->quantity === null
+                ) {
+                    throw ValidationException::withMessages([
+                        'items' =>
+                            'An existing donation item is not mapped to a store item. Correct its inventory mapping before editing this received donation.',
+                    ]);
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Validate submitted inventory mappings
             |--------------------------------------------------------------------------
             */
 
@@ -739,12 +747,12 @@ public function update(
 
                 if (!empty($item['variant_id'])) {
 
-                    $belongs = DB::table('store_item_variants')
+                    $variantBelongsToItem = DB::table('store_item_variants')
                         ->where('id', $item['variant_id'])
                         ->where('store_item_id', $item['store_item_id'])
                         ->exists();
 
-                    if (!$belongs) {
+                    if (!$variantBelongsToItem) {
                         throw ValidationException::withMessages([
                             "items.$index.variant_id" =>
                                 'The selected variant does not belong to the selected store item.',
@@ -755,7 +763,7 @@ public function update(
 
             /*
             |--------------------------------------------------------------------------
-            | Aggregate quantities by item and variant
+            | Aggregate old and new quantities
             |--------------------------------------------------------------------------
             */
 
@@ -765,17 +773,30 @@ public function update(
 
                 foreach ($rows as $row) {
 
-                    $itemId = (int) $row['store_item_id'];
+                    $itemId = (int) (
+                        is_array($row)
+                            ? $row['store_item_id']
+                            : $row->store_item_id
+                    );
 
-                    $variantId = !empty($row['variant_id'])
-                        ? (int) $row['variant_id']
+                    $rawVariantId = is_array($row)
+                        ? ($row['variant_id'] ?? null)
+                        : $row->variant_id;
+
+                    $variantId = !empty($rawVariantId)
+                        ? (int) $rawVariantId
                         : null;
 
-                    $quantity = (float) ($row['quantity'] ?? 0);
+                    $rawQuantity = is_array($row)
+                        ? ($row['quantity'] ?? 0)
+                        : $row->quantity;
+
+                    $quantity = (float) $rawQuantity;
 
                     $key = $itemId . ':' . ($variantId ?? 'null');
 
                     if (!isset($totals[$key])) {
+
                         $totals[$key] = [
                             'store_item_id' => $itemId,
                             'variant_id' => $variantId,
@@ -790,14 +811,16 @@ public function update(
             };
 
             $oldTotals = $aggregateItems(
-                $oldItems->map(fn ($item) => [
-                    'store_item_id' => $item->store_item_id,
-                    'variant_id' => $item->variant_id,
-                    'quantity' => $item->quantity,
-                ])->all()
+                $oldItems->values()->all()
             );
 
             $newTotals = $aggregateItems($finalItems);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Compare old and new inventory
+            |--------------------------------------------------------------------------
+            */
 
             $keys = array_unique(array_merge(
                 array_keys($oldTotals),
@@ -805,12 +828,6 @@ public function update(
             ));
 
             sort($keys);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Apply stock differences
-            |--------------------------------------------------------------------------
-            */
 
             foreach ($keys as $key) {
 
@@ -831,13 +848,22 @@ public function update(
 
                 $line = $newLine ?? $oldLine;
 
+                /*
+                |--------------------------------------------------------------------------
+                | Find corresponding stock record
+                |--------------------------------------------------------------------------
+                */
+
                 $stockQuery = StoreStock::query()
                     ->where('store_id', $receipt->store_id)
                     ->where('store_item_id', $line['store_item_id']);
 
                 if ($line['variant_id'] === null) {
+
                     $stockQuery->whereNull('variant_id');
+
                 } else {
+
                     $stockQuery->where(
                         'variant_id',
                         $line['variant_id']
@@ -850,14 +876,14 @@ public function update(
 
                 /*
                 |--------------------------------------------------------------------------
-                | Create missing stock record for additional items
+                | Create missing stock record for positive adjustment
                 |--------------------------------------------------------------------------
                 */
 
                 if (!$stock && $variation < 0) {
                     throw ValidationException::withMessages([
                         'items' =>
-                            'Cannot reduce stock because the corresponding stock record is missing.',
+                            'Cannot reduce stock because the corresponding stock record is missing. No changes have been saved.',
                     ]);
                 }
 
@@ -877,6 +903,12 @@ public function update(
                         ->firstOrFail();
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | Calculate new stock balance
+                |--------------------------------------------------------------------------
+                */
+
                 $currentStock = (float) $stock->quantity;
 
                 $newStock = round(
@@ -893,7 +925,7 @@ public function update(
                             . number_format($currentStock, 3)
                             . '. Required adjustment: '
                             . number_format($variation, 3)
-                            . '.',
+                            . '. No changes have been saved.',
                     ]);
                 }
 
@@ -951,7 +983,7 @@ public function update(
 
         /*
         |--------------------------------------------------------------------------
-        | Save donation details
+        | Save donation
         |--------------------------------------------------------------------------
         */
 
@@ -959,9 +991,20 @@ public function update(
 
         /*
         |--------------------------------------------------------------------------
-        | Save existing items and append new items.
-        |
-        | IMPORTANT: Do not delete all previous items.
+        | Delete items removed from submitted list
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($idsToDelete)) {
+
+            $lockedDonation->items()
+                ->whereIn('id', $idsToDelete)
+                ->delete();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update existing items and insert genuinely new items
         |--------------------------------------------------------------------------
         */
 
@@ -977,7 +1020,7 @@ public function update(
 
                 DonationItem::query()
                     ->where('donation_id', $lockedDonation->id)
-                    ->whereKey($itemId)
+                    ->where('id', $itemId)
                     ->update($item);
 
             } else {
@@ -985,12 +1028,6 @@ public function update(
                 DonationItem::create($item);
             }
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Return transaction results
-        |--------------------------------------------------------------------------
-        */
 
         return [
             'donation_id' => $lockedDonation->id,
@@ -1051,13 +1088,15 @@ public function update(
         ->route('admin.donations.show', $donation)
         ->with(
             'success',
-            'Donation updated successfully. Total donation value: '
-            . $result['amount']
+            'Donation updated successfully. '
+            . 'Total donation value: '
+            . number_format((float) $result['amount'], 2)
             . '. '
             . $result['item_count']
             . ' donation item(s) recorded.'
         );
 }
+
 
 
 
