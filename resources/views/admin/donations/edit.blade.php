@@ -7,45 +7,45 @@
 @section('content')
 
 @php
-    $items = old('items', $donation->items->toArray());
+$items = old('items', $donation->items->toArray());
 
-    $currentType = old('type', $donation->type);
+$currentType = old('type', $donation->type);
 
-    $purposes = [
-        'General Support',
-        'Education',
-        'Child Sponsorship',
-        'Food & Nutrition',
-        'Medical Care',
-        'School Bus',
-        'Family Empowerment',
-        'Agriculture',
-        'Infrastructure',
-        'Emergency Support',
-        'Other',
-    ];
+$purposes = [
+'General Support',
+'Education',
+'Child Sponsorship',
+'Food & Nutrition',
+'Medical Care',
+'School Bus',
+'Family Empowerment',
+'Agriculture',
+'Infrastructure',
+'Emergency Support',
+'Other',
+];
 
-    $currencies = [
-        'KES', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'CHF',
-        'ZAR', 'UGX', 'TZS', 'RWF', 'NGN', 'GHS', 'AED',
-        'SAR', 'JPY', 'CNY', 'INR',
-    ];
+$currencies = [
+'KES', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'CHF',
+'ZAR', 'UGX', 'TZS', 'RWF', 'NGN', 'GHS', 'AED',
+'SAR', 'JPY', 'CNY', 'INR',
+];
 
-    $sourceLabels = [
-        'manual' => 'Cash / Manual',
-        'bank' => 'Bank',
-        'mpesa' => 'M-Pesa',
-        'paypal' => 'PayPal',
-        'other' => 'Other',
-    ];
+$sourceLabels = [
+'manual' => 'Cash / Manual',
+'bank' => 'Bank',
+'mpesa' => 'M-Pesa',
+'paypal' => 'PayPal',
+'other' => 'Other',
+];
 
-    $classifications = [
-        'donation' => 'Donation',
-        'payment' => 'Payment',
-        'refund' => 'Refund',
-        'other' => 'Other',
-        'unclassified' => 'Unclassified',
-    ];
+$classifications = [
+'donation' => 'Donation',
+'payment' => 'Payment',
+'refund' => 'Refund',
+'other' => 'Other',
+'unclassified' => 'Unclassified',
+];
 @endphp
 
 <div class="store-requisition-page">
@@ -83,8 +83,7 @@
         </div>
 
         <div class="requisition-header-right">
-            <a href="{{ route('admin.donations.show', $donation) }}"
-               class="stores-btn-light">
+            <a href="{{ route('admin.donations.show', $donation) }}" class="stores-btn-light">
                 <i class="fa fa-arrow-left"></i>
                 Back
             </a>
@@ -100,11 +99,9 @@
 
         {{-- CASH FORM --}}
 
-        <div id="cash-form"
-             style="{{ $currentType === 'cash' ? '' : 'display:none;' }}">
+        <div id="cash-form" style="{{ $currentType === 'cash' ? '' : 'display:none;' }}">
 
-            <form method="POST"
-                  action="{{ route('admin.donations.update', $donation) }}">
+            <form method="POST" action="{{ route('admin.donations.update', $donation) }}">
 
                 @csrf
                 @method('PUT')
@@ -130,8 +127,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="requisition-cancel-button change-type">
+                        <button type="button" class="requisition-cancel-button change-type">
                             <i class="fa fa-exchange-alt"></i>
                             Change Type
                         </button>
@@ -145,18 +141,17 @@
                             <div class="col-md-6">
                                 <label class="requisition-field-label">Donor</label>
 
-                                <select name="donor_id"
-                                        class="form-select requisition-input">
+                                <select name="donor_id" class="form-select requisition-input">
 
                                     <option value="">
                                         Anonymous / Not Specified
                                     </option>
 
                                     @foreach($donors as $donor)
-                                        <option value="{{ $donor->id }}"
-                                            @selected(old('donor_id', $donation->donor_id) == $donor->id)>
-                                            {{ $donor->donor_number }} - {{ $donor->name }}
-                                        </option>
+                                    <option value="{{ $donor->id }}" @selected(old('donor_id', $donation->donor_id) ==
+                                        $donor->id)>
+                                        {{ $donor->donor_number }} - {{ $donor->name }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -167,11 +162,10 @@
                                     Date <span class="required-mark">*</span>
                                 </label>
 
-                                <input type="date"
-                                       name="donation_date"
-                                       class="form-control form-control-sm requisition-input"
-                                       value="{{ old('donation_date', $donation->donation_date?->format('Y-m-d')) }}"
-                                       required>
+                                <input type="date" name="donation_date"
+                                    class="form-control form-control-sm requisition-input"
+                                    value="{{ old('donation_date', $donation->donation_date?->format('Y-m-d')) }}"
+                                    required>
                             </div>
 
                             <div class="col-md-3">
@@ -179,15 +173,12 @@
                                     Source <span class="required-mark">*</span>
                                 </label>
 
-                                <select name="source"
-                                        class="form-select requisition-input"
-                                        required>
+                                <select name="source" class="form-select requisition-input" required>
 
                                     @foreach($sourceLabels as $value => $label)
-                                        <option value="{{ $value }}"
-                                            @selected(old('source', $donation->source) === $value)>
-                                            {{ $label }}
-                                        </option>
+                                    <option value="{{ $value }}" @selected(old('source', $donation->source) === $value)>
+                                        {{ $label }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -198,15 +189,13 @@
                                     Currency <span class="required-mark">*</span>
                                 </label>
 
-                                <select name="currency"
-                                        class="form-select requisition-input"
-                                        required>
+                                <select name="currency" class="form-select requisition-input" required>
 
                                     @foreach($currencies as $currency)
-                                        <option value="{{ $currency }}"
-                                            @selected(old('currency', $donation->currency ?: 'KES') === $currency)>
-                                            {{ $currency }}
-                                        </option>
+                                    <option value="{{ $currency }}" @selected(old('currency', $donation->currency ?:
+                                        'KES') === $currency)>
+                                        {{ $currency }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -217,13 +206,8 @@
                                     Amount <span class="required-mark">*</span>
                                 </label>
 
-                                <input type="number"
-                                       name="amount"
-                                       class="form-control requisition-input"
-                                       step="0.01"
-                                       min="0"
-                                       value="{{ old('amount', $donation->amount) }}"
-                                       required>
+                                <input type="number" name="amount" class="form-control requisition-input" step="0.01"
+                                    min="0" value="{{ old('amount', $donation->amount) }}" required>
                             </div>
 
                             <div class="col-md-3">
@@ -231,15 +215,13 @@
                                     Classification <span class="required-mark">*</span>
                                 </label>
 
-                                <select name="classification"
-                                        class="form-select requisition-input"
-                                        required>
+                                <select name="classification" class="form-select requisition-input" required>
 
                                     @foreach($classifications as $value => $label)
-                                        <option value="{{ $value }}"
-                                            @selected(old('classification', $donation->classification ?: 'donation') === $value)>
-                                            {{ $label }}
-                                        </option>
+                                    <option value="{{ $value }}" @selected(old('classification', $donation->
+                                        classification ?: 'donation') === $value)>
+                                        {{ $label }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -252,10 +234,10 @@
                                     <option value="">Select purpose</option>
 
                                     @foreach($purposes as $purpose)
-                                        <option value="{{ $purpose }}"
-                                            @selected(old('purpose', $donation->purpose) === $purpose)>
-                                            {{ $purpose }}
-                                        </option>
+                                    <option value="{{ $purpose }}" @selected(old('purpose', $donation->purpose) ===
+                                        $purpose)>
+                                        {{ $purpose }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -263,39 +245,32 @@
                             <div class="col-md-6">
                                 <label class="requisition-field-label">Reference</label>
 
-                                <input type="text"
-                                       name="reference"
-                                       class="form-control requisition-input"
-                                       value="{{ old('reference', $donation->reference) }}"
-                                       placeholder="Receipt / cheque reference">
+                                <input type="text" name="reference" class="form-control requisition-input"
+                                    value="{{ old('reference', $donation->reference) }}"
+                                    placeholder="Receipt / cheque reference">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="requisition-field-label">Payment Reference</label>
 
-                                <input type="text"
-                                       name="payment_reference"
-                                       class="form-control requisition-input"
-                                       value="{{ old('payment_reference', $donation->payment_reference) }}"
-                                       placeholder="M-Pesa / bank transaction reference">
+                                <input type="text" name="payment_reference" class="form-control requisition-input"
+                                    value="{{ old('payment_reference', $donation->payment_reference) }}"
+                                    placeholder="M-Pesa / bank transaction reference">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="requisition-field-label">Description</label>
 
-                                <input type="text"
-                                       name="description"
-                                       class="form-control requisition-input"
-                                       value="{{ old('description', $donation->description) }}"
-                                       placeholder="Brief description">
+                                <input type="text" name="description" class="form-control requisition-input"
+                                    value="{{ old('description', $donation->description) }}"
+                                    placeholder="Brief description">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="requisition-field-label">Notes</label>
 
-                                <textarea name="notes"
-                                          class="form-control requisition-input requisition-textarea"
-                                          rows="3">{{ old('notes', $donation->notes) }}</textarea>
+                                <textarea name="notes" class="form-control requisition-input requisition-textarea"
+                                    rows="3">{{ old('notes', $donation->notes) }}</textarea>
                             </div>
 
                         </div>
@@ -312,8 +287,7 @@
 
                     <div class="requisition-action-right">
 
-                        <button type="button"
-                                class="requisition-cancel-button change-type">
+                        <button type="button" class="requisition-cancel-button change-type">
                             <i class="fa fa-exchange-alt"></i>
                             Change Type
                         </button>
@@ -333,12 +307,9 @@
 
         {{-- IN-KIND FORM --}}
 
-        <div id="inkind-form"
-             style="{{ $currentType === 'in_kind' ? '' : 'display:none;' }}">
+        <div id="inkind-form" style="{{ $currentType === 'in_kind' ? '' : 'display:none;' }}">
 
-            <form method="POST"
-                  action="{{ route('admin.donations.update', $donation) }}"
-                  id="inkindDonationForm">
+            <form method="POST" action="{{ route('admin.donations.update', $donation) }}" id="inkindDonationForm">
 
                 @csrf
                 @method('PUT')
@@ -366,8 +337,7 @@
 
                         </div>
 
-                        <button type="button"
-                                class="requisition-cancel-button change-type">
+                        <button type="button" class="requisition-cancel-button change-type">
                             <i class="fa fa-exchange-alt"></i>
                             Change Type
                         </button>
@@ -381,18 +351,17 @@
                             <div class="col-md-6">
                                 <label class="requisition-field-label">Donor</label>
 
-                                <select name="donor_id"
-                                        class="form-select requisition-input">
+                                <select name="donor_id" class="form-select requisition-input">
 
                                     <option value="">
                                         Anonymous / Not Specified
                                     </option>
 
                                     @foreach($donors as $donor)
-                                        <option value="{{ $donor->id }}"
-                                            @selected(old('donor_id', $donation->donor_id) == $donor->id)>
-                                            {{ $donor->donor_number }} - {{ $donor->name }}
-                                        </option>
+                                    <option value="{{ $donor->id }}" @selected(old('donor_id', $donation->donor_id) ==
+                                        $donor->id)>
+                                        {{ $donor->donor_number }} - {{ $donor->name }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -403,11 +372,10 @@
                                     Date <span class="required-mark">*</span>
                                 </label>
 
-                                <input type="date"
-                                       name="donation_date"
-                                       class="form-control form-control-sm requisition-input"
-                                       value="{{ old('donation_date', $donation->donation_date?->format('Y-m-d')) }}"
-                                       required>
+                                <input type="date" name="donation_date"
+                                    class="form-control form-control-sm requisition-input"
+                                    value="{{ old('donation_date', $donation->donation_date?->format('Y-m-d')) }}"
+                                    required>
                             </div>
 
                             <div class="col-md-3">
@@ -415,15 +383,13 @@
                                     Classification <span class="required-mark">*</span>
                                 </label>
 
-                                <select name="classification"
-                                        class="form-select requisition-input"
-                                        required>
+                                <select name="classification" class="form-select requisition-input" required>
 
                                     @foreach(['donation' => 'Donation', 'other' => 'Other'] as $value => $label)
-                                        <option value="{{ $value }}"
-                                            @selected(old('classification', $donation->classification ?: 'donation') === $value)>
-                                            {{ $label }}
-                                        </option>
+                                    <option value="{{ $value }}" @selected(old('classification', $donation->
+                                        classification ?: 'donation') === $value)>
+                                        {{ $label }}
+                                    </option>
                                     @endforeach
 
                                 </select>
@@ -462,9 +428,7 @@
                                 {{ count($items) }} items
                             </span>
 
-                            <button type="button"
-                                    id="add-item"
-                                    class="requisition-save-button">
+                            <button type="button" id="add-item" class="requisition-save-button">
                                 <i class="fa fa-plus"></i>
                                 Add Item
                             </button>
@@ -497,144 +461,130 @@
 
                                     @foreach($items as $index => $item)
 
-                                        @php
-                                            $storeItemId = data_get($item, 'store_item_id');
-                                            $variantId = data_get($item, 'variant_id');
-                                            $itemName = data_get($item, 'item', data_get($item, 'name', ''));
+                                    @php
+                                    $storeItemId = data_get($item, 'store_item_id');
+                                    $variantId = data_get($item, 'variant_id');
+                                    $itemName = data_get($item, 'item', data_get($item, 'name', ''));
 
-                                            $matchedStoreItem = isset($storeItems)
-                                                ? $storeItems->firstWhere('id', $storeItemId)
-                                                : null;
+                                    $matchedStoreItem = isset($storeItems)
+                                    ? $storeItems->firstWhere('id', $storeItemId)
+                                    : null;
 
-                                            $displayItemName = $matchedStoreItem->name ?? $itemName;
+                                    $displayItemName = $matchedStoreItem->name ?? $itemName;
 
-                                            $unitName = data_get($item, 'unit', '');
+                                    $unitName = data_get($item, 'unit', '');
 
-                                            if ($unitName === '' && $matchedStoreItem) {
-                                                $unitName = $matchedStoreItem->unit->code
-                                                    ?? $matchedStoreItem->unit->name
-                                                    ?? '';
-                                            }
-                                        @endphp
+                                    if ($unitName === '' && $matchedStoreItem) {
+                                    $unitName = $matchedStoreItem->unit->code
+                                    ?? $matchedStoreItem->unit->name
+                                    ?? '';
+                                    }
+                                    @endphp
 
-                                        <tr class="donation-item-row"
-                                            data-index="{{ $index }}"
-                                            data-selected-variant="{{ $variantId }}">
+                                    <tr class="donation-item-row" data-index="{{ $index }}"
+                                        data-selected-variant="{{ $variantId }}">
 
-                                            <td>
-                                                <span class="requisition-row-number">
-                                                    {{ $loop->iteration }}
+                                        <td>
+                                            <span class="requisition-row-number">
+                                                {{ $loop->iteration }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <button type="button" class="requisition-lpo-picker store-item-picker">
+
+                                                <span class="requisition-lpo-picker-icon">
+                                                    <i class="fas fa-box-open"></i>
                                                 </span>
-                                            </td>
 
-                                            <td>
-                                                <button type="button"
-                                                        class="requisition-lpo-picker store-item-picker">
+                                                <span class="requisition-lpo-picker-text store-item-picker-text">
+                                                    @if($displayItemName)
+                                                    <strong>{{ $displayItemName }}</strong>
 
-                                                    <span class="requisition-lpo-picker-icon">
-                                                        <i class="fas fa-box-open"></i>
-                                                    </span>
+                                                    @if($unitName)
+                                                    <small>{{ $unitName }}</small>
+                                                    @endif
+                                                    @else
+                                                    <span class="text-muted">Select Item</span>
+                                                    @endif
+                                                </span>
 
-                                                    <span class="requisition-lpo-picker-text store-item-picker-text">
-                                                        @if($displayItemName)
-                                                            <strong>{{ $displayItemName }}</strong>
+                                                <span class="requisition-lpo-picker-arrow">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </span>
 
-                                                            @if($unitName)
-                                                                <small>{{ $unitName }}</small>
-                                                            @endif
-                                                        @else
-                                                            <span class="text-muted">Select Item</span>
-                                                        @endif
-                                                    </span>
+                                            </button>
 
-                                                    <span class="requisition-lpo-picker-arrow">
-                                                        <i class="fas fa-chevron-right"></i>
-                                                    </span>
-
-                                                </button>
-
-                                                <input type="hidden"
-                                                       name="items[{{ $index }}][store_item_id]"
-                                                       class="store-item-id"
-                                                       value="{{ $storeItemId }}">
-
-                                                <input type="hidden"
-                                                       name="items[{{ $index }}][item]"
-                                                       class="legacy-item"
-                                                       value="{{ $itemName }}">
-                                            </td>
-
-                                            <td>
-                                                <select name="items[{{ $index }}][variant_id]"
-                                                        class="form-select requisition-input item-variant"
-                                                        data-selected-variant="{{ $variantId }}"
-                                                        {{ $storeItemId ? '' : 'disabled' }}>
-                                                    <option value="">No variant</option>
-                                                </select>
-                                            </td>
-
-                                            <td>
-                                                <input type="number"
-                                                       name="items[{{ $index }}][quantity]"
-                                                       class="form-control requisition-input item-quantity"
-                                                       value="{{ data_get($item, 'quantity', 1) }}"
-                                                       step="0.001"
-                                                       min="0.001"
-                                                       required>
-                                            </td>
-
-                                            <td>
-                                                <input type="hidden"
-                                                       name="items[{{ $index }}][unit]"
-                                                       class="item-unit"
-                                                       value="{{ $unitName }}">
-
-                                                <input type="text"
-                                                       class="form-control requisition-input item-unit-display"
-                                                       value="{{ $unitName ?: '—' }}"
-                                                       readonly>
-                                            </td>
-
-                                            <td>
-                                                 <div class="input-group" style="display: flex; flex-wrap: nowrap; align-items: stretch;">
-    <span class="input-group-text" style="white-space: nowrap;">
-        KES
-    </span>
+                                            <input type="hidden" name="items[{{ $index }}][id]" class="donation-item-id"
+                                                value="{{ data_get($item, 'id') }}">
 
 
-                                                    <input type="number"
-                                                           name="items[{{ $index }}][estimated_value]"
-                                                           class="form-control requisition-input estimated-value"
-                                                           value="{{ data_get($item, 'estimated_value', 0) }}"
-                                                           step="0.01"
-                                                           min="0">
-                                                </div>
-                                            </td>
+                                            <input type="hidden" name="items[{{ $index }}][store_item_id]"
+                                                class="store-item-id" value="{{ $storeItemId }}">
 
-                                            <td>
-                                                <input type="text"
-                                                       name="items[{{ $index }}][condition]"
-                                                       class="form-control requisition-input"
-                                                       value="{{ data_get($item, 'condition', '') }}">
-                                            </td>
+                                            <input type="hidden" name="items[{{ $index }}][item]" class="legacy-item"
+                                                value="{{ $itemName }}">
+                                        </td>
 
-                                            <td>
-                                                <input type="text"
-                                                       name="items[{{ $index }}][notes]"
-                                                       class="form-control requisition-input"
-                                                       value="{{ data_get($item, 'notes', '') }}"
-                                                       placeholder="Item notes">
-                                            </td>
+                                        <td>
+                                            <select name="items[{{ $index }}][variant_id]"
+                                                class="form-select requisition-input item-variant"
+                                                data-selected-variant="{{ $variantId }}" {{ $storeItemId ? ''
+                                                : 'disabled' }}>
+                                                <option value="">No variant</option>
+                                            </select>
+                                        </td>
 
-                                            <td class="text-center">
-                                                <button type="button"
-                                                        class="requisition-list-action remove-item"
-                                                        title="Remove item">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            </td>
+                                        <td>
+                                            <input type="number" name="items[{{ $index }}][quantity]"
+                                                class="form-control requisition-input item-quantity"
+                                                value="{{ data_get($item, 'quantity', 1) }}" step="0.001" min="0.001"
+                                                required>
+                                        </td>
 
-                                        </tr>
+                                        <td>
+                                            <input type="hidden" name="items[{{ $index }}][unit]" class="item-unit"
+                                                value="{{ $unitName }}">
+
+                                            <input type="text" class="form-control requisition-input item-unit-display"
+                                                value="{{ $unitName ?: '—' }}" readonly>
+                                        </td>
+
+                                        <td>
+                                            <div class="input-group"
+                                                style="display: flex; flex-wrap: nowrap; align-items: stretch;">
+                                                <span class="input-group-text" style="white-space: nowrap;">
+                                                    KES
+                                                </span>
+
+
+                                                <input type="number" name="items[{{ $index }}][estimated_value]"
+                                                    class="form-control requisition-input estimated-value"
+                                                    value="{{ data_get($item, 'estimated_value', 0) }}" step="0.01"
+                                                    min="0">
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="items[{{ $index }}][condition]"
+                                                class="form-control requisition-input"
+                                                value="{{ data_get($item, 'condition', '') }}">
+                                        </td>
+
+                                        <td>
+                                            <input type="text" name="items[{{ $index }}][notes]"
+                                                class="form-control requisition-input"
+                                                value="{{ data_get($item, 'notes', '') }}" placeholder="Item notes">
+                                        </td>
+
+                                        <td class="text-center">
+                                            <button type="button" class="requisition-list-action remove-item"
+                                                title="Remove item">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </td>
+
+                                    </tr>
 
                                     @endforeach
 
@@ -644,9 +594,8 @@
 
                         </div>
 
-                        <div id="items-empty-state"
-                             class="text-center py-5"
-                             style="{{ count($items) ? 'display:none;' : '' }}">
+                        <div id="items-empty-state" class="text-center py-5"
+                            style="{{ count($items) ? 'display:none;' : '' }}">
 
                             <div class="requisition-header-icon mx-auto mb-3">
                                 <i class="fa fa-box-open"></i>
@@ -658,8 +607,7 @@
                                 Add the goods or supplies received from the donor.
                             </p>
 
-                            <button type="button"
-                                    class="requisition-save-button add-item-trigger">
+                            <button type="button" class="requisition-save-button add-item-trigger">
                                 <i class="fa fa-plus"></i>
                                 Add Item
                             </button>
@@ -672,8 +620,7 @@
                                     Total Estimated Value
                                 </span>
 
-                                <strong class="stores-detail-value d-block"
-                                        style="font-size:18px;">
+                                <strong class="stores-detail-value d-block" style="font-size:18px;">
                                     KES <span id="estimated-total">0.00</span>
                                 </strong>
                             </div>
@@ -717,10 +664,10 @@
                                     <option value="">Select purpose</option>
 
                                     @foreach($purposes as $purpose)
-                                        <option value="{{ $purpose }}"
-                                            @selected(old('purpose', $donation->purpose) === $purpose)>
-                                            {{ $purpose }}
-                                        </option>
+                                    <option value="{{ $purpose }}" @selected(old('purpose', $donation->purpose) ===
+                                        $purpose)>
+                                        {{ $purpose }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -728,19 +675,16 @@
                             <div class="col-md-6">
                                 <label class="requisition-field-label">Description</label>
 
-                                <input type="text"
-                                       name="description"
-                                       class="form-control requisition-input"
-                                       value="{{ old('description', $donation->description) }}"
-                                       placeholder="Brief description">
+                                <input type="text" name="description" class="form-control requisition-input"
+                                    value="{{ old('description', $donation->description) }}"
+                                    placeholder="Brief description">
                             </div>
 
                             <div class="col-md-12">
                                 <label class="requisition-field-label">Notes</label>
 
-                                <textarea name="notes"
-                                          class="form-control requisition-input requisition-textarea"
-                                          rows="3">{{ old('notes', $donation->notes) }}</textarea>
+                                <textarea name="notes" class="form-control requisition-input requisition-textarea"
+                                    rows="3">{{ old('notes', $donation->notes) }}</textarea>
                             </div>
 
                         </div>
@@ -757,8 +701,7 @@
 
                     <div class="requisition-action-right">
 
-                        <button type="button"
-                                class="requisition-cancel-button change-type">
+                        <button type="button" class="requisition-cancel-button change-type">
                             <i class="fa fa-exchange-alt"></i>
                             Change Type
                         </button>
@@ -782,11 +725,8 @@
 
 {{-- DONATION TYPE MODAL --}}
 
-<div class="modal fade"
-     id="donationTypeModal"
-     tabindex="-1"
-     aria-labelledby="donationTypeModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="donationTypeModal" tabindex="-1" aria-labelledby="donationTypeModalLabel"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered">
 
@@ -803,10 +743,7 @@
                     </div>
                 </div>
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -881,13 +818,11 @@
 
                 </div>
 
-                <label for="setup_donation_type"
-                       class="requisition-field-label">
+                <label for="setup_donation_type" class="requisition-field-label">
                     Donation Type <span class="required-mark">*</span>
                 </label>
 
-                <select id="setup_donation_type"
-                        class="form-select requisition-input">
+                <select id="setup_donation_type" class="form-select requisition-input">
 
                     <option value="">Select donation type</option>
                     <option value="cash">Cash Donation</option>
@@ -895,8 +830,7 @@
 
                 </select>
 
-                <div id="donationTypeMessage"
-                     class="requisition-modal-subtitle mt-3">
+                <div id="donationTypeMessage" class="requisition-modal-subtitle mt-3">
                     Select a donation type to continue.
                 </div>
 
@@ -908,15 +842,11 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button"
-                        id="cancelDonationType"
-                        class="requisition-cancel-button">
+                <button type="button" id="cancelDonationType" class="requisition-cancel-button">
                     Cancel
                 </button>
 
-                <button type="button"
-                        id="continueDonationType"
-                        class="requisition-save-button">
+                <button type="button" id="continueDonationType" class="requisition-save-button">
                     Continue <i class="fa fa-arrow-right ms-1"></i>
                 </button>
             </div>
@@ -929,11 +859,8 @@
 
 {{-- ITEM SELECTION MODAL --}}
 
-<div class="modal fade"
-     id="storeItemSelectionModal"
-     tabindex="-1"
-     aria-labelledby="storeItemSelectionModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="storeItemSelectionModal" tabindex="-1" aria-labelledby="storeItemSelectionModalLabel"
+    aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-lg">
 
@@ -950,10 +877,7 @@
                     </div>
                 </div>
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -961,11 +885,8 @@
                 <div class="requisition-child-search mb-3">
                     <i class="fa fa-search"></i>
 
-                    <input type="text"
-                           id="storeItemSearch"
-                           class="form-control requisition-input"
-                           placeholder="Search items..."
-                           autocomplete="off">
+                    <input type="text" id="storeItemSearch" class="form-control requisition-input"
+                        placeholder="Search items..." autocomplete="off">
                 </div>
 
                 <div class="requisition-list-table-wrapper">
@@ -985,57 +906,54 @@
 
                             @forelse($storeItems as $storeItem)
 
-                                @php
-                                    $unitName = $storeItem->unit->code
-                                        ?? $storeItem->unit->name
-                                        ?? '';
-                                @endphp
+                            @php
+                            $unitName = $storeItem->unit->code
+                            ?? $storeItem->unit->name
+                            ?? '';
+                            @endphp
 
-                                <tr class="store-item-option"
-                                    tabindex="0"
-                                    title="Double-click to select this item"
-                                    data-search="{{ strtolower($storeItem->name . ' ' . ($storeItem->sku ?? '') . ' ' . $unitName) }}"
-                                    data-store-item-id="{{ $storeItem->id }}"
-                                    data-store-item-name="{{ $storeItem->name }}"
-                                    data-store-item-unit="{{ $unitName }}">
+                            <tr class="store-item-option" tabindex="0" title="Double-click to select this item"
+                                data-search="{{ strtolower($storeItem->name . ' ' . ($storeItem->sku ?? '') . ' ' . $unitName) }}"
+                                data-store-item-id="{{ $storeItem->id }}" data-store-item-name="{{ $storeItem->name }}"
+                                data-store-item-unit="{{ $unitName }}">
 
-                                    <td>
-                                        <div class="stores-item-name">
-                                            {{ $storeItem->name }}
-                                        </div>
-                                    </td>
+                                <td>
+                                    <div class="stores-item-name">
+                                        {{ $storeItem->name }}
+                                    </div>
+                                </td>
 
-                                    <td>
-                                        @if($storeItem->sku)
-                                            <div class="stores-code">{{ $storeItem->sku }}</div>
-                                        @else
-                                            <span class="text-muted">—</span>
-                                        @endif
-                                    </td>
+                                <td>
+                                    @if($storeItem->sku)
+                                    <div class="stores-code">{{ $storeItem->sku }}</div>
+                                    @else
+                                    <span class="text-muted">—</span>
+                                    @endif
+                                </td>
 
-                                    <td>{{ $unitName ?: '—' }}</td>
+                                <td>{{ $unitName ?: '—' }}</td>
 
-                                    <td>
-                                        @if($storeItem->variants->count())
-                                            <span class="stores-variant">
-                                                {{ $storeItem->variants->count() }} available
-                                            </span>
-                                        @else
-                                            <span class="text-muted">None</span>
-                                        @endif
-                                    </td>
+                                <td>
+                                    @if($storeItem->variants->count())
+                                    <span class="stores-variant">
+                                        {{ $storeItem->variants->count() }} available
+                                    </span>
+                                    @else
+                                    <span class="text-muted">None</span>
+                                    @endif
+                                </td>
 
-                                </tr>
+                            </tr>
 
                             @empty
 
-                                <tr>
-                                    <td colspan="4" class="text-center py-4">
-                                        <span class="text-muted">
-                                            No active items are available.
-                                        </span>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <span class="text-muted">
+                                        No active items are available.
+                                    </span>
+                                </td>
+                            </tr>
 
                             @endforelse
 
@@ -1045,18 +963,14 @@
 
                 </div>
 
-                <div id="storeItemNoResults"
-                     class="requisition-no-children-found"
-                     style="display:none;">
+                <div id="storeItemNoResults" class="requisition-no-children-found" style="display:none;">
                     No items match your search.
                 </div>
 
             </div>
 
             <div class="modal-footer">
-                <button type="button"
-                        class="requisition-cancel-button"
-                        data-bs-dismiss="modal">
+                <button type="button" class="requisition-cancel-button" data-bs-dismiss="modal">
                     Cancel
                 </button>
             </div>
@@ -1072,7 +986,7 @@
 @push('scripts')
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
     const cashForm = document.getElementById('cash-form');
     const inkindForm = document.getElementById('inkind-form');
@@ -1112,8 +1026,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const itemSearch = document.getElementById('storeItemSearch');
     const noItemResults = document.getElementById('storeItemNoResults');
 
-    let activeItemRow = null;
-    let itemIndex = 0;
+let activeItemRow = null;
+
+let itemIndex = Array.from(
+    document.querySelectorAll('#items-container .donation-item-row')
+).reduce(function (max, row) {
+    return Math.max(
+        max,
+        parseInt(row.dataset.index || 0, 10) + 1
+    );
+}, 0);
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -1612,4 +1536,3 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endpush
-
