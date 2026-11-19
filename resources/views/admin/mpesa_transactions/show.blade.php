@@ -593,7 +593,7 @@ $classificationLabel = match ($mpesaTransaction->classification) {
 
                 <button
                     type="submit"
-                    class="btn btn-success mpesa-action"
+                    class="requisition-add-button"
                 >
                     ✓ Confirm Transaction
                 </button>
