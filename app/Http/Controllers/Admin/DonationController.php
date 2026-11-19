@@ -1097,9 +1097,6 @@ public function update(
         );
 }
 
-
-
-
     public function resendThankYou(
         Request $request,
         Donation $donation,
