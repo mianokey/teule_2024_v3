@@ -46,7 +46,11 @@ return new class extends Migration
             );
 
             $table->index('message_received_at');
-            $table->index(['processing_status', 'message_received_at']);
+            $table->index(
+    ['processing_status', 'message_received_at'],
+    'mpesa_msg_status_received_idx'
+);
+
         });
     }
 
