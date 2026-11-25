@@ -834,6 +834,8 @@ if ($estimatedTotal <= 0) {
                                     {{ $item->item ?? $item->name ?? $item->description ?? 'Donated item' }}
                                 </strong>
 
+                                {{ $item->item ?? $item->name ?? $item->description ?? 'Donated item' }}
+
                                 @if(!empty($item->description) && !empty($item->item_name))
                                     <div class="muted">
                                         {{ $item->description }}

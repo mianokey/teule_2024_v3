@@ -36,6 +36,11 @@ use App\Http\Controllers\WorkflowNotificationController;
 use App\Models\Donation;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Admin\DonorIntelligenceController;
+use App\Http\Controllers\Admin\MpesaCollector\MpesaCollectorDeviceManagementController;
+use App\Http\Controllers\Admin\MpesaCollector\MpesaCollectorMessageManagementController;
+use App\Http\Controllers\Admin\MpesaCollector\MpesaCollectorTransactionManagementController;
+use App\Http\Controllers\Admin\MpesaCollector\MpesaCollectorSyncLogManagementController;
+use App\Http\Controllers\Api\MpesaCollectorDeviceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -319,6 +324,42 @@ Route::get( 'mpesa-transactions',  [MpesaTransactionController::class, 'index'] 
 Route::get('mpesa-transactions/{mpesaTransaction}', [MpesaTransactionController::class, 'show'])->name('admin.mpesa-transactions.show');
 Route::post('mpesa-transactions/{mpesaTransaction}/confirm',[MpesaTransactionController::class, 'confirm'])->name('admin.mpesa-transactions.confirm');
 Route::post( 'mpesa-transactions/{mpesaTransaction}/reject', [MpesaTransactionController::class, 'reject'])->name('admin.mpesa-transactions.reject');
+
+
+/*
+|--------------------------------------------------------------------------
+| M-Pesa Collector Device Management
+|--------------------------------------------------------------------------
+*/
+
+
+// =========================================================
+// M-PESA COLLECTOR
+// =========================================================
+
+Route::prefix('mpesa-collector')->name('admin.mpesa-collector.')->group(function () {
+
+    // DEVICES
+    Route::get('/devices', [MpesaCollectorDeviceManagementController::class, 'index'])->middleware('permission:VIEW MPESA COLLECTOR DEVICES')->name('devices.index');
+    Route::patch('/devices/{id}/approve', [MpesaCollectorDeviceManagementController::class, 'approve'])->middleware('permission:APPROVE MPESA COLLECTOR DEVICES')->name('devices.approve');
+    Route::patch('/devices/{id}/reject', [MpesaCollectorDeviceManagementController::class, 'reject'])->middleware('permission:APPROVE MPESA COLLECTOR DEVICES')->name('devices.reject');
+    Route::patch('/devices/{id}/suspend', [MpesaCollectorDeviceManagementController::class, 'suspend'])->middleware('permission:MANAGE MPESA COLLECTOR DEVICES')->name('devices.suspend');
+    Route::patch('/devices/{id}/revoke', [MpesaCollectorDeviceManagementController::class, 'revoke'])->middleware('permission:MANAGE MPESA COLLECTOR DEVICES')->name('devices.revoke');
+
+    // MESSAGES
+    Route::get('/messages', [MpesaCollectorMessageManagementController::class, 'index'])->middleware('permission:VIEW MPESA COLLECTOR MESSAGES')->name('messages.index');
+    Route::patch('/messages/{id}/retry', [MpesaCollectorMessageManagementController::class, 'retry'])->middleware('permission:RETRY MPESA COLLECTOR MESSAGES')->name('messages.retry');
+    Route::post('/messages/retry-all', [MpesaCollectorMessageManagementController::class, 'retryAll'])->middleware('permission:RETRY MPESA COLLECTOR MESSAGES')->name('messages.retry-all');
+    
+    // TRANSACTIONS
+    Route::get('/transactions', [MpesaCollectorTransactionManagementController::class, 'index'])->middleware('permission:VIEW MPESA COLLECTOR TRANSACTIONS')->name('transactions.index');
+
+    // SYNC HISTORY
+    Route::get('/sync-logs', [MpesaCollectorSyncLogManagementController::class, 'index'])->middleware('permission:VIEW MPESA COLLECTOR SYNC LOGS')->name('sync-logs.index');
+
+});
+
+
 
 });
 

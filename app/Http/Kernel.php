@@ -127,5 +127,7 @@ class Kernel extends HttpKernel
         'role_or_permission' =>
             \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
 
+        'mpesa.collector.auth' => \App\Http\Middleware\AuthenticateMpesaCollectorDevice::class,   
+
     ];
 }

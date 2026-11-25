@@ -679,6 +679,119 @@
 
                         @endif
 
+
+{{-- =========================================================
+     M-PESA COLLECTOR
+========================================================== --}}
+
+@if(
+    auth()->user()->can('VIEW MPESA COLLECTOR DEVICES') ||
+    auth()->user()->can('REGISTER MPESA COLLECTOR DEVICES') ||
+    auth()->user()->can('APPROVE MPESA COLLECTOR DEVICES') ||
+    auth()->user()->can('MANAGE MPESA COLLECTOR DEVICES') ||
+    auth()->user()->can('VIEW MPESA COLLECTOR MESSAGES') ||
+    auth()->user()->can('VIEW MPESA COLLECTOR TRANSACTIONS') ||
+    auth()->user()->can('VIEW MPESA COLLECTOR SYNC LOGS')
+)
+
+<li class="nav-item">
+
+    <a href="#mpesa_collector"
+       class="collapsed svg-icon"
+       data-toggle="collapse"
+       aria-expanded="false">
+
+        <i class="fa fa-mobile"></i>
+
+        <span class="ml-2">
+            M-Pesa Collector
+        </span>
+
+        <i class="fa fa-arrow-right mm-arrow-right arrow-active"></i>
+        <i class="fa fa-arrow-down mm-arrow-right arrow-hover"></i>
+
+    </a>
+
+    <ul id="mpesa_collector"
+        class="submenu collapse"
+        data-parent="#mm-sidebar-toggle">
+
+        {{-- DEVICES --}}
+        @canany([
+            'VIEW MPESA COLLECTOR DEVICES',
+            'REGISTER MPESA COLLECTOR DEVICES',
+            'APPROVE MPESA COLLECTOR DEVICES',
+            'MANAGE MPESA COLLECTOR DEVICES'
+        ])
+
+        <li>
+            <a href="{{ route('admin.mpesa-collector.devices.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-mobile-alt"></i>
+                <span>M-Pesa Devices</span>
+
+            </a>
+        </li>
+
+        @endcanany
+
+
+        {{-- MESSAGES --}}
+        @can('VIEW MPESA COLLECTOR MESSAGES')
+
+        <li>
+            <a href="{{ route('admin.mpesa-collector.messages.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-envelope"></i>
+                <span>Collected Messages</span>
+
+            </a>
+        </li>
+
+        @endcan
+
+
+        {{-- TRANSACTIONS --}}
+        @can('VIEW MPESA COLLECTOR TRANSACTIONS')
+
+        <li>
+            <a href="{{ route('admin.mpesa-collector.transactions.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-exchange-alt"></i>
+                <span>M-Pesa Transactions</span>
+
+            </a>
+        </li>
+
+        @endcan
+
+
+        {{-- SYNC HISTORY --}}
+        @can('VIEW MPESA COLLECTOR SYNC LOGS')
+
+        <li>
+            <a href="{{ route('admin.mpesa-collector.sync-logs.index') }}"
+               class="svg-icon">
+
+                <i class="fa fa-sync-alt"></i>
+                <span>Sync History</span>
+
+            </a>
+        </li>
+
+        @endcan
+
+    </ul>
+
+</li>
+
+@endif
+
+
+
                         
 
                         {{-- =========================================================
