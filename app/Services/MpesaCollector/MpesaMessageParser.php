@@ -7,7 +7,7 @@ use Throwable;
 
 class MpesaMessageParser
 {
-    private const VERSION = '1.1.0';
+    private const VERSION = '1.2.0';
 
     /**
      * Parse an original M-Pesa SMS.
@@ -41,12 +41,23 @@ if ($buyGoods !== null) {
     return $buyGoods;
 }
 
+// Receive Money from bulk accounts (e.g. Equity Bulk Account)
+$bulkReceive = $this->parseBulkReceiveMoney($message);
+
+if ($bulkReceive !== null) {
+    return $bulkReceive;
+}
+
+
+
 // Receive Money
 $receiveMoney = $this->parseReceiveMoney($message);
 
 if ($receiveMoney !== null) {
     return $receiveMoney;
 }
+
+
 
 $result = $this->parseMshwariTransfer($message);
 
@@ -295,6 +306,75 @@ private function parseBuyGoods(string $message): ?array
     ];
 }
 
+/**
+ * Parse incoming M-PESA bulk account messages.
+ *
+ * Example:
+ * UKJJV2JD6B Confirmed.You have received Ksh14,500.00
+ * from Equity Bulk Account 300600 on 19/11/26 at 4:16 PM
+ * New M-PESA balance is Ksh105,402.81.
+ */
+private function parseBulkReceiveMoney(string $message): ?array
+{
+    $pattern = '/^
+        (?<receipt>[A-Z0-9]{8,12})
+        \s*Confirmed\.\s*
+        You\s+have\s+received\s+
+        Ksh\s*(?<amount>[\d,]+(?:\.\d{2})?)
+        \s+from\s+
+        (?<name>.+?)
+        \s+on\s+
+        (?<date>\d{1,2}\/\d{1,2}\/\d{2,4})
+        \s+at\s+
+        (?<time>\d{1,2}:\d{2}\s*[AP]M)
+    /ix';
+
+    if (!preg_match($pattern, $message, $matches)) {
+        return null;
+    }
+
+    return [
+        'receipt_number' => strtoupper($matches['receipt']),
+        'transaction_type' => 'RECEIVE_MONEY',
+        'direction' => 'INCOMING',
+        'payment_channel' => 'MPESA',
+
+        'amount' => $this->money($matches['amount']),
+
+        'transaction_cost' => null,
+
+        'balance' => $this->extractAmount(
+            '/New\s+M-PESA\s+balance\s+is\s+Ksh\s*([\d,]+(?:\.\d{2})?)/i',
+            $message
+        ),
+
+        'daily_limit_remaining' => null,
+
+        'counterparty_name' => trim($matches['name']),
+        'counterparty_phone' => null,
+
+        'shortcode' => null,
+        'account_reference' => null,
+
+        'agent_number' => null,
+        'agent_name' => null,
+        'agent_outlet' => null,
+
+        'transaction_at' => $this->parseDateTime(
+            $matches['date'],
+            $matches['time']
+        ),
+
+        'parsed_data' => [
+            'format' => 'bulk_receive_money',
+            'source_type' => 'bulk_account',
+        ],
+
+        'parser_version' => self::VERSION,
+        'processing_status' => 'processed',
+        'processing_error' => null,
+    ];
+}
 
 /**
  * Parse incoming M-Pesa money received messages.
